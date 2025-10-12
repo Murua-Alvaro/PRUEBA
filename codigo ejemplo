@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | Plataforma de Inteligencia de Activos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --sidebar-bg: #131a26;
+            --card-bg: #ffffff;
+            --text-primary: #121f3e;
+            --text-secondary: #5a6474;
+            --border-color: #e5e9f2;
+            --accent-primary: #0052cc;
+            --accent-secondary: #4c9aff;
+            --sidebar-text: #c0c6d1;
+            --sidebar-text-hover: #ffffff;
+            --shadow: 0 6px 20px rgba(0,0,0,0.07);
+            --success: #00875a;
+            --warning: #ffab00;
+            --danger: #de350b;
+            --info: #0065ff;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            margin: 0; 
+            padding: 0; 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+            overflow: hidden;
+        }
+        
+        .container { display: flex; height: 100vh; width: 100vw; }
+        
+        h1, h2, h3, h4, h5 { margin: 0; font-weight: 600; font-family: 'Roboto Mono', monospace; letter-spacing: -0.5px; }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            flex-shrink: 0;
+        }
+        .sidebar-header { margin-bottom: 2rem; padding: 0 0.5rem; }
+        .sidebar-header h1 { font-size: 1.25rem; color: var(--sidebar-text-hover); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.85rem 1rem; border-radius: 8px;
+            color: var(--sidebar-text); text-decoration: none;
+            font-weight: 500; transition: all 0.2s ease;
+        }
+        .nav-item:hover { background-color: #2a3447; color: var(--sidebar-text-hover); }
+        .nav-item.active { background-color: var(--accent-primary); color: white; }
+        .nav-item svg { width: 20px; height: 20px; }
+
+        .sidebar-footer { margin-top: auto; padding: 0 0.5rem; }
+        .asset-selector select {
+            width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #3c465b;
+            background-color: #2a3447; color: white; font-family: 'Inter', sans-serif; font-weight: 500;
+        }
+        #location-status { 
+            font-size: 0.8rem; color: var(--sidebar-text); margin-top: 1rem; text-align: center; font-family: 'Inter'; 
+        }
+
+        /* --- Main Content --- */
+        .main-content { flex: 1; padding: 2rem 3rem; overflow-y: auto; }
+        .main-header { margin-bottom: 2rem; }
+        .main-header h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); }
+        .main-header p { font-family: 'Inter'; font-size: 1rem; color: var(--text-secondary); margin-top: 0.25rem; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
+        
+        .card { 
+            background-color: var(--card-bg); border-radius: 12px; padding: 1.5rem; 
+            border: 1px solid var(--border-color); box-shadow: var(--shadow); 
+            display: flex; flex-direction: column;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card.col-span-12 { grid-column: span 12; }
+        .card.col-span-8 { grid-column: span 8; }
+        .card.col-span-7 { grid-column: span 7; }
+        .card.col-span-6 { grid-column: span 6; }
+        .card.col-span-5 { grid-column: span 5; }
+        .card.col-span-4 { grid-column: span 4; }
+        
+        .card-title { font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem; font-weight: 500; font-family: 'Inter'; }
+        
+        /* --- General UI Components --- */
+        details { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.75rem; }
+        details[open] { border-color: var(--accent-secondary); background-color: #fcfdff; }
+        summary { cursor: pointer; padding: 0.8rem 1rem; font-weight: 500; display: flex; justify-content: space-between; align-items: center; list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+        .details-content { padding: 1rem; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); }
+        .kpi-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
+        .kpi-item:last-child { border-bottom: none; }
+        .kpi-label { font-weight: 500; font-family: 'Inter';}
+        .kpi-value { font-weight: 600; font-family: 'Roboto Mono'; }
+
+        /* --- Loader --- */
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; flex-direction: column; gap: 1rem;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+        }
+        .spinner {
+            width: 56px; height: 56px; border-radius: 50%;
+            border: 6px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Specific Component Styles --- */
+        #ndvi-canvas-container, #risk-matrix-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%; /* 4:3 Aspect Ratio */
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+        #risk-matrix-container { padding-top: 100%; } /* 1:1 Aspect Ratio */
+        #ndvi-canvas, #risk-matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loader-overlay">
+    <div class="spinner"></div>
+    <h3 id="loader-text">Obteniendo ubicación...</h3>
+</div>
+
+<div class="container">
+    <aside class="sidebar">
+        <div class="sidebar-header"><h1>AGRO-COMMAND</h1></div>
+        <nav class="sidebar-nav" id="main-nav">
+             <a href="#" class="nav-item active" data-view="dashboard">
+                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                 <span>Dashboard</span>
+             </a>
+             <a href="#" class="nav-item" data-view="satellite">
+                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-1.414v.01m0-8.01v.01m-4.01-4.01v.01m0 8.01v.01m8.01 4.01v.01m-4.01-4.01v.01m0 8.01v.01m0-8.01v.01"></path></svg>
+                 <span>Datos Geoespaciales</span>
+             </a>
+             <a href="#" class="nav-item" data-view="agronomy">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                 <span>Análisis Agronómico</span>
+             </a>
+             <a href="#" class="nav-item" data-view="finance">
+                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                 <span>Inteligencia Financiera</span>
+             </a>
+             <a href="#" class="nav-item" data-view="risk">
+                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                 <span>Gestión de Riesgos</span>
+             </a>
+             <a href="#" class="nav-item" data-view="supplychain">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Logística y Suministro</span>
+             </a>
+        </nav>
+        <div class="sidebar-footer">
+            <h5 style="color: var(--sidebar-text); font-size: 0.8rem; margin-bottom: 0.5rem;">Activo Actual</h5>
+            <div class="asset-selector">
+                <select id="asset-selector">
+                    <option value="corn" data-stage="vegetative">Sinaloa - Maíz V24</option>
+                    <option value="chile" data-stage="flowering">Jalisco - Chile S12</option>
+                    <option value="cucumber" data-stage="fruiting">Sonora - Pepino F4</option>
+                </select>
+            </div>
+            <p id="location-status">📍Buscando...</p>
+        </div>
+    </aside>
+
+    <main class="main-content" id="main-content">
+        <!-- Contenido dinámico se renderizará aquí -->
+    </main>
+</div>
+
+<script>
+class CommandCenterApp {
+    constructor() {
+        this.state = {
+            currentView: 'dashboard',
+            currentAsset: 'corn',
+            currentStage: 'vegetative',
+            location: null,
+            isLoading: true
+        };
+        this.model = new StrategicConsultingModel();
+        this.charts = {}; // To hold chart instances
+        this.init();
+    }
+
+    init() {
+        document.getElementById('main-nav').addEventListener('click', e => this.handleNavClick(e));
+        document.getElementById('asset-selector').addEventListener('change', e => this.handleAssetChange(e));
+        this.getUserLocation();
+    }
+    
+    setLoading(status, text) {
+        this.state.isLoading = status;
+        const loader = document.getElementById('loader-overlay');
+        const loaderText = document.getElementById('loader-text');
+        loader.style.opacity = status ? '1' : '0';
+        loader.style.pointerEvents = status ? 'all' : 'none';
+        if (text) loaderText.textContent = text;
+    }
+
+    getUserLocation() {
+        this.setLoading(true, "Obteniendo ubicación...");
+        if (!navigator.geolocation) {
+            this.state.location = { lat: 19.43, lon: -99.13, name: "CDMX (Default)" };
+            this.runSimulation();
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const coords = { lat: position.coords.latitude, lon: position.coords.longitude };
+                const name = await this.getCityName(coords);
+                this.state.location = { ...coords, name };
+                document.getElementById('location-status').textContent = `📍 ${name}`;
+                this.runSimulation();
+            },
+            () => {
+                this.state.location = { lat: 19.43, lon: -99.13, name: "CDMX (Default)" };
+                document.getElementById('location-status').textContent = `📍 ${this.state.location.name}`;
+                this.runSimulation();
+            }
+        );
+    }
+
+    async getCityName({ lat, lon }) {
+        try {
+            const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=es`);
+            const data = await response.json();
+            return data.city ? `${data.city}, ${data.principalSubdivisionCode.replace('MX-','')}` : "Ubicación Desconocida";
+        } catch (e) { return "Ubicación Actual"; }
+    }
+    
+    async fetchForecast({ lat, lon }) {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,shortwave_radiation_sum,relative_humidity_2m_mean,et0_fao_evapotranspiration&timezone=auto&forecast_days=14`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error("Failed to fetch forecast:", error);
+            return null;
+        }
+    }
+
+    async runSimulation() {
+        if (!this.state.location) return;
+        this.setLoading(true, `Analizando datos para ${this.state.location.name}...`);
+        const forecastData = await this.fetchForecast(this.state.location);
+        if (!forecastData) {
+            alert("No se pudieron obtener los datos climáticos. Por favor, intente de nuevo.");
+            this.setLoading(false);
+            return;
+        }
+        this.data = this.model.generateData(this.state.currentAsset, this.state.currentStage, forecastData);
+        this.render();
+        this.setLoading(false);
+    }
+    
+    handleNavClick(e) {
+        e.preventDefault();
+        const navItem = e.target.closest('.nav-item');
+        if (navItem && navItem.dataset.view !== this.state.currentView) {
+            this.state.currentView = navItem.dataset.view;
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            navItem.classList.add('active');
+            this.render();
+        }
+    }
+
+    handleAssetChange(e) {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        this.state.currentAsset = e.target.value;
+        this.state.currentStage = selectedOption.dataset.stage;
+        this.runSimulation();
+    }
+
+    destroyCharts() {
+        Object.values(this.charts).forEach(chart => chart?.destroy());
+        this.charts = {};
+    }
+
+    render() {
+        this.destroyCharts();
+        const mainContent = document.getElementById('main-content');
+        let viewHTML = '';
+        switch(this.state.currentView) {
+            case 'dashboard': viewHTML = this.renderDashboardView(); break;
+            case 'satellite': viewHTML = this.renderSatelliteView(); break;
+            case 'agronomy': viewHTML = this.renderAgronomyView(); break;
+            case 'finance': viewHTML = this.renderFinanceView(); break;
+            case 'risk': viewHTML = this.renderRiskView(); break;
+            case 'supplychain': viewHTML = this.renderSupplyChainView(); break;
+        }
+        mainContent.innerHTML = viewHTML;
+        
+        // Post-render actions
+        if (this.state.currentView === 'satellite') {
+            this.initializeNdviCanvas();
+            this.initializeSensorChart();
+        }
+        if (this.state.currentView === 'agronomy') this.initializeAgronomyChart();
+        if (this.state.currentView === 'finance') {
+            this.initializeFinanceChart();
+            this.initializeCashflowChart();
+            this.initializeBudgetChart();
+            this.initializeMarketChart();
+        }
+        if (this.state.currentView === 'risk') this.initializeRiskMatrixCanvas();
+    }
+
+    // --- RENDER METHODS ---
+
+    renderDashboardView() { 
+        const summary = this.data.executiveSummary;
+        const color = `var(--${summary.status.toLowerCase()})`;
+        return `
+            <header class="main-header">
+                <h2>Dashboard Ejecutivo</h2>
+                <p>Vista consolidada del rendimiento, riesgos y oportunidades del activo.</p>
+            </header>
+            <div class="grid-container">
+                <div class="card col-span-12" style="background-color: ${color}1A;">
+                    <div style="display: flex; gap: 1.5rem; align-items: center;">
+                        <div style="font-size: 3rem;">${summary.icon}</div>
+                        <div>
+                            <h3 style="color: ${color}; margin-bottom: 0.5rem;">${summary.title}</h3>
+                            <p style="font-family: 'Inter'; font-size: 0.9rem;">${summary.assessment}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card col-span-4">
+                    <h4 class="card-title">Proyección de Rendimiento</h4>
+                    <div style="text-align:center; margin: auto;">
+                         <h2 style="font-size: 3rem; color: var(--accent-primary);">${this.data.yield.value.toFixed(1)}</h2>
+                         <p style="font-size: 1rem; color: var(--text-secondary);">${this.data.yield.unit}</p>
+                    </div>
+                </div>
+                 <div class="card col-span-4">
+                    <h4 class="card-title">Rentabilidad Estimada (ROI)</h4>
+                    <div style="text-align:center; margin: auto;">
+                         <h2 style="font-size: 3rem; color: var(--${this.data.financialServices.overallRoi > 15 ? 'success' : 'warning'});">${this.data.financialServices.overallRoi.toFixed(1)}%</h2>
+                         <p style="font-size: 1rem; color: var(--text-secondary);">Margen sobre la inversión total</p>
+                    </div>
+                </div>
+                <div class="card col-span-4">
+                    <h4 class="card-title">Índice de Riesgo Compuesto</h4>
+                     <div style="text-align:center; margin: auto;">
+                         <h2 style="font-size: 3rem; color: var(--${this.data.risk.overall > 65 ? 'danger' : this.data.risk.overall > 40 ? 'warning' : 'success'});">${this.data.risk.overall.toFixed(0)}/100</h2>
+                         <p style="font-size: 1rem; color: var(--text-secondary);">Nivel de Exposición General</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderSatelliteView() {
+        const satellite = this.data.satellite;
+        return `
+            <header class="main-header">
+                <h2>Hub de Datos Geoespaciales y de Campo</h2>
+                <p>Análisis de imágenes satelitales y telemetría de sensores en tiempo real.</p>
+            </header>
+            <div class="grid-container">
+                <div class="card col-span-7">
+                    <h4 class="card-title">Mapa de Vigor del Cultivo (NDVI Simulado)</h4>
+                    <div id="ndvi-canvas-container"><canvas id="ndvi-canvas"></canvas></div>
+                </div>
+                <div class="card col-span-5">
+                    <h4 class="card-title">Telemetría de Sensores de Campo (Últimos 7 días)</h4>
+                    <div style="position: relative; height: 350px;"><canvas id="sensorChart"></canvas></div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderAgronomyView() {
+        const agronomy = this.data.agronomy;
+        return `
+            <header class="main-header">
+                <h2>Análisis Agronómico Profundo</h2>
+                <p>Monitoreo de condiciones bioclimáticas, hídricas y estado fenológico del cultivo.</p>
+            </header>
+            <div class="grid-container">
+                <div class="card col-span-8">
+                     <h4 class="card-title">Proyección Climática y GDD (14 días)</h4>
+                     <div style="position: relative; height: 300px;"><canvas id="agronomyChart"></canvas></div>
+                </div>
+                 <div class="card col-span-4">
+                     <h4 class="card-title">Seguimiento Fenológico</h4>
+                     <div class="kpi-item"><span class="kpi-label">Etapa Actual</span><span class="kpi-value">${agronomy.phenology.stage}</span></div>
+                     <div class="kpi-item"><span class="kpi-label">GDD Acumulados</span><span class="kpi-value">${agronomy.phenology.gddAccumulated.toFixed(0)} GDD</span></div>
+                     <div class="kpi-item"><span class="kpi-label">Progreso a Madurez</span><span class="kpi-value">${agronomy.phenology.progressToNextStage.toFixed(0)}%</span></div>
+                     <div class="kpi-item"><span class="kpi-label">Días para Próx. Etapa</span><span class="kpi-value">~${agronomy.phenology.daysToNextStage}</span></div>
+                </div>
+                <div class="card col-span-12">
+                     <h4 class="card-title">Balance Hídrico del Cultivo</h4>
+                     <details>
+                         <summary>Ver análisis hídrico detallado</summary>
+                         <div class="details-content grid-container">
+                             <div class="col-span-4"><strong>Precipitación Acumulada:</strong><br>${agronomy.waterBalance.totalPrecip.toFixed(1)} mm</div>
+                             <div class="col-span-4"><strong>ETc Acumulada:</strong><br>${agronomy.waterBalance.totalEtc.toFixed(1)} mm</div>
+                             <div class="col-span-4"><strong>Balance Hídrico Neto:</strong><br><span style="color: var(--${agronomy.waterBalance.netBalance > 0 ? 'success':'danger'})">${agronomy.waterBalance.netBalance.toFixed(1)} mm</span></div>
+                             <div class="col-span-12" style="margin-top: 1rem;"><strong>Recomendación de Riego:</strong> ${agronomy.waterBalance.recommendation}</div>
+                         </div>
+                     </details>
+                </div>
+                <div class="card col-span-12">
+                    <h4 class="card-title">Presión de Plagas y Enfermedades</h4>
+                    <details>
+                        <summary>Ver análisis de riesgo fitosanitario</summary>
+                        <div class="details-content">
+                            <div class="kpi-item">
+                                <span class="kpi-label">Nivel de Riesgo General</span>
+                                <span class="kpi-value" style="color: var(--${agronomy.diseasePressure.level.toLowerCase() === 'alto' ? 'danger' : agronomy.diseasePressure.level.toLowerCase() === 'moderado' ? 'warning' : 'success'}">${agronomy.diseasePressure.level}</span>
+                            </div>
+                            <h5 style="margin-top: 1rem; margin-bottom: 0.5rem; font-family: 'Inter'; font-weight: 600;">Amenazas Primarias Detectadas:</h5>
+                            ${agronomy.diseasePressure.primaryThreats.map(threat => `
+                                <div class="kpi-item">
+                                    <span class="kpi-label">${threat.name}</span>
+                                    <span class="kpi-value">${threat.risk}</span>
+                                </div>
+                            `).join('')}
+                            <p style="margin-top: 1rem;"><strong>Recomendación Preventiva:</strong> ${agronomy.diseasePressure.recommendation}</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderFinanceView() {
+        const market = this.data.financialServices.marketAnalysis;
+        return `
+            <header class="main-header">
+                <h2>Inteligencia Financiera y Consultoría</h2>
+                <p>Análisis de rentabilidad, proyecciones y servicios estratégicos para maximizar el valor del activo.</p>
+            </header>
+            <div class="grid-container">
+                <div class="card col-span-6">
+                    <h4 class="card-title">Análisis de Rentabilidad de Inversión (ROI)</h4>
+                    <div style="position: relative; height: 250px;"><canvas id="financeChart"></canvas></div>
+                </div>
+                <div class="card col-span-6">
+                    <h4 class="card-title">Benchmarking de Desempeño</h4>
+                    ${this.data.financialServices.benchmarking.map(item => `
+                        <div class="kpi-item">
+                            <span class="kpi-label">${item.metric}</span>
+                            <span class="kpi-value" style="color: var(--${item.performance > 0 ? 'success' : 'danger'})">${item.value} (${item.performance > 0 ? '+' : ''}${item.performance.toFixed(1)}%)</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="card col-span-12">
+                    <h4 class="card-title">Planificador de Presupuesto y Simulación de ROI</h4>
+                    <div style="position: relative; height: 300px;"><canvas id="budgetChart"></canvas></div>
+                </div>
+                <div class="card col-span-12">
+                     <h4 class="card-title">Simulador de Flujo de Caja (Próximos 6 meses)</h4>
+                     <div style="position: relative; height: 300px;"><canvas id="cashflowChart"></canvas></div>
+                </div>
+                <div class="card col-span-12">
+                    <h4 class="card-title">Análisis de Mercado y Precios Futuros</h4>
+                    <details open>
+                        <summary>Ver análisis de precios y tendencias del mercado</summary>
+                        <div class="details-content grid-container" style="gap: 1.5rem;">
+                            <div class="card col-span-8" style="box-shadow: none; border: 1px solid var(--border-color); padding: 1rem;">
+                                <h5 class="card-title" style="margin-bottom: 0.5rem;">Proyección de Precios (${market.commodity} USD/ton)</h5>
+                                <div style="position: relative; height: 250px;"><canvas id="marketChart"></canvas></div>
+                            </div>
+                            <div class="card col-span-4" style="box-shadow: none; border: 1px solid var(--border-color); padding: 1rem;">
+                                <h5 class="card-title" style="margin-bottom: 0.5rem;">Indicadores Clave</h5>
+                                <div class="kpi-item"><span class="kpi-label">Precio Actual</span><span class="kpi-value">$${market.currentPrice.toFixed(2)}</span></div>
+                                <div class="kpi-item"><span class="kpi-label">Futuros a 3 Meses</span><span class="kpi-value">$${market.futures3m.toFixed(2)}</span></div>
+                                <div class="kpi-item"><span class="kpi-label">Futuros a 6 Meses</span><span class="kpi-value">$${market.futures6m.toFixed(2)}</span></div>
+                                <div class="kpi-item"><span class="kpi-label">Tendencia</span><span class="kpi-value" style="color: var(--success);">${market.trend}</span></div>
+                            </div>
+                            <div class="card col-span-12" style="margin-top: 0; box-shadow: none; border: 1px solid var(--border-color); padding: 1rem;">
+                                <h5 class="card-title" style="margin-bottom: 0.5rem;">Observaciones de Inteligencia de Mercado</h5>
+                                <ul style="padding-left: 1.5rem; margin: 0; font-family: 'Inter'; font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                    ${market.insights.map(insight => `<li>${insight}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderRiskView() { 
+        const risk = this.data.risk;
+        return `
+            <header class="main-header">
+                <h2>Gestión de Riesgos y Resiliencia</h2>
+                <p>Evaluación de amenazas y capacidad de respuesta del activo, basado en la metodología de análisis de factores múltiples.</p>
+            </header>
+            <div class="grid-container">
+                <div class="card col-span-5">
+                     <h4 class="card-title">Matriz de Riesgo: Probabilidad vs. Impacto</h4>
+                     <div id="risk-matrix-container"><canvas id="risk-matrix-canvas"></canvas></div>
+                </div>
+                 <div class="card col-span-7">
+                     <h4 class="card-title">Análisis de Factores de Impacto Clave (SHAP Simulado)</h4>
+                     ${risk.shapAnalysis.map(c => `
+                         <details>
+                             <summary>
+                                 <span>${c.name}</span>
+                                 <span style="font-family:Roboto Mono; color: var(--${c.impact > 0.2 ? 'danger' : c.impact > 0.1 ? 'warning' : 'success'})">${(c.impact * 100).toFixed(1)}%</span>
+                             </summary>
+                             <div class="details-content">
+                                 <strong>Contribución al Riesgo Total:</strong> El factor "${c.name}" es responsable de aproximadamente un ${(c.impact * 100).toFixed(1)}% del perfil de riesgo general del activo, similar a la interpretación de valores SHAP. <br><br>
+                                 <strong>Plan de Mitigación:</strong> ${c.mitigation}
+                             </div>
+                         </details>
+                     `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    renderSupplyChainView() {
+        const supplyChain = this.data.financialServices.supplyChain;
+        const hedging = this.data.financialServices.hedging;
+        return `
+            <header class="main-header">
+                <h2>Logística y Cadena de Suministro</h2>
+                <p>Optimización de la cadena de valor, desde el insumo hasta el mercado.</p>
+            </header>
+            <div class="grid-container">
+                <div class="card col-span-12">
+                    <h4 class="card-title">Análisis de la Cadena de Suministro</h4>
+                    <div class="kpi-item">
+                        <span class="kpi-label">Observación Clave</span>
+                        <span class="kpi-value" style="white-space: normal; text-align: right;">${supplyChain.analysis}</span>
+                    </div>
+                    <div class="kpi-item">
+                        <span class="kpi-label">Recomendación Estratégica</span>
+                        <span class="kpi-value" style="white-space: normal; text-align: right;">${supplyChain.recommendation}</span>
+                    </div>
+                </div>
+                <div class="card col-span-12">
+                    <h4 class="card-title">Recomendaciones de Hedging (Cobertura de Precios)</h4>
+                    <div class="kpi-item">
+                        <span class="kpi-label">Volatilidad de Mercado</span>
+                        <span class="kpi-value" style="color: var(--${hedging.volatility === 'ALTA' ? 'danger' : 'warning'});">${hedging.volatility}</span>
+                    </div>
+                    <div class="kpi-item">
+                        <span class="kpi-label">Recomendación de Cobertura</span>
+                        <span class="kpi-value" style="white-space: normal; text-align: right;">${hedging.recommendation}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // --- CANVAS & CHART INITIALIZATION ---
+    
+    initializeNdviCanvas() {
+        const canvas = document.getElementById('ndvi-canvas');
+        const container = document.getElementById('ndvi-canvas-container');
+        if (!canvas || !container) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+
+        const data = this.data.satellite.ndviGrid;
+        const rows = data.length;
+        const cols = data[0].length;
+        const cellWidth = canvas.width / cols;
+        const cellHeight = canvas.height / rows;
+
+        const getColor = (value) => {
+            if (value > 0.8) return '#006400';
+            if (value > 0.6) return '#228B22';
+            if (value > 0.4) return '#ADFF2F';
+            if (value > 0.2) return '#F0E68C';
+            return '#BDB76B';
+        };
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                ctx.fillStyle = getColor(data[i][j]);
+                ctx.fillRect(j * cellWidth, i * cellHeight, cellWidth, cellHeight);
+            }
+        }
+    }
+
+    initializeSensorChart() {
+        const ctx = document.getElementById('sensorChart')?.getContext('2d');
+        if (!ctx) return;
+        const data = this.data.satellite.sensorData;
+        this.charts.sensors = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [
+                    { label: 'Humedad Suelo (%)', data: data.soilMoisture, borderColor: 'var(--accent-primary)', yAxisID: 'y_moisture', tension: 0.4 },
+                    { label: 'Nitrógeno (ppm)', data: data.nitrogen, borderColor: 'var(--success)', yAxisID: 'y_npk', tension: 0.4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y_moisture: { type: 'linear', position: 'left', title: { display: true, text: 'Humedad (%)' } },
+                    y_npk: { type: 'linear', position: 'right', title: { display: true, text: 'Nutrientes (ppm)' }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    }
+
+    initializeAgronomyChart() {
+        const ctx = document.getElementById('agronomyChart')?.getContext('2d');
+        if (!ctx) return;
+        const agronomy = this.data.agronomy;
+        this.charts.agronomy = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: agronomy.climateSeries.days,
+                datasets: [
+                    {
+                        label: 'Temp. Máxima (°C)', data: agronomy.climateSeries.maxTemp, type: 'line',
+                        borderColor: 'var(--danger)', yAxisID: 'y_temp', tension: 0.4,
+                    },
+                    { label: 'Precipitación (mm)', data: agronomy.climateSeries.precip, backgroundColor: 'var(--accent-secondary)', yAxisID: 'y_precip' },
+                    { 
+                        label: 'GDD Acumulados', data: agronomy.phenology.gddTrace, type: 'line', 
+                        borderColor: 'var(--warning)', yAxisID: 'y_gdd', tension: 0.4, borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { type: 'time', time: { unit: 'day' } },
+                    y_temp: { type: 'linear', position: 'left', title: { display: true, text: 'Temperatura (°C)' } },
+                    y_precip: { type: 'linear', position: 'right', title: { display: true, text: 'Precipitación (mm)' }, grid: { drawOnChartArea: false } },
+                    y_gdd: { type: 'linear', position: 'right', title: { display: true, text: 'GDD' }, grid: { drawOnChartArea: false }, display: false }
+                }
+            }
+        });
+    }
+    
+    initializeFinanceChart() {
+        const ctx = document.getElementById('financeChart')?.getContext('2d');
+        if (!ctx) return;
+        const data = this.data.financialServices.roiAnalysis;
+        this.charts.finance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.investment),
+                datasets: [{
+                    label: 'ROI Proyectado (%)',
+                    data: data.map(item => item.roi),
+                    backgroundColor: ['#003f5c', '#58508d', '#bc5090'],
+                }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    }
+
+    initializeBudgetChart() {
+        const ctx = document.getElementById('budgetChart')?.getContext('2d');
+        if (!ctx) return;
+        const data = this.data.financialServices.budget;
+        this.charts.budget = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(item => item.category),
+                datasets: [{
+                    label: 'Distribución de Costos',
+                    data: data.map(item => item.cost),
+                    backgroundColor: ['#003f5c', '#58508d', '#bc5090', '#ff6361', '#ffa600'],
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+    }
+
+    initializeCashflowChart() {
+        const ctx = document.getElementById('cashflowChart')?.getContext('2d');
+        if (!ctx) return;
+        const data = this.data.financialServices.cashflow;
+        this.charts.cashflow = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.months,
+                datasets: [
+                    { label: 'Ingresos', data: data.revenues, borderColor: 'var(--success)', backgroundColor: 'rgba(0, 135, 90, 0.1)', fill: true, tension: 0.3 },
+                    { label: 'Egresos', data: data.expenses, borderColor: 'var(--danger)', backgroundColor: 'rgba(222, 53, 11, 0.1)', fill: true, tension: 0.3 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Proyección de Ingresos vs. Egresos (USD)' } } }
+        });
+    }
+
+    initializeMarketChart() {
+        const ctx = document.getElementById('marketChart')?.getContext('2d');
+        if (!ctx) return;
+        const data = this.data.financialServices.marketAnalysis.priceForecast;
+        this.charts.market = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.months,
+                datasets: [{
+                    label: 'Precio Proyectado (USD)',
+                    data: data.prices,
+                    borderColor: 'var(--info)',
+                    backgroundColor: 'rgba(0, 101, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { ticks: { callback: value => '$' + value } } }
+            }
+        });
+    }
+
+    initializeRiskMatrixCanvas() {
+        const canvas = document.getElementById('risk-matrix-canvas');
+        if (!canvas) return;
+        const container = document.getElementById('risk-matrix-container');
+        const ctx = canvas.getContext('2d');
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+
+        const padding = 40;
+        const width = canvas.width - padding * 2;
+        const height = canvas.height - padding * 2;
+        
+        ctx.strokeStyle = '#ccc';
+        ctx.fillStyle = '#666';
+        ctx.font = '12px Inter';
+        
+        // Draw grid
+        ctx.strokeRect(padding, padding, width, height);
+        ctx.beginPath();
+        ctx.moveTo(padding + width / 2, padding);
+        ctx.lineTo(padding + width / 2, padding + height);
+        ctx.moveTo(padding, padding + height / 2);
+        ctx.lineTo(padding + width, padding + height / 2);
+        ctx.stroke();
+
+        // Draw labels
+        ctx.textAlign = 'center';
+        ctx.fillText('Baja Probabilidad', padding + width / 4, padding - 10);
+        ctx.fillText('Alta Probabilidad', padding + (width * 3) / 4, padding - 10);
+        ctx.save();
+        ctx.translate(padding - 10, padding + height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Alto Impacto', 0, -(height / 4));
+        ctx.fillText('Bajo Impacto', 0, (height / 4));
+        ctx.restore();
+
+        // Draw risks as bubbles
+        this.data.risk.components.forEach(risk => {
+            const x = padding + (risk.probabilityValue * width);
+            const y = padding + ((1 - risk.impactValue) * height);
+            const radius = 5 + (risk.financialExposure * 20);
+            
+            ctx.beginPath();
+            const color = risk.score > 65 ? 'rgba(222, 53, 11, 0.6)' : risk.score > 40 ? 'rgba(255, 171, 0, 0.6)' : 'rgba(0, 135, 90, 0.6)';
+            ctx.fillStyle = color;
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px Inter';
+            ctx.fillText(risk.name.substring(0,3).toUpperCase(), x, y + 3);
+        });
+    }
+}
+
+
+class StrategicConsultingModel {
+    // This class is a comprehensive simulation engine.
+    generateData(assetKey, stageKey, forecastData) {
+        const rand = (min, max) => Math.random() * (max - min) + min;
+        
+        const dailyData = forecastData.daily.time.map((time, i) => ({
+            max_temp: forecastData.daily.temperature_2m_max[i], min_temp: forecastData.daily.temperature_2m_min[i],
+            precip: forecastData.daily.precipitation_sum[i], humidity: forecastData.daily.relative_humidity_2m_mean[i],
+        }));
+
+        const cropParams = {
+            corn: { baseTemp: 10, gddToMaturity: 1500, baseYield: 12, price: 180, costs: 1200, name: 'Maíz Blanco' },
+            chile: { baseTemp: 12, gddToMaturity: 1800, baseYield: 30, price: 800, costs: 4500, name: 'Chile Serrano' },
+            cucumber: { baseTemp: 15, gddToMaturity: 1200, baseYield: 24, price: 350, costs: 2800, name: 'Pepino' },
+        };
+        const params = cropParams[assetKey];
+        const gdd = dailyData.map(d => Math.max(0, ((d.max_temp + d.min_temp) / 2) - params.baseTemp));
+        let cumulativeGdd = 0;
+        const gddTrace = gdd.map(d => cumulativeGdd += d);
+        const gddAccumulated = gddTrace[gddTrace.length - 1];
+
+        const tempStressDays = dailyData.filter(d => d.max_temp > 35).length;
+        const droughtStressDays = dailyData.filter(d => d.precip < 1).length;
+        const diseasePressureDays = dailyData.filter(d => d.humidity > 80 && d.max_temp > 20).length;
+
+        const tempRisk = Math.min(100, (tempStressDays / 14) * 150);
+        const precipRisk = Math.min(100, (droughtStressDays / 14) * 120);
+        const diseaseRisk = Math.min(100, (diseasePressureDays / 14) * 100);
+        const marketRisk = rand(30, 80);
+        const operationalRisk = rand(20, 50);
+        const overallRisk = (tempRisk + precipRisk + diseaseRisk + marketRisk + operationalRisk) / 5;
+        
+        const yieldModifier = (100 - (tempRisk * 0.5 + precipRisk * 0.4 + diseaseRisk * 0.1)) / 100;
+        const finalYield = params.baseYield * yieldModifier * rand(0.95, 1.05);
+        const revenue = finalYield * params.price * 100;
+        const costs = params.costs * 100;
+        const overallRoi = ((revenue - costs) / costs) * 100;
+
+        const totalCost = params.costs;
+        const budget = [
+            { category: 'Fertilizantes', cost: totalCost * 0.35 },
+            { category: 'Fitosanitarios', cost: totalCost * 0.20 },
+            { category: 'Mano de Obra', cost: totalCost * 0.25 },
+            { category: 'Combustible', cost: totalCost * 0.10 },
+            { category: 'Otros', cost: totalCost * 0.10 },
+        ];
+        
+        const data = {
+            executiveSummary: {},
+            yield: { value: finalYield, unit: "ton/ha" },
+            satellite: {
+                ndviGrid: Array.from({ length: 20 }, () => Array.from({ length: 30 }, () => rand(0.2, 0.9))),
+                sensorData: {
+                    labels: Array.from({ length: 7 }, (_, i) => `Día ${i+1}`),
+                    soilMoisture: Array.from({ length: 7 }, () => rand(25, 45)),
+                    nitrogen: Array.from({ length: 7 }, () => rand(100, 150))
+                }
+            },
+            agronomy: {
+                climateSeries: {
+                    days: forecastData.daily.time.map(t => new Date(t)),
+                    maxTemp: forecastData.daily.temperature_2m_max,
+                    precip: forecastData.daily.precipitation_sum,
+                },
+                phenology: {
+                    stage: "Llenado de Grano (R3)", gddAccumulated,
+                    progressToNextStage: (gddAccumulated / params.gddToMaturity) * 100,
+                    daysToNextStage: ((params.gddToMaturity - gddAccumulated) / (gddAccumulated / 14)).toFixed(0),
+                    gddTrace: gddTrace
+                },
+                waterBalance: {
+                    totalPrecip: dailyData.reduce((acc, day) => acc + day.precip, 0),
+                    totalEtc: dailyData.reduce((acc, day) => acc + rand(3.5, 6.0), 0),
+                    get netBalance() { return this.totalPrecip - this.totalEtc; },
+                    get recommendation() { return this.netBalance < -10 ? "Déficit hídrico detectado. Se recomienda un riego suplementario de 15mm en los próximos 2 días." : "Niveles de humedad adecuados. Monitorear ETc y mantener riego estándar."; }
+                },
+                diseasePressure: {
+                    level: diseaseRisk > 70 ? "Alto" : diseaseRisk > 40 ? "Moderado" : "Bajo",
+                    primaryThreats: diseaseRisk > 40 ? [{name: "Roya (Puccinia sorghi)", risk:"Alto"}, {name:"Tizón foliar (Exserohilum turcicum)", risk:"Moderado"}] : [{name: "Sin amenazas significativas", risk:"Bajo"}],
+                    recommendation: diseaseRisk > 70 ? "Riesgo ALTO detectado. Realizar aplicación inmediata de fungicida sistémico y aumentar la frecuencia de monitoreo a cada 2 días." :
+                                    diseaseRisk > 40 ? "Riesgo MODERADO. Considerar una aplicación de fungicida preventivo y monitorear la evolución de las condiciones climáticas." :
+                                    "Las condiciones son de bajo riesgo. Continuar con el monitoreo semanal estándar."
+                }
+            },
+            financialServices: {
+                overallRoi,
+                roiAnalysis: [
+                    { investment: "Riego de Precisión", roi: precipRisk > 50 ? rand(25,35) : rand(15,22) },
+                    { investment: "Drones de Monitoreo", roi: rand(12, 18) },
+                    { investment: "Enmiendas Orgánicas", roi: rand(22, 30) },
+                ],
+                benchmarking: [
+                    { metric: 'Rendimiento (ton/ha)', value: `${finalYield.toFixed(1)} vs ${ (params.baseYield * 0.9).toFixed(1)}`, performance: (finalYield / (params.baseYield * 0.9) - 1) * 100 },
+                    { metric: 'Costo ($/ha)', value: `${params.costs} vs ${params.costs * 1.1}`, performance: (1 - (params.costs / (params.costs * 1.1))) * 100 },
+                ],
+                budget: budget,
+                hedging: {
+                    volatility: marketRisk > 65 ? "ALTA" : "MODERADA",
+                    recommendation: marketRisk > 65 
+                        ? "La volatilidad del mercado es ALTA. Se recomienda asegurar el 50% de la producción esperada mediante contratos de futuros para bloquear un precio de venta rentable."
+                        : "La volatilidad es MODERADA. Considere comprar opciones de venta (put options) para protegerse de caídas de precios."
+                },
+                supplyChain: {
+                    analysis: "Los costos de fertilizantes nitrogenados han aumentado un 12% en el último trimestre.",
+                    recommendation: "Realizar compras consolidadas de insumos para acceder a descuentos por volumen."
+                },
+                cashflow: {
+                    months: ["Oct", "Nov", "Dic", "Ene", "Feb", "Mar"],
+                    revenues: [0, 0, 0, 0, revenue * 0.8, revenue * 0.2],
+                    expenses: [costs*0.1, costs*0.1, costs*0.2, costs*0.4, costs*0.1, costs*0.1]
+                },
+                marketAnalysis: {
+                    commodity: params.name,
+                    currentPrice: params.price * rand(0.98, 1.03),
+                    futures3m: params.price * rand(1.02, 1.08),
+                    futures6m: params.price * rand(1.05, 1.15),
+                    trend: marketRisk > 50 ? 'Alcista' : 'Estable',
+                    insights: [
+                        "La demanda de exportación se ha incrementado un 8% en el último mes.",
+                        "Condiciones climáticas adversas en regiones competidoras están afectando la oferta global.",
+                        "Los costos de logística internacional han subido un 5%, lo cual podría presionar los márgenes de ganancia."
+                    ],
+                    priceForecast: {
+                        months: ["Oct", "Nov", "Dic", "Ene", "Feb", "Mar"],
+                        prices: Array.from({length: 6}, (_, i) => params.price * (1 + (i * 0.02)) * rand(0.98, 1.02))
+                    }
+                }
+            },
+            risk: {
+                overall: overallRisk,
+                components: [
+                    { name: "Estrés Térmico", score: tempRisk, probability: 'Media', impact: 'Crítico', mitigation: 'Aplicar riego de enfriamiento y bioestimulantes.', probabilityValue: rand(0.4, 0.7), impactValue: rand(0.7, 0.95), financialExposure: rand(0.7, 1.0) },
+                    { name: "Déficit Hídrico", score: precipRisk, probability: 'Alta', impact: 'Crítico', mitigation: 'Optimizar calendario de riego basado en ETc.', probabilityValue: rand(0.7, 0.95), impactValue: rand(0.7, 0.95), financialExposure: rand(0.8, 1.0) },
+                    { name: "Presión Fúngica", score: diseaseRisk, probability: 'Baja', impact: 'Significativo', mitigation: 'Monitoreo constante y aplicaciones preventivas.', probabilityValue: rand(0.2, 0.4), impactValue: rand(0.5, 0.7), financialExposure: rand(0.3, 0.6) },
+                    { name: "Volatilidad de Mercado", score: marketRisk, probability: 'Media', impact: 'Alto', mitigation: 'Implementar estrategia de hedging.', probabilityValue: rand(0.4, 0.6), impactValue: rand(0.6, 0.8), financialExposure: rand(0.5, 0.8) },
+                    { name: "Fallas Operacionales", score: operationalRisk, probability: 'Baja', impact: 'Moderado', mitigation: 'Mantenimiento preventivo de maquinaria.', probabilityValue: rand(0.1, 0.3), impactValue: rand(0.3, 0.5), financialExposure: rand(0.2, 0.4) }
+                ],
+                shapAnalysis: [] // Filled below
+            }
+        };
+        
+        data.risk.shapAnalysis = data.risk.components
+            .map(r => ({ name: r.name, impact: r.score / overallRisk / 5 * rand(0.8, 1.2), mitigation: r.mitigation }))
+            .sort((a,b) => b.impact - a.impact);
+        
+        if (overallRisk > 65) data.executiveSummary = { title: "Alerta Crítica: Riesgos Elevados", status: "Danger", icon: "🔥", assessment: "La combinación de estrés climático y volatilidad de mercado presenta una amenaza significativa. Se requiere acción inmediata para implementar estrategias de mitigación." };
+        else if (overallRisk > 40) data.executiveSummary = { title: "Escenario de Precaución", status: "Warning", icon: "⚠️", assessment: "Se detectan riesgos moderados que podrían impactar la rentabilidad. Se recomienda una revisión proactiva de los planes de contingencia." };
+        else data.executiveSummary = { title: "Condiciones Favorables", status: "Success", icon: "✅", assessment: "El perfil de riesgo es bajo y las condiciones son óptimas. Es un momento ideal para enfocarse en la maximización de la eficiencia y la captura de oportunidades de mercado." };
+        
+        return data;
+    }
+}
+
+const app = new CommandCenterApp();
+</script>
+
+</body>
+</html>
