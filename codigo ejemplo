@@ -38,10 +38,13 @@
             padding: 0; 
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale; 
-            overflow: hidden;
         }
         
-        .container { display: flex; height: 100vh; width: 100vw; }
+        .container { 
+            display: flex; 
+            min-height: 100vh; /* Changed from height to min-height for responsiveness */
+            width: 100%; 
+        }
         
         h1, h2, h3, h4, h5 { margin: 0; font-weight: 600; font-family: 'Roboto Mono', monospace; letter-spacing: -0.5px; }
 
@@ -145,6 +148,82 @@
             left: 0;
             width: 100%;
             height: 100%;
+        }
+        #weather-forecast-container { 
+            display: flex; 
+            justify-content: space-around; 
+            text-align: center;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        .weather-day {
+            padding: 1rem 0.5rem;
+            flex-basis: 13%;
+            min-width: 80px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        .weather-day:hover {
+            background-color: #f7f9fc;
+        }
+        .weather-day h5 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        .precip-chance {
+            font-size: 0.8rem; 
+            color: var(--accent-secondary); 
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        /* --- Responsive Design for Hostinger & Mobile --- */
+        @media (max-width: 900px) {
+            body {
+                overflow-y: auto; /* Allow vertical scroll on smaller screens */
+            }
+
+            .container {
+                flex-direction: column;
+                height: auto; /* Let content define height */
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto; /* Auto height for sidebar */
+            }
+
+            .main-content {
+                padding: 1.5rem 1rem; /* Reduce padding on mobile */
+            }
+
+            /* Make grid columns stack on top of each other */
+            .card.col-span-4,
+            .card.col-span-5,
+            .card.col-span-6,
+            .card.col-span-7,
+            .card.col-span-8 {
+                grid-column: span 12;
+            }
+
+            /* Adjust weather forecast layout */
+            #weather-forecast-container {
+                gap: 0.5rem;
+            }
+            .weather-day {
+                flex-basis: auto; /* Let them take their min-width */
+                flex-grow: 1;
+            }
+
+            /* Adjust finance sub-module grid */
+            .details-content.grid-container .card {
+                grid-column: span 12 !important;
+            }
         }
     </style>
 </head>
@@ -401,6 +480,25 @@ class CommandCenterApp {
                 <div class="card col-span-5">
                     <h4 class="card-title">Telemetría de Sensores de Campo (Últimos 7 días)</h4>
                     <div style="position: relative; height: 350px;"><canvas id="sensorChart"></canvas></div>
+                </div>
+                <div class="card col-span-12">
+                    <h4 class="card-title">Pronóstico del Clima - Próximos 7 Días</h4>
+                    <div id="weather-forecast-container">
+                        ${satellite.weatherForecast.map(day => `
+                            <div class="weather-day">
+                                <h5>${day.day.toUpperCase()}</h5>
+                                <div style="font-size: 2.5rem; margin: 0.5rem 0;">${day.icon}</div>
+                                <div>
+                                    <span style="font-weight: 700;">${day.maxTemp}°</span> / 
+                                    <span style="color: var(--text-secondary);">${day.minTemp}°</span>
+                                </div>
+                                <div class="precip-chance">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                                    <span>${day.precipChance}%</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
         `;
@@ -854,6 +952,22 @@ class StrategicConsultingModel {
             { category: 'Otros', cost: totalCost * 0.10 },
         ];
         
+        const getWeatherIcon = (precip, temp) => {
+            if (precip > 5) return '🌧️';
+            if (precip > 1) return '🌦️';
+            if (temp > 32) return '☀️';
+            if (temp > 25) return '🌤️';
+            return '☁️';
+        };
+
+        const weatherForecast = forecastData.daily.time.slice(0, 7).map((time, i) => ({
+            day: new Date(time).toLocaleDateString('es-ES', { weekday: 'short' }),
+            icon: getWeatherIcon(forecastData.daily.precipitation_sum[i], forecastData.daily.temperature_2m_max[i]),
+            maxTemp: forecastData.daily.temperature_2m_max[i].toFixed(0),
+            minTemp: forecastData.daily.temperature_2m_min[i].toFixed(0),
+            precipChance: (forecastData.daily.precipitation_sum[i] > 0.1 ? Math.min(90, forecastData.daily.precipitation_sum[i] * 15 + 20) : rand(0, 15)).toFixed(0)
+        }));
+
         const data = {
             executiveSummary: {},
             yield: { value: finalYield, unit: "ton/ha" },
@@ -863,7 +977,8 @@ class StrategicConsultingModel {
                     labels: Array.from({ length: 7 }, (_, i) => `Día ${i+1}`),
                     soilMoisture: Array.from({ length: 7 }, () => rand(25, 45)),
                     nitrogen: Array.from({ length: 7 }, () => rand(100, 150))
-                }
+                },
+                weatherForecast: weatherForecast
             },
             agronomy: {
                 climateSeries: {
