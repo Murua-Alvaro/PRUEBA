@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - tmp-nasa-power-export-20260901
-    paths:
-      - 'scripts/_tmp_probe_nasa_power.py'
-      - '.github/workflows/nasa-power-export.yml'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
