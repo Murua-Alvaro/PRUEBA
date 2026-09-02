@@ -1,0 +1,24 @@
+name: NASA POWER temporary runner
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    if: github.head_ref == 'tmp-nasa-power-export-20260901'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install --quiet requests 'xarray>=2024.1' 'zarr<3' fsspec s3fs
+      - name: Run NASA POWER probe/export
+        run: python scripts/_tmp_probe_nasa_power.py
