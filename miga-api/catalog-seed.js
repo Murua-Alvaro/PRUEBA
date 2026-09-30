@@ -38,10 +38,10 @@ async function seedCatalog() {
     await pool.query(
       `INSERT INTO products (id,name,price,stock,active,image,note,updated_at)
        VALUES
-         ('semita','Pan estrella · Semitas',$1,0,true,
+         ('semita',' Pan estrella · Semitas',$1,0,true,
           'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1000&q=85',
           'Pan estrella',now()),
-         ('polvoron','Pan estrella · Polvorones',$1,0,true,
+         ('polvoron',' Pan estrella · Polvorones',$1,0,true,
           'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1000&q=85',
           'Pan estrella',now())
        ON CONFLICT (id) DO UPDATE SET
@@ -53,7 +53,7 @@ async function seedCatalog() {
     );
     const catalogResult = await pool.query('SELECT id,name,price,stock,active FROM products WHERE active=true ORDER BY name');
     console.log(`MIGA catalog seed OK: Pan estrella · Semitas + Polvorones (reference price ${referencePrice})`);
-    console.log('MIGA catalog order:', catalogResult.rows.map((p, index) => `${index + 1}:${p.name}`).join(' | '));
+    console.log('MIGA catalog order:', catalogResult.rows.map((p, index) => `${index + 1}:${p.name.trim()}`).join(' | '));
   } finally {
     await pool.end();
   }
