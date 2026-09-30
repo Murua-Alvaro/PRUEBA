@@ -51,7 +51,9 @@ async function seedCatalog() {
          updated_at=now()`,
       [referencePrice]
     );
+    const catalogResult = await pool.query('SELECT id,name,price,stock,active FROM products WHERE active=true ORDER BY name');
     console.log(`MIGA catalog seed OK: Pan estrella · Semitas + Polvorones (reference price ${referencePrice})`);
+    console.log('MIGA catalog order:', catalogResult.rows.map((p, index) => `${index + 1}:${p.name}`).join(' | '));
   } finally {
     await pool.end();
   }
