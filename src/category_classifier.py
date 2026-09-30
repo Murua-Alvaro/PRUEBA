@@ -37,14 +37,15 @@ class CategoryPrediction:
     label: str
     category: str
     confidence: float
+    source: str = "onnx"
 
 
 class FashionCategoryClassifier:
-    """Lightweight Fashion-MNIST ONNX gate used before visual ranking.
+    """Coarse garment-family gate before visual ranking.
 
-    This classifier is deliberately a coarse gate. It keeps obviously different
-    garment families out of the candidate pool; the visual embedder still ranks
-    items inside the selected family.
+    Uses a tiny ONNX Fashion-MNIST classifier plus a silhouette hint for clean
+    white-background product photos. It is intentionally only a gate: the visual
+    search engine still ranks products within the chosen family.
     """
 
     def __init__(self):
@@ -72,15 +73,50 @@ class FashionCategoryClassifier:
         e = np.exp(x)
         return e / np.sum(e, axis=1, keepdims=True)
 
+    @staticmethod
+    def _shape_hint(image: Image.Image) -> str | None:
+        """Return a strong family hint for isolated garments on light backgrounds."""
+        rgb = np.asarray(image.convert("RGB").resize((224, 224)), dtype=np.float32)
+        border = np.concatenate(
+            [rgb[0, :, :], rgb[-1, :, :], rgb[:, 0, :], rgb[:, -1, :]], axis=0
+        )
+        bg = np.median(border, axis=0)
+        # Only trust this heuristic for near-neutral, bright product backgrounds.
+        if float(bg.mean()) < 190 or float(bg.max() - bg.min()) > 35:
+            return None
+        dist = np.linalg.norm(rgb - bg[None, None, :], axis=2)
+        mask = dist > 38
+        ys, xs = np.where(mask)
+        if len(xs) < 700:
+            return None
+        y0, y1 = int(ys.min()), int(ys.max())
+        x0, x1 = int(xs.min()), int(xs.max())
+        h = max(1, y1 - y0 + 1)
+        w = max(1, x1 - x0 + 1)
+        m = mask[y0 : y1 + 1, x0 : x1 + 1]
+        row_width = m.sum(axis=1).astype(np.float32)
+        q = len(row_width)
+        if q < 12:
+            return None
+        upper = float(np.mean(row_width[int(0.16*q):int(0.42*q)]))
+        lower = float(np.mean(row_width[int(0.68*q):int(0.92*q)]))
+        ratio = upper / max(lower, 1.0)
+        aspect = h / max(w, 1)
+
+        # Tops: sleeves/shoulders broader than the lower torso.
+        if ratio > 1.18 and aspect < 1.75:
+            return "shirt"
+        # Dresses/skirts: lower body fans out substantially.
+        if ratio < 0.72 and aspect > 1.05:
+            return "dress"
+        return None
+
     def predict(self, image: Image.Image) -> CategoryPrediction:
+        hint = self._shape_hint(image)
         self._load()
-        # Fashion-MNIST is grayscale. Use autocontrast so clean e-commerce photos
-        # preserve the garment silhouette even when colors differ substantially.
+
         gray = ImageOps.autocontrast(image.convert("L")).resize((28, 28), Image.Resampling.LANCZOS)
         x = np.asarray(gray, dtype=np.float32) / 255.0
-
-        # Fashion-MNIST clothing is typically bright on a dark field. Product
-        # photos are often dark garment on white; invert when the border is bright.
         border = np.concatenate([x[0, :], x[-1, :], x[:, 0], x[:, -1]])
         if float(border.mean()) > 0.55:
             x = 1.0 - x
@@ -94,11 +130,17 @@ class FashionCategoryClassifier:
         probs = self._softmax(np.asarray(logits, dtype=np.float32))
         idx = int(np.argmax(probs[0]))
         label = LABELS[idx]
-        return CategoryPrediction(
-            label=label,
-            category=CATEGORY_MAP[label],
-            confidence=float(probs[0, idx]),
-        )
+        category = CATEGORY_MAP[label]
+        confidence = float(probs[0, idx])
+
+        # Strong clean-background silhouette evidence wins over a cross-domain
+        # Fashion-MNIST prediction when the two disagree.
+        if hint == "shirt" and category != "shirt":
+            return CategoryPrediction("Top / T-shirt", "shirt", max(confidence, 0.70), "silhouette+onnx")
+        if hint == "dress" and category not in {"dress", "pants"}:
+            return CategoryPrediction("Dress / skirt family", "dress", max(confidence, 0.65), "silhouette+onnx")
+
+        return CategoryPrediction(label, category, confidence, "onnx")
 
 
 @lru_cache(maxsize=1)
