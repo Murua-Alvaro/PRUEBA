@@ -1,0 +1,1 @@
+"""Fashion visual search MVP."""
