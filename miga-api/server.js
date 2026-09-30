@@ -4,10 +4,11 @@ const path = require('path');
 const crypto = require('crypto');
 
 const PORT = process.env.PORT || 10000;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MigaDemo2026!';
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'miga-dev-secret-change-me';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || crypto.randomBytes(32).toString('hex');
 const PUBLIC_ORIGIN = process.env.PUBLIC_ORIGIN || 'https://miga-horno-vivo.onrender.com';
 const STATE_FILE = path.join(__dirname, 'state.json');
+const rateBuckets = new Map();
 
 const seed = {
   products: [
@@ -24,139 +25,27 @@ const seed = {
     {id:'b103',productId:'croissant',status:'fresh',etaMinutes:0,total:18,reserved:5,freshMinutes:19,updatedAt:new Date().toISOString()},
     {id:'b104',productId:'masa-madre',status:'next',etaMinutes:145,total:20,reserved:13,freshMinutes:null,updatedAt:new Date().toISOString()}
   ],
-  reservations: [],
-  notifications: [],
+  reservations: [], notifications: [],
   audit: [{at:new Date().toISOString(),type:'system',message:'Estado inicial cargado'}],
   meta: {location:'Mazatlán',open:true,closesAt:'20:30',updatedAt:new Date().toISOString()}
 };
-
-function loadState(){
-  try { return JSON.parse(fs.readFileSync(STATE_FILE,'utf8')); }
-  catch { fs.writeFileSync(STATE_FILE, JSON.stringify(seed,null,2)); return JSON.parse(JSON.stringify(seed)); }
-}
-let state = loadState();
-function save(){ state.meta.updatedAt = new Date().toISOString(); fs.writeFileSync(STATE_FILE, JSON.stringify(state,null,2)); }
-function audit(type,message,detail={}){
-  state.audit.unshift({at:new Date().toISOString(),type,message,detail});
-  state.audit = state.audit.slice(0,250); save();
-}
-function json(res,status,data,origin){
-  res.writeHead(status,{
-    'Content-Type':'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': origin === PUBLIC_ORIGIN ? origin : PUBLIC_ORIGIN,
-    'Access-Control-Allow-Headers':'Content-Type, Authorization',
-    'Access-Control-Allow-Methods':'GET,POST,PATCH,OPTIONS',
-    'Cache-Control':'no-store',
-    'X-Content-Type-Options':'nosniff',
-    'Referrer-Policy':'same-origin'
-  });
-  res.end(JSON.stringify(data));
-}
-function readBody(req){
-  return new Promise((resolve,reject)=>{
-    let raw=''; req.on('data',c=>{ raw+=c; if(raw.length>25000){ reject(new Error('payload_too_large')); req.destroy(); }});
-    req.on('end',()=>{ try{ resolve(raw?JSON.parse(raw):{}); }catch{ reject(new Error('invalid_json')); }});
-  });
-}
-function productFor(batch){ return state.products.find(p=>p.id===batch.productId); }
-function publicPayload(){
-  return {
-    meta:state.meta,
-    products:state.products.filter(p=>p.active),
-    batches:state.batches.map(b=>({...b,product:productFor(b)})),
-    stats:{reservedToday:state.reservations.length,notifications:state.notifications.length}
-  };
-}
-function sessionToken(){
-  const exp = Date.now()+1000*60*60*8;
-  const payload = String(exp);
-  const sig = crypto.createHmac('sha256',ADMIN_SECRET).update(payload).digest('hex');
-  return Buffer.from(payload+':'+sig).toString('base64url');
-}
-function isAdmin(req){
-  const h=req.headers.authorization||''; if(!h.startsWith('Bearer ')) return false;
-  try{
-    const decoded=Buffer.from(h.slice(7),'base64url').toString('utf8');
-    const [exp,sig]=decoded.split(':');
-    if(Number(exp)<Date.now()) return false;
-    const expected=crypto.createHmac('sha256',ADMIN_SECRET).update(exp).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected));
-  }catch{return false;}
-}
-function serveFile(res,file,type='text/html; charset=utf-8'){
-  try{ const data=fs.readFileSync(path.join(__dirname,file)); res.writeHead(200,{'Content-Type':type,'Cache-Control':'no-store','X-Frame-Options':'DENY','X-Content-Type-Options':'nosniff'}); res.end(data); }
-  catch{ res.writeHead(404); res.end('Not found'); }
-}
-
-const server=http.createServer(async (req,res)=>{
-  const origin=req.headers.origin||'';
-  const url=new URL(req.url,`http://${req.headers.host}`);
-  if(req.method==='OPTIONS'){ res.writeHead(204,{'Access-Control-Allow-Origin':origin===PUBLIC_ORIGIN?origin:PUBLIC_ORIGIN,'Access-Control-Allow-Headers':'Content-Type, Authorization','Access-Control-Allow-Methods':'GET,POST,PATCH,OPTIONS'}); return res.end(); }
-  if(url.pathname==='/healthz') return json(res,200,{ok:true,service:'miga-api',time:new Date().toISOString()},origin);
-  if(url.pathname==='/' && req.method==='GET'){ res.writeHead(302,{Location:PUBLIC_ORIGIN}); return res.end(); }
-  if(url.pathname==='/admin' && req.method==='GET') return serveFile(res,'admin.html');
-  if(url.pathname==='/api/public' && req.method==='GET') return json(res,200,publicPayload(),origin);
-
-  if(url.pathname==='/api/reservations' && req.method==='POST'){
-    try{
-      const body=await readBody(req); const batch=state.batches.find(b=>b.id===body.batchId); const qty=Math.max(1,Math.min(6,Number(body.qty)||1));
-      if(!batch) return json(res,404,{ok:false,error:'Lote no encontrado'},origin);
-      const available=Math.max(0,batch.total-batch.reserved);
-      if(batch.status==='soldout'||available<qty) return json(res,409,{ok:false,error:'No hay suficientes piezas disponibles',available},origin);
-      batch.reserved+=qty; batch.updatedAt=new Date().toISOString();
-      const id='R-'+crypto.randomBytes(3).toString('hex').toUpperCase();
-      state.reservations.unshift({id,batchId:batch.id,productId:batch.productId,qty,createdAt:new Date().toISOString(),status:'confirmed'});
-      audit('reservation',`Reserva ${id}: ${qty} pieza(s)`,{batchId:batch.id});
-      return json(res,201,{ok:true,id,qty,remaining:batch.total-batch.reserved},origin);
-    }catch(e){ return json(res,400,{ok:false,error:e.message==='invalid_json'?'JSON inválido':'Solicitud inválida'},origin); }
-  }
-
-  if(url.pathname==='/api/notify' && req.method==='POST'){
-    try{
-      const body=await readBody(req); const batch=state.batches.find(b=>b.id===body.batchId);
-      if(!batch) return json(res,404,{ok:false,error:'Lote no encontrado'},origin);
-      const id='N-'+crypto.randomBytes(3).toString('hex').toUpperCase();
-      state.notifications.unshift({id,batchId:batch.id,productId:batch.productId,createdAt:new Date().toISOString()});
-      audit('notify',`Aviso solicitado para ${batch.productId}`,{batchId:batch.id});
-      return json(res,201,{ok:true,id},origin);
-    }catch{ return json(res,400,{ok:false,error:'Solicitud inválida'},origin); }
-  }
-
-  if(url.pathname==='/api/admin/login' && req.method==='POST'){
-    try{ const body=await readBody(req); if(body.password!==ADMIN_PASSWORD){ audit('auth_failed','Intento de acceso rechazado'); return json(res,401,{ok:false,error:'Credenciales inválidas'},origin); }
-      audit('auth','Inicio de sesión administrativo'); return json(res,200,{ok:true,token:sessionToken()},origin);
-    }catch{ return json(res,400,{ok:false,error:'Solicitud inválida'},origin); }
-  }
-
-  if(url.pathname.startsWith('/api/admin/')){
-    if(!isAdmin(req)) return json(res,401,{ok:false,error:'No autorizado'},origin);
-    if(url.pathname==='/api/admin/overview' && req.method==='GET') return json(res,200,{...publicPayload(),reservations:state.reservations.slice(0,40),audit:state.audit.slice(0,60)},origin);
-    if(url.pathname==='/api/admin/audit' && req.method==='GET') return json(res,200,{audit:state.audit.slice(0,200)},origin);
-
-    const batchMatch=url.pathname.match(/^\/api\/admin\/batches\/([^/]+)$/);
-    if(batchMatch && req.method==='PATCH'){
-      try{
-        const body=await readBody(req); const batch=state.batches.find(b=>b.id===batchMatch[1]); if(!batch) return json(res,404,{ok:false,error:'Lote no encontrado'},origin);
-        if(body.status && ['baking','fresh','next','soldout'].includes(body.status)) batch.status=body.status;
-        if(Number.isFinite(Number(body.etaMinutes))) batch.etaMinutes=Math.max(0,Number(body.etaMinutes));
-        if(Number.isFinite(Number(body.total))) batch.total=Math.max(batch.reserved,Number(body.total));
-        if(Number.isFinite(Number(body.freshMinutes))) batch.freshMinutes=Math.max(0,Number(body.freshMinutes));
-        batch.updatedAt=new Date().toISOString(); audit('batch_update',`Lote ${batch.id} actualizado`,body); return json(res,200,{ok:true,batch:{...batch,product:productFor(batch)}},origin);
-      }catch{ return json(res,400,{ok:false,error:'Solicitud inválida'},origin); }
-    }
-
-    const productMatch=url.pathname.match(/^\/api\/admin\/products\/([^/]+)$/);
-    if(productMatch && req.method==='PATCH'){
-      try{
-        const body=await readBody(req); const product=state.products.find(p=>p.id===productMatch[1]); if(!product) return json(res,404,{ok:false,error:'Producto no encontrado'},origin);
-        if(Number.isFinite(Number(body.stock))) product.stock=Math.max(0,Number(body.stock));
-        if(Number.isFinite(Number(body.price))) product.price=Math.max(0,Number(body.price));
-        if(typeof body.active==='boolean') product.active=body.active;
-        audit('product_update',`Producto ${product.id} actualizado`,body); return json(res,200,{ok:true,product},origin);
-      }catch{ return json(res,400,{ok:false,error:'Solicitud inválida'},origin); }
-    }
-  }
-  return json(res,404,{ok:false,error:'Ruta no encontrada'},origin);
-});
-
+function loadState(){try{return JSON.parse(fs.readFileSync(STATE_FILE,'utf8'))}catch{fs.writeFileSync(STATE_FILE,JSON.stringify(seed,null,2));return JSON.parse(JSON.stringify(seed))}}
+let state=loadState();
+function save(){state.meta.updatedAt=new Date().toISOString();fs.writeFileSync(STATE_FILE,JSON.stringify(state,null,2))}
+function audit(type,message,detail={}){state.audit.unshift({at:new Date().toISOString(),type,message,detail});state.audit=state.audit.slice(0,250);save()}
+function clientIp(req){return String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim()}
+function rateAllowed(req,bucket,max,windowMs){const now=Date.now(),key=`${bucket}:${clientIp(req)}`,cur=rateBuckets.get(key);if(!cur||now-cur.startedAt>windowMs){rateBuckets.set(key,{startedAt:now,count:1});return true}cur.count+=1;return cur.count<=max}
+function json(res,status,data,origin){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':origin===PUBLIC_ORIGIN?origin:PUBLIC_ORIGIN,'Access-Control-Allow-Headers':'Content-Type, Authorization','Access-Control-Allow-Methods':'GET,POST,PATCH,OPTIONS','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY','Referrer-Policy':'same-origin'});res.end(JSON.stringify(data))}
+function readBody(req){return new Promise((resolve,reject)=>{let raw='';req.on('data',c=>{raw+=c;if(raw.length>25000){reject(new Error('payload_too_large'));req.destroy()}});req.on('end',()=>{try{resolve(raw?JSON.parse(raw):{})}catch{reject(new Error('invalid_json'))}})})}
+function productFor(b){return state.products.find(p=>p.id===b.productId)}
+function publicPayload(){return{meta:state.meta,products:state.products.filter(p=>p.active),batches:state.batches.map(b=>({...b,product:productFor(b)})),stats:{reservedToday:state.reservations.length,notifications:state.notifications.length}}}
+function sessionToken(){const exp=Date.now()+1000*60*60*8,payload=String(exp),sig=crypto.createHmac('sha256',ADMIN_SECRET).update(payload).digest('hex');return Buffer.from(payload+':'+sig).toString('base64url')}
+function isAdmin(req){const h=req.headers.authorization||'';if(!h.startsWith('Bearer '))return false;try{const decoded=Buffer.from(h.slice(7),'base64url').toString('utf8'),[exp,sig]=decoded.split(':');if(Number(exp)<Date.now()||!sig)return false;const expected=crypto.createHmac('sha256',ADMIN_SECRET).update(exp).digest('hex');if(sig.length!==expected.length)return false;return crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected))}catch{return false}}
+function serveFile(res,file){try{const data=fs.readFileSync(path.join(__dirname,file));res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Frame-Options':'DENY','X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin','Content-Security-Policy':"default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https:; frame-ancestors 'none'"});res.end(data)}catch{res.writeHead(404);res.end('Not found')}}
+setInterval(()=>{const cutoff=Date.now()-1000*60*30;for(const[k,v]of rateBuckets.entries())if(v.startedAt<cutoff)rateBuckets.delete(k)},1000*60*10).unref();
+const server=http.createServer(async(req,res)=>{const origin=req.headers.origin||'',url=new URL(req.url,`http://${req.headers.host}`);if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':origin===PUBLIC_ORIGIN?origin:PUBLIC_ORIGIN,'Access-Control-Allow-Headers':'Content-Type, Authorization','Access-Control-Allow-Methods':'GET,POST,PATCH,OPTIONS'});return res.end()}if(url.pathname==='/healthz')return json(res,200,{ok:true,service:'miga-api',time:new Date().toISOString(),state:'ready'},origin);if(url.pathname==='/'&&req.method==='GET'){res.writeHead(302,{Location:PUBLIC_ORIGIN});return res.end()}if(url.pathname==='/admin'&&req.method==='GET')return serveFile(res,'admin.html');if(url.pathname==='/api/public'&&req.method==='GET')return json(res,200,publicPayload(),origin);
+if(url.pathname==='/api/reservations'&&req.method==='POST'){if(!rateAllowed(req,'reservations',18,60000))return json(res,429,{ok:false,error:'Demasiadas solicitudes. Intenta de nuevo en un momento.'},origin);try{const body=await readBody(req),batch=state.batches.find(b=>b.id===String(body.batchId||'')),qty=Math.max(1,Math.min(6,Math.trunc(Number(body.qty)||1));if(!batch)return json(res,404,{ok:false,error:'Lote no encontrado'},origin);const available=Math.max(0,batch.total-batch.reserved);if(batch.status==='soldout'||available<qty)return json(res,409,{ok:false,error:'No hay suficientes piezas disponibles',available},origin);batch.reserved+=qty;batch.updatedAt=new Date().toISOString();if(batch.reserved>=batch.total)batch.status='soldout';const id='R-'+crypto.randomBytes(3).toString('hex').toUpperCase();state.reservations.unshift({id,batchId:batch.id,productId:batch.productId,qty,createdAt:new Date().toISOString(),status:'confirmed'});audit('reservation',`Reserva ${id}: ${qty} pieza(s)`,{batchId:batch.id});return json(res,201,{ok:true,id,qty,remaining:Math.max(0,batch.total-batch.reserved)},origin)}catch(e){return json(res,400,{ok:false,error:e.message==='invalid_json'?'JSON inválido':'Solicitud inválida'},origin)}}
+if(url.pathname==='/api/notify'&&req.method==='POST'){if(!rateAllowed(req,'notify',25,60000))return json(res,429,{ok:false,error:'Demasiadas solicitudes. Intenta de nuevo en un momento.'},origin);try{const body=await readBody(req),batch=state.batches.find(b=>b.id===String(body.batchId||''));if(!batch)return json(res,404,{ok:false,error:'Lote no encontrado'},origin);const id='N-'+crypto.randomBytes(3).toString('hex').toUpperCase();state.notifications.unshift({id,batchId:batch.id,productId:batch.productId,createdAt:new Date().toISOString()});state.notifications=state.notifications.slice(0,500);audit('notify',`Aviso solicitado para ${batch.productId}`,{batchId:batch.id});return json(res,201,{ok:true,id},origin)}catch{return json(res,400,{ok:false,error:'Solicitud inválida'},origin)}}
+if(url.pathname==='/api/admin/login'&&req.method==='POST'){if(!rateAllowed(req,'admin-login',8,10*60000))return json(res,429,{ok:false,error:'Demasiados intentos. Acceso temporalmente limitado.'},origin);try{const body=await readBody(req);if(!ADMIN_PASSWORD||body.password!==ADMIN_PASSWORD){audit('auth_failed','Intento de acceso rechazado',{ip:clientIp(req)});return json(res,401,{ok:false,error:'Credenciales inválidas'},origin)}audit('auth','Inicio de sesión administrativo');return json(res,200,{ok:true,token:sessionToken()},origin)}catch{return json(res,400,{ok:false,error:'Solicitud inválida'},origin)}}
+if(url.pathname.startsWith('/api/admin/')){if(!isAdmin(req))return json(res,401,{ok:false,error:'No autorizado'},origin);if(url.pathname==='/api/admin/overview'&&req.method==='GET')return json(res,200,{...publicPayload(),reservations:state.reservations.slice(0,40),audit:state.audit.slice(0,60)},origin);if(url.pathname==='/api/admin/audit'&&req.method==='GET')return json(res,200,{audit:state.audit.slice(0,200)},origin);const bm=url.pathname.match(/^\/api\/admin\/batches\/([^/]+)$/);if(bm&&req.method==='PATCH'){try{const body=await readBody(req),batch=state.batches.find(b=>b.id===bm[1]);if(!batch)return json(res,404,{ok:false,error:'Lote no encontrado'},origin);if(body.status&&['baking','fresh','next','soldout'].includes(body.status))batch.status=body.status;if(Number.isFinite(Number(body.etaMinutes)))batch.etaMinutes=Math.max(0,Math.trunc(Number(body.etaMinutes)));if(Number.isFinite(Number(body.total)))batch.total=Math.max(batch.reserved,Math.trunc(Number(body.total)));if(Number.isFinite(Number(body.freshMinutes)))batch.freshMinutes=Math.max(0,Math.trunc(Number(body.freshMinutes)));if(batch.reserved>=batch.total)batch.status='soldout';batch.updatedAt=new Date().toISOString();audit('batch_update',`Lote ${batch.id} actualizado`,body);return json(res,200,{ok:true,batch:{...batch,product:productFor(batch)}},origin)}catch{return json(res,400,{ok:false,error:'Solicitud inválida'},origin)}}const pm=url.pathname.match(/^\/api\/admin\/products\/([^/]+)$/);if(pm&&req.method==='PATCH'){try{const body=await readBody(req),product=state.products.find(p=>p.id===pm[1]);if(!product)return json(res,404,{ok:false,error:'Producto no encontrado'},origin);if(Number.isFinite(Number(body.stock)))product.stock=Math.max(0,Math.trunc(Number(body.stock)));if(Number.isFinite(Number(body.price)))product.price=Math.max(0,Math.round(Number(body.price)*100)/100);if(typeof body.active==='boolean')product.active=body.active;audit('product_update',`Producto ${product.id} actualizado`,body);return json(res,200,{ok:true,product},origin)}catch{return json(res,400,{ok:false,error:'Solicitud inválida'},origin)}}}return json(res,404,{ok:false,error:'Ruta no encontrada'},origin)});
 server.listen(PORT,()=>console.log(`MIGA API listening on ${PORT}`));
