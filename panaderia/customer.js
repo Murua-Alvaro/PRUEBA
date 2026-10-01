@@ -3,7 +3,7 @@
   let pendingProfile=null;
   const apiBase=typeof API!=='undefined'?API:'https://miga-api-l5f1.onrender.com';
   const q=s=>document.querySelector(s);
-  const esc2=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const esc2=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
   const money2=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0}).format(Number(n||0));
   const request=async(path,opts={})=>{const r=await fetch(apiBase+path,{credentials:'include',headers:{'Content-Type':'application/json',...(opts.headers||{})},...opts});const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.error||'Error');e.code=j.error;e.payload=j;throw e}return j};
 
@@ -61,7 +61,7 @@
   function fillForm(c){if(!c)return;q('#cName').value=c.name||'';q('#cEmail').value=c.email||'';q('#cPhone').value=c.phone||'';q('#cFavorite').value=c.favoriteBread||'';const p=c.breadPreferences||{};q('#cType').value=p.type||'';q('#cFrequency').value=p.frequency||'';q('#cSweet').checked=!!p.sweet;q('#cSavory').checked=!!p.savory;q('#cSourdough').checked=!!p.sourdough;q('#cPromo').checked=!!c.marketingOptIn;q('#cQuestion').value=c.answers?.bakeryWish||''}
   function msg(id,text,ok=false){const e=q(id);e.textContent=text||'';e.classList.toggle('ok',!!ok)}
   async function sendOtp(){const p=profilePayload();if(!p.email)return msg('#customerMsg','Escribe tu correo.');pendingProfile=p;const btn=q('#customerSend');btn.disabled=true;btn.textContent='ENVIANDO…';try{await request('/api/customer/auth/send',{method:'POST',body:JSON.stringify({email:p.email})});showStep('otp');msg('#customerOtpMsg','Código enviado. Usa únicamente el último que recibas.',true);q('#cOtp').focus()}catch(e){msg('#customerMsg',e.code==='TOO_MANY_REQUESTS'?'Se solicitaron demasiados códigos. Intenta más tarde.':'No fue posible enviar el código.')}finally{btn.disabled=false;btn.textContent='CREAR CUENTA / ENTRAR'}}
-  async function verifyOtp(){if(!pendingProfile)pendingProfile=profilePayload();const otp=q('#cOtp').value.replace(/\D/g,'').slice(0,6);if(otp.length!==6)return msg('#customerOtpMsg','Escribe los 6 dígitos.');const btn=q('#customerVerify');btn.disabled=true;btn.textContent='VERIFICANDO…';try{const j=await request('/api/customer/auth/verify',{method:'POST',body:JSON.stringify({...pendingProfile,otp})});customer=j.customer;updateAccountButton();showStep('profile');await renderCustomer();if(typeof toast==='function')toast('Cuenta lista. Ya puedes hacer pedidos.')}catch(e){msg('#customerOtpMsg',e.code==='INVALID_OTP'?'Ese código no es válido o expiró. Solicita uno nuevo.':'No se pudo completar el registro.')}finally{btn.disabled=false;btn.textContent='VERIFICAR Y CREAR CUENTA'}}
+  async function verifyOtp(){if(!pendingProfile)pendingProfile=profilePayload();const otp=q('#cOtp').value.replace(/\D/g,'').slice(0,6);if(otp.length!==6)return msg('#customerOtpMsg','Escribe los 6 dígitos.');const btn=q('#customerVerify');btn.disabled=true;btn.textContent='VERIFICANDO…';try{const j=await request('/api/customer/auth/verify',{method:'POST',body:JSON.stringify({...pendingProfile,otp})});customer=j.customer;fillForm(customer);updateAccountButton();showStep('profile');await renderCustomer();if(typeof toast==='function')toast('Cuenta lista. Ya puedes hacer pedidos.')}catch(e){msg('#customerOtpMsg',e.code==='INVALID_OTP'?'Ese código no es válido o expiró. Solicita uno nuevo.':'No se pudo completar el registro.')}finally{btn.disabled=false;btn.textContent='VERIFICAR Y CREAR CUENTA'}}
   async function restore(){try{const j=await request('/api/customer/session',{method:'GET'});customer=j.customer;fillForm(customer);updateAccountButton()}catch{customer=null;updateAccountButton()}}
   function updateAccountButton(){const b=q('#customerAccountBtn');if(b)b.textContent=customer?(customer.name||customer.email).split(' ')[0].toUpperCase():'MI CUENTA'}
   async function renderCustomer(){if(!customer)return;q('#customerProfileName').textContent=customer.name||'Cliente';q('#customerProfileEmail').textContent=customer.email||'';q('#customerPromoStatus').textContent=customer.marketingOptIn?'Promociones activadas. Tus preferencias nos ayudan a enviarte novedades más relevantes.':'Promociones desactivadas. Puedes activarlas editando tu perfil.';let orders=[];try{orders=(await request('/api/customer/orders',{method:'GET'})).orders||[]}catch{}q('#customerOrders').innerHTML=orders.length?orders.map(o=>`<div class="customerOrder"><div class="customerOrderTop"><b>${esc2(o.id)}</b><strong>${money2(o.total)}</strong></div><small>${esc2((o.items||[]).map(i=>`${i.qty}× ${i.productName||i.productId}`).join(', ')||'Pedido')}</small><small>${new Date(o.createdAt).toLocaleString('es-MX')} · ${esc2(o.status)}</small></div>`).join(''):'<div class="customerOrder"><small>Aún no tienes pedidos. Cuando apartes o compres pan aparecerán aquí.</small></div>'}
@@ -79,6 +79,30 @@
     };
   }
 
+  async function checkoutBox(){
+    if(!customer){openCustomer();msg('#customerMsg','Crea o inicia sesión para completar tu pedido.');return;}
+    if(!Array.isArray(box)||box.length!==6)return typeof toast==='function'&&toast('Completa las 6 piezas');
+    const groups={};
+    box.forEach(productId=>{groups[productId]=(groups[productId]||0)+1});
+    const items=Object.entries(groups).map(([productId,qty])=>({productId,qty}));
+    const btn=q('#reserveBox');if(!btn)return;
+    btn.disabled=true;btn.textContent='CREANDO PEDIDO…';
+    try{
+      const order=await request('/api/customer/checkout',{method:'POST',body:JSON.stringify({items,paymentMethod:'pickup',notes:'Pedido web · pagar al recoger'})});
+      folios.unshift({id:order.orderId,qty:order.itemCount,createdAt:new Date().toISOString(),orderId:order.orderId});
+      localStorage.setItem('miga_folios',JSON.stringify(folios));
+      box=[];localStorage.setItem('miga_box','[]');
+      if(typeof renderBox==='function')renderBox();
+      if(typeof renderDrawer==='function')renderDrawer();
+      await renderCustomer();
+      if(typeof load==='function')await load();
+      if(typeof toast==='function')toast('Pedido '+order.orderId+' confirmado · pagar al recoger');
+    }catch(e){
+      if(typeof toast==='function')toast(e.code==='NO_STOCK'?'Una pieza se agotó; actualiza tu caja.':'No se pudo crear el pedido.');
+    }finally{btn.disabled=false;btn.textContent='HACER PEDIDO';}
+  }
+
   mount();
+  const reserveBoxBtn=q('#reserveBox');if(reserveBoxBtn){reserveBoxBtn.textContent='HACER PEDIDO';reserveBoxBtn.onclick=checkoutBox;const status=q('#boxStatus');if(status&&status.parentElement){const note=document.createElement('small');note.style.display='block';note.style.marginTop='4px';note.style.color='#756e66';note.textContent='Pago al recoger · un solo pedido';status.parentElement.appendChild(note)}}
   restore();
 })();
