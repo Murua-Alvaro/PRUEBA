@@ -3,6 +3,7 @@ const http=require('http');
 const publicRoutes=require('./demand-public-router');
 const adminRoutes=require('./demand-admin-router');
 const publicDemand=require('./demand-public');
+const analytics=require('./demand-analytics');
 const originalCreateServer=http.createServer.bind(http);
 http.createServer=function(listener){
   return originalCreateServer(async(req,res)=>{
@@ -16,7 +17,8 @@ http.createServer=function(listener){
 setTimeout(async()=>{
   try{
     const snapshot=await publicDemand.publicData();
-    console.log(`Demand engine ready; products=${snapshot.products.length}; slots=${snapshot.slots.length}; promotions=${snapshot.promotions.length}`);
+    const analysis=await analytics.adminData();
+    console.log(`Demand engine ready; products=${snapshot.products.length}; slots=${snapshot.slots.length}; promotions=${snapshot.promotions.length}; recommendations=${analysis.recommendations.length}; surplusSignals=${analysis.surplus.length}`);
   }catch(error){
     console.error('Demand engine warmup failed:',error?.stack||error);
   }
