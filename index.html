@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f7f7f4">
+  <meta name="theme-color" content="#111111">
   <meta name="description" content="Growa | Observatorio de Agricultura de Sinaloa 2003–2025. Series históricas, diagnósticos municipales y conclusiones del informe original.">
   <title>Growa — Agricultura de Sinaloa</title>
   <link rel="stylesheet" href="styles.css">
@@ -30,12 +30,12 @@
     </div>
   </aside>
   <main class="page" id="main">
-    <div class="topline"><span>GROWA / INVESTIGACIÓN ECONÓMICA TERRITORIAL</span><span id="status" class="status">Preparando información…</span></div>
+    <div class="topline"><span>GROWA / PUBLICACIONES / SERIE AGRÍCOLA N.º 01</span><span id="status" class="status" aria-live="polite">Preparando información…</span></div>
     <header class="masthead">
       <div class="masthead-kicker"><span class="editorial-rule"></span> OBSERVATORIO AGRÍCOLA · SINALOA</div>
-      <h1>El campo sinaloense,<br><em>en perspectiva.</em></h1>
-      <p>Una lectura territorial de la producción, el valor agrícola y la transformación de sus cultivos, con datos de 2003 a 2025.</p>
-      <div class="masthead-meta"><span>23 cierres anuales</span><span>18 municipios históricos</span><span>DGSIAP · pesos corrientes</span></div>
+      <h1>Agricultura de Sinaloa.<br><em>2003–2025.</em></h1>
+      <p>Series municipales, estructura productiva, evolución de cultivos y diagnósticos económicos derivados de los cierres agrícolas DGSIAP.</p>
+      <div class="masthead-meta"><span>23 años de observación</span><span>18 municipios de la fuente</span><span>Cifras en pesos nominales</span></div>
     </header>
 
     <div id="alert" class="alert" role="status" hidden></div>
@@ -72,7 +72,7 @@
         <div class="story-heading"><div><span class="section-counter">LA LECTURA DEL INFORME</span><h3>Conclusiones del capítulo municipal</h3><p>Texto del informe de 395 páginas, organizado por sus tres apartados de cierre. Abre el análisis que quieras consultar.</p></div><span id="report-pages" class="report-chip">PÁGINAS —</span></div>
         <div id="municipio-report" class="disclosure-set"></div>
       </div>
-      <div class="story-panel crop-explorer">
+      <div class="story-panel crop-explorer" id="explorador-municipal">
         <div class="story-heading"><div><span class="section-counter">GRÁFICAS INDIVIDUALES</span><h3>Un historial para cada cultivo</h3><p>Selecciona cualquier cultivo registrado en este municipio para desplegar su serie anual y detalle del cierre 2025.</p></div><span id="crop-count" class="report-chip">— CULTIVOS</span></div>
         <div class="explorer-toolbar"><label class="search-field"><span aria-hidden="true">⌕</span><input id="municipio-search" type="search" placeholder="Buscar un cultivo…" aria-label="Buscar cultivo dentro del municipio"></label><select id="municipio-order" aria-label="Orden de cultivos"><option value="value">Mayor valor en 2025</option><option value="name">Orden alfabético</option></select></div>
         <div class="explorer-layout"><div id="municipio-crop-list" class="crop-pick-list"></div><div id="municipio-crop-detail" class="crop-detail"><div class="empty">Selecciona un cultivo para consultar su ficha.</div></div></div>
