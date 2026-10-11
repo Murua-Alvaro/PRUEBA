@@ -484,3 +484,9 @@ body[data-view="mexico"] .top-actions .quick-search{display:none}
 .national-detail .mx-fold summary:hover{text-decoration:underline;text-underline-offset:4px}
 .mx-bar-row:focus-within{background:#f5f5f5}
 @media(max-width:720px){.mx-tools{width:100%;align-items:stretch;flex-direction:column}.mx-field{width:100%;max-width:unset}.mx-field select{max-width:unset}.mx-export{width:100%;text-align:center}.mx-small-bar-row{font-size:11px}}
+
+/* Absolute values paired with shares in audited national mini-charts. */
+.mx-small-bar-row{grid-template-columns:minmax(110px,1.15fr) minmax(145px,2.5fr) minmax(118px,1fr)}
+.mx-small-bar-row>span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap;color:#111;font-weight:650}
+.mx-small-bar-row>span:last-child small{font-size:11px;display:block;color:#777;font-weight:400}
+@media(max-width:720px){.mx-small-bar-row{grid-template-columns:minmax(75px,1fr) minmax(85px,1fr) minmax(86px,1fr)}.mx-small-bar-row>span:last-child{font-size:10px}.mx-small-bar-row>span:last-child small{font-size:10px}}
