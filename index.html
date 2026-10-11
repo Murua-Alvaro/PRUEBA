@@ -19,7 +19,8 @@
       <button class="nav-link active" data-tab="panorama" type="button"><span class="nav-index">01</span> Panorama estatal</button>
       <button class="nav-link" data-tab="municipios" type="button"><span class="nav-index">02</span> Municipios</button>
       <button class="nav-link" data-tab="cultivos" type="button"><span class="nav-index">03</span> Cultivos y variedades</button>
-      <button class="nav-link" data-tab="metodologia" type="button"><span class="nav-index">04</span> Metodología</button>
+      <button class="nav-link" data-tab="mexico" type="button"><span class="nav-index">04</span> México · análisis nacional</button>
+      <button class="nav-link" data-tab="metodologia" type="button"><span class="nav-index">05</span> Metodología</button>
     </nav>
     <div class="rail-bottom">
       <p class="rail-bottom-label">SERIE DE INVESTIGACIÓN</p>
@@ -101,7 +102,39 @@
       <div class="story-panel"><div class="story-heading"><div><span class="section-counter">DETALLE TERRITORIAL</span><h3>Gráficas individuales por municipio</h3><p>Abre un municipio para examinar la trayectoria de este cultivo y su variación reciente.</p></div></div><div id="crop-municipal-details" class="disclosure-set"></div></div>
     </section>
 
-    <section id="panel-metodologia" class="section-panel" aria-label="Metodología" hidden><div class="section-heading"><div><span class="section-counter">04 / SOBRE LA INVESTIGACIÓN</span><h2>Fuente y calidad estadística</h2></div><span class="period-label">DGSIAP · 2003—2025</span></div><div id="method-stats" class="stat-row"></div><div class="two-pane method-columns"><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">PROCEDENCIA</span><h3>Qué contiene el observatorio</h3></div></div><div id="method-source" class="narrative"></div></article><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">ALCANCE</span><h3>Cómo interpretar los resultados</h3></div></div><div id="method-cautions" class="narrative"></div></article></div><article class="editorial-panel method-audit"><div class="section-card-heading"><div><span class="eyebrow">CONTROL DE LA FUENTE</span><h3>Integridad reportada en los anexos</h3><p>Estos controles provienen del paquete de auditoría proporcionado; no representan una verificación externa independiente.</p></div></div><div id="method-audit" class="audit-grid"></div></article></section>
+    
+<section id="panel-mexico" class="section-panel national" aria-label="Agricultura nacional" hidden>
+  <div class="section-heading"><div><span class="section-counter">04 / ESTUDIO NACIONAL</span><h2>La agricultura de México</h2></div><span class="period-label">DGSIAP · 2003–2025</span></div>
+  <div class="national-intro"><div><p class="national-kicker">INFORME ECONÓMICO · 115 PÁGINAS</p><h3>Una lectura comparada de la producción agrícola, sus cultivos y territorios.</h3><p>Resultados extraídos del informe nacional aportado. Los rankings identifican cambios de participación en el valor nacional entre los trienios 2003–2005 y 2023–2025; no representan ganancias reales ni causalidad.</p></div><div class="national-context"><span class="national-overline">UNIVERSO DE REFERENCIA DEL INFORME</span><strong>32</strong><span>entidades federativas</span><strong>879,785</strong><span>registros originales declarados</span></div></div>
+  <div id="mx-kpis" class="national-kpis" aria-label="Indicadores nacionales"></div>
+  <div class="national-notice"><strong>Nota de cobertura:</strong> la fuente recibida es un PDF de resultados, no el ZIP nacional con microregistros. Esta sección presenta los diez perfiles de cultivos y los territorios destacados por el informe. La consulta exhaustiva de todas las entidades, municipios y variedades se habilitará cuando se incorpore la base original. Los años 2020 y 2021 presentan cobertura reducida.</div>
+  <div class="national-subnav" role="group" aria-label="Explorar el informe nacional">
+    <button class="mx-tab active" data-mx-tab="cultivos" type="button">01 · Cultivos</button>
+    <button class="mx-tab" data-mx-tab="estados" type="button">02 · Estados</button>
+    <button class="mx-tab" data-mx-tab="municipios" type="button">03 · Municipios</button>
+    <button class="mx-tab" data-mx-tab="auditoria" type="button">04 · Metodología y auditoría</button>
+  </div>
+  <div class="mx-panel" data-mx-panel="cultivos">
+    <div class="national-panel-head"><div><span class="eyebrow">EVOLUCIÓN RELATIVA · 10 CULTIVOS</span><h3>Cinco que ganan relevancia y cinco que la pierden</h3><p>Comparación del promedio de las participaciones anuales, en puntos porcentuales. Los valores de 2025 se muestran en millones de pesos nominales.</p></div><label class="mx-field">Cultivo seleccionado <select id="mx-crop-select"></select></label></div>
+    <div id="mx-crops-chart" class="mx-bar-chart"></div>
+    <div id="mx-crop-detail" class="national-detail"></div>
+  </div>
+  <div class="mx-panel" data-mx-panel="estados" hidden>
+    <div class="national-panel-head"><div><span class="eyebrow">ESCALA ESTATAL · 10 ENTIDADES DESTACADAS</span><h3>Estados: variación de participación nacional</h3><p>Estos son los cinco mayores aumentos y cinco mayores reducciones del informe, no la tabla completa de las 32 entidades.</p></div><label class="mx-field">Entidad seleccionada <select id="mx-state-select"></select></label></div>
+    <div id="mx-states-chart" class="mx-bar-chart"></div><div id="mx-state-detail" class="national-detail"></div>
+  </div>
+  <div class="mx-panel" data-mx-panel="municipios" hidden>
+    <div class="national-panel-head"><div><span class="eyebrow">ESCALA MUNICIPAL · 10 TERRITORIOS DESTACADOS</span><h3>Municipios que ganan o pierden peso</h3><p>Comparación respecto del valor agrícola nacional. Los cambios de límites municipales requieren cautela, especialmente Ensenada.</p></div><label class="mx-field">Municipio seleccionado <select id="mx-muni-select"></select></label></div>
+    <div id="mx-munis-chart" class="mx-bar-chart"></div><div id="mx-muni-detail" class="national-detail"></div>
+  </div>
+  <div class="mx-panel" data-mx-panel="auditoria" hidden>
+    <div class="national-panel-head"><div><span class="eyebrow">CRITERIO Y TRAZABILIDAD</span><h3>Cómo leer los resultados nacionales</h3><p>Metodología, controles publicados, diferencias de cobertura y limitaciones de las series.</p></div></div>
+    <div id="mx-quality"></div>
+  </div>
+  <div class="national-footnote">Fuente: «Agricultura de México 2003–2025. Estructura, trayectorias y cambio territorial» (octubre de 2026, 115 pp.), basado en registros DGSIAP. Cifras del documento recibido; no se imputan observaciones faltantes ni se presentan como nueva auditoría.</div>
+</section>
+
+<section id="panel-metodologia" class="section-panel" aria-label="Metodología" hidden><div class="section-heading"><div><span class="section-counter">04 / SOBRE LA INVESTIGACIÓN</span><h2>Fuente y calidad estadística</h2></div><span class="period-label">DGSIAP · 2003—2025</span></div><div id="method-stats" class="stat-row"></div><div class="two-pane method-columns"><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">PROCEDENCIA</span><h3>Qué contiene el observatorio</h3></div></div><div id="method-source" class="narrative"></div></article><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">ALCANCE</span><h3>Cómo interpretar los resultados</h3></div></div><div id="method-cautions" class="narrative"></div></article></div><article class="editorial-panel method-audit"><div class="section-card-heading"><div><span class="eyebrow">CONTROL DE LA FUENTE</span><h3>Integridad reportada en los anexos</h3><p>Estos controles provienen del paquete de auditoría proporcionado; no representan una verificación externa independiente.</p></div></div><div id="method-audit" class="audit-grid"></div></article></section>
 
     <footer class="footer"><span>GROWA · ESTUDIOS ECONÓMICOS TERRITORIALES</span><span>Fuente: DGSIAP · Anexos 2003–2025 · Elaboración estadística propia</span><span>Datos nominales · Edición de octubre 2026</span></footer>
   </main>
