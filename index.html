@@ -30,7 +30,10 @@
     </div>
   </aside>
   <main class="page" id="main">
-    <div class="topline"><span>GROWA / PUBLICACIONES / SERIE AGRÍCOLA N.º 01</span><span id="status" class="status" aria-live="polite">Preparando información…</span></div>
+    <div class="topline">
+      <span class="breadcrumb">GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> SINALOA</span>
+      <div class="top-actions"><button class="quick-search" id="open-search" type="button" aria-haspopup="dialog" aria-controls="search-dialog"><span class="search-glyph" aria-hidden="true">⌕</span> Buscar municipio o cultivo <kbd>Ctrl K</kbd></button><span id="status" class="status" aria-live="polite">Preparando información…</span></div>
+    </div>
     <header class="masthead">
       <div class="masthead-kicker"><span class="editorial-rule"></span> OBSERVATORIO AGRÍCOLA · SINALOA</div>
       <h1>Agricultura de Sinaloa.<br><em>2003–2025.</em></h1>
@@ -47,7 +50,7 @@
         <article class="editorial-panel feature-chart">
           <div class="section-card-heading"><div><span class="eyebrow">EVOLUCIÓN ECONÓMICA</span><h3>Valor bruto de la producción</h3><p>Millones de pesos nominales · 2003 a 2025</p></div><button type="button" class="utility-btn" data-export="state">Descargar CSV <span aria-hidden="true">↗</span></button></div>
           <div id="chart-state" class="chart"></div>
-          <div class="fineprint">El incremento nominal del valor no equivale necesariamente a un aumento real de producción.</div>
+          <div class="fineprint">El incremento nominal del valor no equivale necesariamente a un aumento real de producción.</div><div id="state-reference-years" class="reference-years" aria-label="Puntos de referencia de la serie histórica"></div>
         </article>
         <article class="editorial-panel ranked-panel">
           <div class="section-card-heading"><div><span class="eyebrow">ESTRUCTURA PRODUCTIVA</span><h3>Los cultivos que más aportan</h3><p>Valor agrícola bruto, cierre 2025</p></div></div>
@@ -58,6 +61,16 @@
         <div class="section-card-heading"><div><span class="eyebrow">GEOGRAFÍA DEL VALOR</span><h3>Dieciocho realidades productivas</h3><p>Selecciona un municipio para consultar su expediente histórico y las conclusiones del informe.</p></div><span class="small-caption">ORDENADOS POR VALOR 2025</span></div>
         <div id="state-municipios" class="municipality-list"></div>
       </div>
+      <section class="research-block" aria-label="Comparación temporal">
+        <div class="research-head"><div><span class="section-counter">SERIE HISTÓRICA / CONSULTA INTERACTIVA</span><h3>Explorar un cierre anual</h3><p>Selecciona un año para observar cómo se distribuía el valor bruto agrícola entre los municipios y cultivos registrados.</p></div><label class="year-control"><span>AÑO DE REFERENCIA</span><select id="year-select" aria-label="Año de referencia"></select></label></div>
+        <div id="year-summary" class="year-summary"></div>
+        <div class="two-pane research-cols"><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">COMPOSICIÓN HISTÓRICA</span><h3>Cultivos por valor</h3></div><span class="small-caption" id="year-crop-caption"></span></div><div id="year-crop-rank" class="rank-list"></div></article><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">JERARQUÍA TERRITORIAL</span><h3>Municipios por valor</h3></div><span class="small-caption" id="year-muni-caption"></span></div><div id="year-muni-rank" class="rank-list"></div></article></div>
+      </section>
+      <section class="research-block" aria-label="Comparador municipal">
+        <div class="research-head"><div><span class="section-counter">COMPARACIÓN / DOS TERRITORIOS</span><h3>Municipios frente a frente</h3><p>Contrasta la evolución nominal de dos municipios sin abandonar el panorama estatal.</p></div><div class="compare-controls"><label>PRIMER MUNICIPIO<select id="compare-a" aria-label="Primer municipio"></select></label><span class="compare-symbol" aria-hidden="true">×</span><label>SEGUNDO MUNICIPIO<select id="compare-b" aria-label="Segundo municipio"></select></label></div></div>
+        <div id="comparison-stats" class="comparison-stats"></div>
+        <div class="editorial-panel comparison-panel"><div class="section-card-heading"><div><span class="eyebrow">SERIES 2003—2025</span><h3>Valor agrícola comparado</h3><p>Millones de pesos corrientes. Escala común para ambos municipios.</p></div><button id="compare-export" type="button" class="utility-btn">Exportar comparación CSV ↗</button></div><div id="comparison-chart" class="chart"></div><div class="chart-note" id="comparison-note"></div></div>
+      </section>
     </section>
 
     <section id="panel-municipios" class="section-panel" aria-label="Análisis municipal" hidden>
@@ -92,6 +105,15 @@
 
     <footer class="footer"><span>GROWA · ESTUDIOS ECONÓMICOS TERRITORIALES</span><span>Fuente: DGSIAP · Anexos 2003–2025 · Elaboración estadística propia</span><span>Datos nominales · Edición de octubre 2026</span></footer>
   </main>
+</div>
+<div class="search-overlay" id="search-dialog" role="dialog" aria-modal="true" aria-labelledby="search-title" hidden>
+  <div class="search-underlay" data-close-search="true"></div>
+  <div class="command-box">
+    <div class="command-head"><div><span class="eyebrow">BÚSQUEDA GLOBAL</span><h2 id="search-title">Ir directamente a un análisis</h2></div><button id="close-search" type="button" class="icon-button" aria-label="Cerrar búsqueda">✕</button></div>
+    <label class="command-input"><span aria-hidden="true">⌕</span><input id="global-search" type="search" autocomplete="off" placeholder="Busca Mazatlán, maíz, frijol…" aria-label="Buscar municipios y cultivos"><kbd>ESC</kbd></label>
+    <div class="command-results" id="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
+    <div class="command-foot">Selecciona una fila para abrir el expediente · Ctrl + K para buscar desde cualquier sección</div>
+  </div>
 </div>
 </body>
 </html>
