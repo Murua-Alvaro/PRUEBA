@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101e32"><meta name="description" content="Observatorio agrícola de Sinaloa, 2003–2025. Series históricas, perfiles municipales, cultivos y auditoría estadística de DGSIAP.">
+<title>Growa | Agricultura de Sinaloa 2003–2025</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js" defer></script>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+  <div class="wordmark"><span class="monogram">G<span class="gold">.</span></span><span><strong>GROWA</strong><small>ESTUDIOS TERRITORIALES</small></span></div>
+  <div class="side-label">OBSERVATORIO</div>
+  <nav class="side-nav" aria-label="Secciones del observatorio">
+    <button class="nav-item active" data-view="estado" type="button"><span class="nav-number">01</span><span>Panorama estatal</span><span class="chev">›</span></button>
+    <button class="nav-item" data-view="municipios" type="button"><span class="nav-number">02</span><span>Municipios</span><span class="chev">›</span></button>
+    <button class="nav-item" data-view="cultivos" type="button"><span class="nav-number">03</span><span>Cultivos y variedades</span><span class="chev">›</span></button>
+    <button class="nav-item" data-view="auditoria" type="button"><span class="nav-number">04</span><span>Calidad estadística</span><span class="chev">›</span></button>
+  </nav>
+  <div class="side-lower"><span class="edition">SERIE ESTADÍSTICA</span><strong>2003—2025</strong><p>DGSIAP · Cierres agrícolas municipales</p><div class="side-rule"></div><span class="version">EDICIÓN · OCT 2026</span></div>
+</aside>
+<main class="content">
+  <header class="topbar"><span class="breadcrumb">INVESTIGACIÓN ECONÓMICA <span class="slash">/</span> SINALOA</span><div class="topbar-right"><span class="status-dot"></span><span id="load-indicator">Cargando datos auditados…</span></div></header>
+  <div class="main-body">
+  <section class="page-intro"><div><p class="kicker">GROWA / INTELIGENCIA PRODUCTIVA</p><h1 id="page-title">Agricultura de Sinaloa</h1><p id="page-description" class="intro-description">Estructura productiva, trayectorias agrícolas y diagnóstico económico territorial.</p></div><div class="period"><small>PERIODO DE ESTUDIO</small><strong>2003 <span>→</span> 2025</strong><span>23 cierres anuales</span></div></section>
+  <div id="alert" class="alert" hidden role="status"></div>
+  <section id="view-estado" class="view" aria-label="Panorama estatal">
+    <div class="section-marker"><span>01 / PANORAMA ESTATAL</span><span>CIERRE AGRÍCOLA 2025</span></div>
+    <div id="state-kpis" class="kpi-grid"></div>
+    <div class="two-col primary-charts"><article class="surface wide"><div class="panel-header"><div><span class="overline">SERIE HISTÓRICA</span><h2>Valor agrícola nominal</h2><p>Millones de pesos corrientes · 2003–2025</p></div><span class="meta">DGSIAP</span></div><div id="state-trend" class="chart-box"></div><p class="figure-note">Las variaciones monetarias incluyen precios y cantidades. No se encuentran deflactadas.</p></article><article class="surface"><div class="panel-header"><div><span class="overline">COMPOSICIÓN ECONÓMICA</span><h2>Cultivos de mayor valor</h2><p>Participación en el valor estatal de 2025</p></div><span class="meta">TOP 10</span></div><div id="state-crops" class="bar-list"></div></article></div>
+    <article class="surface spaced"><div class="panel-header"><div><span class="overline">DISTRIBUCIÓN TERRITORIAL</span><h2>Valor agrícola por municipio</h2><p>Selecciona un municipio para abrir su perfil. Montos en millones de pesos nominales.</p></div><span class="meta">18 MUNICIPIOS</span></div><div id="state-municipal" class="ranking-grid"></div></article>
+  </section>
+  <section id="view-municipios" class="view" hidden aria-label="Municipios">
+    <div class="section-marker"><span>02 / DIAGNÓSTICO MUNICIPAL</span><span>18 CLAVES HISTÓRICAS</span></div>
+    <div class="toolbar"><label class="select-field"><span>MUNICIPIO</span><select id="municipality-select" aria-label="Seleccionar municipio"></select></label><button id="export-municipality" class="secondary-btn" type="button">Exportar serie CSV ↓</button></div>
+    <div id="municipal-kpis" class="kpi-grid"></div>
+    <div class="two-col"><article class="surface wide"><div class="panel-header"><div><span class="overline">SERIE 2003–2025</span><h2>Trayectoria municipal</h2><p>Valor bruto de producción · millones de pesos nominales</p></div><span class="meta" id="municipal-chart-name"></span></div><div id="municipal-trend" class="chart-box"></div></article><article class="surface"><div class="panel-header"><div><span class="overline">PORTAFOLIO PRODUCTIVO</span><h2>Principales cultivos</h2><p>Valor del cierre agrícola de 2025</p></div><span class="meta">TOP 8</span></div><div id="municipal-crops" class="bar-list"></div></article></div>
+    <div class="two-col spaced"><article class="surface"><div class="panel-header"><div><span class="overline">CAMBIO RECIENTE</span><h2>Movimientos 2024–2025</h2><p>Contribuciones monetarias por cultivo</p></div><span class="meta">Δ NOMINAL</span></div><div id="municipal-changes" class="table-scroll"></div></article><article class="surface"><div class="panel-header"><div><span class="overline">CONDICIONES PRODUCTIVAS</span><h2>Riego, ciclo y tecnología</h2><p>Composición del valor agrícola de 2025</p></div></div><div id="municipal-structure" class="structure"></div></article></div>
+    <div id="municipal-analysis" class="analytical-note"></div>
+  </section>
+  <section id="view-cultivos" class="view" hidden aria-label="Cultivos y variedades">
+    <div class="section-marker"><span>03 / CULTIVOS Y VARIEDADES</span><span>BASE HISTÓRICA 2003–2025</span></div>
+    <div class="toolbar multi"><label class="select-field"><span>CULTIVO</span><select id="crop-select" aria-label="Seleccionar cultivo"></select></label><label class="select-field"><span>TERRITORIO</span><select id="crop-territory" aria-label="Territorio del cultivo"><option value="">Sinaloa (total estatal)</option></select></label><button id="export-crop" class="secondary-btn" type="button">Exportar serie CSV ↓</button></div>
+    <div id="crop-kpis" class="kpi-grid"></div>
+    <div class="two-col"><article class="surface wide"><div class="panel-header"><div><span class="overline">DESEMPEÑO HISTÓRICO</span><h2>Valor del cultivo, 2003–2025</h2><p>Serie de registros disponibles · millones de pesos nominales</p></div><span class="meta" id="crop-chart-name"></span></div><div id="crop-trend" class="chart-box"></div></article><article class="surface"><div class="panel-header"><div><span class="overline">LOCALIZACIÓN DEL VALOR</span><h2>Principales municipios</h2><p>Contribución al valor estatal del cultivo en 2025</p></div><span class="meta">2025</span></div><div id="crop-geography" class="bar-list"></div></article></div>
+    <div class="two-col spaced"><article class="surface"><div class="panel-header"><div><span class="overline">DESAGREGACIÓN</span><h2>Variedades identificadas en 2025</h2><p>Valor de producción según registros originales</p></div></div><div id="crop-varieties" class="table-scroll"></div></article><article class="surface"><div class="panel-header"><div><span class="overline">CARACTERÍSTICAS OPERATIVAS</span><h2>Modalidad de agua</h2><p>Distribución del valor del cultivo en 2025</p></div></div><div id="crop-water" class="structure"></div><p class="figure-note">La proporción bajo riego es descriptiva, no una estimación causal del efecto del agua.</p></article></div>
+    <div id="crop-analysis" class="analytical-note"></div>
+  </section>
+  <section id="view-auditoria" class="view" hidden aria-label="Calidad estadística">
+    <div class="section-marker"><span>04 / FUENTE Y CALIDAD</span><span>CONTROL DE INTEGRIDAD</span></div>
+    <div class="audit-intro surface"><div><span class="overline">ORIGEN DE LA INFORMACIÓN</span><h2>Cierres agrícolas municipales DGSIAP</h2><p>La plataforma utiliza las series consolidadas y los registros de 2025 incluidos en los anexos de auditoría del informe <em>Agricultura de Sinaloa 2003–2025</em>. No incorpora proyecciones ni datos simulados.</p></div><div class="audit-big"><strong>15,276</strong><span>OBSERVACIONES<br>2003–2025</span></div></div>
+    <div id="audit-tests" class="audit-grid"></div>
+    <div class="two-col spaced"><article class="surface"><div class="panel-header"><div><span class="overline">CAMBIOS DE COBERTURA</span><h2>Registros y cultivos por año</h2><p>Documentación de discontinuidades de la fuente</p></div></div><div id="audit-series" class="table-scroll"></div></article><article class="surface"><div class="panel-header"><div><span class="overline">REGLAS DE INTERPRETACIÓN</span><h2>Cautelas metodológicas</h2></div></div><div class="method-points"><p><strong>Valores monetarios.</strong> Expresados en pesos corrientes; las variaciones no representan crecimiento real.</p><p><strong>Superficies.</strong> Se suman hectáreas declaradas por cultivo y ciclo. No equivalen a una medición de superficie física única.</p><p><strong>Municipios.</strong> Se mantienen las 18 claves municipales históricas de la fuente. No se reasignan registros a nuevas demarcaciones sin una concordancia oficial.</p><p><strong>Continuidad.</strong> El catálogo presenta una reducción significativa en 2020–2021. La baja superficie siniestrada declarada en 2025 exige cautela.</p><p><strong>Resultados.</strong> Valor bruto de producción no es rentabilidad, utilidad ni flujo de caja. Las variaciones no permiten atribuir efectos causales a clima, costos o financiamiento.</p></div></article></div>
+    <article class="surface spaced provenance"><div><span class="overline">TRAZABILIDAD</span><h2>Origen y límites de este tablero</h2><p id="checksum"></p><p>Se preservan las variables y unidades de los anexos. Las tasas y participaciones se calculan a partir de los registros en la interfaz. Esta versión no sustituye un nuevo contraste con los sistemas oficiales.</p><button id="export-audit" class="secondary-btn" type="button">Exportar resumen estatal CSV ↓</button></div></article>
+  </section>
+  </div>
+  <footer class="footer"><span>GROWA / ESTUDIOS ECONÓMICOS TERRITORIALES</span><span>DGSIAP · SINALOA · 2003–2025</span><span>ELABORACIÓN ESTADÍSTICA PROPIA</span></footer>
+</main></div>
+</body></html>
