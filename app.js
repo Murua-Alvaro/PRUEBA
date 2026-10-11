@@ -243,8 +243,8 @@ function followCommand(item){
  }
 }
 
-function bind(){document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>{const mode=b.dataset.export;if(mode==='state')downloadCSV('sinaloa_estado_2003_2025.csv',D.state);if(mode==='municipality')downloadCSV(`sinaloa_${slug(state.municipio)}_2003_2025.csv`,D.byMuni.get(state.municipio).annual);if(mode==='crop')downloadCSV(`sinaloa_cultivo_${slug(state.cultivo)}.csv`,cropInfo(state.cultivo).aggregated)}));$('state-municipios').addEventListener('click',e=>{const btn=e.target.closest('[data-open-muni]');if(!btn)return;state.municipio=btn.dataset.openMuni;renderMunicipio();navigate('municipios')});$('municipio').addEventListener('change',e=>{state.municipio=e.target.value;state.search='';$('municipio-search').value='';renderMunicipio()});$('cultivo').addEventListener('change',e=>{state.cultivo=e.target.value;renderCultivo()});document.querySelectorAll('[data-metric]').forEach(btn=>btn.addEventListener('click',()=>{state.municipioMetric=btn.dataset.metric;renderMunicipio()}));$('municipio-search').addEventListener('input',e=>{state.search=e.target.value;renderMuniCropList()});$('municipio-order').addEventListener('change',e=>{state.order=e.target.value;renderMuniCropList()});$('municipio-crop-list').addEventListener('click',e=>{const btn=e.target.closest('[data-muni-crop]');if(!btn)return;state.activeMunicipioCrop=btn.dataset.muniCrop;renderMuniCropList()});window.addEventListener('hashchange',()=>{const tab=location.hash.slice(1);if(['panorama','municipios','cultivos','metodologia'].includes(tab))navigate(tab)})}
-async function init(){try{await load();for(const m of D.muniNames){const o=document.createElement('option');o.value=m;o.textContent=m;$('municipio').append(o)}for(const c of D.cropNames){const o=document.createElement('option');o.value=c;o.textContent=c;$('cultivo').append(o)}bind();installResearchTools();renderPanorama();renderMunicipio();renderCultivo();renderMetodologia();navigate(['panorama','municipios','cultivos','metodologia'].includes(location.hash.slice(1))?location.hash.slice(1):'panorama');$('status').textContent='Datos cargados · DGSIAP';}catch(err){console.error(err);$('status').textContent='No se pudo cargar la serie';$('alert').hidden=false;$('alert').textContent='No se pudieron inicializar los datos del observatorio: '+err.message}}
+function bind(){document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>{const mode=b.dataset.export;if(mode==='state')downloadCSV('sinaloa_estado_2003_2025.csv',D.state);if(mode==='municipality')downloadCSV(`sinaloa_${slug(state.municipio)}_2003_2025.csv`,D.byMuni.get(state.municipio).annual);if(mode==='crop')downloadCSV(`sinaloa_cultivo_${slug(state.cultivo)}.csv`,cropInfo(state.cultivo).aggregated)}));$('state-municipios').addEventListener('click',e=>{const btn=e.target.closest('[data-open-muni]');if(!btn)return;state.municipio=btn.dataset.openMuni;renderMunicipio();navigate('municipios')});$('municipio').addEventListener('change',e=>{state.municipio=e.target.value;state.search='';$('municipio-search').value='';renderMunicipio()});$('cultivo').addEventListener('change',e=>{state.cultivo=e.target.value;renderCultivo()});document.querySelectorAll('[data-metric]').forEach(btn=>btn.addEventListener('click',()=>{state.municipioMetric=btn.dataset.metric;renderMunicipio()}));$('municipio-search').addEventListener('input',e=>{state.search=e.target.value;renderMuniCropList()});$('municipio-order').addEventListener('change',e=>{state.order=e.target.value;renderMuniCropList()});$('municipio-crop-list').addEventListener('click',e=>{const btn=e.target.closest('[data-muni-crop]');if(!btn)return;state.activeMunicipioCrop=btn.dataset.muniCrop;renderMuniCropList()});window.addEventListener('hashchange',()=>{const tab=location.hash.slice(1);if(['panorama','municipios','cultivos','mexico','metodologia'].includes(tab))navigate(tab)})}
+async function init(){try{await load();for(const m of D.muniNames){const o=document.createElement('option');o.value=m;o.textContent=m;$('municipio').append(o)}for(const c of D.cropNames){const o=document.createElement('option');o.value=c;o.textContent=c;$('cultivo').append(o)}bind();installResearchTools();renderPanorama();renderMunicipio();renderCultivo();renderMetodologia();navigate(['panorama','municipios','cultivos','mexico','metodologia'].includes(location.hash.slice(1))?location.hash.slice(1):'panorama');$('status').textContent='Datos cargados · DGSIAP';}catch(err){console.error(err);$('status').textContent='No se pudo cargar la serie';$('alert').hidden=false;$('alert').textContent='No se pudieron inicializar los datos del observatorio: '+err.message}}
 
 // Accesos rápidos de consulta: / enfoca búsqueda municipal, Esc limpia.
 document.addEventListener('keydown',event=>{
@@ -256,4 +256,126 @@ document.addEventListener('keydown',event=>{
  }
 });
 init();
+})();
+
+
+/* GROWA NATIONAL REPORT MODULE */
+/* Published figures transcribed from the 115-page national report.
+   This is a REPORT SUMMARY, not the 879,785 original DGSIAP micro-records. */
+(()=>{
+'use strict';
+const crops=[
+["Aguacate",3.16,6.84,3.68,59589.7,4.6,19,4,"Michoacán",44132.5,"La superficie cosechada media aumentó 155,2 % entre trienios; el volumen del segmento en toneladas, 192,6 %. La ganancia de cuota no equivale por sí sola a rentabilidad. La variedad Hass concentra la mayor parte del valor en 2025."],
+["Agave",1.47,4.08,2.61,15798.6,-63.4,24,5,"Jalisco",7557.6,"La ganancia de cuota de largo plazo convive con una fuerte caída nominal en 2025. La maduración de un cultivo perenne dificulta asociar los cambios anuales de superficie y cosecha con un mismo ciclo productivo."],
+["Limón",1.45,3.26,1.81,24396.8,-16.3,29,4,"Michoacán",8208.7,"La expansión de la cuota requiere distinguir limón mexicano, persa e italiano. La mezcla varietal puede modificar el precio agregado sin mostrar qué parte de la variación procede de cada mercado."],
+["Frambuesa",0.08,1.34,1.26,8544.0,-33.4,34,2,"Jalisco",4335.0,"Parte de una base relativa pequeña y gana relevancia sostenida. El crecimiento de valor por hectárea puede concentrarse en poca superficie; el retroceso reciente obliga a distinguir trayectoria de coyuntura."],
+["Fresa",0.64,1.89,1.25,15803.4,-8.6,39,2,"Michoacán",8708.5,"El cultivo combina registros expresados en toneladas y plantas. Todo el valor entra al ranking, pero volumen, precio y rendimiento solo son comparables dentro de una misma unidad física."],
+["Caña de azúcar",8.23,6.19,-2.05,56055.5,10.8,44,1,"Veracruz",20765.4,"Una cuota menor puede coexistir con mayor valor nominal y con el aumento de 2025. La participación disminuye porque el conjunto agrícola se reestructura; no equivale a desaparición del cultivo."],
+["Pastos y praderas",6.14,4.24,-1.90,37134.6,-3.2,49,20,"Jalisco",12177.7,"Es un agregado heterogéneo de usos forrajeros y variedades. El valor nacional puede cambiar por combinación de registros, por lo que no se infiere productividad homogénea de cada parcela."],
+["Sorgo grano",4.09,2.37,-1.72,16601.9,-13.7,54,2,"Tamaulipas",6722.7,"La menor participación exige separar cambios de superficie, rendimiento y precio. El documento no demuestra sustitución causal por otros cultivos ni una presión concreta de costos."],
+["Tomate rojo (jitomate)",5.51,3.99,-1.52,29602.3,-21.0,59,9,"San Luis Potosí",4410.3,"La reducción de cuota no demuestra rezago tecnológico. Coexisten cielo abierto, invernadero y malla sombra; la composición por variedad puede alterar valor y rendimiento medios."],
+["Papa",3.55,2.20,-1.35,19064.2,-5.9,64,5,"Sonora",5692.8,"La comparación separa escala física y valor nominal. La composición de ciclos y variedades afecta el rendimiento agregado; no representa la experiencia uniforme de todos los productores."]
+];
+const states=[
+["Michoacán",7.905,12.803,4.899,104321.5,77,"Aguacate, maíz grano y fresa explican 60,7 % del valor territorial de 2025."],
+["Jalisco",7.907,12.020,4.113,82669.5,78,"Destacan maíz grano, pastos y praderas y caña de azúcar. Agave y aguacate contribuyen positivamente al cambio de cuota."],
+["Sonora",5.156,6.368,1.212,43981.9,79,"Los cultivos de mayor valor son uva, espárrago y papa. Su trayectoria combina cambios de composición y magnitudes físicas."],
+["Chihuahua",5.079,6.290,1.211,50841.8,80,"La mejora relativa se calcula sobre toda la agricultura declarada, no únicamente sobre los diez cultivos seleccionados."],
+["Campeche",0.476,0.979,0.503,7814.8,81,"La variación de cuota parte de un peso nacional reducido y debe compararse junto a la estructura de cultivos registrada."],
+["Chiapas",5.859,2.730,-3.129,24196.7,82,"La pérdida de participación nacional es relativa: no acredita por sí sola una caída nominal de cada cultivo ni un deterioro causal."],
+["Tamaulipas",4.332,2.708,-1.624,22132.6,83,"La relevancia relativa disminuye en la comparación de trienios; el balance depende de mezcla de cultivos y precios."],
+["Sinaloa",8.647,7.227,-1.421,49615.2,84,"La caída de cuota nacional de largo plazo convive con una aportación agrícola elevada. Se puede complementar con los 18 perfiles del observatorio de Sinaloa."],
+["México",4.945,3.846,-1.099,32011.8,85,"El ranking describe la participación de la entidad federativa denominada México, no el país."],
+["Baja California",3.568,2.670,-0.898,18813.4,86,"Cambios de división municipal y de composición productiva requieren atención al revisar series largas."]
+];
+const munis=[
+["Zapotlán el Grande","Jalisco",0.112,0.498,0.386,4078.9,87,"Aguacate, frambuesa y arándano concentran 87,9 % del valor municipal de 2025."],
+["Jocotepec","Jalisco",0.132,0.473,0.341,2143.4,88,"La frambuesa ocupa la primera posición, seguida de zarzamora y maíz grano."],
+["Caborca","Sonora",0.579,0.898,0.320,7604.3,89,"Espárrago, uva y papa son los tres mayores componentes del valor agrícola de 2025."],
+["Salvador Escalante","Michoacán",0.253,0.565,0.311,4511.5,90,"El aguacate concentra la mayor parte del valor del cierre, acompañado de zarzamora y arándano."],
+["Ario","Michoacán",0.280,0.590,0.310,5043.2,91,"El aguacate es el componente predominante en la estructura de valor municipal."],
+["Mapastepec","Chiapas",0.987,0.114,-0.874,954.0,92,"La pérdida de participación refleja en gran medida la variación de pastos y praderas; no se interpreta automáticamente como caída de productividad."],
+["Ensenada","Baja California",2.228,1.372,-0.855,9843.3,93,"ADVERTENCIA: el territorio publicado no mantiene límites constantes después de la creación de San Quintín; no debe leerse como declive sobre una unidad geográfica idéntica."],
+["Guasave","Sinaloa",1.904,1.185,-0.719,8333.3,94,"La menor cuota nacional es compatible con un valor nominal municipal elevado. El detalle del cultivo está en la sección de Sinaloa."],
+["Altamira","Tamaulipas",0.593,0.117,-0.475,935.2,95,"La caída de cuota nacional no identifica por sí sola una causa productiva concreta ni permite inferir utilidades."],
+["González","Tamaulipas",0.597,0.229,-0.368,2303.4,96,"La estructura y los límites de la fuente requieren cautela para una interpretación municipal de largo plazo."]
+];
+const fmt=new Intl.NumberFormat('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmtpp=new Intl.NumberFormat('es-MX',{minimumFractionDigits:2,maximumFractionDigits:3});
+const toNum=x=>fmt.format(x);
+const pp=x=>(x>0?'+':'')+fmtpp.format(x)+' pp';
+const qs=s=>document.querySelector(s);
+const formatSource=p=>'Informe nacional · pág. '+p;
+const sourceNote='<strong>Alcance:</strong> este expediente resume el PDF recibido. No representa la totalidad de observaciones estatales o municipales ni una revisión independiente de sus cálculos.';
+function metrics(items){return '<div class="mx-metric-row">'+items.map(([title,value])=>'<div class="mx-metric"><small>'+title+'</small><strong>'+value+'</strong></div>').join('')+'</div>';}
+function fold(title,html){return '<details class="mx-fold"><summary>'+title+'</summary>'+html+'</details>';}
+function bar(rows,selection,selector){
+ const max=Math.max(...rows.map(r=>Math.abs(r[3])));
+ return rows.map((r,i)=>{
+   const val=r[3],portion=Math.min(100,Math.abs(val)/max*96);
+   return '<div class="mx-bar-row"><button type="button" class="mx-name" data-row="'+i+'">'+r[0]+'</button><div class="mx-bar-track">'+(val<0?'<div class="mx-bar-negative" style="width:'+portion+'%"></div><div></div>':'<div></div><div class="mx-bar-positive" style="width:'+portion+'%"></div>')+'</div><span class="mx-bar-number">'+pp(val)+'</span></div>';
+ }).join('');
+}
+function renderCrop(i){
+ const r=crops[i];const [name,start,end,delta,val,annual,p,varieties,leader,leadValue,summary]=r;
+ qs('#mx-crop-select').value=String(i);
+ const description=delta>0?'Gana participación en el valor nacional':'Pierde participación en el valor nacional';
+ qs('#mx-crop-detail').innerHTML='<div class="mx-detail-top"><div><span class="eyebrow">PERFIL CULTIVO · '+description.toUpperCase()+'</span><h4>'+name+'</h4></div><span class="mx-source">'+formatSource(p)+'–'+(p+4)+'</span></div>'+
+ metrics([['Cuota inicial 2003–05',fmtpp.format(start)+' %'],['Cuota final 2023–25',fmtpp.format(end)+' %'],['Cambio de relevancia',pp(delta)],['Valor bruto 2025',toNum(val)+' M$']])+
+ '<p class="mx-narrative">'+summary+'</p>'+
+ fold('Cierre 2025 y comparación reciente','<p>Variación nominal 2025 frente a 2024: <strong>'+fmt.format(annual)+' %</strong>. El signo de la variación anual no tiene que coincidir con el cambio relativo de largo plazo. Fuente: página '+p+'.</p>')+
+ fold('Variedades y concentración territorial','<p>El informe contabiliza <strong>'+varieties+' variedades o clasificaciones</strong> para este cultivo. En 2025 la entidad líder fue <strong>'+leader+'</strong>, con <strong>'+toNum(leadValue)+' millones de pesos</strong>. Los detalles se presentan en las páginas '+(p+2)+' y '+(100+i)+'. Las etiquetas varietales no equivalen necesariamente a genotipos.</p>')+
+ fold('Lectura económica y método','<p>'+description+'. La variación en el valor bruto nominal reúne superficie, volumen, precios y composición. No estima ganancia neta, valor real ni un efecto causal. El capítulo contiene análisis físico, lectura territorial, interpretación económica y balance varietal en las páginas '+p+'–'+(p+4)+'.</p>');
+}
+function renderState(i){
+ const r=states[i];const [name,start,end,delta,val,p,note]=r;
+ qs('#mx-state-select').value=String(i);
+ qs('#mx-state-detail').innerHTML='<div class="mx-detail-top"><div><span class="eyebrow">PERFIL ESTATAL · '+(delta>0?'AUMENTO':'REDUCCIÓN')+' DE CUOTA</span><h4>'+name+'</h4></div><span class="mx-source">'+formatSource(p)+'</span></div>'+
+ metrics([['Cuota inicial',fmtpp.format(start)+' %'],['Cuota final',fmtpp.format(end)+' %'],['Diferencia',pp(delta)],['Valor 2025',toNum(val)+' M$']])+
+ '<p class="mx-narrative">'+note+'</p>'+
+ fold('Interpretación y composición','<p>La cuota se calcula frente al total agrícola nacional observado. Una reducción de participación no equivale automáticamente a una reducción del valor bruto ni a menor rentabilidad. La selección incluye todos los cultivos de la entidad y no solo los diez perfiles del informe. '+sourceNote+'</p>')+
+ (name==='Sinaloa'?'<p class="mx-narrative"><a href="#municipios">Continuar con los 18 municipios de Sinaloa →</a></p>':'');
+}
+function renderMuni(i){
+ const r=munis[i];const [name,ent,start,end,delta,val,p,note]=r;
+ qs('#mx-muni-select').value=String(i);
+ qs('#mx-muni-detail').innerHTML='<div class="mx-detail-top"><div><span class="eyebrow">PERFIL MUNICIPAL · '+ent.toUpperCase()+'</span><h4>'+name+'</h4></div><span class="mx-source">'+formatSource(p)+'</span></div>'+
+ metrics([['Cuota inicial',fmtpp.format(start)+' %'],['Cuota final',fmtpp.format(end)+' %'],['Diferencia',pp(delta)],['Valor 2025',toNum(val)+' M$']])+
+ '<p class="mx-narrative">'+note+'</p>'+
+ fold('Geografía, cuota y comparabilidad','<p>Las cuotas se miden frente al valor nacional. Son resultados de claves municipales publicadas y no de polígonos geográficos necesariamente constantes. Los cambios de demarcación pueden alterar series históricas; el informe no identifica efectos causales. '+sourceNote+'</p>')+
+ (ent==='Sinaloa'?'<p class="mx-narrative"><a href="#municipios">Abrir el expediente de Sinaloa →</a></p>':'');
+}
+function renderQuality(){
+ qs('#mx-quality').innerHTML='<div class="mx-quality-grid"><article><h4>Definición económica</h4><p>Participación anual: 100 × V(i,t)/V(nacional,t). Relevancia: diferencia entre la media de participaciones de 2023–2025 y 2003–2005. La selección exige 0,5 % en al menos uno de los dos trienios para los diez cultivos; estados y municipios se ordenan por su variación de cuota.</p></article><article><h4>Auditoría documentada</h4><p>El PDF declara 879.785 filas, 23 columnas y 32 entidades. Informa 0 faltantes, 0 duplicados exactos, 4 repeticiones dimensionales adicionales, 115 discrepancias de valor superiores al 1 % y dos casos de superficie cosechada mayor que sembrada. Son resultados reportados, no recalculados aquí.</p></article><article><h4>Cobertura 2020–2021</h4><p>El número de nombres de cultivo observados cae a 78 en ambos años, desde 289 en 2019. No interpolar, no convertir años sin registro en producción cero, y evitar conectar estos valores como si la cobertura fuera constante.</p></article><article><h4>Territorio y unidades</h4><p>El informe declara 2.452 claves municipales a lo largo del periodo; el número observado varía anualmente. Los volúmenes solo se agregan dentro de una unidad física compatible. Ensenada presenta una ruptura territorial asociada a San Quintín; no se interpreta sobre límites constantes.</p></article></div>'+
+ fold('Valoración nominal y causalidad','<p>Los 812.156,8 millones de pesos de 2025 no se encuentran deflactados. El valor bruto no equivale a margen, utilidad, empleo o productividad total. Las clasificaciones de exportación y orgánico son atributos de los registros, no certificaciones independientes.</p>')+
+ fold('Conciliación del documento','<p>El reporte afirma haber contrastado 23 archivos anuales municipales de datos abiertos DGSIAP y señala diferencias monetarias acotadas por precisión de publicación (pp. 113–114). En esta integración no se ha repetido esa descarga ni cotejado sus 879.785 filas con el ZIP original.</p>')+
+ fold('Catálogos no homogéneos','<p>La auditoría advierte que el grupo denominado Chile (verde y seco) combina productos, que la alfalfa puede reunir presentaciones distintas y que fresa incluye registros en toneladas y plantas. No deben compararse rendimientos entre unidades físicas diferentes.</p>');
+}
+function initNational(){
+ const total=812156.8,initial=192420.5;
+ qs('#mx-kpis').innerHTML=[
+ ['Valor agrícola 2025',toNum(total)+' M$','Bruto nominal · página 3'],
+ ['Variación desde 2003',fmt.format((total/initial-1)*100)+' %','No implica aumento real'],
+ ['Superficie cosechada',toNum(19117034/1e6)+' M ha','Acumulación por cultivo y ciclo'],
+ ['Caída del valor en 2025','−43.620,4 M$','Frente a 2024 · −5,1 %']
+ ].map(([name,value,foot])=>'<div class="national-kpi"><span>'+name+'</span><strong>'+value+'</strong><small>'+foot+'</small></div>').join('');
+ [['crop',crops,'#mx-crop-select'],['state',states,'#mx-state-select'],['muni',munis,'#mx-muni-select']].forEach(([kind,arr,sel])=>{
+   const s=qs(sel);s.innerHTML=arr.map((r,i)=>'<option value="'+i+'">'+r[0]+(kind==='muni'?' · '+r[1]:'')+'</option>').join('');
+ });
+ const prep=(which,rows,container,fn,sel)=>{
+  const host=qs(container);host.innerHTML=bar(rows);
+  host.querySelectorAll('[data-row]').forEach(b=>b.addEventListener('click',()=>fn(+b.dataset.row)));
+  qs(sel).addEventListener('change',e=>fn(+e.target.value));
+ };
+ prep('crop',crops,'#mx-crops-chart',renderCrop,'#mx-crop-select');
+ prep('state',states,'#mx-states-chart',renderState,'#mx-state-select');
+ const muniBar=munis.map(m=>[m[0]+' · '+m[1],m[2],m[3],m[4],m[5]]);
+ const host=qs('#mx-munis-chart');host.innerHTML=bar(muniBar);host.querySelectorAll('[data-row]').forEach(b=>b.addEventListener('click',()=>renderMuni(+b.dataset.row)));qs('#mx-muni-select').addEventListener('change',e=>renderMuni(+e.target.value));
+ renderCrop(0);renderState(0);renderMuni(0);renderQuality();
+ document.querySelectorAll('[data-mx-tab]').forEach(b=>b.addEventListener('click',()=>{
+   document.querySelectorAll('[data-mx-tab]').forEach(x=>x.classList.toggle('active',x===b));
+   document.querySelectorAll('[data-mx-panel]').forEach(x=>x.hidden=x.dataset.mxPanel!==b.dataset.mxTab);
+ }));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNational);else initNational();
 })();
