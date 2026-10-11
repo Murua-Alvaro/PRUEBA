@@ -79,3 +79,31 @@ Esta versión convierte la investigación y los anexos en un **observatorio cons
 ---
 
 Growa · Estudios Económicos Territoriales · Octubre de 2026
+
+
+## Avances del núcleo analítico — segunda etapa
+
+Se incorporó un generador de productos de datos versionados para una futura aplicación web, **sin cambiar el diseño actual**. Reutiliza el paquete DGSIAP ya almacenado en el repositorio (data/analysis-pack.b64) y permite generar **22 productos JSON**: 18 fichas municipales con detalle por cultivo y 2025, y cuatro índices estatales/de calidad/de cultivos/de catálogos.
+
+- Constructor de la salida: [pipeline/build_web_v2.py](pipeline/build_web_v2.py).
+- Validaciones con datos reales: [tests/test_web_v2.py](tests/test_web_v2.py).
+- Descomposición económica Shapley: [pipeline/shapley.py](pipeline/shapley.py).
+- Comparación con seis resultados del informe: [tests/test_shapley_reports.py](tests/test_shapley_reports.py) y [documentación](docs/SHAPLEY_REPORTES.md).
+- [Hallazgos económicos 2025](docs/HALLAZGOS_2025.md).
+- [Método y contratos](docs/METODOLOGIA.md) y [arquitectura futura](docs/ARQUITECTURA_FUTURA.md).
+
+### Generación local de los productos
+
+Ejecutar en la raíz del repositorio, con Python 3.11 o posterior:
+
+~~~bash
+python -m unittest discover -s tests -v
+python -m pipeline.build_web_v2 --output data/api/v2
+~~~
+
+El resultado incluye 23 años estatales, fichas de los 18 municipios históricos y series de 113 cultivos. La dimensión variedad/tecnología/ciclo/mercado y las observaciones originales detalladas están disponibles para **2025** únicamente; no deben extrapolarse retrospectivamente.
+
+### Estado de automatización
+
+Se configuró [GitHub Actions](.github/workflows/generar-datos-v2.yml) para ejecutar pruebas y generar los JSON. **Las ejecuciones de GitHub Actions están fallando antes de iniciar los pasos y los logs no estuvieron disponibles en la consulta realizada; por ello la compilación automática y la publicación de data/api/v2 en GitHub NO están confirmadas.** Hasta resolver el servicio de Actions, el generador puede ejecutarse con el comando local anterior. No afirmar que la carpeta está publicada sin verificar su presencia en main.
+
