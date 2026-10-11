@@ -1,6 +1,8 @@
 'use strict';
 (()=>{
 const $=id=>document.getElementById(id);
+const stateFacts=[{"share":60.7,"top":[["Aguacate",44132.5],["Maíz grano",10469.2],["Fresa",8708.5]]},{"share":46.7,"top":[["Maíz grano",17765.2],["Pastos y praderas",12177.7],["Caña de azúcar",8657.6]]},{"share":54.4,"top":[["Uva",11034.4],["Espárrago",7200.5],["Papa",5692.8]]},{"share":46.5,"top":[["Nuez",8400.7],["Manzana",7816.4],["Alfalfa",7418.5]]},{"share":63.9,"top":[["Maíz grano",2882.1],["Palma africana o de aceite",1073.9],["Soya",1037]]},{"share":52.7,"top":[["Maíz grano",7660.1],["Caña de azúcar",2934.1],["Café cereza",2147.2]]},{"share":60.8,"top":[["Sorgo grano",6722.7],["Naranja",4529.7],["Maíz grano",2211.5]]},{"share":52.2,"top":[["Maíz grano",13213.4],["Chile (verde y seco)",7664.8],["Frijol",5011.8]]},{"share":47.8,"top":[["Maíz grano",10425.9],["Aguacate",2441.5],["Crisantemo",2418.9]]},{"share":46.5,"top":[["Fresa",4387.1],["Frambuesa",2335.1],["Alfalfa",2034.2]]}];
+const muniFacts=[{"share":87.9,"top":[["Aguacate",1785],["Frambuesa",1361.2],["Arándano",439.4]]},{"share":91.6,"top":[["Frambuesa",1488.3],["Zarzamora",304.3],["Maíz grano",170.4]]},{"share":93.2,"top":[["Espárrago",3637.4],["Uva",2891.9],["Papa",557.1]]},{"share":97.4,"top":[["Aguacate",4135.2],["Zarzamora",143.5],["Arándano",117.8]]},{"share":97.8,"top":[["Aguacate",4641],["Zarzamora",206.7],["Maíz grano",83.4]]},{"share":93.8,"top":[["Pastos y praderas",480.3],["Palma africana o de aceite",341.7],["Mango",73.2]]},{"share":76.9,"top":[["Fresa",4387.1],["Frambuesa",2335.1],["Arándano",846.2]]},{"share":65.8,"top":[["Maíz grano",2929.4],["Papa",1308.9],["Frijol",1246.5]]},{"share":69.1,"top":[["Sorgo grano",276.2],["Soya",214.9],["Chile (verde y seco)",155]]},{"share":57.1,"top":[["Sorgo grano",672.5],["Chile (verde y seco)",358.6],["Cebolla",283.4]]}];
 const fmt=new Intl.NumberFormat('es-MX',{maximumFractionDigits:1,minimumFractionDigits:1});
 const fmt0=new Intl.NumberFormat('es-MX',{maximumFractionDigits:0});
 const compact=new Intl.NumberFormat('es-MX',{notation:'compact',maximumFractionDigits:1});
@@ -345,6 +347,7 @@ function renderState(i){
  qs('#mx-state-detail').innerHTML='<div class="mx-detail-top"><div><span class="eyebrow">PERFIL ESTATAL · '+(delta>0?'AUMENTO':'REDUCCIÓN')+' DE CUOTA</span><h4>'+name+'</h4></div><span class="mx-source">'+formatSource(p)+'</span></div>'+
  metrics([['Cuota inicial',fmtpp.format(start)+' %'],['Cuota final',fmtpp.format(end)+' %'],['Diferencia',pp(delta)],['Valor 2025',toNum(val)+' M$']])+
  '<p class="mx-narrative">'+note+'</p>'+
+ fold('Tres cultivos líderes del estado en 2025','<p>Los tres cultivos representan <strong>'+fmt.format(stateFacts[i].share)+' %</strong> del valor bruto de '+name+'. Cifras reportadas en los cuadros de las páginas 70–71.</p>'+miniNationalBars(stateFacts[i].top,val)+'<p>La concentración describe una estructura de valor, no poder de mercado ni rentabilidad.</p>')+
  fold('Interpretación y composición','<p>La cuota se calcula frente al total agrícola nacional observado. Una reducción de participación no equivale automáticamente a una reducción del valor bruto ni a menor rentabilidad. La selección incluye todos los cultivos de la entidad y no solo los diez perfiles del informe. '+sourceNote+'</p>')+
  (name==='Sinaloa'?'<p class="mx-narrative"><a href="#municipios">Continuar con los 18 municipios de Sinaloa →</a></p>':'');
 }
@@ -354,6 +357,7 @@ function renderMuni(i){
  qs('#mx-muni-detail').innerHTML='<div class="mx-detail-top"><div><span class="eyebrow">PERFIL MUNICIPAL · '+ent.toUpperCase()+'</span><h4>'+name+'</h4></div><span class="mx-source">'+formatSource(p)+'</span></div>'+
  metrics([['Cuota inicial',fmtpp.format(start)+' %'],['Cuota final',fmtpp.format(end)+' %'],['Diferencia',pp(delta)],['Valor 2025',toNum(val)+' M$']])+
  '<p class="mx-narrative">'+note+'</p>'+
+ fold('Tres cultivos líderes en 2025','<p>Los tres principales representan <strong>'+fmt.format(muniFacts[i].share)+' %</strong> del valor agrícola bruto del municipio. Fuente: páginas 74–75.</p>'+miniNationalBars(muniFacts[i].top,val)+'<p>Los cambios de cuota nacional no demuestran una mejora o pérdida de rentabilidad.</p>')+
  fold('Geografía, cuota y comparabilidad','<p>Las cuotas se miden frente al valor nacional. Son resultados de claves municipales publicadas y no de polígonos geográficos necesariamente constantes. Los cambios de demarcación pueden alterar series históricas; el informe no identifica efectos causales. '+sourceNote+'</p>')+
  (ent==='Sinaloa'?'<p class="mx-narrative"><a href="#municipios">Abrir el expediente de Sinaloa →</a></p>':'');
 }
@@ -363,6 +367,12 @@ function renderQuality(){
  fold('Conciliación del documento','<p>El reporte afirma haber contrastado 23 archivos anuales municipales de datos abiertos DGSIAP y señala diferencias monetarias acotadas por precisión de publicación (pp. 113–114). En esta integración no se ha repetido esa descarga ni cotejado sus 879.785 filas con el ZIP original.</p>')+
  fold('Comprobación de discrepancias y fuente','<p>Informe nacional, páginas 10 y 113: 79 registros superan la tolerancia de valor del manifiesto del paquete, mientras 115 tienen una diferencia relativa superior al 1 % según la comprobación independiente (58 superan el 5 %). Hay 4 repeticiones de clave dimensional y dos filas de pastos en Oaxaca, 2025, con cosechada mayor que sembrada. La conciliación con los 23 CSV municipales abiertos se describe en la página 114; esta web no la ejecuta porque falta el ZIP completo en el proyecto.</p>')+
  fold('Catálogos no homogéneos','<p>La auditoría advierte que el grupo denominado Chile (verde y seco) combina productos, que la alfalfa puede reunir presentaciones distintas y que fresa incluye registros en toneladas y plantas. No deben compararse rendimientos entre unidades físicas diferentes.</p>');
+}
+function exportReportRows(rows,filename,cols){
+ const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const lines=[cols.map(c=>esc(c[0])).join(','),...rows.map(r=>cols.map(c=>esc(r[c[1]])).join(','))];
+ const file=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
 }
 function initNational(){
  const total=812156.8,initial=192420.5;
@@ -385,6 +395,16 @@ function initNational(){
  const muniBar=munis.map(m=>[m[0]+' · '+m[1],m[2],m[3],m[4],m[5]]);
  const host=qs('#mx-munis-chart');host.innerHTML=bar(muniBar);host.querySelectorAll('[data-row]').forEach(b=>b.addEventListener('click',()=>renderMuni(+b.dataset.row)));qs('#mx-muni-select').addEventListener('change',e=>renderMuni(+e.target.value));
  renderCrop(0);renderState(0);renderMuni(0);renderQuality();
+
+ document.querySelectorAll('[data-mx-export]').forEach(button=>button.addEventListener('click',()=>{
+  const kind=button.dataset.mxExport;
+  const rows=(kind==='cultivos'?crops:kind==='estados'?states:munis).map(r=>kind==='municipios'?
+    {nombre:r[0],entidad:r[1],cuota_inicio:r[2],cuota_final:r[3],cambio_pp:r[4],valor_2025_mdp:r[5],pagina:r[6]}:
+    {nombre:r[0],cuota_inicio:r[1],cuota_final:r[2],cambio_pp:r[3],valor_2025_mdp:r[4],pagina:kind==='cultivos'?r[6]:r[5]});
+  const cols=kind==='municipios'?[['Municipio','nombre'],['Entidad','entidad'],['Cuota inicial (%)','cuota_inicio'],['Cuota final (%)','cuota_final'],['Cambio (pp)','cambio_pp'],['Valor 2025 (M$)','valor_2025_mdp'],['Página del informe','pagina']]:
+    [['Nombre','nombre'],['Cuota inicial (%)','cuota_inicio'],['Cuota final (%)','cuota_final'],['Cambio (pp)','cambio_pp'],['Valor 2025 (M$)','valor_2025_mdp'],['Página del informe','pagina']];
+  exportReportRows(rows,'growa_mexico_'+kind+'_resumen_informe_2025.csv',cols);
+ }));
  document.querySelectorAll('[data-mx-tab]').forEach(b=>b.addEventListener('click',()=>{
    document.querySelectorAll('[data-mx-tab]').forEach(x=>x.classList.toggle('active',x===b));
    document.querySelectorAll('[data-mx-panel]').forEach(x=>x.hidden=x.dataset.mxPanel!==b.dataset.mxTab);
