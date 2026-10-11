@@ -22,6 +22,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from .dgsiap import validate, derive, n, millions
+from .shapley import shapley_bridge
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = ROOT / "data" / "analysis-pack.b64"
@@ -178,7 +179,8 @@ def compare_crops(last: list[dict], previous: list[dict]) -> list[dict]:
             "diferencia_mdp":value_millions(delta) if delta is not None else None,
             "variacion_nominal_pct":round(float((v1/v0-1)*100),3)
                 if delta is not None and v0>0 else None,
-            "descomposicion_log_puntos":None
+            "descomposicion_log_puntos":None,
+            "descomposicion_shapley_mdp":shapley_bridge(a,b)
         }
         if a and b and a["Nomunidad"]==b["Nomunidad"]:
             a0,a1=n(a["Cosechada"]),n(b["Cosechada"])
