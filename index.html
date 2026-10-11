@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102b27">
+  <meta name="description" content="Growa Agricultura Lab: análisis productivo con DGSIAP y consulta climática con NASA POWER.">
+  <title>Growa Agricultura Lab | Producción y clima</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="Growa Agricultura Lab, inicio"><span class="brand-mark">G<span>·</span></span><span><strong>GROWA</strong><small>AGRICULTURA LAB</small></span></a>
+    <nav aria-label="Navegación principal"><a href="#produccion">Producción</a><a href="#clima">Clima histórico</a><a href="#metodologia">Metodología</a></nav>
+    <a class="toplink" href="https://github.com/Murua-Alvaro/intelligent-data-studio/tree/agricultura-produccion/agricultura-produccion" target="_blank" rel="noopener">Proyecto analítico <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="inicio">
+    <section class="hero wrap">
+      <div>
+        <p class="eyebrow"><span class="signal"></span> LABORATORIO DE INTELIGENCIA PRODUCTIVA</p>
+        <h1>La agricultura, <em>en evidencia.</em></h1>
+        <p class="hero-copy">Una plataforma para explorar producción, superficie y valor agrícola, y consultar el comportamiento histórico del clima. Los indicadores provienen de archivos cargados por el usuario o de fuentes oficiales consultadas en tiempo real.</p>
+        <div class="hero-actions"><a class="button primary" href="#produccion">Explorar producción <span>↗</span></a><a class="button quiet" href="#clima">Consultar NASA POWER <span>↗</span></a></div>
+        <div class="hero-note">Sin datos inventados. Sin mezclar unidades incompatibles. Cada resultado conserva su fuente.</div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="art-grid"></div><div class="art-ridge ridge-1"></div><div class="art-ridge ridge-2"></div><div class="art-ridge ridge-3"></div><div class="art-label">TERRITORIO / CLIMA / PRODUCCIÓN</div><div class="art-coords">23°14′ N — 106°25′ O</div></div>
+    </section>
+    <section class="section wrap" id="produccion">
+      <div class="section-head"><div><p class="eyebrow">01 / DATOS PRODUCTIVOS</p><h2>Producción agrícola</h2><p>Carga un CSV de cierres agrícolas municipales DGSIAP con las columnas oficiales. Los cálculos se realizan localmente en tu navegador.</p></div><span class="source-pill">Fuente: DGSIAP · archivo del usuario</span></div>
+      <div class="workspace">
+        <div class="upload-row">
+          <label class="upload" for="agro-file"><span class="upload-symbol">↥</span><span><strong>Seleccionar archivo CSV</strong><small>CSV UTF-8, delimitado por coma, punto y coma o tabulación. Se recomienda un archivo municipal o estatal.</small></span><input id="agro-file" type="file" accept=".csv,text/csv,text/plain"></label>
+          <div class="upload-status" role="status" id="upload-status">No hay archivos cargados. Los indicadores permanecerán vacíos hasta seleccionar datos.</div>
+        </div>
+        <div class="filters">
+          <label>Año<select id="filter-year" disabled><option value="">Todos</option></select></label>
+          <label>Estado<select id="filter-state" disabled><option value="">Todos</option></select></label>
+          <label>Municipio<select id="filter-city" disabled><option value="">Todos</option></select></label>
+          <label>Cultivo<select id="filter-crop" disabled><option value="">Todos</option></select></label>
+          <button id="clear-filters" class="clear-button" type="button" disabled>Restablecer</button>
+        </div>
+        <div class="metric-grid" id="production-metrics">
+          <article class="metric"><small>Valor de producción <span>MXN nominal</span></small><strong id="metric-value">—</strong><p>Sumatoria de registros</p></article>
+          <article class="metric"><small>Superficie cosechada <span>ha</span></small><strong id="metric-area">—</strong><p>Sumatoria de registros</p></article>
+          <article class="metric"><small>Volumen producido <span>unidad original</span></small><strong id="metric-volume">—</strong><p id="volume-note">Requiere unidad compatible</p></article>
+          <article class="metric"><small>Registros observados</small><strong id="metric-rows">—</strong><p>Después de aplicar filtros</p></article>
+        </div>
+        <div class="visual-grid">
+          <article class="panel"><div class="panel-head"><div><small>COMPORTAMIENTO TEMPORAL</small><h3>Valor de producción por año</h3></div><span>MXN nominal</span></div><div class="chart-empty" id="year-chart">Carga un CSV para generar la serie histórica.</div></article>
+          <article class="panel"><div class="panel-head"><div><small>COMPOSICIÓN PRODUCTIVA</small><h3>Principales cultivos por valor</h3></div><span>Top 7</span></div><div class="chart-empty" id="crop-chart">Los cultivos aparecerán al cargar los datos.</div></article>
+        </div>
+        <div class="table-panel">
+          <div class="table-heading"><div><small>VERIFICACIÓN</small><h3>Vista de registros</h3></div><button id="export-filtered" class="button outline" type="button" disabled>Exportar filtro CSV ↗</button></div>
+          <div class="table-scroll"><table><thead id="preview-head"><tr><th>Año</th><th>Estado</th><th>Municipio</th><th>Cultivo</th><th>Valor (MXN)</th></tr></thead><tbody id="preview-body"><tr><td colspan="5" class="empty-cell">Aún no hay registros para mostrar.</td></tr></tbody></table></div>
+          <p class="fine-print" id="row-count">Se muestran como máximo 12 registros en la vista previa. La exportación incluye todos los registros filtrados.</p>
+        </div>
+      </div>
+    </section>
+    <section class="section alternate" id="clima"><div class="wrap">
+      <div class="section-head"><div><p class="eyebrow">02 / ENTORNO CLIMÁTICO</p><h2>Clima histórico</h2><p>Consulta directamente la API pública de NASA POWER para un punto representativo. Esta consulta no reemplaza la caracterización climática de todo un municipio.</p></div><span class="source-pill">Fuente: NASA POWER · API oficial</span></div>
+      <div class="climate-layout">
+        <form id="climate-form" class="climate-form">
+          <h3>Punto y periodo de consulta</h3>
+          <label>Ubicación de referencia<select id="climate-location"><option value="23.2329,-106.4062">Mazatlán, Sinaloa</option><option value="24.8091,-107.3940">Culiacán, Sinaloa</option><option value="25.7905,-108.9859">Los Mochis, Sinaloa</option><option value="custom">Coordenadas personalizadas</option></select></label>
+          <div class="climate-pair"><label>Latitud<input id="climate-lat" type="number" step="any" min="-90" max="90" value="23.2329" required></label><label>Longitud<input id="climate-lon" type="number" step="any" min="-180" max="180" value="-106.4062" required></label></div>
+          <label>Año<select id="climate-year"></select></label>
+          <button id="climate-submit" type="submit" class="button primary">Consultar NASA POWER ↗</button>
+          <div class="climate-message" id="climate-message" role="status">Selecciona un punto y consulta su información climática histórica.</div>
+        </form>
+        <div class="climate-results"><div class="metric-grid climate-metrics">
+          <article class="metric"><small>Temperatura media <span>°C</span></small><strong id="climate-temp">—</strong><p>Media de días válidos</p></article>
+          <article class="metric"><small>Precipitación anual <span>mm</span></small><strong id="climate-rain">—</strong><p>Suma de días válidos</p></article>
+          <article class="metric"><small>Humedad relativa <span>%</span></small><strong id="climate-humidity">—</strong><p>Media de días válidos</p></article>
+          <article class="metric"><small>Radiación solar <span>kWh/m²/día</span></small><strong id="climate-solar">—</strong><p>Media de días válidos</p></article>
+        </div>
+        <article class="panel climate-chart"><div class="panel-head"><div><small>PERFIL ESTACIONAL</small><h3>Precipitación mensual</h3></div><span>mm acumulados</span></div><div id="monthly-chart" class="chart-empty">Sin consulta climática ejecutada.</div></article>
+        <p class="fine-print">NASA POWER: datos climáticos de rejilla para coordenadas específicas. Los valores faltantes se excluyen; las fechas se interpretan según la respuesta del servicio. <a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener">Conocer la fuente oficial ↗</a></p>
+        </div>
+      </div>
+    </div></section>
+    <section class="section wrap method" id="metodologia">
+      <div class="section-head"><div><p class="eyebrow">03 / TRANSPARENCIA</p><h2>Qué mide esta herramienta</h2><p>Un entorno experimental conectado conceptualmente con el repositorio productivo principal.</p></div></div>
+      <div class="method-grid"><article><span>01</span><h3>Datos observados</h3><p>Producción y superficies se leen de archivos DGSIAP cargados por el usuario. El repositorio no incluye ni supone una base precargada.</p></article><article><span>02</span><h3>Comparabilidad</h3><p>El volumen agregado se oculta si hay unidades de producción diferentes. El valor se expresa en pesos corrientes, sin deflactar; no debe confundirse crecimiento nominal con crecimiento real.</p></article><article><span>03</span><h3>Calidad</h3><p>Se informa la cantidad de registros y se mantienen las filas originales. La auditoría de duplicados, clasificaciones y unidades debe hacerse antes de publicar resultados oficiales.</p></article><article><span>04</span><h3>Continuidad</h3><p>El análisis robusto, la base maestra 2003–2025, los indicadores avanzados y los modelos residen en el proyecto Growa Agricultura, separado de este laboratorio.</p></article></div>
+      <div class="repo-link"><div><small>REPOSITORIO PRODUCTIVO</small><h3>Growa Agricultura · arquitectura analítica</h3><p>Notebooks, auditorías, catálogos y procesamiento DGSIAP 2003–2025.</p></div><a class="button outline" href="https://github.com/Murua-Alvaro/intelligent-data-studio/tree/agricultura-produccion/agricultura-produccion" target="_blank" rel="noopener">Consultar código ↗</a></div>
+    </section>
+  </main>
+  <footer class="footer"><span><strong>GROWA</strong> / AGRICULTURA LAB</span><span>Inteligencia productiva, con trazabilidad.</span><span>Proyecto experimental · 2026</span></footer>
+</body>
+</html>
