@@ -3,319 +3,95 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="Observatorio agrícola de Sinaloa 2003–2025 con conclusiones ejecutivas, series históricas y fichas municipales y de cultivos.">
-  <title>Growa | Agricultura de Sinaloa 2003–2025</title>
+  <meta name="theme-color" content="#f7f7f4">
+  <meta name="description" content="Growa | Observatorio de Agricultura de Sinaloa 2003–2025. Series históricas, diagnósticos municipales y conclusiones del informe original.">
+  <title>Growa — Agricultura de Sinaloa</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="site-header">
-      <div class="brand-block">
-        <div class="brand-mark">G<span>.</span></div>
-        <div>
-          <p class="eyebrow">GROWA · INTELIGENCIA PRODUCTIVA</p>
-          <h1>Agricultura de Sinaloa</h1>
-          <p class="subtitle">Serie agrícola 2003–2025, perfiles municipales, cultivos, variedades y calidad estadística.</p>
-        </div>
-      </div>
-      <div class="header-meta">
-        <div class="meta-chip">
-          <small>PERIODO</small>
-          <strong>2003 → 2025</strong>
-        </div>
-        <div class="meta-chip status-chip">
-          <small>ESTADO</small>
-          <strong id="load-indicator">Cargando datos…</strong>
-        </div>
-      </div>
+<div class="shell">
+  <aside class="rail" aria-label="Menú principal">
+    <a class="brand" href="#panorama" aria-label="Growa — Panorama estatal"><span class="brand-symbol">G<span class="brand-point">.</span></span><span class="brand-word">GROWA<small>ESTUDIOS TERRITORIALES</small></span></a>
+    <div class="rail-separator"></div>
+    <div class="nav-overline">OBSERVATORIO</div>
+    <nav class="navigation" aria-label="Secciones">
+      <button class="nav-link active" data-tab="panorama" type="button"><span class="nav-index">01</span> Panorama estatal</button>
+      <button class="nav-link" data-tab="municipios" type="button"><span class="nav-index">02</span> Municipios</button>
+      <button class="nav-link" data-tab="cultivos" type="button"><span class="nav-index">03</span> Cultivos y variedades</button>
+      <button class="nav-link" data-tab="metodologia" type="button"><span class="nav-index">04</span> Metodología</button>
+    </nav>
+    <div class="rail-bottom">
+      <p class="rail-bottom-label">SERIE DE INVESTIGACIÓN</p>
+      <p class="rail-bottom-years">2003—2025</p>
+      <div class="rail-bottom-rule"></div>
+      <p>Dirección General del Servicio de Información Agroalimentaria y Pesquera. Cierres municipales.</p>
+      <small>EDICIÓN DE TRABAJO · OCTUBRE 2026</small>
+    </div>
+  </aside>
+  <main class="page" id="main">
+    <div class="topline"><span>GROWA / INVESTIGACIÓN ECONÓMICA TERRITORIAL</span><span id="status" class="status">Preparando información…</span></div>
+    <header class="masthead">
+      <div class="masthead-kicker"><span class="editorial-rule"></span> OBSERVATORIO AGRÍCOLA · SINALOA</div>
+      <h1>El campo sinaloense,<br><em>en perspectiva.</em></h1>
+      <p>Una lectura territorial de la producción, el valor agrícola y la transformación de sus cultivos, con datos de 2003 a 2025.</p>
+      <div class="masthead-meta"><span>23 cierres anuales</span><span>18 municipios históricos</span><span>DGSIAP · pesos corrientes</span></div>
     </header>
 
-    <nav class="main-nav" aria-label="Secciones del observatorio">
-      <button class="nav-pill active" data-view="overview" type="button">Panorama estatal</button>
-      <button class="nav-pill" data-view="municipality" type="button">Municipios</button>
-      <button class="nav-pill" data-view="crops" type="button">Cultivos</button>
-      <button class="nav-pill" data-view="quality" type="button">Calidad estadística</button>
-    </nav>
+    <div id="alert" class="alert" role="status" hidden></div>
 
-    <main class="content-wrap">
-      <div id="banner" class="banner" hidden></div>
-
-      <section id="view-overview" class="view-section">
-        <div class="hero-grid">
-          <article class="hero-card hero-card-primary">
-            <p class="eyebrow">RESUMEN EJECUTIVO</p>
-            <h2>Lectura rápida del cierre agrícola 2025</h2>
-            <p class="lead">El observatorio se apoya en los anexos auditados del proyecto “Agricultura de Sinaloa 2003–2025”. Presenta cifras históricas, comparaciones 2024–2025 y una estructura navegable para revisar hallazgos y advertencias.</p>
-            <div id="overview-headlines" class="headline-stack"></div>
-          </article>
-          <article class="hero-card">
-            <div class="card-head compact">
-              <div>
-                <p class="eyebrow">FUENTE</p>
-                <h3>Trazabilidad del análisis</h3>
-              </div>
-            </div>
-            <div id="overview-trace" class="bullet-panel"></div>
-          </article>
-        </div>
-
-        <div id="state-kpis" class="kpi-grid"></div>
-
-        <div class="panel-grid two-up">
-          <article class="panel span-7">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">SERIE HISTÓRICA</p>
-                <h3>Valor agrícola nominal</h3>
-                <p>Millones de pesos corrientes. Serie estatal 2003–2025.</p>
-              </div>
-              <span class="tag">23 cierres anuales</span>
-            </div>
-            <div id="state-value-chart" class="chart-card"></div>
-          </article>
-          <article class="panel span-5">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">CONCENTRACIÓN 2025</p>
-                <h3>Principales cultivos por valor</h3>
-                <p>Participación en el valor estatal de 2025.</p>
-              </div>
-              <span class="tag">Top 10</span>
-            </div>
-            <div id="state-top-crops" class="bar-list"></div>
-          </article>
-        </div>
-
-        <div class="panel-grid two-up">
-          <article class="panel span-8">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">TERRITORIO</p>
-                <h3>Municipios por valor agrícola</h3>
-                <p>Las tarjetas muestran valor 2025, variación frente a 2024 y cultivo líder.</p>
-              </div>
-            </div>
-            <div id="state-municipality-grid" class="territory-grid"></div>
-          </article>
-          <article class="panel span-4">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">ALERTAS</p>
-                <h3>Advertencias clave</h3>
-                <p>Puntos que deben mantenerse visibles al interpretar la serie.</p>
-              </div>
-            </div>
-            <div id="overview-alerts" class="bullet-panel"></div>
-          </article>
-        </div>
-      </section>
-
-      <section id="view-municipality" class="view-section" hidden>
-        <div class="section-toolbar">
-          <div>
-            <p class="eyebrow">DIAGNÓSTICO MUNICIPAL</p>
-            <h2>Perfiles con conclusiones desplegables</h2>
-            <p class="section-copy">Consulta el comportamiento del municipio, sus cultivos líderes y un bloque expandible de conclusiones y gráficas individuales.</p>
-          </div>
-          <label class="selector-card">
-            <span>Municipio</span>
-            <select id="municipality-select"></select>
-          </label>
-        </div>
-
-        <div class="panel-grid municipality-layout">
-          <article class="panel span-8">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">PERFIL</p>
-                <h3 id="municipality-title">Municipio</h3>
-                <p id="municipality-subtitle">Resumen del cierre agrícola y trayectoria histórica.</p>
-              </div>
-              <div id="municipality-report-ref" class="pill-quiet"></div>
-            </div>
-            <div id="municipality-kpis" class="kpi-grid compact-kpis"></div>
-          </article>
-          <article class="panel span-4 info-panel">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">LECTURA RÁPIDA</p>
-                <h3>Conclusiones ejecutivas</h3>
-                <p>Resumen interpretativo del municipio seleccionado.</p>
-              </div>
-            </div>
-            <div class="accordion-stack" id="municipality-accordion-summary"></div>
-          </article>
-        </div>
-
-        <div class="panel-grid two-up">
-          <article class="panel span-7">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">SERIE HISTÓRICA</p>
-                <h3>Valor y superficie cosechada</h3>
-                <p>La gráfica combina valor nominal y superficie cosechada del municipio.</p>
-              </div>
-            </div>
-            <div id="municipality-chart" class="chart-card"></div>
-          </article>
-          <article class="panel span-5">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">ESTRUCTURA PRODUCTIVA</p>
-                <h3>Cultivos de mayor valor en 2025</h3>
-                <p>Participación del valor agrícola municipal.</p>
-              </div>
-              <span id="municipality-top-share" class="tag"></span>
-            </div>
-            <div id="municipality-top-crops" class="bar-list"></div>
-          </article>
-        </div>
-
-        <article class="panel">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">DESPLIEGUE DETALLADO</p>
-              <h3>Conclusiones y gráficas individuales por cultivo</h3>
-              <p>Abre cada cultivo para ver su trayectoria, cambios 2024–2025 y la composición observada en 2025.</p>
-            </div>
-            <button id="expand-municipality-crops" class="ghost-button" type="button">Expandir todo</button>
-          </div>
-          <div id="municipality-crop-details" class="accordion-stack large"></div>
+    <section id="panel-panorama" class="section-panel" aria-label="Panorama estatal">
+      <div class="section-heading"><div><span class="section-counter">01 / EL PANORAMA</span><h2>El estado en cifras</h2></div><span class="period-label">CIERRE 2025</span></div>
+      <div class="stat-row" id="state-stats"></div>
+      <div class="two-pane overview-primary">
+        <article class="editorial-panel feature-chart">
+          <div class="section-card-heading"><div><span class="eyebrow">EVOLUCIÓN ECONÓMICA</span><h3>Valor bruto de la producción</h3><p>Millones de pesos nominales · 2003 a 2025</p></div><button type="button" class="utility-btn" data-export="state">Descargar CSV <span aria-hidden="true">↗</span></button></div>
+          <div id="chart-state" class="chart"></div>
+          <div class="fineprint">El incremento nominal del valor no equivale necesariamente a un aumento real de producción.</div>
         </article>
-      </section>
-
-      <section id="view-crops" class="view-section" hidden>
-        <div class="section-toolbar">
-          <div>
-            <p class="eyebrow">ANÁLISIS DE CULTIVOS</p>
-            <h2>Cultivos, variedades y presencia territorial</h2>
-            <p class="section-copy">Revisa las series del cultivo seleccionado y sus dimensiones observadas en el cierre 2025.</p>
-          </div>
-          <label class="selector-card">
-            <span>Cultivo</span>
-            <select id="crop-select"></select>
-          </label>
-        </div>
-
-        <div class="panel-grid municipality-layout">
-          <article class="panel span-8">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">CULTIVO SELECCIONADO</p>
-                <h3 id="crop-title">Cultivo</h3>
-                <p id="crop-subtitle">Resumen territorial y económico.</p>
-              </div>
-            </div>
-            <div id="crop-kpis" class="kpi-grid compact-kpis"></div>
-          </article>
-          <article class="panel span-4 info-panel">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">LECTURA RÁPIDA</p>
-                <h3>Conclusiones del cultivo</h3>
-                <p>Hallazgos principales y cautelas de lectura.</p>
-              </div>
-            </div>
-            <div id="crop-conclusions" class="accordion-stack"></div>
-          </article>
-        </div>
-
-        <div class="panel-grid two-up">
-          <article class="panel span-7">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">SERIE HISTÓRICA</p>
-                <h3>Valor estatal del cultivo</h3>
-                <p>Presencia en los años reportados. No se imputan años faltantes con cero.</p>
-              </div>
-            </div>
-            <div id="crop-chart" class="chart-card"></div>
-          </article>
-          <article class="panel span-5">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">MUNICIPIOS 2025</p>
-                <h3>Distribución territorial</h3>
-                <p>Municipios con mayor valor para el cultivo seleccionado.</p>
-              </div>
-            </div>
-            <div id="crop-municipality-bars" class="bar-list"></div>
-          </article>
-        </div>
-
-        <article class="panel">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">DESPLIEGUE DETALLADO</p>
-              <h3>Variedades y dimensiones observadas en 2025</h3>
-              <p>Se muestran solo las dimensiones disponibles en el cierre 2025; no deben extrapolarse como series históricas.</p>
-            </div>
-            <button id="expand-crop-dimensions" class="ghost-button" type="button">Expandir todo</button>
-          </div>
-          <div id="crop-dimension-details" class="accordion-stack large"></div>
+        <article class="editorial-panel ranked-panel">
+          <div class="section-card-heading"><div><span class="eyebrow">ESTRUCTURA PRODUCTIVA</span><h3>Los cultivos que más aportan</h3><p>Valor agrícola bruto, cierre 2025</p></div></div>
+          <div id="state-crops" class="rank-list"></div>
         </article>
-      </section>
+      </div>
+      <div class="editorial-panel state-territory">
+        <div class="section-card-heading"><div><span class="eyebrow">GEOGRAFÍA DEL VALOR</span><h3>Dieciocho realidades productivas</h3><p>Selecciona un municipio para consultar su expediente histórico y las conclusiones del informe.</p></div><span class="small-caption">ORDENADOS POR VALOR 2025</span></div>
+        <div id="state-municipios" class="municipality-list"></div>
+      </div>
+    </section>
 
-      <section id="view-quality" class="view-section" hidden>
-        <div class="section-toolbar simple">
-          <div>
-            <p class="eyebrow">CALIDAD ESTADÍSTICA</p>
-            <h2>Fuente, controles y advertencias</h2>
-            <p class="section-copy">Resumen de integridad, cobertura y límites de interpretación del material cargado en la plataforma.</p>
-          </div>
-        </div>
+    <section id="panel-municipios" class="section-panel" aria-label="Análisis municipal" hidden>
+      <div class="section-heading"><div><span class="section-counter">02 / EL TERRITORIO</span><h2>Expedientes municipales</h2></div><div class="selector-wrap"><label for="municipio">MUNICIPIO</label><select id="municipio" aria-label="Selecciona un municipio"></select></div></div>
+      <div class="feature-intro"><div><span class="eyebrow">PERFIL ECONÓMICO · 2025</span><h3 id="municipio-name">Mazatlán</h3><p id="municipio-lede">Perfil productivo municipal con el cierre 2025 y las series históricas 2003–2025.</p></div><div class="feature-number"><span>VALOR BRUTO 2025</span><strong id="municipio-value">—</strong><small>Millones de pesos nominales</small></div></div>
+      <div class="stat-row compact" id="municipio-stats"></div>
+      <div class="two-pane">
+        <article class="editorial-panel feature-chart"><div class="section-card-heading"><div><span class="eyebrow">2003—2025</span><h3>Trayectoria municipal</h3><p>Valor bruto nominal y superficie cosechada acumulada</p></div><button class="utility-btn" data-export="municipality" type="button">Descargar CSV ↗</button></div><div class="chart-toggle"><button class="toggle active" data-metric="value" type="button">Valor, MDP</button><button class="toggle" data-metric="harvest" type="button">Superficie, ha</button></div><div id="chart-municipio" class="chart"></div></article>
+        <article class="editorial-panel ranked-panel"><div class="section-card-heading"><div><span class="eyebrow">CIERRE 2025</span><h3>Especialización por cultivo</h3><p>Principales cultivos, valor bruto en millones de pesos</p></div></div><div id="municipio-rank" class="rank-list"></div></article>
+      </div>
+      <div class="story-panel">
+        <div class="story-heading"><div><span class="section-counter">LA LECTURA DEL INFORME</span><h3>Conclusiones del capítulo municipal</h3><p>Texto del informe de 395 páginas, organizado por sus tres apartados de cierre. Abre el análisis que quieras consultar.</p></div><span id="report-pages" class="report-chip">PÁGINAS —</span></div>
+        <div id="municipio-report" class="disclosure-set"></div>
+      </div>
+      <div class="story-panel crop-explorer">
+        <div class="story-heading"><div><span class="section-counter">GRÁFICAS INDIVIDUALES</span><h3>Un historial para cada cultivo</h3><p>Selecciona cualquier cultivo registrado en este municipio para desplegar su serie anual y detalle del cierre 2025.</p></div><span id="crop-count" class="report-chip">— CULTIVOS</span></div>
+        <div class="explorer-toolbar"><label class="search-field"><span aria-hidden="true">⌕</span><input id="municipio-search" type="search" placeholder="Buscar un cultivo…" aria-label="Buscar cultivo dentro del municipio"></label><select id="municipio-order" aria-label="Orden de cultivos"><option value="value">Mayor valor en 2025</option><option value="name">Orden alfabético</option></select></div>
+        <div class="explorer-layout"><div id="municipio-crop-list" class="crop-pick-list"></div><div id="municipio-crop-detail" class="crop-detail"><div class="empty">Selecciona un cultivo para consultar su ficha.</div></div></div>
+      </div>
+    </section>
 
-        <div id="quality-kpis" class="kpi-grid"></div>
+    <section id="panel-cultivos" class="section-panel" aria-label="Análisis de cultivos" hidden>
+      <div class="section-heading"><div><span class="section-counter">03 / LA PRODUCCIÓN</span><h2>Cultivos y variedades</h2></div><div class="selector-wrap"><label for="cultivo">CULTIVO</label><select id="cultivo" aria-label="Selecciona un cultivo"></select></div></div>
+      <div class="feature-intro"><div><span class="eyebrow">CULTIVO / PERFIL ESTATAL</span><h3 id="crop-name">Maíz grano</h3><p id="crop-lede">Serie histórica, distribución territorial y composición del último cierre.</p></div><div class="feature-number"><span>VALOR EN 2025</span><strong id="crop-value">—</strong><small>Millones de pesos nominales</small></div></div>
+      <div class="stat-row compact" id="crop-stats"></div>
+      <div class="two-pane"><article class="editorial-panel feature-chart"><div class="section-card-heading"><div><span class="eyebrow">EVOLUCIÓN DEL CULTIVO</span><h3>Serie del valor registrado</h3><p>Los años sin registro no se representan como producción cero.</p></div><button type="button" class="utility-btn" data-export="crop">Descargar CSV ↗</button></div><div id="chart-crop" class="chart"></div></article><article class="editorial-panel ranked-panel"><div class="section-card-heading"><div><span class="eyebrow">DISTRIBUCIÓN TERRITORIAL</span><h3>Municipios que lo producen</h3><p>Valor nominal por municipio en el cierre 2025</p></div></div><div id="crop-municipios" class="rank-list"></div></article></div>
+      <div class="story-panel"><div class="story-heading"><div><span class="section-counter">CIERRE 2025</span><h3>Variedades, modalidad y tecnología</h3><p>Las dimensiones operativas corresponden exclusivamente a las observaciones originales de 2025.</p></div></div><div class="disclosure-set" id="crop-dimensions"></div></div>
+      <div class="story-panel"><div class="story-heading"><div><span class="section-counter">DETALLE TERRITORIAL</span><h3>Gráficas individuales por municipio</h3><p>Abre un municipio para examinar la trayectoria de este cultivo y su variación reciente.</p></div></div><div id="crop-municipal-details" class="disclosure-set"></div></div>
+    </section>
 
-        <div class="panel-grid two-up">
-          <article class="panel span-6">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">METADATOS</p>
-                <h3>Fuente incorporada</h3>
-                <p>Descripción de los anexos y del procesamiento contenido en la plataforma.</p>
-              </div>
-            </div>
-            <div id="quality-source" class="bullet-panel"></div>
-          </article>
-          <article class="panel span-6">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">ADVERTENCIAS</p>
-                <h3>Puntos que no deben perderse de vista</h3>
-                <p>Las conclusiones deben leerse junto con estas cautelas.</p>
-              </div>
-            </div>
-            <div id="quality-alerts" class="bullet-panel"></div>
-          </article>
-        </div>
+    <section id="panel-metodologia" class="section-panel" aria-label="Metodología" hidden><div class="section-heading"><div><span class="section-counter">04 / SOBRE LA INVESTIGACIÓN</span><h2>Fuente y calidad estadística</h2></div><span class="period-label">DGSIAP · 2003—2025</span></div><div id="method-stats" class="stat-row"></div><div class="two-pane method-columns"><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">PROCEDENCIA</span><h3>Qué contiene el observatorio</h3></div></div><div id="method-source" class="narrative"></div></article><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">ALCANCE</span><h3>Cómo interpretar los resultados</h3></div></div><div id="method-cautions" class="narrative"></div></article></div><article class="editorial-panel method-audit"><div class="section-card-heading"><div><span class="eyebrow">CONTROL DE LA FUENTE</span><h3>Integridad reportada en los anexos</h3><p>Estos controles provienen del paquete de auditoría proporcionado; no representan una verificación externa independiente.</p></div></div><div id="method-audit" class="audit-grid"></div></article></section>
 
-        <div class="panel-grid two-up">
-          <article class="panel span-6">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">CONTROL</p>
-                <h3>Indicadores de auditoría</h3>
-                <p>Conteos y validaciones declaradas por el paquete cargado.</p>
-              </div>
-            </div>
-            <div id="quality-audit-table" class="table-wrap"></div>
-          </article>
-          <article class="panel span-6">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">CRITERIOS</p>
-                <h3>Cómo leer la plataforma</h3>
-                <p>Orientaciones metodológicas para no sobrerreclamar los datos.</p>
-              </div>
-            </div>
-            <div id="quality-guidance" class="accordion-stack"></div>
-          </article>
-        </div>
-      </section>
-    </main>
-  </div>
+    <footer class="footer"><span>GROWA · ESTUDIOS ECONÓMICOS TERRITORIALES</span><span>Fuente: DGSIAP · Anexos 2003–2025 · Elaboración estadística propia</span><span>Datos nominales · Edición de octubre 2026</span></footer>
+  </main>
+</div>
 </body>
 </html>
