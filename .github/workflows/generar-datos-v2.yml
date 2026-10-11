@@ -1,0 +1,48 @@
+name: Construir datos agricolas de Sinaloa v2
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pipeline/**'
+      - 'tests/**'
+      - 'data/analysis-pack.b64'
+      - '.github/workflows/generar-datos-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ejecutar pruebas sin descargar datos
+        run: python -m unittest discover -s tests -v
+      - name: Generar productos JSON desde los datos auditados existentes
+        run: python -m pipeline.build_web_v2 --output data/api/v2
+      - name: Publicar salida versionada si existe un cambio
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/api/v2/
+          if git diff --cached --quiet; then
+            echo "Los archivos de datos ya coinciden con el analisis reproducible."
+          else
+            git commit -m "Regenerar contratos API agricolas v2 desde anexos auditados"
+            git push origin HEAD:main
+          fi
+      - name: Adjuntar archivo verificable
+        uses: actions/upload-artifact@v4
+        with:
+          name: sinaloa-agricultura-v2-json
+          path: data/api/v2/
+          retention-days: 30
