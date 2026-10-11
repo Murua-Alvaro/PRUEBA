@@ -54,6 +54,24 @@ El anexo de auditoría identifica un SHA-256 para la extracción original de Sin
 - Las comparaciones entre dos años no deben confundirse con relaciones causales.
 - La auditoría mostrada es la que acompaña a los anexos, no una revalidación independiente contra sistemas oficiales en línea.
 
+## Preparación de la próxima plataforma web (octubre de 2026)
+
+Esta etapa prioriza **los fundamentos analíticos** antes de rediseñar la interfaz. Se incorporó:
+
+- [Pipeline DGSIAP reproducible](pipeline/dgsiap.py): lee el ZIP de auditoría y genera un JSON con perfiles de los 18 municipios, composición por cultivo, HHI y principales aumentos/contracciones nominales de 2024 a 2025.
+- [Resumen municipal listo para consultar](data/municipal-summary-v1.json): contrato compacto y versionado del cierre 2025 con cifras reales.
+- [Pruebas de regresión](tests/test_pipeline.py) y [ejecución automática en GitHub Actions](.github/workflows/auditoria-agricola.yml).
+- [Metodología y límites de la fuente](docs/METODOLOGIA.md), [contrato de datos](docs/CONTRATO_DATOS.md) y [arquitectura futura](docs/ARQUITECTURA_FUTURA.md).
+
+Para regenerar el análisis sobre el ZIP original (que debe proporcionarse localmente):
+
+```bash
+python -m pipeline.dgsiap "/ruta/Anexos_Auditoria_Agricultura_Sinaloa_2003_2025_Revision.zip" --output data/indicators-v1.json
+python -m unittest discover -s tests -v
+```
+
+**Alcance de validación:** se conciliaron las tablas incluidas en el ZIP proporcionado, pero esto **no equivale a una verificación externa contra los servidores oficiales**. El motor web definitivo, la actualización automática y la vinculación climática siguen pendientes.
+
 ## Alcance actual
 
 Esta versión convierte la investigación y los anexos en un **observatorio consultable**. No reproduce automáticamente cada párrafo del informe municipal ni incorpora todavía un sistema editorial para publicar nuevos PDFs, actualización del DGSIAP, mapas con georreferencias o modelos predictivos. Esas funciones requieren una siguiente etapa.
