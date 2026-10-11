@@ -107,3 +107,15 @@ El resultado incluye 23 años estatales, fichas de los 18 municipios históricos
 
 Se configuró [GitHub Actions](.github/workflows/generar-datos-v2.yml) para ejecutar pruebas y generar los JSON. **Las ejecuciones de GitHub Actions están fallando antes de iniciar los pasos y los logs no estuvieron disponibles en la consulta realizada; por ello la compilación automática y la publicación de data/api/v2 en GitHub NO están confirmadas.** Hasta resolver el servicio de Actions, el generador puede ejecutarse con el comando local anterior. No afirmar que la carpeta está publicada sin verificar su presencia en main.
 
+
+## México: auditoría y extensión nacional (octubre de 2026)
+
+El sitio contiene ahora una sección de **análisis nacional 2003–2025** basada en el PDF de 115 páginas proporcionado. Se mantiene independiente de las series originales de Sinaloa y no se confunde con un microdato nacional ya incorporado.
+
+**Contenido publicado:** ranking de diez cultivos (cinco que ganan y cinco que pierden participación en el valor agrícola nacional), diez estados y diez municipios destacados por el informe, lecturas individuales, tres líderes territoriales o productivos por ficha, variedades principales y descarga CSV de los rankings.
+
+**Definición de cambio de relevancia:** promedio de las participaciones anuales del trienio 2023–2025 menos el promedio de 2003–2005, en puntos porcentuales. Este criterio no equivale a crecimiento real, cambio físico o mejora de rentabilidad. Los años 2020–2021 conservan una ruptura de cobertura documentada.
+
+**Auditoría de integración:** [docs/AUDITORIA_INTEGRACION_MEXICO.md](docs/AUDITORIA_INTEGRACION_MEXICO.md). **Regresión de referencias:** [tests/test_national_report.py](tests/test_national_report.py). El código se verificó mediante evaluación del módulo con elementos DOM simulados y controles de conciliación de los cuadros seleccionados.
+
+**Limitación no resuelta:** aún no se dispone en este proyecto del archivo `DGSIAP_variedades_municipales_32_estados_2003_2025(6).zip`, al que el informe atribuye 879.785 filas originales. Por ello no se han publicado búsquedas completas de las 32 entidades ni de las 2.452 claves municipales históricas. La conciliación oficial descrita en el informe tampoco constituye una nueva verificación realizada por esta actualización.
