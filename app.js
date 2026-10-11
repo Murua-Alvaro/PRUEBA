@@ -59,7 +59,7 @@ function svgChart(target,series,options={}){
  const annotation=`<text x="${bx}" y="${by}" text-anchor="end" font-size="12" font-weight="700" fill="#111111">${MX(last.value)}</text>`;
  $(target).innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(options.label||'Serie histórica')}" xmlns="http://www.w3.org/2000/svg">${grid}${marks}${paths}${dots}${annotation}</svg><div class="chart-note">Cada punto corresponde a un cierre anual registrado. Eje vertical: ${esc(options.unit||'millones de pesos corrientes')}.</div>`;
 }
-function navigate(tab){state.tab=tab;document.body.dataset.view=tab;const crumb=document.querySelector('.breadcrumb');if(crumb)crumb.innerHTML=tab==='mexico'?'GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> MÉXICO':'GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> SINALOA';for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===tab);for(const panel of document.querySelectorAll('.section-panel'))panel.hidden=panel.id!==`panel-${tab}`;if(location.hash!==`#${tab}`)history.replaceState(null,'',`#${tab}`);window.scrollTo({top:0,behavior:'instant'})}
+function navigate(tab){state.tab=tab;document.body.dataset.view=tab;document.title=tab==='mexico'?'Growa | Agricultura de México 2003–2025':'Growa | Agricultura de Sinaloa 2003–2025';const crumb=document.querySelector('.breadcrumb');if(crumb)crumb.innerHTML=tab==='mexico'?'GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> MÉXICO':'GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> SINALOA';for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===tab);for(const panel of document.querySelectorAll('.section-panel'))panel.hidden=panel.id!==`panel-${tab}`;if(location.hash!==`#${tab}`)history.replaceState(null,'',`#${tab}`);window.scrollTo({top:0,behavior:'instant'})}
 function downloadCSV(name,rows){if(!rows.length)return;const keys=Object.keys(rows[0]);const escapeCell=s=>`"${String(s??'').replace(/"/g,'""')}"`;const csv='\ufeff'+[keys.join(','),...rows.map(r=>keys.map(k=>escapeCell(r[k])).join(','))].join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=name;link.click();URL.revokeObjectURL(url)}
 function renderPanorama(){const latest=D.state.at(-1),prior=D.state.at(-2),top=tableAggregate(D.records,'Nomcultivo');stats('state-stats',[
  {title:'Valor de producción 2025',value:`${MX(latest.value)} MDP`,note:`${PCT((latest.value/prior.value-1)*100)} respecto a 2024`},
@@ -322,7 +322,7 @@ function bar(rows,selection,selector){
 function miniNationalBars(rows,total){
  return '<div class="mx-small-bars">'+rows.map(([name,value])=>{
   const share=total>0?value/total*100:0;
-  return '<div class="mx-small-bar-row"><span>'+name+'</span><div class="mx-small-bar-track"><span class="mx-small-bar-fill" style="width:'+Math.max(0,Math.min(100,share)).toFixed(2)+'%"></span></div><span>'+fmt.format(share)+' %</span></div>';
+  return '<div class="mx-small-bar-row"><span>'+name+'</span><div class="mx-small-bar-track"><span class="mx-small-bar-fill" style="width:'+Math.max(0,Math.min(100,share)).toFixed(2)+'%"></span></div><span>'+toNum(value)+' M$ <small>'+fmt.format(share)+' %</small></span></div>';
  }).join('')+'</div>';
 }
 function renderCrop(i){
@@ -359,7 +359,7 @@ function renderMuni(i){
  '<p class="mx-narrative">'+note+'</p>'+
  fold('Tres cultivos líderes en 2025','<p>Los tres principales representan <strong>'+fmt.format(muniFacts[i].share)+' %</strong> del valor agrícola bruto del municipio. Fuente: páginas 74–75.</p>'+miniNationalBars(muniFacts[i].top,val)+'<p>Los cambios de cuota nacional no demuestran una mejora o pérdida de rentabilidad.</p>')+
  fold('Geografía, cuota y comparabilidad','<p>Las cuotas se miden frente al valor nacional. Son resultados de claves municipales publicadas y no de polígonos geográficos necesariamente constantes. Los cambios de demarcación pueden alterar series históricas; el informe no identifica efectos causales. '+sourceNote+'</p>')+
- (ent==='Sinaloa'?'<p class="mx-narrative"><a href="#municipios">Abrir el expediente de Sinaloa →</a></p>':'');
+ (ent==='Sinaloa'?'<p class="mx-narrative"><a href="#municipios" data-open-sinaloa="Guasave">Abrir expediente municipal de Guasave en Sinaloa →</a></p>':'');
 }
 function renderQuality(){
  qs('#mx-quality').innerHTML='<div class="mx-quality-grid"><article><h4>Definición económica</h4><p>Participación anual: 100 × V(i,t)/V(nacional,t). Relevancia: diferencia entre la media de participaciones de 2023–2025 y 2003–2005. La selección exige 0,5 % en al menos uno de los dos trienios para los diez cultivos; estados y municipios se ordenan por su variación de cuota.</p></article><article><h4>Auditoría documentada</h4><p>El PDF declara 879.785 filas, 23 columnas y 32 entidades. Informa 0 faltantes, 0 duplicados exactos, 4 repeticiones dimensionales adicionales y dos registros con superficie cosechada mayor que sembrada. La auditoría incorporada informa 79 diferencias de valor bajo su tolerancia; la revisión independiente registra 115 diferencias relativas superiores al 1 % (58 superiores al 5 %). Son criterios distintos, no resultados recalculados por esta plataforma. Son resultados reportados, no recalculados aquí.</p></article><article><h4>Cobertura 2020–2021</h4><p>El número de nombres de cultivo observados cae a 78 en ambos años, desde 289 en 2019. No interpolar, no convertir años sin registro en producción cero, y evitar conectar estos valores como si la cobertura fuera constante.</p></article><article><h4>Territorio y unidades</h4><p>El informe declara 2.452 claves municipales a lo largo del periodo; el número observado varía anualmente. Los volúmenes solo se agregan dentro de una unidad física compatible. Ensenada presenta una ruptura territorial asociada a San Quintín; no se interpreta sobre límites constantes.</p></article></div>'+
@@ -396,6 +396,15 @@ function initNational(){
  const host=qs('#mx-munis-chart');host.innerHTML=bar(muniBar);host.querySelectorAll('[data-row]').forEach(b=>b.addEventListener('click',()=>renderMuni(+b.dataset.row)));qs('#mx-muni-select').addEventListener('change',e=>renderMuni(+e.target.value));
  renderCrop(0);renderState(0);renderMuni(0);renderQuality();
 
+ const nationalMuniDetail=qs('#mx-muni-detail');
+ nationalMuniDetail.addEventListener('click',event=>{
+  const link=event.target.closest('[data-open-sinaloa]');
+  if(!link)return;
+  event.preventDefault();
+  const select=document.getElementById('municipio');
+  if(select){select.value=link.dataset.openSinaloa;select.dispatchEvent(new Event('change',{bubbles:true}));}
+  location.hash='#municipios';
+ });
  document.querySelectorAll('[data-mx-export]').forEach(button=>button.addEventListener('click',()=>{
   const kind=button.dataset.mxExport;
   const rows=(kind==='cultivos'?crops:kind==='estados'?states:munis).map(r=>kind==='municipios'?
