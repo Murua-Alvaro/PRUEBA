@@ -470,3 +470,7 @@ body.dialog-open{overflow:hidden}
 .national-footnote{margin-top:38px;border-top:1px solid #aaa;padding-top:16px;color:#777;font-size:11px;line-height:1.65}
 @media(max-width:1100px){.national-intro{grid-template-columns:1fr}.national-context{border-left:0;border-top:1px solid #ccc;flex-direction:row;align-items:center;gap:16px;justify-content:start}.national-context strong{margin:0}.national-panel-head{align-items:flex-start;flex-direction:column}}
 @media(max-width:720px){.national-kpis,.mx-metric-row{grid-template-columns:repeat(2,minmax(0,1fr))}.national-kpi:nth-child(2){border-right:0}.national-kpi:nth-child(n+3){border-top:1px solid #ddd}.mx-metric:nth-child(2){border-right:0}.mx-metric:nth-child(n+3){border-top:1px solid #ddd}.mx-bar-row{grid-template-columns:minmax(80px,1fr) minmax(120px,1.6fr) 55px;gap:7px;font-size:10px}.mx-bar-row .mx-name{font-size:11px}.national-detail{padding:19px}.mx-detail-top{flex-direction:column}.mx-small-bar-row{grid-template-columns:minmax(70px,1fr) minmax(95px,2fr) 72px;gap:6px}}
+
+/* National workspace replaces the Sinaloa-only masthead without altering other views. */
+body[data-view="mexico"] .masthead{display:none}
+body[data-view="mexico"] .top-actions .quick-search{display:none}
