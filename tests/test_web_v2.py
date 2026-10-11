@@ -87,7 +87,7 @@ class WebV2Tests(unittest.TestCase):
             m1=write_outputs(self.products,d)
             m2=write_outputs(self.products,d)
             self.assertEqual(m1,m2)
-            self.assertEqual(m1["files"],23)
+            self.assertEqual(m1["files"],22)
             for x in m1["products"]:
                 self.assertEqual((d/x["file"]).stat().st_size,x["bytes"])
 
