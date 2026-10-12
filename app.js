@@ -1442,11 +1442,13 @@ function context(source){
   state.municipalities.clear();state.crops.clear();
   if(x?.entity==='Sinaloa'&&x.municipio)state.municipalities.add(x.municipio);
   if(x?.entity==='Sinaloa'&&x.stateCrop)state.crops.add(x.stateCrop);
+  if(x?.entity&&x.entity!=='Sinaloa')notify('Esta entidad dispone de un perfil documental; el Laboratorio opera con las series completas de Sinaloa.');
  }else if(source==='crops'){
   const x=window.GrowaExplorer?.getContext?.();
   state.municipalities.clear();state.crops.clear();
   if(x?.scope==='sinaloa'&&x.crop&&D.cropNames.includes(x.crop))state.crops.add(x.crop);
   if(x?.scope==='sinaloa'&&x.cropMuni)state.municipalities.add(x.cropMuni);
+  if(x?.scope==='mexico')notify('El cultivo nacional solo tiene un resumen documental. El Laboratorio utilizará los datos históricos de Sinaloa.');
  }
  state.tab='serie';state.visual='chart';state.compared=[];
  render();window.GrowaNavigate('laboratorio');
