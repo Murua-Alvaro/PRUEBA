@@ -55,7 +55,7 @@ function svgChart(target,series,options={}){
  const available=()=>data.filter(row=>chartState.period==='full'||row.year>=Number(chartState.period));
  const money=v=>Number(v).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1});
  function render(){
-  const rows=available(),minYear=Math.min(...rows.map(d=>d.year)),maxYear=Math.max(...rows.map(d=>d.year));
+  const rows=available(),minYear=rows.length?Math.min(...rows.map(d=>d.year)):(chartState.period==='full'?2003:Number(chartState.period)),maxYear=rows.length?Math.max(...rows.map(d=>d.year)):2025;
   const minX=chartState.period==='full'?2003:Math.min(minYear,Number(chartState.period));
   const maxX=chartState.period==='full'?2025:Math.max(maxYear,2025);
   const yMax=niceMax(Math.max(1,...rows.map(r=>Number(r.value)))*1.09);
@@ -69,14 +69,14 @@ function svgChart(target,series,options={}){
   if(current.length)chunks.push(current);
   const paths=chunks.map(seq=>'<path d="'+seq.map((d,i)=>(i?'L':'M')+sx(d.year).toFixed(2)+' '+sy(d.value).toFixed(2)).join(' ')+'" stroke="#161616" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>').join('');
   const bars=rows.map((d,i)=>{
-   const y=sy(d.value),x=sx(d.year),active=d.year===chartState.selection,previous=rows.find(r=>r.year===d.year-1);
+   const y=sy(d.value),x=sx(d.year),active=d.year===chartState.selection,previous=data.find(r=>r.year===d.year-1);
    const change=previous&&previous.value>0?(d.value/previous.value-1)*100:null;
    const t= d.year+' · '+money(d.value)+' '+unit+(change!==null?' · '+(change>=0?'+':'')+change.toFixed(1)+' % vs año anterior':'');
    return '<circle class="g-data-point'+(active?' active':'')+'" data-year="'+d.year+'" data-value="'+d.value+'" tabindex="0" role="button" aria-label="'+esc(t)+'" cx="'+x.toFixed(2)+'" cy="'+y.toFixed(2)+'" r="'+(active?6.8:4.2)+'" fill="#111" stroke="#fff" stroke-width="2"><title>'+esc(t)+'</title></circle>';
   }).join('');
   const last=rows.at(-1);
   const dataRows=rows.map((row,i)=>{
-   const prev=rows.find(d=>d.year===row.year-1);
+   const prev=data.find(d=>d.year===row.year-1);
    const change=prev&&prev.value>0?((row.value/prev.value-1)*100):null;
    return '<tr><td>'+row.year+'</td><td class="numeric">'+money(row.value)+'</td><td class="numeric">'+(change===null?'Sin comparación':(change>0?'+':'')+change.toFixed(1)+' %')+'</td></tr>';
   }).join('');
@@ -88,7 +88,7 @@ function svgChart(target,series,options={}){
    '<div class="g-chart-segment" role="group" aria-label="Formato"><button type="button" data-chart-mode="chart" aria-pressed="'+(chartState.mode==='chart')+'">Gráfica</button><button type="button" data-chart-mode="table" aria-pressed="'+(chartState.mode==='table')+'">Tabla</button></div>'+
    '<button type="button" class="g-chart-export" data-chart-export title="Descargar los años actualmente seleccionados">CSV ↓</button></div></div>'+
    '<div class="g-chart-visual" '+(chartState.mode==='table'?'hidden':'')+'>'+
-   '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(seriesName)+', valor anual de '+esc(unit)+'" xmlns="http://www.w3.org/2000/svg">'+
+   '<div class="g-chart-empty" '+(rows.length?'hidden':'')+'>No hay observaciones en el periodo seleccionado. Puedes ampliar el horizonte a 2003–2025.</div><svg '+(!rows.length?'hidden ':'')+'viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(seriesName)+', valor anual de '+esc(unit)+'" xmlns="http://www.w3.org/2000/svg">'+
    grid+ticks+paths+bars+'</svg><div class="g-chart-readout" role="status" aria-live="polite">'+(chartState.selection===null?'Selecciona un punto para consultar su valor exacto.':(function(){const point=rows.find(x=>x.year===chartState.selection);return point?point.year+' · '+money(point.value)+' · '+unit:'Selecciona un punto'})())+'</div></div>'+
    '<div class="g-chart-table" '+(chartState.mode==='chart'?'hidden':'')+'><div class="g-table-scroll"><table><thead><tr><th>Año</th><th class="numeric">Valor ('+esc(unit)+')</th><th class="numeric">Variación nominal interanual</th></tr></thead><tbody>'+dataRows+'</tbody></table></div></div>'+
    '<p class="g-chart-footnote">Los años sin observación no se imputan como cero. Las cifras nominales no equivalen a variaciones reales ni a utilidades.</p></div>';
