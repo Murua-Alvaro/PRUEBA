@@ -50,3 +50,31 @@ La contribución de cada factor se calcula como el promedio de su contribución 
 3. Vincular cartografía municipal INEGI y mapas interactivos. No representar agregados municipales como puntos de parcela.
 4. Conectar series oficiales de clima, agua, riego y deflactores; documentar cobertura temporal y unidades.
 5. Permitir reportes reproducibles con metadatos, fuente, consulta, fecha de generación y diagnósticos económicos.
+
+
+## Actualización institucional — octubre de 2026
+La plataforma adopta identidad editorial **Growa Agricultura**, con colores azul petróleo, verde azulado y acentos arena, retícula estable y tipografía de lectura. Se presenta explícitamente como herramienta **independiente de apoyo al análisis para instituciones públicas**, no como sistema oficial de una dependencia.
+
+### Consultas orientadas a decisiones
+Se añaden cuatro acciones funcionales (no botones decorativos):
+1. **Concentración territorial:** abre HHI en 2025 para estudiar la dependencia municipal de cultivos.
+2. **Comparación de municipios:** abre hasta cuatro series temporales normalizadas como índice base 100.
+3. **Cambio del valor productivo:** selecciona maíz grano y prepara descomposición Shapley de superficie, rendimiento y precio implícito.
+4. **Organización de la producción:** abre el detalle 2025 para categorías de variedad, modalidad de agua, ciclo, tecnología, producción y mercado.
+
+Cada acción prepara el modelo ya existente y permite modificar los filtros posteriormente.
+
+### Ficha técnica imprimible
+La consulta cuenta con una ficha generada en el navegador con rango de años, municipios/cultivos seleccionados, observaciones, valor nominal, variación cuando existe comparación válida, distribución territorial y por cultivo, fuente y advertencias. El botón **«Imprimir o guardar PDF»** invoca la impresión estándar del navegador para generar un documento de apoyo institucional. No genera una resolución oficial ni atribuye causalidad.
+
+### Control de ausencia de datos
+Se retiran de los indicadores las abreviaturas «s/d», «s/r» y «n/d» y los valores «Sin comparación». Las medidas sin registro no generan tarjeta; las celdas inexistentes en tablas dinámicas permanecen vacías sin convertirse en cero. Las explicaciones de cobertura se mantienen en notas de método cuando resultan necesarias. No se imputan datos.
+
+### Revisión de botones y accesibilidad
+Se corrige la apertura directa de \`#laboratorio\` y la navegación mediante vínculos fragmentados, se vinculan las cuatro consultas guiadas a filtros y vistas existentes, y se verifica que **«Exportar datos»** entregue los registros del detalle 2025 cuando esa sección es la activa. Se incorpora enlace «Saltar al contenido principal», indicadores de foco, botones táctiles mayores, impresión con estilos específicos y aviso de carácter independiente.
+
+### Verificación y límites
+- Reconciliación contra la base integrada de Sinaloa: 8.217 filas históricas, 23 cierres, diferencia máxima anual menor de 0,0000001 MDP; 637 registros de cierre 2025 = 49.615,22054 MDP.
+- Con el corte de 2025, el HHI municipal observado estuvo entre 0,16416077 (El Fuerte) y 0,47272045 (Badiraguato). Estos valores describen concentración del valor, no riesgo financiero ni viabilidad agrícola por sí solos.
+- \`tests/test_institutional_ui.cjs\` valida seis vistas, cuatro acciones institucionales, generación/cierre/impresión de ficha técnica, exportación de microregistros 2025 y ausencia de marcadores de datos faltantes en pruebas simuladas.
+- Falta una inspección visual integral en navegador público, pruebas automáticas de accesibilidad WCAG, y auditoría externa independiente de DGSIAP; no se presentan como tareas concluidas.
