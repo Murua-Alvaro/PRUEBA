@@ -20,6 +20,7 @@
       <button class="nav-link active" data-tab="panorama" type="button">Inicio</button>
       <button class="nav-link" data-tab="explorar-estados" type="button">Explorar estados</button>
       <button class="nav-link" data-tab="explorar-cultivos" type="button">Explorar cultivos</button>
+      <button class="nav-link lab-nav-link" data-tab="laboratorio" type="button">Laboratorio <span aria-hidden="true">↗</span></button>
       <button class="nav-link" data-tab="metodologia" type="button">Fuentes y metodología</button>
     </nav>
     <div class="rail-meta"><span class="rail-meta-line" aria-hidden="true"></span>OBSERVATORIO AGRÍCOLA <span class="rail-meta-year">/ 2026</span></div>
@@ -73,7 +74,7 @@
 
     <section id="panel-panorama" class="section-panel" aria-label="Panorama estatal">
       <div class="section-heading"><div><span class="section-counter">01 / EL PANORAMA</span><h2>El estado en cifras</h2></div><span class="period-label">CIERRE 2025</span></div>
-      <div class="gx-entry-actions"><button type="button" data-tab="explorar-estados">Explorar estados y municipios <span aria-hidden="true">↗</span></button><button type="button" data-tab="explorar-cultivos">Explorar cultivos y variedades <span aria-hidden="true">↗</span></button></div>
+      <div class="gx-entry-actions"><button type="button" data-tab="explorar-estados">Explorar estados y municipios <span aria-hidden="true">↗</span></button><button type="button" data-tab="explorar-cultivos">Explorar cultivos y variedades <span aria-hidden="true">↗</span></button>  <button type="button" class="lab-entry-cta" data-tab="laboratorio">Abrir Laboratorio de análisis <span aria-hidden="true">↗</span></button></div>
       <div class="stat-row" id="state-stats"></div>
       <section class="executive-brief" aria-labelledby="brief-title">
         <div class="brief-heading"><div><span class="eyebrow">LECTURA DEL CIERRE / 2025</span><h3 id="brief-title">En perspectiva</h3></div><span class="brief-meta">Cifras nominales · DGSIAP</span></div>
@@ -171,6 +172,7 @@
 
 <section id="panel-explorar-estados" class="section-panel gx-page" hidden aria-label="Explorar estados y municipios">
   <div class="gx-page-intro"><div><span class="gx-eyebrow">EXPLORADOR TERRITORIAL / 01</span><h2>Explorar por territorio</h2><p>Elige una entidad. Si seleccionas Sinaloa podrás profundizar hasta municipio, cultivo y características del cierre agrícola.</p></div><span class="gx-intro-mark">01 / TERRITORIO</span></div>
+  <div class="gx-open-lab"><span>¿Necesitas comparar varios municipios, años y cultivos simultáneamente?</span><button id="lab-from-state" type="button">Analizar en Laboratorio <span aria-hidden="true">↗</span></button></div>
   <div class="gx-workspace">
     <aside class="gx-sidebar" aria-label="Entidades disponibles"><div class="gx-sidebar-top"><span class="gx-eyebrow">SELECCIÓN TERRITORIAL</span><h3>Entidades</h3><label class="gx-search-label"><span class="gx-visually-hidden">Buscar entidad</span><input id="gx-state-search" type="search" placeholder="Buscar entidad..." autocomplete="off"></label><p>Diez entidades con perfiles del informe nacional; Sinaloa incluye además el expediente municipal completo.</p></div><div id="gx-state-list" class="gx-choice-list" role="group" aria-label="Entidades con perfil"></div><div class="gx-sidebar-foot"><strong>Origen del análisis</strong><p>Detalle histórico: Sinaloa. Otras entidades: perfiles seleccionados del informe nacional de 115 páginas.</p></div></aside>
     <div class="gx-main"><div id="gx-state-view" class="gx-result" aria-live="polite"></div><div id="gx-state-deep" class="gx-deep"></div></div>
@@ -179,10 +181,78 @@
 
 <section id="panel-explorar-cultivos" class="section-panel gx-page" hidden aria-label="Explorar cultivos y variedades">
   <div class="gx-page-intro"><div><span class="gx-eyebrow">EXPLORADOR PRODUCTIVO / 02</span><h2>Explorar por cultivo</h2><p>Selecciona un cultivo y acota la consulta por municipio, año y variedad. Compara su evolución y abre el detalle operativo de 2025.</p></div><span class="gx-intro-mark">02 / PRODUCCIÓN</span></div>
+  <div class="gx-open-lab"><span>¿Quieres cruzar periodos, municipios, cultivos e indicadores económicos?</span><button id="lab-from-crop" type="button">Analizar en Laboratorio <span aria-hidden="true">↗</span></button></div>
   <div class="gx-workspace">
     <aside class="gx-sidebar" aria-label="Catálogo de cultivos"><div class="gx-sidebar-top"><span class="gx-eyebrow">COBERTURA GEOGRÁFICA</span><div class="gx-scope-switch" role="group" aria-label="Cobertura del catálogo"><button id="gx-crop-sinaloa" class="active" type="button" aria-pressed="true">Sinaloa</button><button id="gx-crop-mexico" type="button" aria-pressed="false">México¹</button></div><label class="gx-search-label"><span class="gx-visually-hidden">Buscar cultivo</span><input id="gx-crop-search" type="search" placeholder="Buscar cultivo..." autocomplete="off"></label><p id="gx-crop-count">Cargando catálogo...</p></div><div id="gx-crop-list" class="gx-choice-list" role="group" aria-label="Cultivos disponibles"></div><div class="gx-sidebar-foot"><strong>¹ Alcance nacional</strong><p>Diez cultivos destacados del informe; no representa el catálogo nacional completo.</p></div></aside>
     <div class="gx-main"><div id="gx-crop-view" class="gx-result" aria-live="polite"></div><div id="gx-crop-deep" class="gx-deep"></div></div>
   </div>
+</section>
+
+<section id="panel-laboratorio" class="section-panel lab-page" hidden aria-label="Laboratorio de análisis agrícola">
+  <header class="lab-intro">
+    <div><span class="lab-eyebrow"><span class="lab-signal"></span> GROWA RESEARCH / LAB 01</span>
+      <h2>Construye tu análisis.</h2>
+      <p>Un mismo espacio para combinar territorios, cultivos y años. Explora tendencias, contrasta municipios, cruza dimensiones y estudia la estructura productiva con datos verificables.</p>
+    </div>
+    <div class="lab-intro-right"><div>COBERTURA ACTIVA <strong>SINALOA · 2003–2025</strong></div><span>23 cierres agrícolas · 18 municipios</span></div>
+  </header>
+  <div class="lab-toolbar">
+    <div class="lab-view-lead"><span class="lab-eyebrow">CONSULTA ACTIVA</span><strong id="lab-query-title">Todos los municipios · Todos los cultivos</strong></div>
+    <div class="lab-toolbar-actions">
+      <span id="lab-query-count" class="lab-query-count" aria-live="polite">Preparando...</span>
+      <button id="lab-reset" type="button">Restablecer</button>
+      <button id="lab-save" type="button">Guardar vista ☆</button>
+      <button id="lab-share" type="button">Compartir ↗</button>
+      <button id="lab-download" class="lab-action-main" type="button">Exportar datos ↓</button>
+    </div>
+  </div>
+  <div class="lab-layout">
+    <aside class="lab-filters" aria-label="Constructor de consulta">
+      <div class="lab-filter-head"><span class="lab-eyebrow">CONSTRUCTOR DE DATOS</span><h3>Definir la consulta</h3><p>Combina filtros. Los resultados y las vistas se recalculan con cada selección.</p></div>
+      <div class="lab-filter-scroll">
+        <div class="lab-filter-block"><div class="lab-filter-label"><span>01 / MUNICIPIOS</span><button id="lab-all-muni" type="button">Todos</button></div>
+          <input type="search" id="lab-muni-search" placeholder="Buscar municipio" aria-label="Buscar municipios"/>
+          <div id="lab-muni-options" class="lab-check-list" role="group" aria-label="Municipios seleccionados"></div>
+          <div id="lab-muni-foot" class="lab-filter-foot">Todos los municipios</div>
+        </div>
+        <div class="lab-filter-block"><div class="lab-filter-label"><span>02 / CULTIVOS</span><button id="lab-all-crops" type="button">Todos</button></div>
+          <input type="search" id="lab-crop-search" placeholder="Buscar cultivo" aria-label="Buscar cultivos"/>
+          <div id="lab-crop-options" class="lab-check-list lab-check-crops" role="group" aria-label="Cultivos seleccionados"></div>
+          <div id="lab-crop-foot" class="lab-filter-foot">Todos los cultivos</div>
+        </div>
+        <div class="lab-filter-block">
+          <div class="lab-filter-label"><span>03 / PERIODO</span></div>
+          <div class="lab-two-selects"><label>Desde <select id="lab-year-from"></select></label><label>Hasta <select id="lab-year-to"></select></label></div>
+        </div>
+        <div class="lab-filter-block">
+          <div class="lab-filter-label"><span>04 / INDICADOR</span></div>
+          <label class="lab-select-wrap"><select id="lab-metric">
+            <option value="value">Valor de producción (MDP)</option>
+            <option value="harvest">Superficie cosechada (ha)</option>
+            <option value="planted">Superficie sembrada (ha)</option>
+            <option value="loss">Superficie siniestrada (ha)</option>
+            <option value="volume">Volumen físico (misma unidad)</option>
+          </select></label>
+          <p id="lab-metric-caveat" class="lab-mini-help">Valor nominal, sin deflactar.</p>
+        </div>
+      </div>
+      <div class="lab-sidebar-bottom"><span class="lab-source-dot"></span> DGSIAP · Series originales de Sinaloa <small>Los perfiles nacionales sin microdatos no entran en estos cálculos.</small></div>
+    </aside>
+    <div class="lab-output">
+      <div id="lab-error" class="lab-warning" role="status" hidden></div>
+      <div id="lab-summary" class="lab-summary"></div>
+      <div class="lab-worktabs" role="tablist" aria-label="Tipo de análisis">
+        <button type="button" data-lab-tab="serie" role="tab" aria-selected="true" class="active">Evolución</button>
+        <button type="button" data-lab-tab="comparar" role="tab" aria-selected="false">Comparar</button>
+        <button type="button" data-lab-tab="matriz" role="tab" aria-selected="false">Tabla dinámica</button>
+        <button type="button" data-lab-tab="estructura" role="tab" aria-selected="false">Estructura económica</button>
+        <button type="button" data-lab-tab="shapley" role="tab" aria-selected="false">Descomposición</button>
+      </div>
+      <div id="lab-content" class="lab-view" role="tabpanel" aria-live="polite"><div class="lab-empty">Selecciona los filtros para iniciar tu análisis.</div></div>
+      <div class="lab-source"><span class="lab-eyebrow">FUENTE Y MÉTODO</span><p>Series municipales DGSIAP integradas para Sinaloa, 2003–2025. Las cifras de valor son nominales. No se imputan años sin registros. El desglose por variedad y atributos productivos detallados solo corresponde al cierre 2025. Los indicadores derivados describen asociaciones contables, no causas.</p></div>
+    </div>
+  </div>
+  <section class="lab-saved-section"><div><span class="lab-eyebrow">ESPACIOS DE TRABAJO</span><h3>Consultas guardadas</h3><p>Las vistas se conservan en este navegador y pueden recuperarse para continuar el análisis.</p></div><div id="lab-saved" class="lab-saved-items"></div></section>
 </section>
 
 <section id="panel-metodologia" class="section-panel" aria-label="Metodología" hidden><div class="section-heading"><div><span class="section-counter">05 / SOBRE LA INVESTIGACIÓN</span><h2>Fuente y calidad estadística</h2></div><span class="period-label">DGSIAP · 2003—2025</span></div><div id="method-stats" class="stat-row"></div><div class="two-pane method-columns"><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">PROCEDENCIA</span><h3>Qué contiene el observatorio</h3></div></div><div id="method-source" class="narrative"></div></article><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">ALCANCE</span><h3>Cómo interpretar los resultados</h3></div></div><div id="method-cautions" class="narrative"></div></article></div><article class="editorial-panel method-audit"><div class="section-card-heading"><div><span class="eyebrow">CONTROL DE LA FUENTE</span><h3>Integridad reportada en los anexos</h3><p>Estos controles provienen del paquete de auditoría proporcionado; no representan una verificación externa independiente.</p></div></div><div id="method-audit" class="audit-grid"></div></article></section>
