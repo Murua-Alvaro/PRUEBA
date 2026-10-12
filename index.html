@@ -33,7 +33,18 @@
   <main class="page" id="main">
     <div class="topline">
       <span class="breadcrumb">GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> SINALOA</span>
-      <div class="top-actions"><button class="quick-search" id="open-search" type="button" aria-haspopup="dialog" aria-controls="search-dialog"><span class="search-glyph" aria-hidden="true">⌕</span> Buscar municipio o cultivo <kbd>Ctrl K</kbd></button><span id="status" class="status" aria-live="polite">Preparando información…</span></div>
+      <div class="top-actions"><button class="ux-header-btn" id="ux-open-panel" type="button" aria-haspopup="dialog" aria-controls="ux-dialog">Herramientas <span aria-hidden="true">☷</span></button><button class="quick-search" id="open-search" type="button" aria-haspopup="dialog" aria-controls="search-dialog"><span class="search-glyph" aria-hidden="true">⌕</span> Buscar municipio o cultivo <kbd>Ctrl K</kbd></button><span id="status" class="status" aria-live="polite">Preparando información…</span></div>
+    </div>
+    <div id="ux-workbench" class="ux-workbench" role="region" aria-label="Herramientas de consulta">
+      <div class="ux-location"><span class="ux-overline">ÁREA DE TRABAJO</span><strong id="ux-view-title">Panorama estatal</strong></div>
+      <div class="ux-actions">
+        <div class="ux-menu-anchor"><button id="ux-toc-toggle" class="ux-action" type="button" aria-haspopup="true" aria-expanded="false">Índice de la sección <span aria-hidden="true">⌄</span></button><div class="ux-toc-menu" id="ux-toc-menu" hidden aria-label="Índice de esta sección"></div></div>
+        <button id="ux-expand-all" class="ux-action" type="button">Abrir análisis <span id="ux-fold-count" class="ux-action-count">0</span></button>
+        <button id="ux-collapse-all" class="ux-action" type="button">Contraer</button>
+        <button id="ux-bookmark" class="ux-action" type="button" aria-pressed="false">☆ Guardar vista</button>
+        <button id="ux-copy-link" class="ux-action" type="button">↗ Compartir</button>
+        <button id="ux-focus" class="ux-action ux-emphasis" type="button" aria-pressed="false">Vista amplia ⛶</button>
+      </div>
     </div>
     <header class="masthead">
       <div class="masthead-kicker"><span class="editorial-rule"></span> OBSERVATORIO AGRÍCOLA · SINALOA</div>
@@ -63,12 +74,12 @@
         <div id="state-municipios" class="municipality-list"></div>
       </div>
       <section class="research-block" aria-label="Comparación temporal">
-        <div class="research-head"><div><span class="section-counter">SERIE HISTÓRICA / CONSULTA INTERACTIVA</span><h3>Explorar un cierre anual</h3><p>Selecciona un año para observar cómo se distribuía el valor bruto agrícola entre los municipios y cultivos registrados.</p></div><label class="year-control"><span>AÑO DE REFERENCIA</span><select id="year-select" aria-label="Año de referencia"></select></label></div>
+        <div class="research-head"><div><span class="section-counter">SERIE HISTÓRICA / CONSULTA INTERACTIVA</span><h3>Explorar un cierre anual</h3><p>Selecciona un año para observar cómo se distribuía el valor bruto agrícola entre los municipios y cultivos registrados.</p></div><label class="year-control"><span>AÑO DE REFERENCIA</span><div class="ux-year-group"><button id="ux-year-prev" type="button" aria-label="Año anterior" title="Año anterior">←</button><select id="year-select" aria-label="Año de referencia"></select><button id="ux-year-next" type="button" aria-label="Año siguiente" title="Año siguiente">→</button></div></label></div>
         <div id="year-summary" class="year-summary"></div>
         <div class="two-pane research-cols"><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">COMPOSICIÓN HISTÓRICA</span><h3>Cultivos por valor</h3></div><span class="small-caption" id="year-crop-caption"></span></div><div id="year-crop-rank" class="rank-list"></div></article><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">JERARQUÍA TERRITORIAL</span><h3>Municipios por valor</h3></div><span class="small-caption" id="year-muni-caption"></span></div><div id="year-muni-rank" class="rank-list"></div></article></div>
       </section>
       <section class="research-block" aria-label="Comparador municipal">
-        <div class="research-head"><div><span class="section-counter">COMPARACIÓN / DOS TERRITORIOS</span><h3>Municipios frente a frente</h3><p>Contrasta la evolución nominal de dos municipios sin abandonar el panorama estatal.</p></div><div class="compare-controls"><label>PRIMER MUNICIPIO<select id="compare-a" aria-label="Primer municipio"></select></label><span class="compare-symbol" aria-hidden="true">×</span><label>SEGUNDO MUNICIPIO<select id="compare-b" aria-label="Segundo municipio"></select></label></div></div>
+        <div class="research-head"><div><span class="section-counter">COMPARACIÓN / DOS TERRITORIOS</span><h3>Municipios frente a frente</h3><p>Contrasta la evolución nominal de dos municipios sin abandonar el panorama estatal.</p></div><div class="compare-controls"><label>PRIMER MUNICIPIO<select id="compare-a" aria-label="Primer municipio"></select></label><button id="ux-compare-swap" class="ux-compare-swap" type="button" title="Intercambiar municipios" aria-label="Intercambiar municipios">⇄</button><label>SEGUNDO MUNICIPIO<select id="compare-b" aria-label="Segundo municipio"></select></label></div></div>
         <div id="comparison-stats" class="comparison-stats"></div>
         <div class="editorial-panel comparison-panel"><div class="section-card-heading"><div><span class="eyebrow">SERIES 2003—2025</span><h3>Valor agrícola comparado</h3><p>Millones de pesos corrientes. Escala común para ambos municipios.</p></div><button id="compare-export" type="button" class="utility-btn">Exportar comparación CSV ↗</button></div><div id="comparison-chart" class="chart"></div><div class="chart-note" id="comparison-note"></div></div>
       </section>
@@ -84,7 +95,7 @@
       </div>
       <div class="story-panel">
         <div class="story-heading"><div><span class="section-counter">LA LECTURA DEL INFORME</span><h3>Conclusiones del capítulo municipal</h3><p>Texto del informe de 395 páginas, organizado por sus tres apartados de cierre. Abre el análisis que quieras consultar.</p></div><span id="report-pages" class="report-chip">PÁGINAS —</span></div>
-        <div id="municipio-report" class="disclosure-set"></div>
+        <div class="ux-story-controls"><button type="button" id="ux-open-report">Desplegar conclusiones</button><button type="button" id="ux-close-report">Contraer conclusiones</button><button type="button" id="ux-report-print">Imprimir ficha ↗</button></div><div id="municipio-report" class="disclosure-set"></div>
       </div>
       <div class="story-panel crop-explorer" id="explorador-municipal">
         <div class="story-heading"><div><span class="section-counter">GRÁFICAS INDIVIDUALES</span><h3>Un historial para cada cultivo</h3><p>Selecciona cualquier cultivo registrado en este municipio para desplegar su serie anual y detalle del cierre 2025.</p></div><span id="crop-count" class="report-chip">— CULTIVOS</span></div>
@@ -99,7 +110,7 @@
       <div class="stat-row compact" id="crop-stats"></div>
       <div class="two-pane"><article class="editorial-panel feature-chart"><div class="section-card-heading"><div><span class="eyebrow">EVOLUCIÓN DEL CULTIVO</span><h3>Serie del valor registrado</h3><p>Los años sin registro no se representan como producción cero.</p></div><button type="button" class="utility-btn" data-export="crop">Descargar CSV ↗</button></div><div id="chart-crop" class="chart"></div></article><article class="editorial-panel ranked-panel"><div class="section-card-heading"><div><span class="eyebrow">DISTRIBUCIÓN TERRITORIAL</span><h3>Municipios que lo producen</h3><p>Valor nominal por municipio en el cierre 2025</p></div></div><div id="crop-municipios" class="rank-list"></div></article></div>
       <div class="story-panel"><div class="story-heading"><div><span class="section-counter">CIERRE 2025</span><h3>Variedades, modalidad y tecnología</h3><p>Las dimensiones operativas corresponden exclusivamente a las observaciones originales de 2025.</p></div></div><div class="disclosure-set" id="crop-dimensions"></div></div>
-      <div class="story-panel"><div class="story-heading"><div><span class="section-counter">DETALLE TERRITORIAL</span><h3>Gráficas individuales por municipio</h3><p>Abre un municipio para examinar la trayectoria de este cultivo y su variación reciente.</p></div></div><div id="crop-municipal-details" class="disclosure-set"></div></div>
+      <div class="story-panel"><div class="story-heading"><div><span class="section-counter">DETALLE TERRITORIAL</span><h3>Gráficas individuales por municipio</h3><p>Abre un municipio para examinar la trayectoria de este cultivo y su variación reciente.</p></div></div><div class="ux-story-controls"><button type="button" id="ux-open-crop-details">Abrir municipios</button><button type="button" id="ux-close-crop-details">Contraer municipios</button></div><div id="crop-municipal-details" class="disclosure-set"></div></div>
     </section>
 
     
@@ -148,5 +159,21 @@
     <div class="command-foot">Selecciona una fila para abrir el expediente · Ctrl + K para buscar desde cualquier sección</div>
   </div>
 </div>
+<div id="ux-dialog" class="ux-dialog-shell" hidden>
+  <button class="ux-dialog-backdrop" id="ux-dialog-backdrop" type="button" aria-label="Cerrar herramientas"></button>
+  <aside class="ux-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="ux-dialog-title" tabindex="-1">
+    <div class="ux-dialog-head"><div><span class="ux-overline">GROWA / ESPACIO PERSONAL</span><h2 id="ux-dialog-title">Herramientas de investigación</h2></div><button id="ux-dialog-close" class="ux-close" type="button" aria-label="Cerrar">✕</button></div>
+    <div class="ux-dialog-body">
+      <section class="ux-dialog-section"><h3>Presentación</h3><p>Ajusta cómo se muestra el observatorio en este navegador.</p>
+        <div class="ux-setting-row"><span>Vista de trabajo</span><button type="button" id="ux-setting-focus">Activar vista amplia</button></div>
+        <div class="ux-setting-row"><span>Densidad de contenido</span><div class="ux-segmented" role="group" aria-label="Densidad de contenido"><button type="button" id="ux-density-normal" aria-pressed="true">Cómoda</button><button type="button" id="ux-density-compact" aria-pressed="false">Compacta</button></div></div>
+      </section>
+      <section class="ux-dialog-section"><div class="ux-dialog-section-title"><h3>Vistas guardadas</h3><span id="ux-saved-count">0</span></div><p>Recupera municipios, cultivos, años o fichas nacionales. Se guardan solamente en este navegador.</p><div id="ux-saved-list" class="ux-saved-list"><p class="ux-empty">Todavía no has guardado ninguna vista.</p></div></section>
+      <section class="ux-dialog-section"><h3>Atajos de teclado</h3><div class="ux-shortcuts"><span><kbd>Ctrl</kbd> + <kbd>K</kbd></span><span>Buscar municipio o cultivo</span><span><kbd>Alt</kbd> + <kbd>←</kbd></span><span>Año anterior (panorama)</span><span><kbd>Alt</kbd> + <kbd>→</kbd></span><span>Año siguiente (panorama)</span><span><kbd>Esc</kbd></span><span>Cerrar menús y paneles</span></div></section>
+    </div>
+    <div class="ux-dialog-foot"><button id="ux-reset" type="button">Restablecer presentación</button><span>Sin cuentas ni sincronización externa</span></div>
+  </aside>
+</div>
+<div class="ux-notice" id="ux-toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
