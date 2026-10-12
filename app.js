@@ -830,3 +830,198 @@ function init(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
+
+
+/* GROWA TWO EXPLORERS V1 */
+(function(){
+'use strict';
+const by=id=>document.getElementById(id), safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=new Intl.NumberFormat('es-MX',{maximumFractionDigits:1}),pc=new Intl.NumberFormat('es-MX',{maximumFractionDigits:2,minimumFractionDigits:2});
+const money=v=>Number.isFinite(v)?fmt.format(v)+' MDP':'Sin registro';
+const pct=v=>Number.isFinite(v)?(v>0?'+':'')+pc.format(v)+' %':'Sin comparación';
+const sum=r=>r.reduce((t,v)=>t+(Number(v.value)||0),0);
+const enc=v=>encodeURIComponent(v),dec=v=>decodeURIComponent(v);
+let D,R,N,ready=false;
+const x={entity:'Sinaloa',municipio:'',stateCrop:'',stateYear:2025,stateMode:'evolucion',scope:'sinaloa',crop:'Maíz grano',cropMuni:'',cropYear:2025,cropVar:'',cropDim:'Nomvariedad',cropMode:'evolucion'};
+const ys=()=>Array.from({length:23},(_,i)=>2025-i);
+function bar(rows,tot,action,n=20){
+ const max=Math.max(1,...rows.map(r=>r.value));
+ return rows.length?'<div class="gx-bars">'+rows.slice(0,n).map(r=>'<div class="gx-bar"><div class="gx-bar-top">'+(action?'<button data-gx-action="'+action+'" data-gx-value="'+enc(r.name)+'" type="button">'+safe(r.name)+' ↗</button>':'<span>'+safe(r.name)+'</span>')+'<strong>'+money(r.value)+'</strong></div><div class="gx-bar-track"><span style="width:'+(r.value/max*100).toFixed(2)+'%"></span></div><small>'+pc.format(tot?r.value/tot*100:0)+' % de esta selección</small></div>').join('')+'</div>':'<p class="gx-empty">No existen observaciones para la selección.</p>';
+}
+function aggregate(rows,key){const m=new Map();rows.forEach(r=>{const k=String(r[key]||'Sin clasificar');m.set(k,(m.get(k)||0)+(r.value||0))});return [...m].map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value)}
+function field(id,label,options,current){return '<label class="gx-field">'+safe(label)+'<select id="'+id+'">'+options.map(([v,n])=>'<option value="'+safe(v)+'"'+(String(v)===String(current)?' selected':'')+'>'+safe(n)+'</option>').join('')+'</select></label>'}
+function kpi(name,val,desc){return '<div class="gx-kpi"><span>'+safe(name)+'</span><strong>'+safe(val)+'</strong><small>'+safe(desc)+'</small></div>'}
+function header(title,eyebrow,status){return '<div class="gx-result-head"><div><span class="gx-eyebrow">'+safe(eyebrow)+'</span><h3>'+safe(title)+'</h3></div><span class="gx-status">'+safe(status)+'</span></div>'}
+function modes(kind,items,selected){return '<div class="gx-modebar" role="group" aria-label="Tipo de análisis">'+items.map(([k,v])=>'<button type="button" data-gx-mode="'+kind+'" data-gx-mode-value="'+k+'" class="'+(k===selected?'active':'')+'" aria-pressed="'+(k===selected)+'">'+v+'</button>').join('')+'</div>'}
+function intro(title,note){return '<div class="gx-part-title"><h4>'+safe(title)+'</h4><span>'+safe(note)+'</span></div>'}
+function download(name,rows){if(rows.length)window.GrowaDownloadCSV(name,rows)}
+function series(filter){const m=new Map();D.crops.filter(filter).forEach(r=>m.set(r.year,(m.get(r.year)||0)+r.value));return [...m].map(([year,value])=>({year,value})).sort((a,b)=>a.year-b.year)}
+function stateOptions(){return N.states.map(r=>r[0]).sort((a,b)=>a==='Sinaloa'?-1:b==='Sinaloa'?1:a.localeCompare(b,'es'))}
+function drawStateChoices(){
+ const term=by('gx-state-search').value.toLocaleLowerCase('es');
+ by('gx-state-list').innerHTML=stateOptions().filter(n=>n.toLocaleLowerCase('es').includes(term)).map(n=>'<button type="button" class="gx-choice'+(x.entity===n?' active':'')+'" data-gx-entity="'+enc(n)+'"><span>'+safe(n)+'</span><small>'+(n==='Sinaloa'?'DETALLE HISTÓRICO':'PERFIL DEL INFORME')+'</small></button>').join('')||'<p class="gx-empty">Sin coincidencias entre los perfiles disponibles.</p>';
+}
+function renderState(){
+ if(!ready)return;drawStateChoices();
+ const sv=by('gx-state-view'),dv=by('gx-state-deep');
+ if(x.entity!=='Sinaloa'){
+  const i=N.states.findIndex(r=>r[0]===x.entity),r=N.states[i],info=N.stateFacts[i];
+  if(!r)return;
+  sv.innerHTML=header(r[0],'PERFIL ESTATAL / MÉXICO','Solo resumen del PDF')+
+  '<p class="gx-lede">'+safe(r[6])+'</p><div class="gx-kpis">'+kpi('Valor 2025',money(r[4]),'Millones nominales')+kpi('Cuota inicial',pc.format(r[1])+' %','Promedio 2003–2005')+kpi('Cuota reciente',pc.format(r[2])+' %','Promedio 2023–2025')+kpi('Cambio',(r[3]>0?'+':'')+pc.format(r[3])+' pp','Cambio relativo')+'</div>'+
+  '<div class="gx-warning">Perfil del informe nacional, página '+r[5]+'. No hay microdatos anuales, municipales o varietales completos para esta entidad en la plataforma.</div>';
+  dv.innerHTML=intro('Principales cultivos','CIERRE 2025')+bar(info.top.map(a=>({name:a[0],value:a[1]})),r[4],null,3)+
+  '<div class="gx-method"><strong>Alcance de esta consulta</strong><p>Las cuotas se calculan respecto al valor nacional observado. No representan crecimiento real, rentabilidad ni causalidad. Sinaloa es la única entidad con expedientes municipales y series detalladas integrados hasta ahora.</p></div>';
+  return;
+ }
+ const all=D.crops.filter(r=>!x.municipio||r.municipio===x.municipio);
+ const names=[...new Set(all.map(r=>r.name))].sort((a,b)=>a.localeCompare(b,'es'));
+ if(x.stateCrop&&!names.includes(x.stateCrop))x.stateCrop='';
+ const filter=r=>(!x.municipio||r.municipio===x.municipio)&&(!x.stateCrop||r.name===x.stateCrop);
+ let history;
+ if(!x.municipio&&!x.stateCrop)history=D.state.map(r=>({year:r.year,value:r.value}));
+ else if(x.municipio&&!x.stateCrop)history=D.municipalities.filter(r=>r.name===x.municipio).map(r=>({year:r.year,value:r.value}));
+ else history=series(filter);
+ const curr=history.find(r=>r.year===x.stateYear),last=history.find(r=>r.year===x.stateYear-1);
+ const rows=D.crops.filter(r=>r.year===x.stateYear&&filter(r)),yearTotal=D.state.find(r=>r.year===x.stateYear)?.value||0;
+ const nom=curr?.value??null,change=curr&&last?.value>0?(curr.value/last.value-1)*100:null;
+ sv.innerHTML=header('Sinaloa','ESTADO / SERIE 2003–2025','Datos detallados')+
+ '<p class="gx-lede">Explora un municipio y después un cultivo. El año elegido actualiza los indicadores y rankings; las gráficas conservan los años realmente registrados.</p>'+
+ '<div class="gx-filters">'+field('gx-state-municipio','MUNICIPIO',[['','Todo Sinaloa'],...D.muniNames.map(n=>[n,n])],x.municipio)+
+ field('gx-state-crop','CULTIVO',[['','Todos los cultivos'],...names.map(n=>[n,n])],x.stateCrop)+
+ field('gx-state-year','AÑO',ys().map(y=>[y,y]),x.stateYear)+'</div>'+
+ '<div class="gx-kpis">'+kpi('Valor agrícola',money(nom),'Cierre de '+x.stateYear)+kpi('Variación nominal',pct(change),'Respecto al año previo')+kpi('Cultivos observados',String(new Set(rows.map(r=>r.name)).size),'Con registros en el año')+kpi('Participación estatal',nom!==null&&yearTotal?pc.format(nom/yearTotal*100)+' %':'s/d','Valor estatal del mismo año')+'</div>';
+ dv.innerHTML=modes('state',[['evolucion','Evolución'],['composicion','Composición'],['informe','Conclusiones']],x.stateMode)+'<div id="gx-state-analysis"></div>';
+ let host=by('gx-state-analysis');
+ if(x.stateMode==='evolucion'){
+  host.innerHTML=intro('Serie histórica del valor','MDP NOMINALES · 2003–2025')+'<div id="gx-state-line" class="chart"></div>';
+  window.GrowaChart('gx-state-line',history,{label:'Evolución agrícola '+(x.municipio||'Sinaloa')+(x.stateCrop?' · '+x.stateCrop:'')});
+ }else if(x.stateMode==='composicion'){
+  const tot=sum(rows),byCrop=aggregate(rows.map(r=>({...r,Nomcultivo:r.name})),'Nomcultivo'),byMunicipio=aggregate(rows.map(r=>({...r,Nommunicipio:r.municipio})),'Nommunicipio');
+  const records=x.stateYear===2025?D.records.filter(r=>(!x.municipio||r.Nommunicipio===x.municipio)&&(!x.stateCrop||r.Nomcultivo===x.stateCrop)):[];
+  host.innerHTML=intro('Cultivos del año '+x.stateYear,'SELECCIONA UN CULTIVO PARA PROFUNDIZAR')+bar(byCrop,tot,'crop',15)+
+  intro('Distribución municipal','VALOR DEL MISMO AÑO')+bar(byMunicipio,tot,'municipio',18)+
+  (x.stateYear===2025?'<details class="gx-fold"><summary>Variedades, modalidad hídrica y ciclos de 2025 <span>+</span></summary><div class="gx-fold-body">'+[['Nomvariedad','Variedades'],['Nommodalidad','Agua'],['Nomcicloproductivo','Ciclos']].map(([key,label])=>'<h5>'+label+'</h5>'+bar(aggregate(records,key),sum(records),null,15)).join('')+'</div></details>':'<p class="gx-warning">Las variedades y tecnologías se encuentran detalladas solamente en 2025; no se atribuyen a cierres anteriores.</p>')+
+  '<button data-gx-export="state" type="button" class="gx-export">Exportar filas de '+x.stateYear+' ↓</button>';
+ }else{
+  const r=R[x.municipio];
+  host.innerHTML=r?intro('Informe municipal: '+x.municipio,'DOCUMENTO HISTÓRICO DE SINALOA')+
+  [['Balance económico',r.closing1],['Origen contable de la variación',r.closing2],['Conclusión territorial',r.conclusion]].map(([title,body],i)=>'<details class="gx-fold"'+(!i?' open':'')+'><summary>'+safe(title)+' <span>+</span></summary><div class="gx-report">'+safe(body||'Texto no disponible.').replace(/\n/g,'<br>')+'</div></details>').join('')+
+  '<button type="button" data-gx-old="municipios" class="gx-export">Abrir expediente completo ↗</button>':
+  '<div class="gx-method"><strong>Conclusiones por municipio</strong><p>Selecciona uno de los 18 municipios para leer los tres apartados de su expediente en el informe original de 395 páginas.</p></div>';
+ }
+}
+function cropCatalog(){return x.scope==='sinaloa'?D.cropNames:N.crops.map(r=>r[0])}
+function drawCropChoices(){
+ const term=by('gx-crop-search').value.toLocaleLowerCase('es'),all=cropCatalog(),names=all.filter(n=>n.toLocaleLowerCase('es').includes(term));
+ by('gx-crop-count').textContent=(x.scope==='sinaloa'?'113 cultivos históricos':'10 cultivos destacados del PDF')+' · '+names.length+' coincidencias';
+ by('gx-crop-list').innerHTML=names.map(n=>'<button type="button" class="gx-choice'+(x.crop===n?' active':'')+'" data-gx-crop="'+enc(n)+'"><span>'+safe(n)+'</span><small>'+(x.scope==='sinaloa'?'SERIE HISTÓRICA':'PERFIL NACIONAL')+'</small></button>').join('')||'<p class="gx-empty">No hay coincidencias.</p>';
+ by('gx-crop-sinaloa').classList.toggle('active',x.scope==='sinaloa');by('gx-crop-mexico').classList.toggle('active',x.scope==='mexico');
+ by('gx-crop-sinaloa').setAttribute('aria-pressed',String(x.scope==='sinaloa'));by('gx-crop-mexico').setAttribute('aria-pressed',String(x.scope==='mexico'));
+}
+function renderCrop(){
+ if(!ready)return;drawCropChoices();
+ const cv=by('gx-crop-view'),deep=by('gx-crop-deep');
+ if(x.scope==='mexico'){
+  const i=N.crops.findIndex(r=>r[0]===x.crop),r=N.crops[i];if(!r)return;
+  const f=N.cropFacts[i];
+  cv.innerHTML=header(r[0],'CULTIVO / INFORME NACIONAL','Resumen del PDF')+
+  '<p class="gx-lede">'+safe(r[10])+'</p><div class="gx-kpis">'+kpi('Valor 2025',money(r[4]),'Millones nominales')+kpi('Cuota inicial',pc.format(r[1])+' %','Media 2003–2005')+kpi('Cuota reciente',pc.format(r[2])+' %','Media 2023–2025')+kpi('Cambio',(r[3]>0?'+':'')+pc.format(r[3])+' pp','Puntos porcentuales')+'</div>'+
+  '<div class="gx-warning">Fuente: capítulo del informe nacional, páginas '+r[6]+'–'+(r[6]+4)+'. No se dispone aquí de una serie nacional anual ni de todos los microdatos originales.</div>';
+  deep.innerHTML=intro('Entidades principales','VALOR AGRÍCOLA 2025')+bar(f.states.map(a=>({name:a[0],value:a[1]})),r[4],null,3)+
+  intro('Variedades destacadas','CLASIFICACIONES DE 2025')+bar(f.varieties.map(a=>({name:a[0],value:a[1]})),r[4],null,10)+
+  '<div class="gx-method"><strong>Dimensiones declaradas por el informe</strong><p>Riego: '+pc.format(f.irrigation)+' % del valor. Registros con mercado de exportación: '+pc.format(f.export)+' %. Estos indicadores no equivalen a consumo hídrico ni ventas aduaneras.</p></div>';
+  return;
+ }
+ const all=D.crops.filter(r=>r.name===x.crop),munis=[...new Set(all.map(r=>r.municipio))].sort((a,b)=>a.localeCompare(b,'es'));
+ if(x.cropMuni&&!munis.includes(x.cropMuni))x.cropMuni='';
+ const history=series(r=>r.name===x.crop&&(!x.cropMuni||r.municipio===x.cropMuni));
+ const now=history.find(r=>r.year===x.cropYear),prev=history.find(r=>r.year===x.cropYear-1);
+ const yearRows=all.filter(r=>r.year===x.cropYear&&(!x.cropMuni||r.municipio===x.cropMuni));
+ const records=D.records.filter(r=>r.Nomcultivo===x.crop&&(!x.cropMuni||r.Nommunicipio===x.cropMuni));
+ const varieties=[...new Set(records.map(r=>r.Nomvariedad).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+ if(x.cropVar&&!varieties.includes(x.cropVar))x.cropVar='';
+ cv.innerHTML=header(x.crop,'CULTIVO / SINALOA 2003–2025','Series históricas')+
+ '<p class="gx-lede">Analiza la evolución y la distribución municipal. En el cierre de 2025 se puede filtrar por variedad, modalidad, ciclo, tecnología y destino del mercado.</p>'+
+ '<div class="gx-filters">'+field('gx-crop-municipio','MUNICIPIO',[['','Todo Sinaloa'],...munis.map(n=>[n,n])],x.cropMuni)+field('gx-crop-year','AÑO',ys().map(y=>[y,y]),x.cropYear)+'</div>'+
+ '<div class="gx-kpis">'+kpi('Valor agrícola',now?money(now.value):'Sin registro','Cierre de '+x.cropYear)+kpi('Variación nominal',pct(now&&prev?.value>0?(now.value/prev.value-1)*100:null),'Respecto al año previo')+
+ kpi('Superficie cosechada',yearRows.length?fmt.format(yearRows.reduce((t,r)=>t+(r.harvest||0),0))+' ha':'Sin registro','Suma de superficies registradas')+kpi('Años observados',String(history.length),'Sin imputación de faltantes')+'</div>';
+ deep.innerHTML=modes('crop',[['evolucion','Evolución histórica'],['territorio','Municipios'],['desglose','Variedades y producción 2025']],x.cropMode)+'<div id="gx-crop-analysis"></div>';
+ const host=by('gx-crop-analysis');
+ if(x.cropMode==='evolucion'){
+  host.innerHTML=intro('Trayectoria del cultivo','VALOR HISTÓRICO · MDP NOMINALES')+'<div id="gx-crop-line" class="chart"></div>'+
+  '<p class="gx-note">Los datos históricos están agregados a escala municipio-cultivo, no a escala variedad.</p>';
+  window.GrowaChart('gx-crop-line',history,{label:'Trayectoria de '+x.crop+(x.cropMuni?' · '+x.cropMuni:'')});
+ }else if(x.cropMode==='territorio'){
+  const places=aggregate(all.filter(r=>r.year===x.cropYear).map(r=>({...r,Nommunicipio:r.municipio})),'Nommunicipio');
+  host.innerHTML=intro('Distribución del valor · '+x.cropYear,'SELECCIONA MUNICIPIO PARA FILTRAR')+bar(places,sum(places),'crop-muni',18)+
+  '<p class="gx-note">Los municipios sin observaciones de este cultivo en el año no figuran como producción cero.</p>';
+ }else{
+  const selected=records.filter(r=>!x.cropVar||r.Nomvariedad===x.cropVar);
+  host.innerHTML=intro('Desglose operativo del cierre 2025','NO DISPONIBLE HISTÓRICAMENTE POR VARIEDAD')+
+  '<div class="gx-filters">'+field('gx-crop-var','VARIEDAD',[['','Todas las variedades'],...varieties.map(n=>[n,n])],x.cropVar)+
+  field('gx-crop-dim','AGRUPAR POR',[['Nomvariedad','Variedad'],['Nommodalidad','Modalidad de agua'],['Nomcicloproductivo','Ciclo productivo'],['TipoTecnologia','Tecnología'],['TipoProduccion','Tipo de producción'],['TipoMercado','Destino de mercado']],x.cropDim)+'</div>'+
+  '<div class="gx-result-mini"><span>Valor filtrado en 2025</span><strong>'+money(sum(selected))+'</strong><span>'+selected.length+' registros originales del cierre</span></div>'+
+  bar(aggregate(selected,x.cropDim),sum(selected),null,50)+
+  '<button type="button" data-gx-export="crop" class="gx-export">Descargar registros 2025 filtrados ↓</button>'+
+  '<p class="gx-note">El filtro de variedad únicamente modifica el desglose de 2025, no los valores de la serie histórica.</p>';
+ }
+}
+function openState(entity,municipio){
+ if(!ready)return;
+ x.entity=N.states.some(r=>r[0]===entity)?entity:'Sinaloa';
+ if(municipio!==undefined){x.municipio=municipio;x.stateMode='informe'}
+ renderState();window.GrowaNavigate('explorar-estados');
+}
+function openCrop(scope,name){
+ if(!ready)return;
+ x.scope=scope==='mexico'?'mexico':'sinaloa';
+ x.crop=cropCatalog().includes(name)?name:cropCatalog()[0];x.cropMuni='';x.cropVar='';x.cropMode='evolucion';
+ renderCrop();window.GrowaNavigate('explorar-cultivos');
+}
+function boot(){
+ if(ready||!window.GrowaSinaloaData||!window.GrowaNationalData)return;
+ D=window.GrowaSinaloaData.D;R=window.GrowaSinaloaData.R;N=window.GrowaNationalData;ready=true;
+ if(!D.cropNames.includes(x.crop))x.crop=D.cropNames[0];
+ by('gx-state-search').addEventListener('input',drawStateChoices);
+ by('gx-crop-search').addEventListener('input',drawCropChoices);
+ by('gx-state-list').addEventListener('click',e=>{const b=e.target.closest('[data-gx-entity]');if(b){x.entity=dec(b.dataset.gxEntity);x.municipio='';x.stateCrop='';x.stateMode='evolucion';renderState()}});
+ by('gx-crop-list').addEventListener('click',e=>{const b=e.target.closest('[data-gx-crop]');if(b){x.crop=dec(b.dataset.gxCrop);x.cropMuni='';x.cropVar='';x.cropMode='evolucion';renderCrop()}});
+ by('gx-crop-sinaloa').addEventListener('click',()=>{x.scope='sinaloa';x.crop='Maíz grano';x.cropMode='evolucion';renderCrop()});
+ by('gx-crop-mexico').addEventListener('click',()=>{x.scope='mexico';x.crop=N.crops[0][0];renderCrop()});
+ by('gx-state-view').addEventListener('change',e=>{
+  if(e.target.id==='gx-state-municipio')x.municipio=e.target.value;
+  else if(e.target.id==='gx-state-crop')x.stateCrop=e.target.value;
+  else if(e.target.id==='gx-state-year')x.stateYear=Number(e.target.value);
+  else return;renderState()
+ });
+ by('gx-state-deep').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.gxMode==='state'){x.stateMode=b.dataset.gxModeValue;renderState()}
+  else if(b.dataset.gxAction==='crop'){openCrop('sinaloa',dec(b.dataset.gxValue))}
+  else if(b.dataset.gxAction==='municipio'){x.municipio=dec(b.dataset.gxValue);renderState()}
+  else if(b.dataset.gxExport==='state'){download('growa_sinaloa_'+x.stateYear+'.csv',D.crops.filter(r=>r.year===x.stateYear&&(!x.municipio||r.municipio===x.municipio)&&(!x.stateCrop||r.name===x.stateCrop)))}
+  else if(b.dataset.gxOld){by('municipio').value=x.municipio;by('municipio').dispatchEvent(new Event('change'));window.GrowaNavigate('municipios')}
+ });
+ by('gx-crop-view').addEventListener('change',e=>{
+  if(e.target.id==='gx-crop-municipio')x.cropMuni=e.target.value;
+  else if(e.target.id==='gx-crop-year')x.cropYear=Number(e.target.value);
+  else return;renderCrop()
+ });
+ by('gx-crop-deep').addEventListener('change',e=>{
+  if(e.target.id==='gx-crop-var')x.cropVar=e.target.value;
+  else if(e.target.id==='gx-crop-dim')x.cropDim=e.target.value;
+  else return;renderCrop()
+ });
+ by('gx-crop-deep').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.gxMode==='crop'){x.cropMode=b.dataset.gxModeValue;renderCrop()}
+  else if(b.dataset.gxAction==='crop-muni'){x.cropMuni=dec(b.dataset.gxValue);renderCrop()}
+  else if(b.dataset.gxExport==='crop'){download('growa_cultivo_2025.csv',D.records.filter(r=>r.Nomcultivo===x.crop&&(!x.cropMuni||r.Nommunicipio===x.cropMuni)&&(!x.cropVar||r.Nomvariedad===x.cropVar)))}
+ });
+ renderState();renderCrop();
+}
+window.GrowaExplorer={openState,openCrop};
+window.addEventListener('growa:data-ready',boot);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
