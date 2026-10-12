@@ -1025,3 +1025,408 @@ window.GrowaExplorer={openState,openCrop,getContext:()=>({...x})};
 window.addEventListener('growa:data-ready',boot);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
+
+
+/* GROWA QUANT LAB V1
+   Interactive multidimensional analysis on the Sinaloa DGSIAP panel.
+   Never synthesize non-observed annual values; mixed physical units are blocked.
+*/
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+const fmt=new Intl.NumberFormat('es-MX',{maximumFractionDigits:1,minimumFractionDigits:1});
+const fmt2=new Intl.NumberFormat('es-MX',{maximumFractionDigits:2,minimumFractionDigits:2});
+const f=x=>Number.isFinite(x)?fmt.format(x):'s/d';
+const p=x=>Number.isFinite(x)?fmt2.format(x):'s/d';
+const esc=escape;
+const metricList={value:['Valor de producción','MDP nominales'],planted:['Superficie sembrada','hectáreas'],harvest:['Superficie cosechada','hectáreas'],loss:['Superficie siniestrada','hectáreas'],volume:['Volumen físico','unidades de origen'],yield:['Rendimiento','unidades por hectárea']};
+const savesKey='growa-agro-quant-lab-v1';
+const allYears=Array.from({length:23},(_,i)=>i+2003);
+let D=null,ready=false,alertTimer=0,cacheRows=[];
+const state={
+ municipalities:new Set(),crops:new Set(),from:2003,to:2025,metric:'value',tab:'serie',
+ visual:'chart',compareDimension:'municipio',compareMode:'absolute',compared:[],
+ pivotRows:'municipio',pivotCols:'year',pivotMode:'raw',pivotSearch:'',
+ econMode:'hhi',econYear:2025,econMuni:'',lqCrop:'',
+ shapleyCrop:'',loadedLink:false
+};
+const normalize=s=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const sum=(items,key)=>items.reduce((acc,r)=>acc+(Number(r[key])||0),0);
+const by=(rows,field)=>{const out=new Map();for(const r of rows){const k=String(r[field]??'Sin clasificar');if(!out.has(k))out.set(k,[]);out.get(k).push(r)}return out};
+const dimensions={municipio:r=>r.municipio,cultivo:r=>r.name,year:r=>String(r.year)};
+const agg=(rows,metric)=>{
+ if(!rows.length)return null;
+ if(metric==='yield'){let a=sum(rows,'harvest'),q=sum(rows,'volume');return a>0?q/a:null}
+ return sum(rows,metric);
+};
+const metricUnit=(metric,rows)=>{
+ if(metric==='value')return 'MDP nominales';
+ if(['planted','harvest','loss'].includes(metric))return 'hectáreas';
+ const units=[...new Set(rows.map(r=>r.unit).filter(Boolean))];
+ return units.length===1?(metric==='yield'?units[0]+'/ha':units[0]):'unidad física';
+};
+function safeNumber(x){return Number.isFinite(x)?f(x):'—'}
+function snapshot(){
+ return {municipalities:[...state.municipalities].sort(),crops:[...state.crops].sort(),from:state.from,to:state.to,metric:state.metric,tab:state.tab,visual:state.visual,compareDimension:state.compareDimension,compareMode:state.compareMode,compared:state.compared.slice(),pivotRows:state.pivotRows,pivotCols:state.pivotCols,pivotMode:state.pivotMode,econMode:state.econMode,econYear:state.econYear,econMuni:state.econMuni,lqCrop:state.lqCrop,shapleyCrop:state.shapleyCrop};
+}
+function applySnapshot(s){
+ if(!s||typeof s!=='object')return;
+ state.municipalities=new Set((s.municipalities||[]).filter(v=>D.muniNames.includes(v)));
+ state.crops=new Set((s.crops||[]).filter(v=>D.cropNames.includes(v)));
+ for(const k of ['from','to','metric','tab','visual','compareDimension','compareMode','pivotRows','pivotCols','pivotMode','econMode','econYear','econMuni','lqCrop','shapleyCrop'])if(s[k]!==undefined)state[k]=s[k];
+ state.compared=Array.isArray(s.compared)?s.compared.slice(0,4):[];
+ state.from=Math.max(2003,Math.min(2025,Number(state.from)||2003));
+ state.to=Math.max(state.from,Math.min(2025,Number(state.to)||2025));
+ if(!(state.metric in metricList))state.metric='value';
+ if(!['serie','comparar','matriz','estructura','shapley'].includes(state.tab))state.tab='serie';
+}
+function selection(){
+ return D.crops.filter(r=>r.year>=state.from&&r.year<=state.to&&(!state.municipalities.size||state.municipalities.has(r.municipio))&&(!state.crops.size||state.crops.has(r.name)));
+}
+function validatePhysical(rows){
+ if(!['volume','yield'].includes(state.metric))return '';
+ const units=[...new Set(rows.map(r=>r.unit).filter(Boolean))];
+ if(units.length>1)return 'No se suman unidades físicas distintas ('+units.slice(0,4).join(', ')+(units.length>4?'…':'')+'). Selecciona un solo cultivo o cultivos con la misma unidad para estudiar volumen o rendimiento.';
+ if(!units.length)return 'No hay unidades físicas informadas para esta selección.';
+ return '';
+}
+function chartData(rows,metric){
+ const map=by(rows,'year');return allYears.filter(y=>y>=state.from&&y<=state.to&&map.has(String(y))).map(y=>({year:y,value:agg(map.get(String(y)),metric)})).filter(x=>Number.isFinite(x.value));
+}
+function notify(t){
+ const el=$('lab-toast');if(!el)return;
+ el.textContent=t;el.hidden=false;clearTimeout(alertTimer);
+ alertTimer=setTimeout(()=>el.hidden=true,3300);
+}
+function htmlOptions(values,current){return values.map(([v,label])=>'<option value="'+esc(v)+'"'+(String(v)===String(current)?' selected':'')+'>'+esc(label)+'</option>').join('')}
+function selector(id,label,values,current){return '<label class="lab-choice-field">'+esc(label)+'<select id="'+id+'">'+htmlOptions(values,current)+'</select></label>'}
+const yearOptions=()=>allYears.map(y=>[y,String(y)]);
+function addRowChecks(kind){
+ const input=$(kind==='municipalities'?'lab-muni-search':'lab-crop-search');
+ const names=(kind==='municipalities'?D.muniNames:D.cropNames).filter(n=>normalize(n).includes(normalize(input?.value||'')));
+ const selected=state[kind];
+ const holder=$(kind==='municipalities'?'lab-muni-options':'lab-crop-options');
+ const countId=kind==='municipalities'?'lab-muni-foot':'lab-crop-foot';
+ holder.innerHTML=names.map(name=>'<label class="lab-check"><input type="checkbox" data-lab-facet="'+(kind==='municipalities'?'muni':'crop')+'" value="'+esc(name)+'"'+(selected.has(name)?' checked':'')+'><span>'+esc(name)+'</span></label>').join('')||'<p class="lab-no-results">Sin coincidencias</p>';
+ $(countId).textContent=selected.size?selected.size+' seleccionados de '+(kind==='municipalities'?D.muniNames.length:D.cropNames.length):'Todos los '+(kind==='municipalities'?'municipios':'cultivos')+' ('+(kind==='municipalities'?D.muniNames.length:D.cropNames.length)+')';
+}
+function syncSidebar(){
+ addRowChecks('municipalities');addRowChecks('crops');
+ $('lab-year-from').value=String(state.from);$('lab-year-to').value=String(state.to);$('lab-metric').value=state.metric;
+ const m=state.municipalities.size?state.municipalities.size+' municipios':'18 municipios';
+ const c=state.crops.size?state.crops.size+' cultivos':'todos los cultivos';
+ $('lab-query-title').textContent=m+' · '+c+' · '+state.from+'–'+state.to;
+ const caveat=state.metric==='value'?'Pesos corrientes sin deflactar.':state.metric==='volume'||state.metric==='yield'?'Solo unidades físicas homogéneas.':'Suma de hectáreas por cultivo y ciclo registrado.';
+ $('lab-metric-caveat').textContent=caveat;
+}
+function lineSVG(series,range,label,unit){
+ const W=890,H=298,L=76,R=22,T=25,B=46,iw=W-L-R,ih=H-T-B;
+ const values=series.flatMap(s=>s.points.map(p=>p.value)).filter(Number.isFinite);
+ if(!values.length)return '<div class="lab-empty">No hay observaciones para graficar.</div>';
+ const ymax=Math.max(1,...values)*1.08;
+ const x=y=>L+(y-range[0])/Math.max(1,range[1]-range[0])*iw;
+ const y=v=>T+ih-(v/ymax)*ih;
+ const ticks=[0,.25,.5,.75,1].map(t=>'<line x1="'+L+'" y1="'+(T+ih*(1-t))+'" x2="'+(W-R)+'" y2="'+(T+ih*(1-t))+'" stroke="#e6e6e6"/><text x="'+(L-12)+'" y="'+(T+ih*(1-t)+4)+'" text-anchor="end" fill="#777" font-size="11">'+esc(f(ymax*t))+'</text>').join('');
+ const markYears=[...new Set([range[0],Math.round(range[0]+(range[1]-range[0])/4),Math.round((range[0]+range[1])/2),Math.round(range[0]+3*(range[1]-range[0])/4),range[1]])];
+ const marks=markYears.map(year=>'<text x="'+x(year)+'" y="'+(H-15)+'" text-anchor="middle" fill="#888" font-size="11">'+year+'</text>').join('');
+ const shades=['#101010','#545454','#999999','#bebebe'];
+ const pathLines=series.map((line,i)=>{
+  const c=shades[i%shades.length],dash=['','8 4','3 4','12 5 2 5'][i%4],data=line.points.slice().sort((a,b)=>a.year-b.year);
+  const segments=[];let curr=[];
+  data.forEach(v=>{if(curr.length&&v.year-curr.at(-1).year>1){segments.push(curr);curr=[]}curr.push(v)});
+  if(curr.length)segments.push(curr);
+  const paths=segments.map(seg=>'<path d="'+seg.map((p,j)=>(j?'L':'M')+x(p.year).toFixed(1)+' '+y(p.value).toFixed(1)).join(' ')+'" fill="none" stroke="'+c+'" stroke-width="2.6" stroke-linecap="round"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>').join('');
+  const dots=data.map(point=>'<circle cx="'+x(point.year).toFixed(1)+'" cy="'+y(point.value).toFixed(1)+'" r="3.5" fill="'+c+'" stroke="#fff" stroke-width="1.2" tabindex="0" role="img" aria-label="'+esc(line.name+' '+point.year+': '+f(point.value)+' '+unit)+'"><title>'+esc(line.name+' · '+point.year+' · '+f(point.value)+' '+unit)+'</title></circle>').join('');
+  return paths+dots;
+ }).join('');
+ return '<div class="lab-figure"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+'">'+ticks+marks+pathLines+'</svg></div>';
+}
+function metricFigure(rows){
+ const history=chartData(rows,state.metric);
+ const series=[{name:'Selección',points:history}];
+ const table='<div class="lab-table-scroll"><table class="lab-table"><thead><tr><th>Año</th><th class="lab-num">'+esc(metricList[state.metric][0])+'</th></tr></thead><tbody>'+history.map(r=>'<tr><td>'+r.year+'</td><td class="lab-num">'+f(r.value)+'</td></tr>').join('')+'</tbody></table></div>';
+ return '<div class="lab-subtoolbar"><div><span class="lab-eyebrow">01 / SERIE TEMPORAL</span><h3>Cómo evoluciona la selección</h3></div><div class="lab-segment" role="group" aria-label="Visualización"><button data-lab-visual="chart" class="'+(state.visual==='chart'?'active':'')+'">Gráfica</button><button data-lab-visual="table" class="'+(state.visual==='table'?'active':'')+'">Tabla</button></div></div>'+
+ (state.visual==='chart'?lineSVG(series,[state.from,state.to],'Evolución del indicador seleccionado',metricUnit(state.metric,rows)):table)+
+ '<div class="lab-figure-note">'+history.length+' cierres con observaciones · '+esc(metricUnit(state.metric,rows))+' · Los años no registrados se omiten, nunca se reemplazan con ceros.</div>'+
+ '<div class="lab-quick-export"><button data-lab-export="series">Descargar serie filtrada CSV ↓</button></div>';
+}
+function comparisonValues(rows,dimension){
+ const fn=dimensions[dimension],items=new Map();
+ rows.forEach(r=>{const key=fn(r);if(!items.has(key))items.set(key,[]);items.get(key).push(r)});
+ return [...items].map(([name,list])=>({name,rows:list,total:agg(list,state.metric)||0})).sort((a,b)=>b.total-a.total);
+}
+function renderComparison(rows){
+ const groups=comparisonValues(rows,state.compareDimension);
+ let checked=state.compared.filter(n=>groups.some(v=>v.name===n));
+ if(!checked.length){checked=groups.slice(0,Math.min(4,groups.length)).map(v=>v.name)}
+ const options=groups.slice(0,40);
+ const controls='<div class="lab-subtoolbar"><div><span class="lab-eyebrow">02 / COMPARACIÓN</span><h3>Series en paralelo</h3><p>Hasta cuatro municipios o cultivos sobre una misma escala.</p></div><div class="lab-inline-controls">'+
+ selector('lab-cmp-group','Comparar por',[['municipio','Municipio'],['cultivo','Cultivo']],state.compareDimension)+
+ selector('lab-cmp-normalize','Escala',[['absolute','Valor absoluto'],['index','Índice base 100']],state.compareMode)+'</div></div>'+
+ '<div class="lab-compare-choices" role="group" aria-label="Series en comparación">'+options.map(r=>'<label class="lab-compare-chip"><input type="checkbox" data-lab-comp="'+esc(r.name)+'"'+(checked.includes(r.name)?' checked':'')+'><span>'+esc(r.name)+'</span></label>').join('')+'</div>';
+ const lines=checked.slice(0,4).map(name=>{
+  let sequence=chartData(groups.find(r=>r.name===name)?.rows||[],state.metric);
+  if(state.compareMode==='index'){
+   const base=sequence.find(r=>r.value>0)?.value;
+   sequence=base?sequence.map(r=>({year:r.year,value:r.value/base*100})):[];
+  }
+  return {name,points:sequence}
+ });
+ const legends=lines.map((r,i)=>'<div class="lab-legend-item"><span class="lab-line lab-line-'+i+'"></span><span>'+esc(r.name)+'</span></div>').join('');
+ const note=state.compareMode==='index'?'Cada serie toma como base 100 su primera observación positiva dentro del periodo; las bases pueden corresponder a años diferentes.':'Comparación en '+metricUnit(state.metric,rows)+'; la ausencia de observaciones no equivale a cero.';
+ return controls+legends+lineSVG(lines,[state.from,state.to],'Comparación de series',state.compareMode==='index'?'índice base 100':metricUnit(state.metric,rows))+
+ '<p class="lab-figure-note">'+esc(note)+'</p>';
+}
+function pivotData(rows){
+ const rDim=state.pivotRows,cDim=state.pivotCols;
+ const rowMap=new Map(),colMap=new Map(),cells=new Map();
+ for(const record of rows){
+  const rk=dimensions[rDim](record),ck=dimensions[cDim](record),key=rk+'\u0000'+ck;
+  if(!rowMap.has(rk))rowMap.set(rk,[]);rowMap.get(rk).push(record);
+  if(!colMap.has(ck))colMap.set(ck,[]);colMap.get(ck).push(record);
+  if(!cells.has(key))cells.set(key,[]);cells.get(key).push(record);
+ }
+ const sortEntries=(arr,dim)=>arr.sort((a,b)=>dim==='year'?Number(a[0])-Number(b[0]):(agg(b[1],state.metric)||0)-(agg(a[1],state.metric)||0));
+ const rKeys=sortEntries([...rowMap],rDim).map(v=>v[0]),cKeys=sortEntries([...colMap],cDim).map(v=>v[0]);
+ const total=agg(rows,state.metric);
+ const value=(rk,ck)=>agg(cells.get(rk+'\u0000'+ck)||[],state.metric);
+ const shown=(v,rk,ck)=>{
+  if(v===null)return null;
+  const denom=state.pivotMode==='shareRow'?agg(rowMap.get(rk)||[],state.metric):state.pivotMode==='shareCol'?agg(colMap.get(ck)||[],state.metric):null;
+  return denom===null?v:denom>0?v/denom*100:null;
+ };
+ return {rKeys,cKeys,rowMap,colMap,total,value,shown};
+}
+function pivotExport(pivot){
+ const out=[];for(const rk of pivot.rKeys){
+  const row={[state.pivotRows]:rk};
+  for(const ck of pivot.cKeys)row[ck]=pivot.shown(pivot.value(rk,ck),rk,ck);
+  row.total=agg(pivot.rowMap.get(rk),state.metric);
+  out.push(row);
+ }return out;
+}
+function renderPivot(rows){
+ const pv=pivotData(rows);
+ const filter=normalize(state.pivotSearch);
+ const displayRows=pv.rKeys.filter(k=>normalize(k).includes(filter));
+ const shownRows=displayRows.slice(0,35),shownCols=pv.cKeys.slice(0,25);
+ const table='<div class="lab-table-scroll lab-pivot-scroll"><table class="lab-table lab-pivot"><thead><tr><th>'+esc({municipio:'Municipio',cultivo:'Cultivo',year:'Año'}[state.pivotRows])+'</th>'+shownCols.map(c=>'<th class="lab-num">'+esc(c)+'</th>').join('')+'<th class="lab-num">Total</th></tr></thead>'+
+ '<tbody>'+shownRows.map(k=>'<tr><th>'+esc(k)+'</th>'+shownCols.map(c=>{const v=pv.shown(pv.value(k,c),k,c);return '<td class="lab-num">'+(v===null?'—':f(v)+(state.pivotMode!=='raw'?' %':''))+'</td>'}).join('')+'<td class="lab-num lab-strong">'+safeNumber(agg(pv.rowMap.get(k),state.metric))+'</td></tr>').join('')+'</tbody></table></div>';
+ const options=[['municipio','Municipio'],['cultivo','Cultivo'],['year','Año']];
+ const controls='<div class="lab-subtoolbar"><div><span class="lab-eyebrow">03 / TABLA DINÁMICA</span><h3>Cruza dimensiones</h3><p>Reorganiza las variables, compara periodos y exporta todos los resultados.</p></div></div><div class="lab-pivot-options">'+
+ selector('lab-pivot-rows','Filas',options,state.pivotRows)+selector('lab-pivot-cols','Columnas',options,state.pivotCols)+
+ selector('lab-pivot-mode','Presentación',[['raw','Valor / indicador'],['shareRow','% de fila'],['shareCol','% de columna']],state.pivotMode)+
+ '<label class="lab-choice-field">Buscar fila<input id="lab-pivot-search" type="search" value="'+esc(state.pivotSearch)+'" placeholder="Filtrar filas..."></label></div>';
+ return controls+'<div class="lab-pivot-count">'+displayRows.length+' filas · '+pv.cKeys.length+' columnas. Vista previa: '+shownRows.length+' filas y '+shownCols.length+' columnas.</div>'+table+
+ '<p class="lab-figure-note">Los guiones indican celdas sin observaciones. Las participaciones se calculan sobre el universo filtrado; los totales de rendimiento son promedios ponderados, no sumas.</p>'+
+ '<div class="lab-quick-export"><button data-lab-export="pivot">Exportar matriz completa CSV ↓</button></div>';
+}
+function concentration(data,year){
+ const rows=data.filter(r=>r.year===year),grouped=by(rows,'municipio');
+ return [...grouped].map(([name,recs])=>{
+  const crops=by(recs,'name'),arr=[...crops].map(([crop,part])=>({crop,value:sum(part,'value')})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
+  const total=arr.reduce((n,r)=>n+r.value,0);
+  if(total<=0)return null;
+  const hhi=arr.reduce((n,r)=>n+(r.value/total)**2,0);
+  return {name,total,hhi,effective:1/hhi,n:arr.length,leader:arr[0]?.crop||'',topShare:arr[0]?.value/total*100};
+ }).filter(Boolean).sort((a,b)=>b.hhi-a.hhi);
+}
+function renderEconomy(rows){
+ const latest=state.econYear;
+ const hhi=concentration(rows,latest);
+ const controls='<div class="lab-subtoolbar"><div><span class="lab-eyebrow">04 / ESTRUCTURA PRODUCTIVA</span><h3>Concentración y especialización</h3><p>Indicadores económicos derivados de las participaciones de valor nominal.</p></div></div>'+
+ '<div class="lab-pivot-options">'+selector('lab-econ-mode','Indicador',[['hhi','Concentración (HHI)'],['lq','Especialización (LQ)']],state.econMode)+
+ selector('lab-econ-year','Año',allYears.filter(y=>y>=state.from&&y<=state.to).reverse().map(y=>[y,y]),latest)+'</div>';
+ if(state.econMode==='lq'){
+  const yearAll=D.crops.filter(r=>r.year===latest),allBy=by(yearAll,'name'),stateTotal=sum(yearAll,'value'),cropNames=[...allBy.keys()].sort((a,b)=>a.localeCompare(b,'es'));
+  const crop=cropNames.includes(state.lqCrop)?state.lqCrop:(cropNames[0]||'');
+  const shareState=stateTotal?sum(allBy.get(crop)||[],'value')/stateTotal:0;
+  const groupMuni=by(yearAll,'municipio');
+  const results=[...groupMuni].filter(([name])=>!state.municipalities.size||state.municipalities.has(name)).map(([name,mr])=>{
+    const denom=sum(mr,'value'),q=sum(mr.filter(r=>r.name===crop),'value');
+    const lq=denom>0&&shareState>0?(q/denom)/shareState:null;
+    return {name,denom,cropValue:q,lq};
+  }).filter(r=>r.lq!==null).sort((a,b)=>b.lq-a.lq);
+  return controls+selector('lab-lq-crop','Cultivo de referencia',cropNames.map(n=>[n,n]),crop)+
+   '<div class="lab-statline"><strong>Índice de especialización relativa</strong><span>LQ = (cuota cultivo / municipio) ÷ (cuota cultivo / Sinaloa)</span></div>'+
+   '<div class="lab-table-scroll"><table class="lab-table"><thead><tr><th>Municipio</th><th class="lab-num">LQ</th><th class="lab-num">Valor del cultivo · MDP</th></tr></thead><tbody>'+
+   results.map(r=>'<tr><td>'+esc(r.name)+'</td><td class="lab-num lab-strong">'+p(r.lq)+'</td><td class="lab-num">'+f(r.cropValue)+'</td></tr>').join('')+'</tbody></table></div>'+
+   '<p class="lab-figure-note">LQ superior a 1 significa mayor especialización relativa. El denominador utiliza todos los cultivos de Sinaloa en el mismo año, sin restringirse a los cultivos filtrados de la consulta.</p>';
+ }
+ const selected=state.econMuni&&hhi.some(x=>x.name===state.econMuni)?state.econMuni:(hhi[0]?.name||'');
+ const path=allYears.filter(y=>y>=state.from&&y<=state.to).map(y=>concentration(rows,y).find(r=>r.name===selected)).filter(Boolean).map(r=>({year:Number(rows.find(x=>x.municipio===r.name&&x.year>=state.from)?.year)||0,value:r.hhi}));
+ // Chronological series calculated independently, preserving each actual year.
+ const evolution=allYears.filter(y=>y>=state.from&&y<=state.to).flatMap(y=>{const item=concentration(rows,y).find(r=>r.name===selected);return item?[{year:y,value:item.hhi}]:[]});
+ const table='<div class="lab-table-scroll"><table class="lab-table"><thead><tr><th>Municipio</th><th class="lab-num">HHI</th><th class="lab-num">Cultivos efectivos</th><th>Mayor cultivo</th><th class="lab-num">Cuota líder</th></tr></thead><tbody>'+
+ hhi.map(r=>'<tr><td>'+esc(r.name)+'</td><td class="lab-num lab-strong">'+p(r.hhi)+'</td><td class="lab-num">'+p(r.effective)+'</td><td>'+esc(r.leader)+'</td><td class="lab-num">'+p(r.topShare)+' %</td></tr>').join('')+'</tbody></table></div>';
+ return controls+selector('lab-econ-muni','Evolución de municipio',hhi.map(r=>[r.name,r.name]),selected)+
+ '<div class="lab-statline"><strong>HHI = Σ(participación de cada cultivo)²</strong><span>0–1; mayor valor significa mayor concentración</span></div>'+
+ (evolution.length?lineSVG([{name:selected,points:evolution}],[state.from,state.to],'Concentración HHI a lo largo del periodo','índice HHI'):'<div class="lab-empty">No hay observaciones suficientes.</div>')+
+ '<div class="lab-section-caption">Distribución territorial del HHI · '+latest+'</div>'+table+
+ '<p class="lab-figure-note">El HHI y su inverso (cultivos efectivos) usan el valor agrícola observado en los cultivos seleccionados; no son indicadores de rentabilidad. Con un solo cultivo el HHI es 1 por construcción.</p>';
+}
+function shapleyContributions(a,b){
+ const keys=['area','yield','price'],factor=(r)=>r.area*r.yield*r.price;
+ const output={area:0,yield:0,price:0};
+ for(const order of [['area','yield','price'],['area','price','yield'],['yield','area','price'],['yield','price','area'],['price','area','yield'],['price','yield','area']]){
+  let current={...a};
+  for(const k of order){const before=factor(current);current[k]=b[k];output[k]+=(factor(current)-before)/6}
+ }
+ return output;
+}
+function renderShapley(rows){
+ const years=[state.from,state.to];
+ const cNames=[...new Set(rows.map(r=>r.name))].sort((a,b)=>a.localeCompare(b,'es'));
+ const chosen=cNames.includes(state.shapleyCrop)?state.shapleyCrop:(cNames.includes('Maíz grano')?'Maíz grano':cNames[0]);
+ const filter=rows.filter(r=>r.name===chosen),a=filter.filter(r=>r.year===state.from),b=filter.filter(r=>r.year===state.to);
+ const head='<div class="lab-subtoolbar"><div><span class="lab-eyebrow">05 / DESCOMPOSICIÓN ECONÓMICA</span><h3>¿Qué explica contablemente el cambio de valor?</h3><p>Descomposición Shapley exacta: superficie × rendimiento × precio implícito.</p></div></div>'+
+ selector('lab-dec-crop','Cultivo (una misma unidad física)',cNames.map(n=>[n,n]),chosen)+
+ '<div class="lab-equation">Valor = Superficie cosechada × Rendimiento físico × Precio implícito</div>';
+ if(state.from===state.to)return head+'<div class="lab-warning">Selecciona dos años diferentes en el panel de filtros para calcular el cambio de valor.</div>';
+ const units=[...new Set([...a,...b].map(r=>r.unit).filter(Boolean))];
+ if(!a.length||!b.length||units.length!==1)return head+'<div class="lab-warning">No es posible descomponer esta selección. Se requieren observaciones en ambos años y una sola unidad física compatible. Prueba otro cultivo, municipio o periodo.</div>';
+ function calculate(recs){const area=sum(recs,'harvest'),quantity=sum(recs,'volume'),val=sum(recs,'value');return {area,yield:area>0?quantity/area:0,price:quantity>0?val/quantity:0,value:val,quantity};}
+ const first=calculate(a),last=calculate(b);
+ if([first.area,first.yield,first.price,last.area,last.yield,last.price].some(v=>v<=0))return head+'<div class="lab-warning">No existen suficientes valores positivos de superficie, volumen o producción para una descomposición multiplicativa válida.</div>';
+ const effects=shapleyContributions(first,last),difference=last.value-first.value,calcSum=Object.values(effects).reduce((n,v)=>n+v,0);
+ const denom=Math.max(1,...Object.values(effects).map(Math.abs));
+ const labels=[['area','Superficie cosechada'],['yield','Rendimiento físico'],['price','Precio implícito']];
+ return head+'<div class="lab-shapley-years">'+[["AÑO INICIAL",state.from,first],["AÑO FINAL",state.to,last]].map(([label,year,r])=>'<div><span>'+label+' · '+year+'</span><strong>'+f(r.value)+' MDP</strong><small>'+f(r.area)+' ha · '+f(r.quantity)+' '+esc(units[0])+'</small></div>').join('')+'</div>'+
+ '<div class="lab-shapley-result"><span>CAMBIO CONTABLE TOTAL</span><strong>'+(difference>0?'+':'')+f(difference)+' MDP</strong><small>Residuo por precisión numérica: '+f(difference-calcSum)+' MDP</small></div>'+
+ '<div class="lab-contributions">'+labels.map(([key,label])=>{const v=effects[key];return '<div class="lab-contrib"><div><strong>'+label+'</strong><span>'+(v>0?'+':'')+f(v)+' MDP</span></div><div class="lab-contrib-track"><span class="'+(v<0?'negative':'')+'" style="width:'+((Math.abs(v)/denom)*100).toFixed(2)+'%"></span></div></div>'}).join('')+'</div>'+
+ '<div class="lab-method"><strong>Interpretación rigurosa</strong><p>Los efectos se asignan promediando los seis órdenes de sustitución posibles de tres factores. La suma coincide con la diferencia entre valores nominales de los años elegidos (salvo redondeo). Son contribuciones algebraicas, no estimaciones causales. El precio es V/Q, no necesariamente un precio contractual; no se deflactó. La unidad '+esc(units[0])+' debe conservar significado homogéneo.</p></div>';
+}
+function updateSummary(rows,error){
+ const years=new Set(rows.map(r=>r.year)),munis=new Set(rows.map(r=>r.municipio)),crops=new Set(rows.map(r=>r.name));
+ const series=chartData(rows,state.metric),latest=series.at(-1),first=series[0];
+ const v=latest?latest.value:null;
+ const change=first&&latest&&first.value>0&&(first.year!==latest.year)?(v/first.value-1)*100:null;
+ $('lab-query-count').textContent=rows.length.toLocaleString('es-MX')+' filas históricas';
+ $('lab-summary').innerHTML=[
+  ['AÑOS CON REGISTRO',String(years.size),'Entre '+state.from+' y '+state.to],
+  ['MUNICIPIOS',String(munis.size),'Territorios presentes'],
+  ['CULTIVOS',String(crops.size),'Catálogo observado'],
+  ['ÚLTIMO AÑO OBSERVADO',latest?String(latest.year):'—',v===null?'Sin observaciones':f(v)+' '+metricUnit(state.metric,rows)],
+  ['CAMBIO DEL PERIODO',change===null?'s/d':(change>0?'+':'')+p(change)+' %','Primera vs. última observación'],
+ ].map(([label,note,sub])=>'<div class="lab-summary-cell"><span>'+label+'</span><strong>'+esc(note)+'</strong><small>'+esc(sub)+'</small></div>').join('');
+ const warn=$('lab-error');warn.hidden=!error;warn.textContent=error;
+}
+function render(){
+ if(!ready)return;
+ syncSidebar();
+ const rows=selection();cacheRows=rows;
+ const error=validatePhysical(rows);
+ updateSummary(rows,error);
+ document.querySelectorAll('[data-lab-tab]').forEach(b=>{const on=b.dataset.labTab===state.tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
+ const host=$('lab-content');
+ if(error){host.innerHTML='<div class="lab-empty">Corrige la selección de unidades para continuar con el análisis.</div>';return}
+ if(!rows.length){host.innerHTML='<div class="lab-empty">No hay observaciones para esta combinación. Amplía el periodo o elimina algún filtro.</div>';return}
+ if(state.tab==='serie')host.innerHTML=metricFigure(rows);
+ if(state.tab==='comparar')host.innerHTML=renderComparison(rows);
+ if(state.tab==='matriz')host.innerHTML=renderPivot(rows);
+ if(state.tab==='estructura')host.innerHTML=renderEconomy(rows);
+ if(state.tab==='shapley')host.innerHTML=renderShapley(rows);
+}
+function downloadCurrent(){
+ const rows=cacheRows.map(r=>({anio:r.year,municipio:r.municipio,cultivo:r.name,unidad:r.unit,valor_mdp:r.value,sembrada_ha:r.planted,cosechada_ha:r.harvest,siniestrada_ha:r.loss,volumen:r.volume,fuente:'DGSIAP Sinaloa'}));
+ if(!rows.length){notify('No hay filas disponibles para exportar.');return}
+ window.GrowaDownloadCSV('growa_laboratorio_dgsiap_'+state.from+'_'+state.to+'.csv',rows);
+}
+function downloads(kind){
+ const rows=selection();
+ if(kind==='series')return window.GrowaDownloadCSV('growa_serie_filtrada.csv',chartData(rows,state.metric).map(r=>({anio:r.year,indicador:state.metric,valor:r.value,unidad:metricUnit(state.metric,rows),fuente:'DGSIAP Sinaloa'})));
+ if(kind==='pivot')return window.GrowaDownloadCSV('growa_tabla_dinamica.csv',pivotExport(pivotData(rows)));
+}
+function stored(){try{const arr=JSON.parse(localStorage.getItem(savesKey)||'[]');return Array.isArray(arr)?arr:[]}catch(e){return []}}
+function saveList(items){try{localStorage.setItem(savesKey,JSON.stringify(items.slice(0,20)));return true}catch(e){notify('No se pudo guardar la vista en este navegador.');return false}}
+function showSaves(){
+ const items=stored();
+ $('lab-saved').innerHTML=items.length?items.map((r,i)=>'<div class="lab-saved-card"><button type="button" data-lab-load="'+i+'"><span>'+esc(r.label)+'</span><small>'+esc(r.date||'')+'</small></button><button type="button" data-lab-delete="'+i+'" aria-label="Eliminar vista guardada">×</button></div>').join(''):'<p class="lab-saved-empty">Todavía no hay consultas guardadas. Usa «Guardar vista» para recuperar una combinación de filtros y análisis.</p>';
+}
+function save(){
+ const s=snapshot(),label=(state.municipalities.size?[...state.municipalities].slice(0,2).join(', '):'Sinaloa')+' · '+(state.crops.size?[...state.crops].slice(0,2).join(', '):'todos los cultivos')+' · '+state.from+'–'+state.to;
+ const items=stored();items.unshift({label,date:new Date().toLocaleDateString('es-MX'),snapshot:s});
+ if(saveList(items)){showSaves();notify('Vista guardada en este navegador.')}
+}
+function share(){
+ const url=new URL(location.href);url.searchParams.set('lab',JSON.stringify(snapshot()));url.hash='#laboratorio';
+ const val=url.toString();
+ if(navigator.clipboard?.writeText)navigator.clipboard.writeText(val).then(()=>notify('Enlace compartible copiado.')).catch(()=>notify('Copia la dirección del navegador.'));
+ else{const el=document.createElement('textarea');el.value=val;document.body.append(el);el.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}el.remove();notify(ok?'Enlace copiado.':'Copia la dirección desde la barra del navegador.')}
+}
+function reset(){
+ state.municipalities.clear();state.crops.clear();state.from=2003;state.to=2025;state.metric='value';state.tab='serie';state.visual='chart';state.compared=[];state.shapleyCrop='';
+ $('lab-muni-search').value='';$('lab-crop-search').value='';
+ render();notify('Consulta restablecida.');
+}
+function context(source){
+ if(!ready)return;
+ if(source==='states'){
+  const x=window.GrowaExplorer?.getContext?.();
+  state.municipalities.clear();state.crops.clear();
+  if(x?.entity==='Sinaloa'&&x.municipio)state.municipalities.add(x.municipio);
+  if(x?.entity==='Sinaloa'&&x.stateCrop)state.crops.add(x.stateCrop);
+ }else if(source==='crops'){
+  const x=window.GrowaExplorer?.getContext?.();
+  state.municipalities.clear();state.crops.clear();
+  if(x?.scope==='sinaloa'&&x.crop&&D.cropNames.includes(x.crop))state.crops.add(x.crop);
+  if(x?.scope==='sinaloa'&&x.cropMuni)state.municipalities.add(x.cropMuni);
+ }
+ state.tab='serie';state.visual='chart';state.compared=[];
+ render();window.GrowaNavigate('laboratorio');
+}
+function init(){
+ if(ready||!window.GrowaSinaloaData)return;
+ D=window.GrowaSinaloaData.D;ready=true;
+ const opts=yearOptions();
+ $('lab-year-from').innerHTML=htmlOptions(opts,state.from);$('lab-year-to').innerHTML=htmlOptions(opts,state.to);
+ $('lab-year-from').addEventListener('change',e=>{state.from=Math.min(Number(e.target.value),state.to);state.econYear=Math.min(Math.max(state.econYear,state.from),state.to);render()});
+ $('lab-year-to').addEventListener('change',e=>{state.to=Math.max(Number(e.target.value),state.from);state.econYear=Math.min(Math.max(state.econYear,state.from),state.to);render()});
+ $('lab-metric').addEventListener('change',e=>{state.metric=e.target.value;render()});
+ $('lab-muni-search').addEventListener('input',()=>addRowChecks('municipalities'));
+ $('lab-crop-search').addEventListener('input',()=>addRowChecks('crops'));
+ const changeFacet=(e,kind)=>{if(e.target.dataset.labFacet!==(kind==='municipalities'?'muni':'crop'))return;const s=state[kind];if(e.target.checked)s.add(e.target.value);else s.delete(e.target.value);state.compared=[];render()};
+ $('lab-muni-options').addEventListener('change',e=>changeFacet(e,'municipalities'));
+ $('lab-crop-options').addEventListener('change',e=>changeFacet(e,'crops'));
+ $('lab-all-muni').addEventListener('click',()=>{state.municipalities.clear();render()});
+ $('lab-all-crops').addEventListener('click',()=>{state.crops.clear();render()});
+ document.querySelectorAll('[data-lab-tab]').forEach(b=>b.addEventListener('click',()=>{state.tab=b.dataset.labTab;render()}));
+ $('lab-content').addEventListener('change',e=>{
+  const id=e.target.id;
+  if(id==='lab-cmp-group'){state.compareDimension=e.target.value;state.compared=[]}
+  else if(id==='lab-cmp-normalize')state.compareMode=e.target.value;
+  else if(id==='lab-pivot-rows'){state.pivotRows=e.target.value;if(state.pivotRows===state.pivotCols)state.pivotCols=state.pivotRows==='year'?'cultivo':'year'}
+  else if(id==='lab-pivot-cols'){state.pivotCols=e.target.value;if(state.pivotRows===state.pivotCols)state.pivotRows=state.pivotCols==='year'?'municipio':'year'}
+  else if(id==='lab-pivot-mode')state.pivotMode=e.target.value;
+  else if(id==='lab-econ-mode')state.econMode=e.target.value;
+  else if(id==='lab-econ-year')state.econYear=Number(e.target.value);
+  else if(id==='lab-econ-muni')state.econMuni=e.target.value;
+  else if(id==='lab-lq-crop')state.lqCrop=e.target.value;
+  else if(id==='lab-dec-crop')state.shapleyCrop=e.target.value;
+  else if(e.target.dataset.labComp!==undefined){
+   const v=e.target.dataset.labComp;
+   if(!state.compared.length){state.compared=comparisonValues(selection(),state.compareDimension).slice(0,4).map(r=>r.name)}
+   if(e.target.checked&&!state.compared.includes(v)){
+    if(state.compared.length>=4){notify('Puedes comparar hasta cuatro series.');render();return}
+    state.compared.push(v)
+   }else if(!e.target.checked)state.compared=state.compared.filter(x=>x!==v);
+  }else return;
+  render();
+ });
+ $('lab-content').addEventListener('input',e=>{if(e.target.id==='lab-pivot-search'){state.pivotSearch=e.target.value;const focus=e.target.selectionStart;render();const next=$('lab-pivot-search');next?.focus();next?.setSelectionRange(focus,focus)}});
+ $('lab-content').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.labVisual){state.visual=b.dataset.labVisual;render()}else if(b.dataset.labExport)downloads(b.dataset.labExport)});
+ $('lab-reset').addEventListener('click',reset);
+ $('lab-save').addEventListener('click',save);
+ $('lab-share').addEventListener('click',share);
+ $('lab-download').addEventListener('click',downloadCurrent);
+ $('lab-saved').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.labLoad!==undefined){const item=stored()[Number(b.dataset.labLoad)];if(item){applySnapshot(item.snapshot);render();notify('Consulta recuperada.')}}else if(b.dataset.labDelete!==undefined){const items=stored();items.splice(Number(b.dataset.labDelete),1);saveList(items);showSaves()}});
+ $('lab-from-state')?.addEventListener('click',()=>context('states'));
+ $('lab-from-crop')?.addEventListener('click',()=>context('crops'));
+ try{const value=new URL(location.href).searchParams.get('lab');if(value&&!state.loadedLink){applySnapshot(JSON.parse(value));state.loadedLink=true}}catch(e){}
+ render();showSaves();
+}
+window.GrowaLab={open:context,snapshot,shapley:shapleyContributions,pivotData,concentration};
+window.addEventListener('growa:data-ready',init);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
