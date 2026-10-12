@@ -303,6 +303,15 @@ function renderCommandResults(){
 }
 function followCommand(item){
  closeCommand();
+ if(window.GrowaExplorer&&item.type==='municipio'){window.GrowaExplorer.openState('Sinaloa',item.name);closeCommand();return;}
+ if(window.GrowaExplorer&&item.type==='cultivo'){window.GrowaExplorer.openCrop('sinaloa',item.name);closeCommand();return;}
+ if(window.GrowaExplorer&&item.type&&item.type.indexOf('mx-')===0){
+   closeCommand();
+   if(item.type==='mx-cultivo')window.GrowaExplorer.openCrop('mexico',item.name);
+   else if(item.type==='mx-estado')window.GrowaExplorer.openState(item.name);
+   else window.GrowaExplorer.openState(item.name.split(' · ').slice(1).join(' · '));
+   return;
+ }
  if(item.type&&item.type.indexOf('mx-')===0){
   navigate('mexico');
   const category=item.type==='mx-cultivo'?'cultivos':item.type==='mx-estado'?'estados':'municipios';
@@ -318,8 +327,8 @@ function followCommand(item){
  }
 }
 
-function bind(){document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>{const mode=b.dataset.export;if(mode==='state')downloadCSV('sinaloa_estado_2003_2025.csv',D.state);if(mode==='municipality')downloadCSV(`sinaloa_${slug(state.municipio)}_2003_2025.csv`,D.byMuni.get(state.municipio).annual);if(mode==='crop')downloadCSV(`sinaloa_cultivo_${slug(state.cultivo)}.csv`,cropInfo(state.cultivo).aggregated)}));$('state-municipios').addEventListener('click',e=>{const btn=e.target.closest('[data-open-muni]');if(!btn)return;state.municipio=btn.dataset.openMuni;renderMunicipio();navigate('municipios')});$('municipio').addEventListener('change',e=>{state.municipio=e.target.value;state.search='';$('municipio-search').value='';renderMunicipio()});$('cultivo').addEventListener('change',e=>{state.cultivo=e.target.value;renderCultivo()});document.querySelectorAll('[data-metric]').forEach(btn=>btn.addEventListener('click',()=>{state.municipioMetric=btn.dataset.metric;renderMunicipio()}));$('municipio-search').addEventListener('input',e=>{state.search=e.target.value;renderMuniCropList()});$('municipio-order').addEventListener('change',e=>{state.order=e.target.value;renderMuniCropList()});$('municipio-crop-list').addEventListener('click',e=>{const btn=e.target.closest('[data-muni-crop]');if(!btn)return;state.activeMunicipioCrop=btn.dataset.muniCrop;renderMuniCropList()});window.addEventListener('hashchange',()=>{const tab=location.hash.slice(1);if(['panorama','municipios','cultivos','mexico','metodologia'].includes(tab))navigate(tab)})}
-async function init(){try{await load();for(const m of D.muniNames){const o=document.createElement('option');o.value=m;o.textContent=m;$('municipio').append(o)}for(const c of D.cropNames){const o=document.createElement('option');o.value=c;o.textContent=c;$('cultivo').append(o)}bind();installResearchTools();renderPanorama();renderMunicipio();renderCultivo();renderMetodologia();navigate(['panorama','municipios','cultivos','mexico','metodologia'].includes(location.hash.slice(1))?location.hash.slice(1):'panorama');$('status').textContent='Datos cargados · DGSIAP';}catch(err){console.error(err);$('status').textContent='No se pudo cargar la serie';$('alert').hidden=false;$('alert').textContent='No se pudieron inicializar los datos del observatorio: '+err.message}}
+function bind(){document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.tab)));document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>{const mode=b.dataset.export;if(mode==='state')downloadCSV('sinaloa_estado_2003_2025.csv',D.state);if(mode==='municipality')downloadCSV(`sinaloa_${slug(state.municipio)}_2003_2025.csv`,D.byMuni.get(state.municipio).annual);if(mode==='crop')downloadCSV(`sinaloa_cultivo_${slug(state.cultivo)}.csv`,cropInfo(state.cultivo).aggregated)}));$('state-municipios').addEventListener('click',e=>{const btn=e.target.closest('[data-open-muni]');if(!btn)return;state.municipio=btn.dataset.openMuni;renderMunicipio();navigate('municipios')});$('municipio').addEventListener('change',e=>{state.municipio=e.target.value;state.search='';$('municipio-search').value='';renderMunicipio()});$('cultivo').addEventListener('change',e=>{state.cultivo=e.target.value;renderCultivo()});document.querySelectorAll('[data-metric]').forEach(btn=>btn.addEventListener('click',()=>{state.municipioMetric=btn.dataset.metric;renderMunicipio()}));$('municipio-search').addEventListener('input',e=>{state.search=e.target.value;renderMuniCropList()});$('municipio-order').addEventListener('change',e=>{state.order=e.target.value;renderMuniCropList()});$('municipio-crop-list').addEventListener('click',e=>{const btn=e.target.closest('[data-muni-crop]');if(!btn)return;state.activeMunicipioCrop=btn.dataset.muniCrop;renderMuniCropList()});window.addEventListener('hashchange',()=>{const tab=location.hash.slice(1);if(['panorama','explorar-estados','explorar-cultivos','municipios','cultivos','mexico','metodologia'].includes(tab))navigate(tab)})}
+async function init(){try{await load();window.GrowaSinaloaData={D,R};window.dispatchEvent(new Event('growa:data-ready'));for(const m of D.muniNames){const o=document.createElement('option');o.value=m;o.textContent=m;$('municipio').append(o)}for(const c of D.cropNames){const o=document.createElement('option');o.value=c;o.textContent=c;$('cultivo').append(o)}bind();installResearchTools();renderPanorama();renderMunicipio();renderCultivo();renderMetodologia();navigate(['panorama','explorar-estados','explorar-cultivos','municipios','cultivos','mexico','metodologia'].includes(location.hash.slice(1))?location.hash.slice(1):'panorama');$('status').textContent='Datos cargados · DGSIAP';}catch(err){console.error(err);$('status').textContent='No se pudo cargar la serie';$('alert').hidden=false;$('alert').textContent='No se pudieron inicializar los datos del observatorio: '+err.message}}
 
 // Accesos rápidos de consulta: / enfoca búsqueda municipal, Esc limpia.
 document.addEventListener('keydown',event=>{
@@ -330,6 +339,7 @@ document.addEventListener('keydown',event=>{
   $('municipio-search').value='';state.search='';renderMuniCropList();$('municipio-search').blur();
  }
 });
+window.GrowaNavigate=navigate;
 init();
 })();
 
@@ -506,7 +516,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 'use strict';
 var key='growa-agricultura-ui-v1',savedKey='growa-agricultura-bookmarks-v1';
 var $=function(id){return document.getElementById(id)};
-var pageNames={panorama:'Panorama estatal · Sinaloa',municipios:'Expedientes municipales',cultivos:'Cultivos y variedades',mexico:'México · investigación nacional',metodologia:'Método y auditoría'};
+var pageNames={panorama:'Inicio · Observatorio agrícola','explorar-estados':'Explorar estados','explorar-cultivos':'Explorar cultivos',municipios:'Expedientes municipales',cultivos:'Cultivos y variedades',mexico:'México · investigación nacional',metodologia:'Fuentes y metodología'};
 var lastFocus=null,noticeTimer=null,initialized=false,restored=false,filters={};
 function readJSON(key,def){try{var value=JSON.parse(localStorage.getItem(key));return value===null?def:value}catch(e){return def}}
 function writeJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){return false}}
