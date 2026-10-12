@@ -45,19 +45,71 @@ function stats(target,rows){$(target).innerHTML=rows.map(r=>`<div class="stat"><
 function rank(target,rows,limit=8,showPercent=true){const data=rows.slice(0,limit);const max=Math.max(1,...data.map(r=>r.value));const total=sum(rows,'value');$(target).innerHTML=data.length?data.map((r,i)=>`<div class="rank-row"><div class="rank-top"><span class="rank-name">${String(i+1).padStart(2,'0')} &nbsp; ${esc(r.name)}</span><strong class="rank-value">${MX(r.value)} MDP</strong></div><div class="rank-bar"><div class="rank-fill" style="width:${Math.max(0,r.value/max*100).toFixed(2)}%"></div></div>${showPercent?`<div class="rank-sub">${PCT(r.value/total*100)} del valor incluido</div>`:''}</div>`).join(''):'<p class="empty">Sin datos disponibles.</p>'}
 function niceMax(max){if(max<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(max)));const v=max/e;return (v<=1?1:v<=2?2:v<=2.5?2.5:v<=5?5:10)*e}
 function svgChart(target,series,options={}){
- const data=series.slice().sort((a,b)=>a.year-b.year);if(!data.length){$(target).innerHTML='<p class="empty">Sin datos reportados.</p>';return}
- const w=800,h=292,L=64,R=18,T=23,B=48,iw=w-L-R,ih=h-T-B;
- const xs=data.map(d=>d.year),minX=2003,maxX=2025;
- const yMax=niceMax(Math.max(...data.map(r=>num(r.value)))*1.08),yMin=0;
- const sx=x=>L+(x-minX)/(maxX-minX)*iw,sy=y=>T+ih-(y-yMin)/(yMax-yMin)*ih;
- const tick=[0,.25,.5,.75,1],grid=tick.map(t=>{const y=T+ih*(1-t),v=yMax*t;return `<line x1="${L}" y1="${y}" x2="${w-R}" y2="${y}" stroke="#e2e2e2"/><text x="${L-12}" y="${y+4}" text-anchor="end" fill="#6a6a6a" font-size="12">${esc(compact.format(v))}</text>`}).join('');
- const marks=[2003,2008,2013,2018,2025].map(y=>`<text x="${sx(y)}" y="${h-17}" text-anchor="middle" fill="#656565" font-size="12">${y}</text>`).join('');
- let lines=[],current=[];for(const d of data){if(current.length&&d.year-current[current.length-1].year>1){lines.push(current);current=[]}current.push(d)}if(current.length)lines.push(current);
- const paths=lines.map(seq=>`<path d="${seq.map((d,i)=>`${i?'L':'M'}${sx(d.year).toFixed(2)} ${sy(d.value).toFixed(2)}`).join(' ')}" stroke="${colour}" stroke-width="2.8" stroke-linecap="round" fill="none"/>`).join('');
- const dots=data.map(d=>`<circle cx="${sx(d.year).toFixed(2)}" cy="${sy(d.value).toFixed(2)}" r="3.1" fill="${colour}" stroke="#fff" stroke-width="1.2"><title>${d.year}: ${MX(d.value)} ${options.unit||'MDP'}</title></circle>`).join('');
- const last=data[data.length-1],bx=Math.min(sx(last.year)-12,w-150),by=Math.max(14,sy(last.value)-28);
- const annotation=`<text x="${bx}" y="${by}" text-anchor="end" font-size="12" font-weight="700" fill="#111111">${MX(last.value)}</text>`;
- $(target).innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(options.label||'Serie histórica')}" xmlns="http://www.w3.org/2000/svg">${grid}${marks}${paths}${dots}${annotation}</svg><div class="chart-note">Cada punto corresponde a un cierre anual registrado. Eje vertical: ${esc(options.unit||'millones de pesos corrientes')}.</div>`;
+ const data=series.filter(row=>Number.isFinite(Number(row.year))&&Number.isFinite(Number(row.value))).slice().sort((a,b)=>a.year-b.year);
+ const root=$(target);if(!root)return;
+ if(!data.length){root.innerHTML='<p class="empty">No hay observaciones para representar.</p>';return}
+ const seriesName=options.label||'Serie histórica';
+ const unit=options.unit||'millones de pesos nominales';
+ const chartState={period:'full',mode:'chart',selection:null};
+ const w=840,h=326,L=74,R=25,T=25,B=53,iw=w-L-R,ih=h-T-B;
+ const available=()=>data.filter(row=>chartState.period==='full'||row.year>=Number(chartState.period));
+ const money=v=>Number(v).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1});
+ function render(){
+  const rows=available(),minYear=Math.min(...rows.map(d=>d.year)),maxYear=Math.max(...rows.map(d=>d.year));
+  const minX=chartState.period==='full'?2003:Math.min(minYear,Number(chartState.period));
+  const maxX=chartState.period==='full'?2025:Math.max(maxYear,2025);
+  const yMax=niceMax(Math.max(1,...rows.map(r=>Number(r.value)))*1.09);
+  const sx=x=>L+(x-minX)/Math.max(1,maxX-minX)*iw;
+  const sy=y=>T+ih-(y/yMax)*ih;
+  const yearSteps=chartState.period==='full'?[2003,2008,2013,2018,2025]:chartState.period==='2016'?[2016,2018,2020,2022,2025]:[2021,2022,2023,2024,2025];
+  const grid=[0,.25,.50,.75,1].map(t=>{const y=T+ih*(1-t);return '<line x1="'+L+'" y1="'+y+'" x2="'+(w-R)+'" y2="'+y+'" stroke="#ebebeb" stroke-width="1"/><text x="'+(L-13)+'" y="'+(y+4)+'" text-anchor="end" fill="#888" font-size="11">'+esc(compact.format(yMax*t))+'</text>'}).join('');
+  const ticks=yearSteps.map(y=>'<text x="'+sx(y).toFixed(2)+'" y="'+(h-17)+'" text-anchor="middle" fill="#777" font-size="11">'+y+'</text>').join('');
+  let chunks=[],current=[];
+  rows.forEach(d=>{if(current.length&&d.year-current[current.length-1].year>1){chunks.push(current);current=[]}current.push(d)});
+  if(current.length)chunks.push(current);
+  const paths=chunks.map(seq=>'<path d="'+seq.map((d,i)=>(i?'L':'M')+sx(d.year).toFixed(2)+' '+sy(d.value).toFixed(2)).join(' ')+'" stroke="#161616" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>').join('');
+  const bars=rows.map((d,i)=>{
+   const y=sy(d.value),x=sx(d.year),active=d.year===chartState.selection,previous=rows.find(r=>r.year===d.year-1);
+   const change=previous&&previous.value>0?(d.value/previous.value-1)*100:null;
+   const t= d.year+' · '+money(d.value)+' '+unit+(change!==null?' · '+(change>=0?'+':'')+change.toFixed(1)+' % vs año anterior':'');
+   return '<circle class="g-data-point'+(active?' active':'')+'" data-year="'+d.year+'" data-value="'+d.value+'" tabindex="0" role="button" aria-label="'+esc(t)+'" cx="'+x.toFixed(2)+'" cy="'+y.toFixed(2)+'" r="'+(active?6.8:4.2)+'" fill="#111" stroke="#fff" stroke-width="2"><title>'+esc(t)+'</title></circle>';
+  }).join('');
+  const last=rows.at(-1);
+  const dataRows=rows.map((row,i)=>{
+   const prev=rows.find(d=>d.year===row.year-1);
+   const change=prev&&prev.value>0?((row.value/prev.value-1)*100):null;
+   return '<tr><td>'+row.year+'</td><td class="numeric">'+money(row.value)+'</td><td class="numeric">'+(change===null?'Sin comparación':(change>0?'+':'')+change.toFixed(1)+' %')+'</td></tr>';
+  }).join('');
+  const countNote=rows.length+' observaciones · '+minYear+'–'+maxYear;
+  root.innerHTML='<div class="g-chart-root" data-chart-mode="'+chartState.mode+'">'+
+   '<div class="g-chart-bar"><div class="g-chart-meta"><span class="g-chart-overline">SERIE AGRÍCOLA</span><span class="g-chart-figures">'+countNote+'</span></div>'+
+   '<div class="g-chart-controls" role="group" aria-label="Herramientas de la gráfica"><div class="g-chart-segment" role="group" aria-label="Periodo">'+
+   [['full','2003–25'],['2016','Últimos 10'],['2021','Últimos 5']].map(([period,label])=>'<button type="button" data-chart-period="'+period+'" aria-pressed="'+(chartState.period===period)+'">'+label+'</button>').join('')+'</div>'+
+   '<div class="g-chart-segment" role="group" aria-label="Formato"><button type="button" data-chart-mode="chart" aria-pressed="'+(chartState.mode==='chart')+'">Gráfica</button><button type="button" data-chart-mode="table" aria-pressed="'+(chartState.mode==='table')+'">Tabla</button></div>'+
+   '<button type="button" class="g-chart-export" data-chart-export title="Descargar los años actualmente seleccionados">CSV ↓</button></div></div>'+
+   '<div class="g-chart-visual" '+(chartState.mode==='table'?'hidden':'')+'>'+
+   '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(seriesName)+', valor anual de '+esc(unit)+'" xmlns="http://www.w3.org/2000/svg">'+
+   grid+ticks+paths+bars+'</svg><div class="g-chart-readout" role="status" aria-live="polite">'+(chartState.selection===null?'Selecciona un punto para consultar su valor exacto.':(function(){const point=rows.find(x=>x.year===chartState.selection);return point?point.year+' · '+money(point.value)+' · '+unit:'Selecciona un punto'})())+'</div></div>'+
+   '<div class="g-chart-table" '+(chartState.mode==='chart'?'hidden':'')+'><div class="g-table-scroll"><table><thead><tr><th>Año</th><th class="numeric">Valor ('+esc(unit)+')</th><th class="numeric">Variación nominal interanual</th></tr></thead><tbody>'+dataRows+'</tbody></table></div></div>'+
+   '<p class="g-chart-footnote">Los años sin observación no se imputan como cero. Las cifras nominales no equivalen a variaciones reales ni a utilidades.</p></div>';
+  root.querySelectorAll('[data-chart-period]').forEach(b=>b.addEventListener('click',()=>{chartState.period=b.dataset.chartPeriod;chartState.selection=null;render()}));
+  root.querySelectorAll('button[data-chart-mode]').forEach(b=>b.addEventListener('click',()=>{chartState.mode=b.dataset.chartMode;render()}));
+  root.querySelector('[data-chart-export]')?.addEventListener('click',()=>downloadCSV('growa_serie_'+target+'_'+chartState.period+'.csv',rows.map(d=>({anio:d.year,valor:d.value,unidad:unit}))));
+  const readout=root.querySelector('.g-chart-readout');
+  root.querySelectorAll('.g-data-point').forEach(point=>{
+   const selectPoint=()=>{
+    root.querySelectorAll('.g-data-point').forEach(p=>{p.classList.remove('active');p.setAttribute('r','4.2')});
+    point.classList.add('active');point.setAttribute('r','6.8');
+    const year=Number(point.dataset.year),value=Number(point.dataset.value);
+    chartState.selection=year;readout.textContent=year+' · '+money(value)+' · '+unit;
+   };
+   point.addEventListener('mouseenter',selectPoint);
+   point.addEventListener('focus',selectPoint);
+   point.addEventListener('click',selectPoint);
+   point.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();selectPoint()}});
+  });
+ }
+ render();
 }
 function navigate(tab){state.tab=tab;document.body.dataset.view=tab;document.title=tab==='mexico'?'Growa | Agricultura de México 2003–2025':'Growa | Agricultura de Sinaloa 2003–2025';const crumb=document.querySelector('.breadcrumb');if(crumb)crumb.innerHTML=tab==='mexico'?'GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> MÉXICO':'GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> SINALOA';for(const btn of document.querySelectorAll('[data-tab]'))btn.classList.toggle('active',btn.dataset.tab===tab);for(const panel of document.querySelectorAll('.section-panel'))panel.hidden=panel.id!==`panel-${tab}`;if(location.hash!==`#${tab}`)history.replaceState(null,'',`#${tab}`);window.scrollTo({top:0,behavior:'instant'})}
 function downloadCSV(name,rows){if(!rows.length)return;const keys=Object.keys(rows[0]);const escapeCell=s=>`"${String(s??'').replace(/"/g,'""')}"`;const csv='\ufeff'+[keys.join(','),...rows.map(r=>keys.map(k=>escapeCell(r[k])).join(','))].join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=name;link.click();URL.revokeObjectURL(url)}
@@ -66,6 +118,20 @@ function renderPanorama(){const latest=D.state.at(-1),prior=D.state.at(-2),top=t
  {title:'Superficie cosechada',value:`${INT(latest.harvest)} ha`,note:'Suma de hectáreas por cultivo y ciclo'},
  {title:'Cultivos reportados',value:String(latest.crops),note:'Catálogo observable en 2025'},
  {title:'Municipios históricos',value:'18',note:'Unidad territorial de la fuente'}]);
+ 
+ const topMunicipal=D.municipal2025.slice().sort((a,b)=>b.value-a.value);
+ const topTerritories=topMunicipal.slice(0,3);
+ const territoryPct=topTerritories.reduce((acc,row)=>acc+row.value,0)/latest.value*100;
+ const topCultivos=top.slice(0,3);
+ const cropsPct=topCultivos.reduce((acc,row)=>acc+row.value,0)/latest.value*100;
+ const changeNominal=(latest.value/prior.value-1)*100;
+ const blocks=[
+   {number:'01',tag:'CONCENTRACIÓN TERRITORIAL',main:PCT(territoryPct),headline:'del valor está en los tres municipios principales',detail:topTerritories.map(x=>x.name).join(' · ')},
+   {number:'02',tag:'ESTRUCTURA DE CULTIVOS',main:PCT(cropsPct),headline:'del valor proviene de tres cultivos',detail:topCultivos.map(x=>x.name).join(' · ')},
+   {number:'03',tag:'BALANCE INTERANUAL',main:PCT(changeNominal),headline:'variación del valor agrícola frente a 2024',detail:'Comparación a precios corrientes; no representa una variación real.'}
+ ];
+ $('state-insights').innerHTML=blocks.map(b=>'<article class="brief-item"><span class="brief-number">'+b.number+'</span><span class="brief-tag">'+esc(b.tag)+'</span><strong>'+esc(b.main)+'</strong><h4>'+esc(b.headline)+'</h4><p>'+esc(b.detail)+'</p></article>').join('');
+ 
  svgChart('chart-state',D.state.map(r=>({year:r.year,value:r.value})),{label:'Valor estatal 2003 a 2025'});
   $('state-reference-years').innerHTML='<div class="reference-title">CUATRO MOMENTOS DE LA SERIE</div>'+[2003,2015,2023,2025].map(y=>{const r=D.state.find(x=>x.year===y);return `<div class="reference-year"><small>${y}</small><strong>${MX(r.value)}</strong><span>MDP nominales</span></div>`}).join('');
   rank('state-crops',top,10);
