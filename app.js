@@ -230,7 +230,7 @@ function renderHistoricalYear(){
  $('year-summary').innerHTML=`<div class="year-overline"><span>CIERRE SELECCIONADO</span><strong>${year}</strong></div>
  <div class="year-metrics">
   <div><small>VALOR BRUTO NOMINAL</small><strong>${MX(stateRow.value)} <i>MDP</i></strong></div>
-  <div><small>VARIACIÓN RESPECTO AL AÑO PREVIO</small><strong>${previous?PCT(change):''}</strong></div>
+  <div><small>VARIACIÓN RESPECTO AL AÑO PREVIO</small>${previous?`<strong>${PCT(change)}</strong>`:''}</div>
   <div><small>CULTIVOS OBSERVADOS</small><strong>${cropRows.length}</strong></div>
   <div><small>SUPERFICIE COSECHADA ACUMULADA</small><strong>${INT(stateRow.harvest)} <i>ha</i></strong></div>
  </div>`;
@@ -252,8 +252,8 @@ function renderComparison(){
  $('comparison-stats').innerHTML=rows.map((r,i)=>`<div class="compare-stat ${i===1?'compare-secondary':''}">
   <div class="compare-upper"><span class="compare-mark">${i===0?'A':'B'}</span><h4>${esc(r.name)}</h4><button type="button" data-go-muni="${esc(r.name)}" class="compare-open">Ver expediente ↗</button></div>
   <strong class="compare-value">${MX(r.now.value)} <small>MDP</small></strong>
-  <div class="compare-facts"><span>${PCT(r.previous?.value>0?(r.now.value/r.previous.value-1)*100:null)} vs. 2024</span><span>${PCT(share(r.now))} del valor estatal</span></div>
-  <div class="compare-lead">Cultivo principal en 2025: <strong>${esc(r.leader||'')}</strong></div>
+  <div class="compare-facts">${r.previous?.value>0?`<span>${PCT((r.now.value/r.previous.value-1)*100)} vs. 2024</span>`:''}${Number.isFinite(share(r.now))?`<span>${PCT(share(r.now))} del valor estatal</span>`:''}</div>
+  ${r.leader?`<div class="compare-lead">Cultivo principal en 2025: <strong>${esc(r.leader)}</strong></div>`:''}
  </div>`).join('');
  $('comparison-stats').querySelectorAll('[data-go-muni]').forEach(button=>button.addEventListener('click',()=>{
   state.municipio=button.dataset.goMuni;
