@@ -34,11 +34,16 @@
       <div class="ux-location"><span class="ux-overline">EXPLORADOR</span><strong id="ux-view-title">Panorama estatal</strong></div>
       <div class="ux-actions">
         <div class="ux-menu-anchor"><button id="ux-toc-toggle" class="ux-action" type="button" aria-haspopup="true" aria-expanded="false">Índice <span aria-hidden="true">⌄</span></button><div class="ux-toc-menu" id="ux-toc-menu" hidden aria-label="Índice de esta sección"></div></div>
-        <button id="ux-expand-all" class="ux-action" type="button">Abrir análisis <span id="ux-fold-count" class="ux-action-count">0</span></button>
-        <button id="ux-collapse-all" class="ux-action" type="button">Contraer</button>
         <button id="ux-bookmark" class="ux-action" type="button" aria-pressed="false">☆ Guardar vista</button>
-        <button id="ux-copy-link" class="ux-action" type="button">↗ Compartir</button>
-        <button id="ux-focus" class="ux-action ux-emphasis" type="button" aria-pressed="false">Ampliar ⛶</button>
+        <button id="ux-copy-link" class="ux-action" type="button">Compartir ↗</button>
+        <details class="ux-more-menu">
+          <summary aria-label="Más acciones de análisis">Más acciones <span aria-hidden="true">⌄</span></summary>
+          <div class="ux-more-content">
+            <button id="ux-expand-all" class="ux-action" type="button">Abrir análisis <span id="ux-fold-count" class="ux-action-count">0</span></button>
+            <button id="ux-collapse-all" class="ux-action" type="button">Contraer apartados</button>
+            <button id="ux-focus" class="ux-action ux-emphasis" type="button" aria-pressed="false">Ampliar ⛶</button>
+          </div>
+        </details>
       </div>
     </div>
     <header class="masthead">
@@ -70,6 +75,10 @@
     <section id="panel-panorama" class="section-panel" aria-label="Panorama estatal">
       <div class="section-heading"><div><span class="section-counter">01 / EL PANORAMA</span><h2>El estado en cifras</h2></div><span class="period-label">CIERRE 2025</span></div>
       <div class="stat-row" id="state-stats"></div>
+      <section class="executive-brief" aria-labelledby="brief-title">
+        <div class="brief-heading"><div><span class="eyebrow">LECTURA DEL CIERRE / 2025</span><h3 id="brief-title">En perspectiva</h3></div><span class="brief-meta">Cifras nominales · DGSIAP</span></div>
+        <div id="state-insights" class="brief-grid" aria-live="polite"></div>
+      </section>
       <div class="two-pane overview-primary">
         <article class="editorial-panel feature-chart">
           <div class="section-card-heading"><div><span class="eyebrow">EVOLUCIÓN ECONÓMICA</span><h3>Valor bruto de la producción</h3><p>Millones de pesos nominales · 2003 a 2025</p></div><button type="button" class="utility-btn" data-export="state">Descargar CSV <span aria-hidden="true">↗</span></button></div>
