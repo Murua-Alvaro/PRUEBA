@@ -1214,7 +1214,7 @@ function renderPivot(rows){
  const displayRows=pv.rKeys.filter(k=>normalize(k).includes(filter));
  const shownRows=displayRows.slice(0,35),shownCols=pv.cKeys.slice(0,25);
  const table='<div class="lab-table-scroll lab-pivot-scroll"><table class="lab-table lab-pivot"><thead><tr><th>'+esc({municipio:'Municipio',cultivo:'Cultivo',year:'Año'}[state.pivotRows])+'</th>'+shownCols.map(c=>'<th class="lab-num">'+esc(c)+'</th>').join('')+'<th class="lab-num">Total</th></tr></thead>'+
- '<tbody>'+shownRows.map(k=>'<tr><th>'+esc(k)+'</th>'+shownCols.map(c=>{const v=pv.shown(pv.value(k,c),k,c);return '<td class="lab-num">'+(v===null?'—':f(v)+(state.pivotMode!=='raw'?' %':''))+'</td>'}).join('')+'<td class="lab-num lab-strong">'+safeNumber(agg(pv.rowMap.get(k),state.metric))+'</td></tr>').join('')+'</tbody></table></div>';
+ '<tbody>'+shownRows.map(k=>'<tr><th>'+esc(k)+'</th>'+shownCols.map(c=>{const v=pv.shown(pv.value(k,c),k,c);return '<td class="lab-num">'+(v===null?'':f(v)+(state.pivotMode!=='raw'?' %':''))+'</td>'}).join('')+'<td class="lab-num lab-strong">'+safeNumber(agg(pv.rowMap.get(k),state.metric))+'</td></tr>').join('')+'</tbody></table></div>';
  const options=[['municipio','Municipio'],['cultivo','Cultivo'],['year','Año']];
  const controls='<div class="lab-subtoolbar"><div><span class="lab-eyebrow">03 / TABLA DINÁMICA</span><h3>Cruza dimensiones</h3><p>Reorganiza las variables, compara periodos y exporta todos los resultados.</p></div></div><div class="lab-pivot-options">'+
  selector('lab-pivot-rows','Filas',options,state.pivotRows)+selector('lab-pivot-cols','Columnas',options,state.pivotCols)+
@@ -1362,7 +1362,7 @@ function renderMicro(){
  const matrix=microMatrix(),tr=matrix.rkeys.slice(0,35),tc=matrix.ckeys.slice(0,24);
  const table='<div class="lab-table-scroll lab-pivot-scroll"><table class="lab-table lab-pivot"><thead><tr><th>'+esc(dimensions.find(x=>x[0]===state.microRows)[1])+'</th>'+
  tc.map(c=>'<th class="lab-num">'+esc(c)+'</th>').join('')+'<th class="lab-num">Total</th></tr></thead><tbody>'+
- tr.map(rk=>'<tr><th>'+esc(rk)+'</th>'+tc.map(ck=>{const v=matrix.display(rk,ck);return '<td class="lab-num">'+(v===null?'—':f(v)+(state.microMode==='raw'?'':' %'))+'</td>'}).join('')+
+ tr.map(rk=>'<tr><th>'+esc(rk)+'</th>'+tc.map(ck=>{const v=matrix.display(rk,ck);return '<td class="lab-num">'+(v===null?'':f(v)+(state.microMode==='raw'?'':' %'))+'</td>'}).join('')+
  '<td class="lab-num lab-strong">'+safeNumber(agg(matrix.rowMap.get(rk),state.microMetric))+'</td></tr>').join('')+'</tbody></table></div>';
  const stats='<div class="lab-micro-summary"><div><span>REGISTROS SELECCIONADOS</span><strong>'+filtered.length+'</strong></div><div><span>VALOR NOMINAL SELECCIONADO</span><strong>'+f(sum(filtered,'value'))+' MDP</strong></div><div><span>FILAS × COLUMNAS</span><strong>'+matrix.rkeys.length+' × '+matrix.ckeys.length+'</strong></div></div>';
  return controls+stats+'<div class="lab-pivot-count">Vista previa: '+tr.length+' de '+matrix.rkeys.length+' filas · '+tc.length+' de '+matrix.ckeys.length+' columnas. CSV incluye todas las filas.</div>'+table+
@@ -1380,8 +1380,8 @@ function updateSummary(rows,error){
   ['AÑOS CON REGISTRO',String(years.size),'Entre '+state.from+' y '+state.to],
   ['MUNICIPIOS',String(munis.size),'Territorios presentes'],
   ['CULTIVOS',String(crops.size),'Catálogo observado'],
-  ['ÚLTIMO AÑO OBSERVADO',latest?String(latest.year):'—',v===null?'Sin observaciones':f(v)+' '+metricUnit(summaryMetric,rows)],
-  ['CAMBIO DEL PERIODO',change===null?'s/d':(change>0?'+':'')+p(change)+' %','Primera vs. última observación'],
+  ...(latest&&v!==null?[['ÚLTIMO AÑO OBSERVADO',String(latest.year),f(v)+' '+metricUnit(summaryMetric,rows)]]:[]),
+  ...(change!==null?[['CAMBIO DEL PERIODO',(change>0?'+':'')+p(change)+' %','Primera vs. última observación']]:[]),
  ].map(([label,note,sub])=>'<div class="lab-summary-cell"><span>'+label+'</span><strong>'+esc(note)+'</strong><small>'+esc(sub)+'</small></div>').join('');
  const warn=$('lab-error');warn.hidden=!error;warn.textContent=error;
 }
@@ -1389,6 +1389,7 @@ function render(){
  if(!ready)return;
  syncSidebar();
  const rows=selection();cacheRows=rows;
+ if($('lab-report-sheet'))$('lab-report-sheet').hidden=true;
  const error=['estructura','shapley','micro2025'].includes(state.tab)?'':validatePhysical(rows);
  updateSummary(rows,error);
  document.querySelectorAll('[data-lab-tab]').forEach(b=>{const on=b.dataset.labTab===state.tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
@@ -1419,6 +1420,51 @@ function saveList(items){try{localStorage.setItem(savesKey,JSON.stringify(items.
 function showSaves(){
  const items=stored();
  $('lab-saved').innerHTML=items.length?items.map((r,i)=>'<div class="lab-saved-card"><button type="button" data-lab-load="'+i+'"><span>'+esc(r.label)+'</span><small>'+esc(r.date||'')+'</small></button><button type="button" data-lab-delete="'+i+'" aria-label="Eliminar vista guardada">×</button></div>').join(''):'<p class="lab-saved-empty">Todavía no hay consultas guardadas. Usa «Guardar vista» para recuperar una combinación de filtros y análisis.</p>';
+}
+
+/* Institutional briefing: descriptive, source-grounded, never causal. */
+function renderInstitutionalReport(){
+ const rows=selection(),has=rows.length>0,firstYear=state.from,lastYear=state.to;
+ const sourceUnit=metricUnit(state.metric,rows);
+ const totalValueByYear=chartData(rows,'value');
+ const first=totalValueByYear[0],last=totalValueByYear.at(-1);
+ const difference=first&&last&&last.year!==first.year&&first.value>0?(last.value/first.value-1)*100:null;
+ const latestRows=last?rows.filter(r=>r.year===last.year):[];
+ const muniTotal=new Map(),cropTotal=new Map();
+ latestRows.forEach(r=>{muniTotal.set(r.municipio,(muniTotal.get(r.municipio)||0)+r.value);cropTotal.set(r.name,(cropTotal.get(r.name)||0)+r.value)});
+ const topMuni=[...muniTotal].sort((a,b)=>b[1]-a[1]).slice(0,5);
+ const topCrop=[...cropTotal].sort((a,b)=>b[1]-a[1]).slice(0,5);
+ const table=(label,items)=>items.length?'<section class="lab-report-table-section"><h4>'+esc(label)+'</h4><table><thead><tr><th>Descripción</th><th>Valor nominal (MDP)</th></tr></thead><tbody>'+items.map(([name,value])=>'<tr><td>'+esc(name)+'</td><td>'+f(value)+'</td></tr>').join('')+'</tbody></table></section>':'';
+ const report='<div class="lab-document-mark"><span>GROWA / ESTUDIOS ECONÓMICOS</span><span>DOCUMENTO DE APOYO TÉCNICO</span></div>'+
+ '<h2>Ficha de diagnóstico agrícola territorial</h2>'+
+ '<p class="lab-document-subtitle">Resumen estadístico de consulta personalizada · DGSIAP · Sinaloa 2003–2025</p>'+
+ '<div class="lab-document-meta"><div><span>PERIODO CONSULTADO</span><strong>'+firstYear+'–'+lastYear+'</strong></div><div><span>MUNICIPIOS SELECCIONADOS</span><strong>'+(state.municipalities.size?state.municipalities.size:'18 · todos')+'</strong></div><div><span>CULTIVOS SELECCIONADOS</span><strong>'+(state.crops.size?state.crops.size:'todos los reportados')+'</strong></div><div><span>REGISTROS ANALIZADOS</span><strong>'+rows.length.toLocaleString('es-MX')+'</strong></div></div>'+
+ '<h3>1. Alcance y criterio de selección</h3><p>Este documento resume observaciones disponibles de valor bruto de la producción agrícola por municipio y cultivo. El ámbito territorial incluye '+(state.municipalities.size?esc([...state.municipalities].sort().join(', ')):'los municipios reportados de Sinaloa')+'. Los cultivos considerados son '+(state.crops.size?esc([...state.crops].sort().join(', ')):'todos los registrados dentro de los filtros')+'.</p>'+
+ (has&&last?'<h3>2. Indicadores observados</h3><p>El último cierre con registros en la selección es '+last.year+', con un valor agrícola nominal agregado de <strong>'+f(last.value)+' millones de pesos</strong>.'+(difference!==null?' La variación nominal entre el primer y último cierre observados es de <strong>'+(difference>0?'+':'')+p(difference)+' %</strong>.':'')+' Estas cifras no identifican productividad, ingreso neto ni crecimiento real por sí solas.</p>':'<p>No se registraron observaciones con la combinación seleccionada. No se muestran estimaciones sustitutas.</p>')+
+ (has&&last?'<h3>3. Distribución productiva del último cierre</h3>'+table('Municipios principales',topMuni)+table('Cultivos principales',topCrop):'')+
+ '<h3>4. Fuente, interpretación y advertencias</h3>'+
+ '<p><strong>Fuente:</strong> cierres agrícolas municipales DGSIAP, consolidados en el observatorio Growa Agricultura. <strong>Unidad del valor:</strong> millones de pesos corrientes. <strong>Granularidad:</strong> municipio, cultivo y año; no parcela ni productor individual.</p>'+
+ '<p>El análisis refleja la cobertura observada para cada cierre, sin imputar producción cero a observaciones ausentes. Los datos varietales, modalidades de agua, tecnología y destino de mercado solo se encuentran integrados en el cierre 2025. Las participaciones, indicadores HHI y cocientes de localización son descriptivos; no constituyen prueba causal ni valoración de rentabilidad.</p>'+
+ '<div class="lab-document-disclaimer">Documento técnico generado a partir de una consulta reproducible. Herramienta independiente de apoyo al análisis: no es un dictamen oficial emitido por la autoridad estadística.</div>';
+ $('lab-report-body').innerHTML=report;
+ $('lab-report-sheet').hidden=false;
+ $('lab-report-sheet').scrollIntoView?.({behavior:'smooth',block:'start'});
+}
+function runPlanningPreset(mode){
+ if(!ready)return;
+ state.from=2003;state.to=2025;state.metric='value';state.visual='chart';
+ state.municipalities.clear();state.crops.clear();state.compared=[];
+ if(mode==='territory'){state.tab='estructura';state.econMode='hhi';state.econYear=2025}
+ else if(mode==='compare'){state.tab='comparar';state.compareDimension='municipio';state.compareMode='index'}
+ else if(mode==='growth'){state.tab='shapley';if(D.cropNames.includes('Maíz grano'))state.crops.add('Maíz grano');state.shapleyCrop='Maíz grano'}
+ else if(mode==='detail'){state.tab='micro2025';state.microMetric='value';state.microMode='raw'}
+ else return;
+ $('lab-muni-search').value='';$('lab-crop-search').value='';
+ $('lab-report-sheet').hidden=true;
+ render();
+ document.querySelectorAll('[data-lab-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.labPreset===mode)));
+ $('lab-content').scrollIntoView?.({behavior:'smooth',block:'start'});
+ notify('Consulta de planeación preparada. Puede ajustar los filtros.');
 }
 function save(){
  const s=snapshot(),label=(state.municipalities.size?[...state.municipalities].slice(0,2).join(', '):'Sinaloa')+' · '+(state.crops.size?[...state.crops].slice(0,2).join(', '):'todos los cultivos')+' · '+state.from+'–'+state.to;
@@ -1500,6 +1546,10 @@ function init(){
  });
  $('lab-content').addEventListener('input',e=>{if(e.target.id==='lab-pivot-search'){state.pivotSearch=e.target.value;const focus=e.target.selectionStart;render();const next=$('lab-pivot-search');next?.focus();next?.setSelectionRange(focus,focus)}});
  $('lab-content').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.labVisual){state.visual=b.dataset.labVisual;render()}else if(b.dataset.labExport)downloads(b.dataset.labExport)});
+ document.querySelectorAll('[data-lab-preset]').forEach(button=>button.addEventListener('click',()=>runPlanningPreset(button.dataset.labPreset)));
+ $('lab-report')?.addEventListener('click',renderInstitutionalReport);
+ $('lab-report-close')?.addEventListener('click',()=>{$('lab-report-sheet').hidden=true});
+ $('lab-report-print')?.addEventListener('click',()=>{document.body.classList.add('lab-print-sheet');window.print();document.body.classList.remove('lab-print-sheet')});
  $('lab-reset').addEventListener('click',reset);
  $('lab-save').addEventListener('click',save);
  $('lab-share').addEventListener('click',share);
