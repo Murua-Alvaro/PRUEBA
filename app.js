@@ -1255,7 +1255,6 @@ function renderEconomy(rows){
    '<p class="lab-figure-note">LQ superior a 1 significa mayor especialización relativa. El denominador utiliza todos los cultivos de Sinaloa en el mismo año, sin restringirse a los cultivos filtrados de la consulta.</p>';
  }
  const selected=state.econMuni&&hhi.some(x=>x.name===state.econMuni)?state.econMuni:(hhi[0]?.name||'');
- const path=allYears.filter(y=>y>=state.from&&y<=state.to).map(y=>concentration(rows,y).find(r=>r.name===selected)).filter(Boolean).map(r=>({year:Number(rows.find(x=>x.municipio===r.name&&x.year>=state.from)?.year)||0,value:r.hhi}));
  // Chronological series calculated independently, preserving each actual year.
  const evolution=allYears.filter(y=>y>=state.from&&y<=state.to).flatMap(y=>{const item=concentration(rows,y).find(r=>r.name===selected);return item?[{year:y,value:item.hhi}]:[]});
  const table='<div class="lab-table-scroll"><table class="lab-table"><thead><tr><th>Municipio</th><th class="lab-num">HHI</th><th class="lab-num">Cultivos efectivos</th><th>Mayor cultivo</th><th class="lab-num">Cuota líder</th></tr></thead><tbody>'+
@@ -1285,7 +1284,7 @@ function renderShapley(rows){
  '<div class="lab-equation">Valor = Superficie cosechada × Rendimiento físico × Precio implícito</div>';
  if(state.from===state.to)return head+'<div class="lab-warning">Selecciona dos años diferentes en el panel de filtros para calcular el cambio de valor.</div>';
  const units=[...new Set([...a,...b].map(r=>r.unit).filter(Boolean))];
- if(!a.length||!b.length||units.length!==1)return head+'<div class="lab-warning">No es posible descomponer esta selección. Se requieren observaciones en ambos años y una sola unidad física compatible. Prueba otro cultivo, municipio o periodo.</div>';
+ if(!a.length||!b.length||units.length!==1||[...a,...b].some(r=>!r.unit))return head+'<div class="lab-warning">No es posible descomponer esta selección. Se requieren observaciones en ambos años y una sola unidad física compatible. Prueba otro cultivo, municipio o periodo.</div>';
  function calculate(recs){const area=sum(recs,'harvest'),quantity=sum(recs,'volume'),val=sum(recs,'value');return {area,yield:area>0?quantity/area:0,price:quantity>0?val/quantity:0,value:val,quantity};}
  const first=calculate(a),last=calculate(b);
  if([first.area,first.yield,first.price,last.area,last.yield,last.price].some(v=>v<=0))return head+'<div class="lab-warning">No existen suficientes valores positivos de superficie, volumen o producción para una descomposición multiplicativa válida.</div>';
@@ -1299,7 +1298,8 @@ function renderShapley(rows){
 }
 function updateSummary(rows,error){
  const years=new Set(rows.map(r=>r.year)),munis=new Set(rows.map(r=>r.municipio)),crops=new Set(rows.map(r=>r.name));
- const series=chartData(rows,state.metric),latest=series.at(-1),first=series[0];
+ const summaryMetric=['estructura','shapley'].includes(state.tab)?'value':state.metric;
+ const series=chartData(rows,summaryMetric),latest=series.at(-1),first=series[0];
  const v=latest?latest.value:null;
  const change=first&&latest&&first.value>0&&(first.year!==latest.year)?(v/first.value-1)*100:null;
  $('lab-query-count').textContent=rows.length.toLocaleString('es-MX')+' filas históricas';
@@ -1307,7 +1307,7 @@ function updateSummary(rows,error){
   ['AÑOS CON REGISTRO',String(years.size),'Entre '+state.from+' y '+state.to],
   ['MUNICIPIOS',String(munis.size),'Territorios presentes'],
   ['CULTIVOS',String(crops.size),'Catálogo observado'],
-  ['ÚLTIMO AÑO OBSERVADO',latest?String(latest.year):'—',v===null?'Sin observaciones':f(v)+' '+metricUnit(state.metric,rows)],
+  ['ÚLTIMO AÑO OBSERVADO',latest?String(latest.year):'—',v===null?'Sin observaciones':f(v)+' '+metricUnit(summaryMetric,rows)],
   ['CAMBIO DEL PERIODO',change===null?'s/d':(change>0?'+':'')+p(change)+' %','Primera vs. última observación'],
  ].map(([label,note,sub])=>'<div class="lab-summary-cell"><span>'+label+'</span><strong>'+esc(note)+'</strong><small>'+esc(sub)+'</small></div>').join('');
  const warn=$('lab-error');warn.hidden=!error;warn.textContent=error;
@@ -1316,7 +1316,7 @@ function render(){
  if(!ready)return;
  syncSidebar();
  const rows=selection();cacheRows=rows;
- const error=validatePhysical(rows);
+ const error=['estructura','shapley'].includes(state.tab)?'':validatePhysical(rows);
  updateSummary(rows,error);
  document.querySelectorAll('[data-lab-tab]').forEach(b=>{const on=b.dataset.labTab===state.tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
  const host=$('lab-content');
