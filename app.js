@@ -340,6 +340,7 @@ document.addEventListener('keydown',event=>{
  }
 });
 window.GrowaChart=svgChart;
+window.GrowaDownloadCSV=downloadCSV;
 window.GrowaNavigate=navigate;
 init();
 })();
