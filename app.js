@@ -339,6 +339,7 @@ document.addEventListener('keydown',event=>{
   $('municipio-search').value='';state.search='';renderMuniCropList();$('municipio-search').blur();
  }
 });
+window.GrowaChart=svgChart;
 window.GrowaNavigate=navigate;
 init();
 })();
@@ -459,7 +460,7 @@ function exportReportRows(rows,filename,cols){
  const file=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
  const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
 }
-window.GrowaNationalData=Object.freeze({crops:crops,states:states,munis:munis});
+window.GrowaNationalData=Object.freeze({crops:crops,states:states,munis:munis,cropFacts:cropFacts,stateFacts:stateFacts,muniFacts:muniFacts});
 function initNational(){
  const total=812156.8,initial=192420.5;
  qs('#mx-kpis').innerHTML=[
