@@ -1207,6 +1207,7 @@ function pivotExport(pivot){
  }return out;
 }
 function renderPivot(rows){
+ if(state.metric==='yield'&&state.pivotMode!=='raw')state.pivotMode='raw';
  const pv=pivotData(rows);
  const filter=normalize(state.pivotSearch);
  const displayRows=pv.rKeys.filter(k=>normalize(k).includes(filter));
@@ -1337,8 +1338,9 @@ function microMatrix(){
 function renderMicro(){
  const base=microBase(),dimensions=MICRO_DIMS,keys=dimensions.map(x=>x[0]);
  if(!keys.includes(state.microRows))state.microRows='Nommunicipio';
- if(!keys.includes(state.microCols)||state.microCols===state.microRows)state.microCols='Nommodalidad';
+ if(!keys.includes(state.microCols)||state.microCols===state.microRows)state.microCols=state.microRows==='Nommodalidad'?'Nommunicipio':'Nommodalidad';
  if(!keys.includes(state.microFilterDim))state.microFilterDim='Nommodalidad';
+ if(state.microMetric==='yield'&&state.microMode!=='raw')state.microMode='raw';
  const categories=[...new Set(base.map(r=>String(r[state.microFilterDim]||'Sin clasificar')))].sort((a,b)=>a.localeCompare(b,'es'));
  if(state.microFilterValue&&!categories.includes(state.microFilterValue))state.microFilterValue='';
  const options=dimensions.map(r=>r.slice());
@@ -1356,7 +1358,6 @@ function renderMicro(){
  const physical=['volume','yield'].includes(state.microMetric);
  const units=[...new Set(filtered.map(r=>r.Nomunidad).filter(Boolean))];
  if(physical&&units.length!==1)return controls+'<div class="lab-warning">Las filas contienen '+units.length+' unidades físicas diferentes. Selecciona un solo cultivo o variedades compatibles, o utiliza valor monetario o hectáreas para comparar esta tabla.</div>';
- if(state.microMetric==='yield'&&state.microMode!=='raw')state.microMode='raw';
  const matrix=microMatrix(),tr=matrix.rkeys.slice(0,35),tc=matrix.ckeys.slice(0,24);
  const table='<div class="lab-table-scroll lab-pivot-scroll"><table class="lab-table lab-pivot"><thead><tr><th>'+esc(dimensions.find(x=>x[0]===state.microRows)[1])+'</th>'+
  tc.map(c=>'<th class="lab-num">'+esc(c)+'</th>').join('')+'<th class="lab-num">Total</th></tr></thead><tbody>'+
