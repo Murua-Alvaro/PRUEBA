@@ -119,3 +119,29 @@ El sitio contiene ahora una sección de **análisis nacional 2003–2025** basad
 **Auditoría de integración:** [docs/AUDITORIA_INTEGRACION_MEXICO.md](docs/AUDITORIA_INTEGRACION_MEXICO.md). **Regresión de referencias:** [tests/test_national_report.py](tests/test_national_report.py). El código se verificó mediante evaluación del módulo con elementos DOM simulados y controles de conciliación de los cuadros seleccionados.
 
 **Limitación no resuelta:** aún no se dispone en este proyecto del archivo `DGSIAP_variedades_municipales_32_estados_2003_2025(6).zip`, al que el informe atribuye 879.785 filas originales. Por ello no se han publicado búsquedas completas de las 32 entidades ni de las 2.452 claves municipales históricas. La conciliación oficial descrita en el informe tampoco constituye una nueva verificación realizada por esta actualización.
+
+
+## Experiencia corporativa y consulta avanzada — versión de octubre 2026
+
+La interfaz pasó de menú lateral de laboratorio a un producto con cabecera institucional horizontal, portada ejecutiva compacta, estructura de navegación consistente, y paneles de investigación en escala de grises. Se preserva el acceso a los mismos datos auditados de Sinaloa y a la sección de perfiles nacionales seleccionados.
+
+**Controles operativos**
+- Barra superior para Panorama, Municipios, Cultivos, México y Metodología.
+- Centro de herramientas para preferencias locales, vistas guardadas y enlaces directos.
+- Barra contextual depurada: índice, guardar vista, compartir y menú secundario de acciones.
+- Gráficas históricas con tres horizontes: 2003–2025, 2016–2025 y 2021–2025. Cada gráfica ofrece selección accesible de años, tabla de datos y exportación CSV del periodo visible.
+- Los años sin observación permanecen ausentes. Cuando no se registran datos en el periodo seleccionado se muestra un estado informativo, no una línea a cero.
+- Resumen ejecutivo calculado exclusivamente de las series integradas: cuota de valor de tres municipios líderes, tres cultivos líderes y variación nominal 2024–2025.
+- Comparador municipal 2003–2025, consulta de año histórico, gráficos por municipio y cultivo y fichas individuales con conclusiones desplegables.
+- Búsqueda global que incluye los perfiles nacionales destacados. El explorador de México mantiene la distinción entre resumen del PDF y microdato completo aún no incorporado.
+
+**Diseño y accesibilidad**
+Los controles siguen siendo botones y elementos HTML estándar con gestión de foco, navegación por teclado y mensajes de estado. Los puntos de cada gráfica pueden recibir foco; el usuario puede alternar gráfico/tabla sin perder acceso a los valores de origen. Hay reglas para escritorio, tableta, móvil, impresión y preferencia de movimiento reducido. Los cambios visuales se limitan al servicio agrícola; no se mezclan las ramas de los otros proyectos.
+
+**Pruebas de regresión**
+- \`tests/test_interactive_ux.py\`: unicidad de IDs, cableado de acciones, rutas, avisos de cobertura y accesibilidad estática.
+- \`tests/test_chart_interactions.cjs\`: periodos, ausencia de datos, tabla, CSV y estructura del resumen.
+- \`tests/test_national_report.py\`: controles sobre cuadros del informe nacional.
+- Las pruebas de componentes mediante un DOM simulado y el análisis de sintaxis se ejecutaron durante la integración. No equivalen a una auditoría visual completa en navegador público, a una prueba de accesibilidad asistida ni a una nueva verificación de los registros DGSIAP originales.
+
+El servicio de Render continúa como sitio estático, con \`autoDeploy: no\`. Los cambios en GitHub deben publicarse con un despliegue explícito de ese servicio.
