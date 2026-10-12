@@ -1063,3 +1063,7 @@ body[data-view="mexico"] .top-actions .quick-search{display:flex}
  .gx-page-intro p{font-size:12px}
 }
 @media print{.gx-sidebar,.gx-modebar,.gx-filters,.gx-export{display:none!important}.gx-workspace{display:block;border:0}.gx-main{padding:0}.gx-kpis{break-inside:avoid}}
+
+/* Focused exploration: the homepage hero and secondary action ribbon stay on Inicio. */
+body[data-view]:not([data-view="panorama"]) .masthead{display:none!important}
+body[data-view="explorar-estados"] .ux-workbench,body[data-view="explorar-cultivos"] .ux-workbench{display:none!important}
