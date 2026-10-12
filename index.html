@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#111111">
-  <meta name="description" content="Growa | Observatorio de Agricultura de Sinaloa 2003–2025. Series históricas, diagnósticos municipales y conclusiones del informe original.">
-  <title>Growa — Agricultura de Sinaloa</title>
+  <meta name="theme-color" content="#173f58">
+  <meta name="description" content="Growa Agricultura. Plataforma independiente de inteligencia territorial para diagnósticos de política pública, análisis municipal, cultivos e indicadores económicos DGSIAP, 2003–2025.">
+  <title>Growa Agricultura | Inteligencia territorial para la gestión pública</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
@@ -14,7 +14,7 @@
   <header class="rail" aria-label="Cabecera Growa">
     <a class="brand" href="#panorama" aria-label="Growa — inicio del observatorio">
       <span class="brand-symbol" aria-hidden="true">G<span class="brand-point">.</span></span>
-      <span class="brand-word">GROWA<small>INTELIGENCIA ECONÓMICA</small></span>
+      <span class="brand-word">GROWA<small>OBSERVATORIO DE INTELIGENCIA TERRITORIAL</small></span>
     </a>
     <nav class="navigation" aria-label="Explorar información agrícola">
       <button class="nav-link active" data-tab="panorama" type="button">Inicio</button>
@@ -23,7 +23,7 @@
       <button class="nav-link lab-nav-link" data-tab="laboratorio" type="button">Laboratorio <span aria-hidden="true">↗</span></button>
       <button class="nav-link" data-tab="metodologia" type="button">Fuentes y metodología</button>
     </nav>
-    <div class="rail-meta"><span class="rail-meta-line" aria-hidden="true"></span>OBSERVATORIO AGRÍCOLA <span class="rail-meta-year">/ 2026</span></div>
+    <div class="rail-meta"><span class="rail-meta-line" aria-hidden="true"></span>AGRICULTURA <span class="rail-meta-year">/ DATOS 2003–2025</span></div>
   </header>
   <main class="page" id="main">
     <div class="topline">
@@ -49,9 +49,9 @@
     <header class="masthead">
       <div class="masthead-content">
         <div class="masthead-copy">
-          <div class="masthead-kicker"><span class="editorial-rule"></span> INVESTIGACIÓN APLICADA / SERIE 01</div>
-          <h1>La economía agrícola<br><em>en perspectiva.</em></h1>
-          <p>Análisis territorial y sectorial de la producción agrícola de Sinaloa. Datos históricos, composición de cultivos y conclusiones económicas reunidos en una misma plataforma.</p>
+          <div class="masthead-kicker"><span class="editorial-rule"></span> GROWA AGRICULTURA / SISTEMA DE INFORMACIÓN TERRITORIAL</div>
+          <h1>Información agrícola<br><em>para mejores decisiones.</em></h1>
+          <p>Consulte la evolución productiva, compare municipios y evalúe la estructura de cultivos con indicadores trazables. Un espacio de análisis independiente para planeación pública, investigación y desarrollo territorial.</p>
           <div class="hero-actions">
             <button class="hero-primary" data-tab="explorar-estados" type="button">Explorar municipios <span aria-hidden="true">↗</span></button>
             <button class="hero-secondary" data-tab="explorar-cultivos" type="button">Consultar cultivos <span aria-hidden="true">→</span></button>
@@ -65,7 +65,7 @@
             <div><span>HORIZONTE</span><strong>23 cierres agrícolas</strong></div>
             <div><span>FUENTE</span><strong>DGSIAP · Series municipales</strong></div>
           </div>
-          <div class="masthead-aside-bottom"><span>DOCUMENTACIÓN ECONÓMICA</span><span>01 / 02</span></div>
+          <div class="masthead-aside-bottom"><span>FUENTE: DGSIAP · TRATAMIENTO GROWA</span><span>2003–2025</span></div>
         </aside>
       </div>
     </header>
@@ -190,9 +190,9 @@
 
 <section id="panel-laboratorio" class="section-panel lab-page" hidden aria-label="Laboratorio de análisis agrícola">
   <header class="lab-intro">
-    <div><span class="lab-eyebrow"><span class="lab-signal"></span> GROWA RESEARCH / LAB 01</span>
-      <h2>Construye tu análisis.</h2>
-      <p>Un mismo espacio para combinar territorios, cultivos y años. Explora tendencias, contrasta municipios, cruza dimensiones y estudia la estructura productiva con datos verificables.</p>
+    <div><span class="lab-eyebrow"><span class="lab-signal"></span> ANÁLISIS PARA PLANEACIÓN PÚBLICA / LABORATORIO</span>
+      <h2>Centro de análisis territorial.</h2>
+      <p>Convierta registros agrícolas en evidencia para diagnósticos institucionales: compare territorios, examine cadenas productivas y documente indicadores, periodos, unidades y supuestos.</p>
     </div>
     <div class="lab-intro-right"><div>COBERTURA ACTIVA <strong>SINALOA · 2003–2025</strong></div><span>23 cierres agrícolas · 18 municipios</span></div>
   </header>
@@ -204,8 +204,18 @@
       <button id="lab-save" type="button">Guardar vista ☆</button>
       <button id="lab-share" type="button">Compartir ↗</button>
       <button id="lab-download" class="lab-action-main" type="button">Exportar datos ↓</button>
+      <button id="lab-report" type="button" class="lab-report-button">Ficha técnica ↗</button>
     </div>
   </div>
+  <section class="lab-policy" aria-label="Consultas para planeación pública">
+    <div class="lab-policy-head"><div><span class="lab-eyebrow">PUNTO DE PARTIDA</span><h3>Análisis orientados a decisiones</h3><p>Elija una pregunta para preparar la consulta, o combine los filtros manualmente.</p></div><span class="lab-policy-tag">4 CONSULTAS</span></div>
+    <div class="lab-policy-grid">
+      <button type="button" data-lab-preset="territory"><span class="lab-policy-index">01 / TERRITORIO</span><strong>¿Dónde se concentra la producción?</strong><small>Concentración y diversidad de cultivos por municipio</small><span class="lab-policy-arrow">↗</span></button>
+      <button type="button" data-lab-preset="compare"><span class="lab-policy-index">02 / COMPARACIÓN</span><strong>¿Qué municipios evolucionan diferente?</strong><small>Comparación de series temporales e índice base 100</small><span class="lab-policy-arrow">↗</span></button>
+      <button type="button" data-lab-preset="growth"><span class="lab-policy-index">03 / CAMBIO PRODUCTIVO</span><strong>¿Qué explica el cambio del valor?</strong><small>Superficie, rendimiento físico y precio implícito</small><span class="lab-policy-arrow">↗</span></button>
+      <button type="button" data-lab-preset="detail"><span class="lab-policy-index">04 / CIERRE 2025</span><strong>¿Cómo se organiza la producción?</strong><small>Variedades, modalidad hídrica, ciclos y tecnología</small><span class="lab-policy-arrow">↗</span></button>
+    </div>
+  </section>
   <div class="lab-layout">
     <aside class="lab-filters" aria-label="Constructor de consulta">
       <div class="lab-filter-head"><span class="lab-eyebrow">CONSTRUCTOR DE DATOS</span><h3>Definir la consulta</h3><p>Combina filtros. Los resultados y las vistas se recalculan con cada selección.</p></div>
@@ -258,6 +268,7 @@
 
 <section id="panel-metodologia" class="section-panel" aria-label="Metodología" hidden><div class="section-heading"><div><span class="section-counter">05 / SOBRE LA INVESTIGACIÓN</span><h2>Fuente y calidad estadística</h2></div><span class="period-label">DGSIAP · 2003—2025</span></div><div id="method-stats" class="stat-row"></div><div class="two-pane method-columns"><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">PROCEDENCIA</span><h3>Qué contiene el observatorio</h3></div></div><div id="method-source" class="narrative"></div></article><article class="editorial-panel"><div class="section-card-heading"><div><span class="eyebrow">ALCANCE</span><h3>Cómo interpretar los resultados</h3></div></div><div id="method-cautions" class="narrative"></div></article></div><article class="editorial-panel method-audit"><div class="section-card-heading"><div><span class="eyebrow">CONTROL DE LA FUENTE</span><h3>Integridad reportada en los anexos</h3><p>Estos controles provienen del paquete de auditoría proporcionado; no representan una verificación externa independiente.</p></div></div><div id="method-audit" class="audit-grid"></div></article></section>
 
+<div class="institutional-footer" role="note"><div><strong>GROWA / AGRICULTURA</strong><span>Herramientas independientes de apoyo al análisis y la gestión pública. No constituye un portal gubernamental oficial.</span></div><div><span>FUENTE ESTADÍSTICA</span><strong>DGSIAP · 2003–2025</strong></div><button type="button" data-tab="metodologia">Definiciones y límites de los datos ↗</button></div>
     <footer class="footer"><span>GROWA · ESTUDIOS ECONÓMICOS TERRITORIALES</span><span>Fuente: DGSIAP · Anexos 2003–2025 · Elaboración estadística propia</span><span>Datos nominales · Edición de octubre 2026</span></footer>
   </main>
 </div>
