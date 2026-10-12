@@ -45,7 +45,7 @@ function stats(target,rows){$(target).innerHTML=rows.map(r=>`<div class="stat"><
 function rank(target,rows,limit=8,showPercent=true){const data=rows.slice(0,limit);const max=Math.max(1,...data.map(r=>r.value));const total=sum(rows,'value');$(target).innerHTML=data.length?data.map((r,i)=>`<div class="rank-row"><div class="rank-top"><span class="rank-name">${String(i+1).padStart(2,'0')} &nbsp; ${esc(r.name)}</span><strong class="rank-value">${MX(r.value)} MDP</strong></div><div class="rank-bar"><div class="rank-fill" style="width:${Math.max(0,r.value/max*100).toFixed(2)}%"></div></div>${showPercent?`<div class="rank-sub">${PCT(r.value/total*100)} del valor incluido</div>`:''}</div>`).join(''):'<p class="empty">Sin datos disponibles.</p>'}
 function niceMax(max){if(max<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(max)));const v=max/e;return (v<=1?1:v<=2?2:v<=2.5?2.5:v<=5?5:10)*e}
 function svgChart(target,series,options={}){
- const data=series.filter(row=>Number.isFinite(Number(row.year))&&Number.isFinite(Number(row.value))).slice().sort((a,b)=>a.year-b.year);
+ const data=series.filter(row=>row.value!==null&&row.value!==undefined&&row.value!==''&&Number.isFinite(Number(row.year))&&Number.isFinite(Number(row.value))).slice().sort((a,b)=>a.year-b.year);
  const root=$(target);if(!root)return;
  if(!data.length){root.innerHTML='<p class="empty">No hay observaciones para representar.</p>';return}
  const seriesName=options.label||'Serie histórica';
@@ -792,10 +792,11 @@ function init(){
  document.querySelectorAll('#municipio,#cultivo,#year-select,#mx-crop-select,#mx-state-select,#mx-muni-select,#compare-a,#compare-b').forEach(function(element){element.addEventListener('change',refreshChrome)});
  document.addEventListener('click',function(event){
   if(!$('ux-toc-menu')?.hidden&&!event.target.closest('.ux-menu-anchor'))closeTOC();
+  var more=document.querySelector('.ux-more-menu');if(more&&more.open&&!event.target.closest('.ux-more-menu'))more.open=false;
   if(event.target.closest('[data-row]'))setTimeout(refreshChrome,0)
  });
  document.addEventListener('keydown',function(event){
-  if(event.key==='Escape'){closeTOC();closePanel();return}
+  if(event.key==='Escape'){closeTOC();closePanel();var more=document.querySelector('.ux-more-menu');if(more)more.open=false;return}
   var isTyping=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
   if(event.ctrlKey&&event.shiftKey&&event.key.toLowerCase()==='p'){event.preventDefault();showPanel();return}
   if(event.altKey&&!isTyping&&tab()==='panorama'){
