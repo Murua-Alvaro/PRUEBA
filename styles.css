@@ -852,3 +852,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
  .masthead-copy>p{color:#555}
  .editorial-panel,.national-detail{break-inside:avoid}
 }
+
+/* Unified search remains available on the national research workspace. */
+body[data-view="mexico"] .top-actions .quick-search{display:flex}
