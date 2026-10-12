@@ -490,3 +490,95 @@ body[data-view="mexico"] .top-actions .quick-search{display:none}
 .mx-small-bar-row>span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap;color:#111;font-weight:650}
 .mx-small-bar-row>span:last-child small{font-size:11px;display:block;color:#777;font-weight:400}
 @media(max-width:720px){.mx-small-bar-row{grid-template-columns:minmax(75px,1fr) minmax(85px,1fr) minmax(86px,1fr)}.mx-small-bar-row>span:last-child{font-size:10px}.mx-small-bar-row>span:last-child small{font-size:10px}}
+
+
+/* GROWA PRO UX LAB | 2026-10-11
+   Functional, strictly monochrome interaction layer. */
+.ux-workbench{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:20px;background:#fff;border-bottom:1px solid #dedede;padding:16px 0 15px;margin:0 0 25px}
+.ux-location{display:flex;align-items:center;gap:14px;white-space:nowrap;min-width:0}
+.ux-location strong{font-size:14px;color:#161616;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.ux-overline{font-size:10px;color:#858585;letter-spacing:.1em;font-weight:750;text-transform:uppercase}
+.ux-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:flex-end}
+.ux-action,.ux-header-btn,.ux-year-group button,.ux-story-controls button,.ux-compare-swap{appearance:none;background:white;border:1px solid #d7d7d7;border-radius:0;padding:9px 12px;min-height:37px;color:#383838;line-height:1.2;font-size:12px;font-weight:600;transition:background .12s,border-color .12s,color .12s;cursor:pointer}
+.ux-action:hover,.ux-header-btn:hover,.ux-year-group button:hover,.ux-story-controls button:hover,.ux-compare-swap:hover{border-color:#111;background:#f5f5f5;color:#111}
+.ux-action[aria-pressed="true"]{background:#111;color:white;border-color:#111}
+.ux-action.ux-emphasis{background:#161616;border-color:#161616;color:#fff}
+.ux-action.ux-emphasis:hover{background:#353535}
+.ux-action-count{font-size:10px;margin-left:5px;color:#858585;font-variant-numeric:tabular-nums}
+.ux-menu-anchor{position:relative}
+.ux-toc-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:20;width:min(340px,calc(100vw - 35px));max-height:min(520px,70vh);overflow-y:auto;background:white;border:1px solid #aaa;box-shadow:0 14px 40px #0002;padding:12px}
+.ux-toc-menu .ux-overline{display:block;padding:9px 9px 13px}
+.ux-toc-menu button{display:block;width:100%;background:white;border:0;border-top:1px solid #eee;text-align:left;font-size:12px;line-height:1.45;padding:12px 8px;color:#303030;cursor:pointer}
+.ux-toc-menu button:hover{background:#f1f1f1}
+.ux-header-btn{color:#fff;background:#161616;border-color:#161616;white-space:nowrap}
+.ux-header-btn:hover{background:#333;color:white}
+.ux-header-btn span{margin-left:8px}
+.ux-year-group{display:flex;align-items:center;border:1px solid #d3d3d3;background:white}
+.ux-year-group select{border:0;min-width:96px;text-align:center}
+.ux-year-group button{border:0;min-width:35px;min-height:39px;font-size:17px;padding:4px 8px}
+.ux-year-group button:disabled{opacity:.25;cursor:not-allowed}
+.ux-compare-swap{font-size:21px;align-self:end;min-width:40px;min-height:42px;padding:5px}
+.ux-story-controls{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 18px}
+.ux-dialog-shell{position:fixed;inset:0;z-index:300;display:grid;grid-template-columns:1fr min(460px,100%);isolation:isolate}
+.ux-dialog-backdrop{position:absolute;inset:0;background:#07070792;border:0;width:100%;height:100%;cursor:pointer}
+.ux-dialog-panel{grid-column:2;position:relative;display:flex;flex-direction:column;height:100vh;height:100dvh;background:#fff;box-shadow:-12px 0 40px #0002;overflow:hidden}
+.ux-dialog-head{display:flex;align-items:start;justify-content:space-between;gap:18px;padding:33px 30px 24px;border-bottom:1px solid #dedede}
+.ux-dialog-head h2{font-size:25px;line-height:1.16;letter-spacing:-.035em;margin:8px 0 0;font-family:Georgia,'Times New Roman',serif;font-weight:500}
+.ux-close{border:1px solid #d9d9d9;background:white;min-width:38px;min-height:38px;cursor:pointer}
+.ux-close:hover{border-color:#111;background:#f0f0f0}
+.ux-dialog-body{overflow-y:auto;min-height:0;flex:1;padding:0 30px 35px}
+.ux-dialog-section{padding:23px 0;border-bottom:1px solid #e2e2e2}
+.ux-dialog-section h3{font-size:14px;font-weight:700;color:#111;margin:0 0 8px}
+.ux-dialog-section p{color:#666;margin:0 0 17px;font-size:12px;line-height:1.65}
+.ux-dialog-section-title{display:flex;justify-content:space-between}
+.ux-dialog-section-title span{font:600 12px/1.4 monospace}
+.ux-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid #eee;padding:14px 0;font-size:12px}
+.ux-setting-row button,.ux-segmented button{padding:8px 11px;background:#fff;border:1px solid #bbb;color:#222;cursor:pointer;font-size:12px;white-space:nowrap}
+.ux-setting-row button:hover,.ux-segmented button[aria-pressed="true"]{background:#111;color:#fff;border-color:#111}
+.ux-segmented{display:flex}
+.ux-segmented button+button{border-left:0}
+.ux-saved-list{display:flex;flex-direction:column;gap:7px}
+.ux-saved-item{border:1px solid #e1e1e1;display:flex;align-items:center;gap:5px;padding:4px}
+.ux-saved-item>button:first-child{display:block;flex:1;text-align:left;padding:9px;background:#fff;border:0;cursor:pointer;font-size:12px;color:#222}
+.ux-saved-item>button:first-child:hover{background:#f3f3f3}
+.ux-saved-item small{display:block;color:#888;font-size:10px}
+.ux-saved-item>button:last-child{border:0;background:#fff;color:#444;cursor:pointer;width:35px;height:35px;font-size:18px}
+.ux-saved-item>button:last-child:hover{background:#111;color:#fff}
+.ux-empty{border:1px dashed #ccc;padding:18px;font-size:12px}
+.ux-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:11px;font-size:12px}
+.ux-shortcuts>span:nth-child(2n+1){white-space:nowrap}
+.ux-shortcuts kbd{border:1px solid #cfcfcf;background:#f3f3f3;padding:3px 6px;font:11px monospace}
+.ux-dialog-foot{padding:18px 30px;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:10px;color:#777}
+.ux-dialog-foot button{background:white;border:0;text-decoration:underline;font-size:11px;cursor:pointer;padding:6px 0}
+.ux-notice{position:fixed;z-index:400;right:22px;bottom:22px;max-width:370px;background:#121212;color:#fff;box-shadow:0 8px 30px #0003;padding:14px 20px;font-size:12px;line-height:1.5}
+body.ux-focus .shell{grid-template-columns:minmax(0,1fr)}
+body.ux-focus .rail{display:none}
+body.ux-focus .page{max-width:1600px;width:100%;margin-inline:auto}
+body.ux-compact .editorial-panel,body.ux-compact .story-panel{padding-top:14px;padding-bottom:14px}
+body.ux-compact .rank-row{padding-block:6px}
+body.ux-compact .section-heading{margin-bottom:14px}
+.ux-rank-filters{display:flex;align-items:center;flex-wrap:wrap;gap:6px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:11px 0;margin:0 0 19px}
+.ux-filter-btn{padding:8px 12px;border:1px solid #ddd;background:white;color:#555;font-size:11px;font-weight:600;cursor:pointer}
+.ux-filter-btn:hover{border-color:#111}
+.ux-filter-btn.active,.ux-filter-btn[aria-pressed="true"]{background:#111;color:#fff;border-color:#111}
+.ux-filter-count{margin-left:auto;font-size:11px;color:#777;white-space:nowrap}
+.ux-comparison-control{margin-left:6px;border-color:#111;color:#111}
+.ux-national-comparison{padding:19px;margin:4px 0 26px;background:#f8f8f8;border:1px solid #b7b7b7}
+.ux-compare-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:12px}
+.ux-compare-head h4{margin:0;font-size:17px;font-weight:650}
+.ux-compare-head button{padding:7px 10px;border:1px solid #ddd;background:white;cursor:pointer}
+.ux-national-selectors{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.ux-national-selectors label{font-size:11px;color:#666;display:flex;flex-direction:column;gap:6px}
+.ux-national-selectors select{background:#fff;border:1px solid #bbb;border-radius:0;padding:10px;font-size:12px;color:#111;width:100%}
+.ux-ncmp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.ux-ncmp-card{border:1px solid #ddd;background:#fff;padding:17px}
+.ux-ncmp-card h5{font-size:16px;margin:0 0 15px;font-weight:650}
+.ux-ncmp-stat{display:flex;justify-content:space-between;border-top:1px solid #ececec;padding:8px 0;font-size:12px;gap:10px}
+.ux-ncmp-stat strong{font-variant-numeric:tabular-nums}
+.ux-ncmp-conclusion{font-size:11px;color:#666;margin:13px 0 0;line-height:1.6}
+.ux-rank-note{color:#777;font-size:11px;margin:9px 0}
+.ux-hidden-row{display:none!important}
+@media(max-width:1250px){.ux-workbench{align-items:flex-start;flex-direction:column}.ux-actions{justify-content:flex-start;width:100%}}
+@media(max-width:720px){.ux-workbench{margin-bottom:14px;padding-block:12px}.ux-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ux-action{width:100%;font-size:11px;padding:9px 7px}.ux-menu-anchor{min-width:0}.ux-location{gap:9px}.ux-overline{font-size:9px}.ux-toc-menu{left:0;right:auto}.ux-dialog-head,.ux-dialog-body,.ux-dialog-foot{padding-left:20px;padding-right:20px}.ux-ncmp-grid,.ux-national-selectors{grid-template-columns:1fr}.ux-rank-filters{gap:5px}.ux-filter-count{width:100%;margin:6px 0 0}.ux-notice{left:13px;right:13px;bottom:13px}.ux-workbench .ux-actions #ux-collapse-all{display:none}}
+@media print{.rail,.top-actions,.ux-workbench,.ux-story-controls,.ux-dialog-shell,.ux-notice,.national-subnav,.ux-rank-filters,.mx-tools,.ux-export{display:none!important}.shell{display:block}.page{margin:0;width:100%;max-width:none}.section-panel[hidden]{display:none!important}body{background:#fff}.story-panel,.editorial-panel{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){.ux-dialog-panel,.ux-action,.ux-toc-menu{transition:none!important}}
