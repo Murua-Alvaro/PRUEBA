@@ -1391,7 +1391,9 @@ function render(){
  const rows=selection();cacheRows=rows;
  if($('lab-report-sheet'))$('lab-report-sheet').hidden=true;
  const error=['estructura','shapley','micro2025'].includes(state.tab)?'':validatePhysical(rows);
- updateSummary(rows,error);
+ const summaryRows=state.tab==='micro2025'?D.crops.filter(r=>r.year===2025&&(!state.municipalities.size||state.municipalities.has(r.municipio))&&(!state.crops.size||state.crops.has(r.name))):rows;
+ updateSummary(summaryRows,error);
+ if(state.tab==='micro2025')$('lab-query-count').textContent=microBase().length.toLocaleString('es-MX')+' registros detallados · 2025';
  document.querySelectorAll('[data-lab-tab]').forEach(b=>{const on=b.dataset.labTab===state.tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
  const host=$('lab-content');
  if(state.tab==='micro2025'){host.innerHTML=renderMicro();return}
@@ -1404,6 +1406,12 @@ function render(){
  if(state.tab==='shapley')host.innerHTML=renderShapley(rows);
 }
 function downloadCurrent(){
+ if(state.tab==='micro2025'){
+  const records=microRecords();
+  if(records.length)window.GrowaDownloadCSV('growa_detalle_agricola_2025.csv',records);
+  else notify('No existen observaciones del cierre 2025 con estos filtros.');
+  return;
+ }
  const rows=cacheRows.map(r=>({anio:r.year,municipio:r.municipio,cultivo:r.name,unidad:r.unit,valor_mdp:r.value,sembrada_ha:r.planted,cosechada_ha:r.harvest,siniestrada_ha:r.loss,volumen:r.volume,fuente:'DGSIAP Sinaloa'}));
  if(!rows.length){notify('No hay filas disponibles para exportar.');return}
  window.GrowaDownloadCSV('growa_laboratorio_dgsiap_'+state.from+'_'+state.to+'.csv',rows);
@@ -1424,7 +1432,9 @@ function showSaves(){
 
 /* Institutional briefing: descriptive, source-grounded, never causal. */
 function renderInstitutionalReport(){
- const rows=selection(),has=rows.length>0,firstYear=state.from,lastYear=state.to;
+ const microMode=state.tab==='micro2025';
+ const rows=microMode?D.crops.filter(r=>r.year===2025&&(!state.municipalities.size||state.municipalities.has(r.municipio))&&(!state.crops.size||state.crops.has(r.name))):selection();
+ const has=rows.length>0,firstYear=microMode?2025:state.from,lastYear=microMode?2025:state.to;
  const sourceUnit=metricUnit(state.metric,rows);
  const totalValueByYear=chartData(rows,'value');
  const first=totalValueByYear[0],last=totalValueByYear.at(-1);
