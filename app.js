@@ -226,16 +226,25 @@ function closeCommand(){
 function renderCommandResults(){
  const term=$('global-search').value.trim().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  const normalize=(value)=>value.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- const pool=[...D.muniNames.map(name=>({name,type:'municipio'})),...D.cropNames.map(name=>({name,type:'cultivo'}))];
+ const national=window.GrowaNationalData||{crops:[],states:[],munis:[]};
+ const pool=[...D.muniNames.map(name=>({name,type:'municipio'})),...D.cropNames.map(name=>({name,type:'cultivo'})),...national.crops.map((row,index)=>({name:row[0],type:'mx-cultivo',index})),...national.states.map((row,index)=>({name:row[0],type:'mx-estado',index})),...national.munis.map((row,index)=>({name:row[0]+' · '+row[1],type:'mx-municipio',index}))];
  commandItems=pool.filter(item=>normalize(item.name).includes(term)).sort((a,b)=>{
   const score=(item)=>{const name=normalize(item.name);return (name===term?0:name.startsWith(term)?1:2)};
   return score(a)-score(b)||(b.type==='cultivo'?cropInfo(b.name).now||0:0)-(a.type==='cultivo'?cropInfo(a.name).now||0:0)||a.name.localeCompare(b.name,'es');
  }).slice(0,14);
  if(commandIndex>=commandItems.length)commandIndex=0;
- $('search-results').innerHTML=commandItems.length?commandItems.map((item,index)=>`<button type="button" class="command-result ${index===commandIndex?'selected':''}" role="option" aria-selected="${index===commandIndex}" data-command-index="${index}"><span class="command-category">${item.type==='municipio'?'MUNICIPIO':'CULTIVO'}</span><strong>${esc(item.name)}</strong><span class="command-arrow" aria-hidden="true">↗</span></button>`).join(''):'<p class="empty">No se encontraron coincidencias.</p>';
+ $('search-results').innerHTML=commandItems.length?commandItems.map((item,index)=>`<button type="button" class="command-result ${index===commandIndex?'selected':''}" role="option" aria-selected="${index===commandIndex}" data-command-index="${index}"><span class="command-category">${({municipio:'MUNICIPIO · SINALOA',cultivo:'CULTIVO · SINALOA','mx-cultivo':'CULTIVO · MÉXICO','mx-estado':'ENTIDAD · MÉXICO','mx-municipio':'MUNICIPIO · MÉXICO'}[item.type]||'ANÁLISIS')}</span><strong>${esc(item.name)}</strong><span class="command-arrow" aria-hidden="true">↗</span></button>`).join(''):'<p class="empty">No se encontraron coincidencias.</p>';
 }
 function followCommand(item){
  closeCommand();
+ if(item.type&&item.type.indexOf('mx-')===0){
+  navigate('mexico');
+  const category=item.type==='mx-cultivo'?'cultivos':item.type==='mx-estado'?'estados':'municipios';
+  document.querySelector('.mx-tab[data-mx-tab="'+category+'"]')?.click();
+  const control=$(category==='cultivos'?'mx-crop-select':category==='estados'?'mx-state-select':'mx-muni-select');
+  if(control){control.value=String(item.index);control.dispatchEvent(new Event('change',{bubbles:true}))}
+  return;
+ }
  if(item.type==='municipio'){
   state.municipio=item.name;state.activeMunicipioCrop=null;state.search='';$('municipio-search').value='';renderMunicipio();navigate('municipios');
  }else{
