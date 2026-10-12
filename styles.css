@@ -1435,3 +1435,21 @@ body{background:#eff4f6;color:var(--ink);font-family:var(--sans);font-size:14px;
  body.lab-print-sheet .lab-report-table-section{break-inside:avoid}
 }
 @media(prefers-reduced-motion:reduce){.lab-policy-grid button{transition:none}}
+
+
+/* Institutional accessibility refinements */
+.skip-link{position:fixed;top:-100px;left:18px;z-index:9999;padding:12px 18px;background:#fff;color:#153b54;font-size:14px;font-weight:750;border:2px solid #117b76;border-radius:5px;box-shadow:0 8px 24px #183b4b22}
+.skip-link:focus{top:14px}
+.lab-policy-grid button:focus-visible,.lab-toolbar-actions button:focus-visible,.lab-worktabs button:focus-visible,.nav-link:focus-visible,.institutional-footer button:focus-visible{outline:3px solid #0b7b79;outline-offset:3px}
+.lab-toolbar-actions button,.lab-policy-grid button,.lab-worktabs button{touch-action:manipulation}
+.lab-worktabs button{min-height:44px}
+.lab-toolbar-actions button{min-height:42px}
+.lab-check{min-height:33px}
+.lab-eyebrow,.gx-eyebrow,.section-counter,.lab-filter-label span{font-size:11px}
+.lab-summary-cell span,.lab-policy-index,.lab-report-body .lab-document-meta span{font-size:10.5px}
+.lab-filter-foot,.lab-mini-help,.lab-figure-note,.lab-source p,.lab-source .lab-eyebrow{font-size:11.5px}
+.lab-source p,.lab-figure-note{color:#5c717b}
+.lab-table{font-size:12px}
+.lab-table thead th{font-size:11px}
+.lab-report-body p{overflow-wrap:break-word}
+@media(max-width:740px){.lab-policy-grid button{min-height:150px}.lab-toolbar-actions button{min-height:43px}.lab-worktabs{scroll-snap-type:x proximity}.lab-worktabs button{scroll-snap-align:start}}
