@@ -930,3 +930,6 @@ body[data-view="mexico"] .top-actions .quick-search{display:flex}
  .ux-more-menu .ux-more-content{right:-15px}
 }
 @media print{.ux-more-menu,.g-chart-bar,.g-chart-export{display:none!important}.brief-grid{break-inside:avoid}}
+
+/* Empty-window treatment for non-imputed crop series. */
+.g-chart-empty{padding:42px 22px;margin:12px 0 16px;text-align:center;border:1px dashed #d8d8d8;background:#fafafa;color:#777;font-size:12px;line-height:1.7}
