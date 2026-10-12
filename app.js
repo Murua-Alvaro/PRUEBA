@@ -374,6 +374,7 @@ function exportReportRows(rows,filename,cols){
  const file=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
  const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
 }
+window.GrowaNationalData=Object.freeze({crops:crops,states:states,munis:munis});
 function initNational(){
  const total=812156.8,initial=192420.5;
  qs('#mx-kpis').innerHTML=[
@@ -420,4 +421,324 @@ function initNational(){
  }));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNational);else initNational();
+})();
+
+
+/* GROWA PRO UX ENGINE
+   Contextual controls, bookmarked dossiers, deep links and keyboard-accessible
+   interactive drill-downs; original Sinaloa data remain unmodified. */
+(function(){
+'use strict';
+var key='growa-agricultura-ui-v1',savedKey='growa-agricultura-bookmarks-v1';
+var $=function(id){return document.getElementById(id)};
+var pageNames={panorama:'Panorama estatal · Sinaloa',municipios:'Expedientes municipales',cultivos:'Cultivos y variedades',mexico:'México · investigación nacional',metodologia:'Método y auditoría'};
+var lastFocus=null,noticeTimer=null,initialized=false,restored=false,filters={};
+function readJSON(key,def){try{var value=JSON.parse(localStorage.getItem(key));return value===null?def:value}catch(e){return def}}
+function writeJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){return false}}
+function tab(){var current=document.querySelector('.nav-link.active');return current?current.dataset.tab:'panorama'}
+function activePanel(){return $('panel-'+tab())}
+function val(id){var element=$(id);return element?element.value:''}
+function notify(message){var el=$('ux-toast');if(!el)return;el.textContent=message;el.hidden=false;clearTimeout(noticeTimer);noticeTimer=setTimeout(function(){el.hidden=true},2800)}
+function action(id,callback){var button=$(id);if(button)button.addEventListener('click',callback)}
+function visibleFoldCount(){var active=activePanel();return active?active.querySelectorAll('details').length:0}
+function refreshChrome(){
+ var current=tab(),active=activePanel();
+ if($('ux-view-title'))$('ux-view-title').textContent=pageNames[current]||current;
+ if($('ux-fold-count'))$('ux-fold-count').textContent=String(visibleFoldCount());
+ var snapshot=JSON.stringify(getSnapshot()),bookmarks=readJSON(savedKey,[]);
+ var found=bookmarks.some(function(item){return JSON.stringify(item.snapshot)===snapshot});
+ if($('ux-bookmark')){$('ux-bookmark').setAttribute('aria-pressed',found?'true':'false');$('ux-bookmark').textContent=found?'★ Vista guardada':'☆ Guardar vista'}
+ if(active){document.querySelectorAll('.ux-workbench').forEach(function(x){x.classList.toggle('ux-national-mode',current==='mexico')})}
+}
+function toggleDetails(container,opening){
+ if(!container)return;
+ var all=Array.from(container.querySelectorAll('details'));
+ all.forEach(function(d){d.open=opening});
+ refreshChrome();
+ notify((opening?'Abiertos ':'Contraídos ')+all.length+' apartados de análisis');
+}
+function getSnapshot(){
+ var current=tab();
+ var result={t:current};
+ if(current==='municipios')result.m=val('municipio');
+ if(current==='cultivos')result.c=val('cultivo');
+ if(current==='panorama'){result.y=val('year-select');result.a=val('compare-a');result.b=val('compare-b')}
+ if(current==='mexico'){
+  var mx=document.querySelector('.mx-tab.active');result.x=mx?mx.dataset.mxTab:'cultivos';
+  result.i=val(result.x==='cultivos'?'mx-crop-select':result.x==='estados'?'mx-state-select':'mx-muni-select');
+ }
+ return result;
+}
+function snapLabel(s){
+ if(s.t==='municipios')return 'Municipio · '+s.m;
+ if(s.t==='cultivos')return 'Cultivo · '+s.c;
+ if(s.t==='panorama')return 'Panorama · '+s.y;
+ if(s.t==='mexico')return 'México · '+({cultivos:'Cultivo',estados:'Entidad',municipios:'Municipio',auditoria:'Auditoría'}[s.x]||'Informe')+(s.i&&s.x!=='auditoria'?' #'+(Number(s.i)+1):'');
+ return pageNames[s.t]||'Vista';
+}
+function toURL(snapshot){
+ var u=new URL(location.href);
+ u.searchParams.set('gw',JSON.stringify(snapshot));
+ u.hash='#'+snapshot.t;
+ return u;
+}
+function setSelect(id,value){
+ var el=$(id);if(!el||value===undefined||value===null)return;
+ var exists=Array.from(el.options||[]).some(function(option){return option.value===String(value)});
+ if(!exists)return;
+ if(el.value!==String(value)){el.value=String(value);el.dispatchEvent(new Event('change',{bubbles:true}))}
+}
+function restoreSnapshot(s){
+ if(!s||!pageNames[s.t])return;
+ var route=document.querySelector('.nav-link[data-tab="'+s.t+'"]');
+ if(route)route.click();
+ if(s.t==='municipios')setSelect('municipio',s.m);
+ if(s.t==='cultivos')setSelect('cultivo',s.c);
+ if(s.t==='panorama'){setSelect('year-select',s.y);setSelect('compare-a',s.a);setSelect('compare-b',s.b)}
+ if(s.t==='mexico'){
+  var t=document.querySelector('.mx-tab[data-mx-tab="'+(s.x||'cultivos')+'"]');
+  if(t)t.click();
+  var control=s.x==='estados'?'mx-state-select':s.x==='municipios'?'mx-muni-select':'mx-crop-select';
+  setSelect(control,s.i);
+ }
+ refreshChrome();
+}
+function restoreFromURL(){
+ if(restored)return;
+ var encoded=new URL(location.href).searchParams.get('gw');
+ if(encoded){try{var data=JSON.parse(encoded);restoreSnapshot(data)}catch(e){notify('No se pudo recuperar la vista del enlace')}}
+ restored=true;
+}
+function ensureRestoration(){
+ if(restored)return;
+ var el=$('status');
+ if(el&&el.textContent.indexOf('Datos cargados')!==-1)restoreFromURL();
+}
+function copyLink(){
+ var url=toURL(getSnapshot()).toString();
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(url).then(function(){notify('Enlace de la vista copiado')}).catch(function(){fallbackCopy(url)})
+ }else fallbackCopy(url)
+}
+function fallbackCopy(value){
+ var area=document.createElement('textarea');area.value=value;area.style.position='fixed';area.style.opacity='0';document.body.append(area);area.select();var success=false;try{success=document.execCommand('copy')}catch(e){}area.remove();notify(success?'Enlace de la vista copiado':'Copia el enlace desde la barra del navegador');
+}
+function bookmarks(){var items=readJSON(savedKey,[]);return Array.isArray(items)?items.slice(0,30):[]}
+function saveCurrent(){
+ var data=getSnapshot(),items=bookmarks(),signature=JSON.stringify(data);
+ var found=items.findIndex(function(item){return JSON.stringify(item.snapshot)===signature});
+ if(found>=0){items.splice(found,1);notify('Vista retirada de guardados')}
+ else{items.unshift({label:snapLabel(data),snapshot:data});items=items.slice(0,30);notify('Vista guardada en este navegador')}
+ writeJSON(savedKey,items);renderSaved();refreshChrome();
+}
+function renderSaved(){
+ var target=$('ux-saved-list'),items=bookmarks();if(!target)return;target.replaceChildren();
+ if($('ux-saved-count'))$('ux-saved-count').textContent=String(items.length);
+ if(!items.length){var empty=document.createElement('p');empty.className='ux-empty';empty.textContent='Todavía no has guardado ninguna vista.';target.append(empty);return}
+ items.forEach(function(item,index){
+  var row=document.createElement('div');row.className='ux-saved-item';
+  var open=document.createElement('button');open.type='button';open.textContent=item.label;open.addEventListener('click',function(){
+   restoreSnapshot(item.snapshot);history.replaceState(null,'',toURL(item.snapshot));closePanel();notify('Vista recuperada');
+  });
+  var remove=document.createElement('button');remove.type='button';remove.setAttribute('aria-label','Quitar '+item.label);remove.textContent='×';remove.addEventListener('click',function(){
+   var list=bookmarks();list.splice(index,1);writeJSON(savedKey,list);renderSaved();refreshChrome()
+  });
+  row.append(open,remove);target.append(row);
+ });
+}
+function showPanel(){
+ var dialog=$('ux-dialog');if(!dialog)return;
+ lastFocus=document.activeElement;
+ renderSaved();dialog.hidden=false;document.body.style.overflow='hidden';
+ var panel=dialog.querySelector('.ux-dialog-panel');if(panel)panel.focus()
+}
+function closePanel(){
+ var el=$('ux-dialog');if(!el||el.hidden)return;
+ el.hidden=true;document.body.style.overflow='';
+ if(lastFocus&&typeof lastFocus.focus==='function')lastFocus.focus();
+}
+function wide(on){
+ document.body.classList.toggle('ux-focus',on);
+ ['ux-focus','ux-setting-focus'].forEach(function(id){var b=$(id);if(b)b.setAttribute('aria-pressed',on?'true':'false')});
+ if($('ux-focus'))$('ux-focus').textContent=on?'Salir de vista amplia ⛶':'Vista amplia ⛶';
+ if($('ux-setting-focus'))$('ux-setting-focus').textContent=on?'Desactivar vista amplia':'Activar vista amplia';
+ updatePrefs();notify(on?'Vista amplia activada':'Vista habitual restaurada')
+}
+function density(compact){
+ document.body.classList.toggle('ux-compact',compact);
+ ['ux-density-normal','ux-density-compact'].forEach(function(id){
+  var b=$(id);if(b)b.setAttribute('aria-pressed',(id==='ux-density-compact'?compact:!compact)?'true':'false')
+ });updatePrefs()
+}
+function updatePrefs(){writeJSON(key,{focus:document.body.classList.contains('ux-focus'),compact:document.body.classList.contains('ux-compact')})}
+function fillTOC(){
+ var target=$('ux-toc-menu'),panel=activePanel();if(!target||!panel)return;
+ target.replaceChildren();
+ var tag=document.createElement('span');tag.className='ux-overline';tag.textContent='SALTA A UNA SECCIÓN';target.append(tag);
+ var selectors='.section-heading h2,.research-head h3,.section-card-heading h3,.story-heading h3,.national-panel-head h3,.mx-panel:not([hidden]) h4';
+ var choices=Array.from(panel.querySelectorAll(selectors)).filter(function(h){
+  var p=h.closest('[hidden]');return !p&&h.textContent.trim().length>0
+ }).slice(0,18);
+ choices.forEach(function(h,i){
+  var button=document.createElement('button');button.type='button';button.textContent=String(i+1).padStart(2,'0')+' · '+h.textContent.trim();
+  button.addEventListener('click',function(){
+   var details=h.closest('details');if(details)details.open=true;closeTOC();h.scrollIntoView({behavior:'smooth',block:'start'})
+  });target.append(button)
+ });
+ if(!choices.length){var p=document.createElement('p');p.textContent='No hay apartados adicionales en esta vista.';target.append(p)}
+}
+function closeTOC(){if($('ux-toc-menu'))$('ux-toc-menu').hidden=true;if($('ux-toc-toggle'))$('ux-toc-toggle').setAttribute('aria-expanded','false')}
+function toggleTOC(){
+ var menu=$('ux-toc-menu');if(!menu)return;
+ if(menu.hidden){fillTOC();menu.hidden=false;$('ux-toc-toggle').setAttribute('aria-expanded','true')}
+ else closeTOC()
+}
+function stepYear(direction){
+ var el=$('year-select');if(!el)return;
+ var options=Array.from(el.options).map(function(o){return Number(o.value)}).sort(function(a,b){return a-b});
+ var present=Number(el.value),i=options.indexOf(present),next=options[i+direction];
+ if(next===undefined)return;
+ setSelect('year-select',next);notify('Cierre de '+next)
+}
+function swapMunicipalities(){
+ var a=val('compare-a'),b=val('compare-b');
+ setSelect('compare-a',b);setSelect('compare-b',a);
+ notify('Se intercambiaron los municipios');
+}
+function reportPrint(){
+ var section=activePanel();if(!section)return;
+ if(tab()==='municipios')toggleDetails($('municipio-report'),true);
+ window.print();
+}
+function getData(kind){var d=window.GrowaNationalData;if(!d)return[];return kind==='cultivos'?d.crops:kind==='estados'?d.states:d.munis}
+function itemData(kind,row){
+ var muni=kind==='municipios';
+ return {name:row[0]+(muni?' · '+row[1]:''),start:row[muni?2:1],end:row[muni?3:2],delta:row[muni?4:3],value:row[muni?5:4],note:muni?row[7]:(kind==='estados'?row[6]:row[10])}
+}
+function cmpNumber(n,digits){return Number(n).toLocaleString('es-MX',{minimumFractionDigits:digits||1,maximumFractionDigits:digits||1})}
+function compareCard(label,data){
+ return '<article class="ux-ncmp-card"><div class="ux-overline">'+label+'</div><h5>'+data.name+'</h5>'+
+ [['Cuota inicial',cmpNumber(data.start,2)+' %'],['Cuota final',cmpNumber(data.end,2)+' %'],['Cambio de cuota',(data.delta>0?'+':'')+cmpNumber(data.delta,2)+' pp'],['Valor 2025',cmpNumber(data.value,1)+' M$']].map(function(e){return '<div class="ux-ncmp-stat"><span>'+e[0]+'</span><strong>'+e[1]+'</strong></div>'}).join('')+
+ '<p class="ux-ncmp-conclusion">'+(data.note||'Comparación de participaciones nacionales, no de rentabilidad.')+'</p></article>'
+}
+function nationalCompare(kind,container){
+ var host=container.querySelector('.ux-national-comparison');if(!host)return;
+ var rows=getData(kind);if(!rows.length)return;
+ var a=host.querySelector('[data-side="a"]'),b=host.querySelector('[data-side="b"]'),grid=host.querySelector('.ux-ncmp-grid');
+ [a,b].forEach(function(el){
+  if(el.options.length)return;
+  rows.forEach(function(r,i){var option=document.createElement('option');option.value=String(i);option.textContent=r[0]+(kind==='municipios'?' · '+r[1]:'');el.append(option)})
+ });
+ if(!b.dataset.ready){b.value=String(Math.min(5,rows.length-1));b.dataset.ready='1'}
+ var first=itemData(kind,rows[Number(a.value)]),second=itemData(kind,rows[Number(b.value)]);
+ grid.innerHTML=compareCard('FICHA A',first)+compareCard('FICHA B',second);
+}
+function setFilterMode(kind,container,mode){
+ var state=filters[kind];if(!state)return;state.mode=mode;
+ container.querySelectorAll('[data-filter-mode]').forEach(function(b){b.classList.toggle('active',b.dataset.filterMode===mode);b.setAttribute('aria-pressed',b.dataset.filterMode===mode?'true':'false')});
+ refreshRanks(kind,container);
+}
+function refreshRanks(kind,panel){
+ var state=filters[kind],chart=panel.querySelector('.mx-bar-chart');if(!state||!chart)return;
+ var entries=Array.from(chart.querySelectorAll('.mx-bar-row'));
+ entries.sort(function(a,b){
+  var aName=a.querySelector('.mx-name')?.textContent||'',bName=b.querySelector('.mx-name')?.textContent||'';
+  var av=parseInt(a.dataset.score||'0',10),bv=parseInt(b.dataset.score||'0',10);
+  return state.sort==='name'?aName.localeCompare(bName,'es'):Math.abs(bv)-Math.abs(av);
+ });
+ entries.forEach(function(row){
+  var v=Number(row.dataset.score);row.classList.toggle('ux-hidden-row',state.mode==='up'&&v<=0||state.mode==='down'&&v>=0);
+  chart.append(row)
+ });
+ var count=entries.filter(function(row){return !row.classList.contains('ux-hidden-row')}).length;
+ var tag=panel.querySelector('.ux-filter-count');if(tag)tag.textContent=count+' resultados · selección del informe';
+}
+function setupNationalFilter(kind){
+ var panel=document.querySelector('.mx-panel[data-mx-panel="'+kind+'"]');if(!panel||panel.dataset.uxReady)return;
+ var chart=panel.querySelector('.mx-bar-chart');if(!chart)return;
+ var rows=Array.from(chart.querySelectorAll('.mx-bar-row'));
+ if(!rows.length)return;
+ rows.forEach(function(row){
+  var raw=row.querySelector('.mx-bar-number')?.textContent||'0';
+  var num=parseFloat(raw.replace('−','-').replace(/[^0-9.,+-]/g,'').replace(',','.'));
+  row.dataset.score=String(Math.round((Number.isFinite(num)?num:0)*1000))
+ });
+ filters[kind]={mode:'all',sort:'impact'};
+ var bar=document.createElement('div');bar.className='ux-rank-filters';bar.setAttribute('role','group');bar.setAttribute('aria-label','Filtrar y comparar ranking '+kind);
+ bar.innerHTML='<button type="button" class="ux-filter-btn active" data-filter-mode="all" aria-pressed="true">Todos</button>'+
+ '<button type="button" class="ux-filter-btn" data-filter-mode="up" aria-pressed="false">↑ Ganan cuota</button>'+
+ '<button type="button" class="ux-filter-btn" data-filter-mode="down" aria-pressed="false">↓ Pierden cuota</button>'+
+ '<button type="button" class="ux-filter-btn" data-sort-mode="name">A–Z</button>'+
+ '<button type="button" class="ux-filter-btn" data-sort-mode="impact">Mayor cambio</button>'+
+ '<button type="button" class="ux-filter-btn ux-comparison-control" data-open-ncmp="true">⇄ Comparar dos</button>'+
+ '<span class="ux-filter-count">'+rows.length+' resultados</span>';
+ panel.insertBefore(bar,chart);
+ var comparison=document.createElement('div');comparison.className='ux-national-comparison';comparison.hidden=true;
+ comparison.innerHTML='<div class="ux-compare-head"><h4>Comparación de dos fichas</h4><button type="button" data-close-ncmp="true" aria-label="Cerrar comparador">Cerrar ✕</button></div>'+
+ '<div class="ux-national-selectors"><label>FICHA A<select data-side="a"></select></label><label>FICHA B<select data-side="b"></select></label></div>'+
+ '<div class="ux-ncmp-grid"></div><p class="ux-rank-note">Datos publicados en el informe nacional de 115 páginas. La variación de cuota no identifica causalidad ni rentabilidad.</p>';
+ panel.insertBefore(comparison,chart);
+ bar.addEventListener('click',function(event){
+  var b=event.target.closest('button');if(!b)return;
+  if(b.dataset.filterMode){setFilterMode(kind,panel,b.dataset.filterMode);return}
+  if(b.dataset.sortMode){filters[kind].sort=b.dataset.sortMode;bar.querySelectorAll('[data-sort-mode]').forEach(function(x){x.classList.toggle('active',x===b)});refreshRanks(kind,panel);return}
+  if(b.dataset.openNcmp){comparison.hidden=false;nationalCompare(kind,panel);comparison.scrollIntoView({block:'nearest',behavior:'smooth'})}
+ });
+ comparison.addEventListener('change',function(){nationalCompare(kind,panel)});
+ comparison.addEventListener('click',function(event){if(event.target.closest('[data-close-ncmp]'))comparison.hidden=true});
+ panel.dataset.uxReady='1';refreshRanks(kind,panel)
+}
+function init(){
+ if(initialized)return;initialized=true;
+ var prefs=readJSON(key,{});
+ document.body.classList.toggle('ux-focus',!!prefs.focus);
+ document.body.classList.toggle('ux-compact',!!prefs.compact);
+ density(!!prefs.compact);
+ if(prefs.focus)wide(true);
+ action('ux-open-panel',showPanel);action('ux-dialog-close',closePanel);action('ux-dialog-backdrop',closePanel);
+ action('ux-toc-toggle',toggleTOC);
+ action('ux-expand-all',function(){toggleDetails(activePanel(),true)});
+ action('ux-collapse-all',function(){toggleDetails(activePanel(),false)});
+ action('ux-open-report',function(){toggleDetails($('municipio-report'),true)});
+ action('ux-close-report',function(){toggleDetails($('municipio-report'),false)});
+ action('ux-open-crop-details',function(){toggleDetails($('crop-municipal-details'),true)});
+ action('ux-close-crop-details',function(){toggleDetails($('crop-municipal-details'),false)});
+ action('ux-report-print',reportPrint);
+ action('ux-focus',function(){wide(!document.body.classList.contains('ux-focus'))});
+ action('ux-setting-focus',function(){wide(!document.body.classList.contains('ux-focus'))});
+ action('ux-density-normal',function(){density(false);notify('Densidad cómoda')});
+ action('ux-density-compact',function(){density(true);notify('Densidad compacta')});
+ action('ux-reset',function(){wide(false);density(false);notify('Presentación restablecida')});
+ action('ux-copy-link',copyLink);action('ux-bookmark',saveCurrent);
+ action('ux-year-prev',function(){stepYear(-1)});
+ action('ux-year-next',function(){stepYear(1)});
+ action('ux-compare-swap',swapMunicipalities);
+ document.querySelectorAll('.nav-link,.mx-tab').forEach(function(button){button.addEventListener('click',function(){closeTOC();setTimeout(refreshChrome,0)})});
+ document.querySelectorAll('#municipio,#cultivo,#year-select,#mx-crop-select,#mx-state-select,#mx-muni-select,#compare-a,#compare-b').forEach(function(element){element.addEventListener('change',refreshChrome)});
+ document.addEventListener('click',function(event){
+  if(!$('ux-toc-menu')?.hidden&&!event.target.closest('.ux-menu-anchor'))closeTOC();
+  if(event.target.closest('[data-row]'))setTimeout(refreshChrome,0)
+ });
+ document.addEventListener('keydown',function(event){
+  if(event.key==='Escape'){closeTOC();closePanel();return}
+  var isTyping=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+  if(event.ctrlKey&&event.shiftKey&&event.key.toLowerCase()==='p'){event.preventDefault();showPanel();return}
+  if(event.altKey&&!isTyping&&tab()==='panorama'){
+   if(event.key==='ArrowLeft'){event.preventDefault();stepYear(-1)}
+   if(event.key==='ArrowRight'){event.preventDefault();stepYear(1)}
+  }
+  if(!$('ux-dialog')?.hidden&&event.key==='Tab'){
+   var candidates=Array.from($('ux-dialog').querySelectorAll('button,select,input,[tabindex]')).filter(function(x){return !x.disabled&&x.getClientRects().length>0});
+   if(candidates.length){var first=candidates[0],last=candidates[candidates.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}}
+  }
+ });
+ ['cultivos','estados','municipios'].forEach(setupNationalFilter);
+ renderSaved();refreshChrome();
+ window.addEventListener('hashchange',function(){closeTOC();setTimeout(refreshChrome,50)});
+ var monitored=['municipio-report','crop-dimensions','crop-municipal-details'];
+ monitored.forEach(function(id){var el=$(id);if(el)new MutationObserver(function(){refreshChrome()}).observe(el,{childList:true})});
+ ensureRestoration();
+ var status=$('status');if(status)new MutationObserver(ensureRestoration).observe(status,{childList:true,characterData:true,subtree:true});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
