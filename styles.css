@@ -1067,3 +1067,17 @@ body[data-view="mexico"] .top-actions .quick-search{display:flex}
 /* Focused exploration: the homepage hero and secondary action ribbon stay on Inicio. */
 body[data-view]:not([data-view="panorama"]) .masthead{display:none!important}
 body[data-view="explorar-estados"] .ux-workbench,body[data-view="explorar-cultivos"] .ux-workbench{display:none!important}
+
+/* Preserve legacy analysis without overwhelming the primary workflow. */
+.gx-home-advanced{border-top:1px solid #ddd;border-bottom:1px solid #ddd;margin:27px 0 34px}
+.gx-home-advanced>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:22px;padding:23px 5px;cursor:pointer}
+.gx-home-advanced>summary::-webkit-details-marker{display:none}
+.gx-home-advanced>summary span:first-child{display:flex;flex-direction:column;gap:7px}
+.gx-home-advanced>summary small{font-size:10px;font-weight:750;letter-spacing:.10em;color:#888}
+.gx-home-advanced>summary strong{font-size:17px;font-weight:660;color:#252525;letter-spacing:-.02em}
+.gx-home-advanced>summary>span:last-child{font-size:11px;font-weight:650;color:#777;white-space:nowrap}
+.gx-home-advanced>summary:hover{background:#fafafa}
+.gx-home-advanced[open]>summary{border-bottom:1px solid #ececec}
+.gx-home-advanced-body{padding:24px 0 5px}
+.gx-home-advanced-body .state-territory{margin-bottom:20px}
+@media(max-width:580px){.gx-home-advanced>summary{align-items:flex-start;flex-direction:column;gap:10px}.gx-home-advanced>summary strong{font-size:15px}}
