@@ -1049,7 +1049,7 @@ const state={
  visual:'chart',compareDimension:'municipio',compareMode:'absolute',compared:[],
  pivotRows:'municipio',pivotCols:'year',pivotMode:'raw',pivotSearch:'',
  econMode:'hhi',econYear:2025,econMuni:'',lqCrop:'',
- shapleyCrop:'',loadedLink:false
+ shapleyCrop:'',microRows:'Nommunicipio',microCols:'Nommodalidad',microFilterDim:'Nommodalidad',microFilterValue:'',microMetric:'value',microMode:'raw',loadedLink:false
 };
 const normalize=s=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const sum=(items,key)=>items.reduce((acc,r)=>acc+(Number(r[key])||0),0);
@@ -1068,18 +1068,18 @@ const metricUnit=(metric,rows)=>{
 };
 function safeNumber(x){return Number.isFinite(x)?f(x):'—'}
 function snapshot(){
- return {municipalities:[...state.municipalities].sort(),crops:[...state.crops].sort(),from:state.from,to:state.to,metric:state.metric,tab:state.tab,visual:state.visual,compareDimension:state.compareDimension,compareMode:state.compareMode,compared:state.compared.slice(),pivotRows:state.pivotRows,pivotCols:state.pivotCols,pivotMode:state.pivotMode,econMode:state.econMode,econYear:state.econYear,econMuni:state.econMuni,lqCrop:state.lqCrop,shapleyCrop:state.shapleyCrop};
+ return {municipalities:[...state.municipalities].sort(),crops:[...state.crops].sort(),from:state.from,to:state.to,metric:state.metric,tab:state.tab,visual:state.visual,compareDimension:state.compareDimension,compareMode:state.compareMode,compared:state.compared.slice(),pivotRows:state.pivotRows,pivotCols:state.pivotCols,pivotMode:state.pivotMode,econMode:state.econMode,econYear:state.econYear,econMuni:state.econMuni,lqCrop:state.lqCrop,shapleyCrop:state.shapleyCrop,microRows:state.microRows,microCols:state.microCols,microFilterDim:state.microFilterDim,microFilterValue:state.microFilterValue,microMetric:state.microMetric,microMode:state.microMode};
 }
 function applySnapshot(s){
  if(!s||typeof s!=='object')return;
  state.municipalities=new Set((s.municipalities||[]).filter(v=>D.muniNames.includes(v)));
  state.crops=new Set((s.crops||[]).filter(v=>D.cropNames.includes(v)));
- for(const k of ['from','to','metric','tab','visual','compareDimension','compareMode','pivotRows','pivotCols','pivotMode','econMode','econYear','econMuni','lqCrop','shapleyCrop'])if(s[k]!==undefined)state[k]=s[k];
+ for(const k of ['from','to','metric','tab','visual','compareDimension','compareMode','pivotRows','pivotCols','pivotMode','econMode','econYear','econMuni','lqCrop','shapleyCrop','microRows','microCols','microFilterDim','microFilterValue','microMetric','microMode'])if(s[k]!==undefined)state[k]=s[k];
  state.compared=Array.isArray(s.compared)?s.compared.slice(0,4):[];
  state.from=Math.max(2003,Math.min(2025,Number(state.from)||2003));
  state.to=Math.max(state.from,Math.min(2025,Number(state.to)||2025));
  if(!(state.metric in metricList))state.metric='value';
- if(!['serie','comparar','matriz','estructura','shapley'].includes(state.tab))state.tab='serie';
+ if(!['serie','comparar','matriz','estructura','shapley','micro2025'].includes(state.tab))state.tab='serie';
 }
 function selection(){
  return D.crops.filter(r=>r.year>=state.from&&r.year<=state.to&&(!state.municipalities.size||state.municipalities.has(r.municipio))&&(!state.crops.size||state.crops.has(r.name)));
@@ -1296,9 +1296,80 @@ function renderShapley(rows){
  '<div class="lab-contributions">'+labels.map(([key,label])=>{const v=effects[key];return '<div class="lab-contrib"><div><strong>'+label+'</strong><span>'+(v>0?'+':'')+f(v)+' MDP</span></div><div class="lab-contrib-track"><span class="'+(v<0?'negative':'')+'" style="width:'+((Math.abs(v)/denom)*100).toFixed(2)+'%"></span></div></div>'}).join('')+'</div>'+
  '<div class="lab-method"><strong>Interpretación rigurosa</strong><p>Los efectos se asignan promediando los seis órdenes de sustitución posibles de tres factores. La suma coincide con la diferencia entre valores nominales de los años elegidos (salvo redondeo). Son contribuciones algebraicas, no estimaciones causales. El precio es V/Q, no necesariamente un precio contractual; no se deflactó. La unidad '+esc(units[0])+' debe conservar significado homogéneo.</p></div>';
 }
+const MICRO_DIMS=[
+ ['Nommunicipio','Municipio'],['Nomcultivo','Cultivo'],['Nomvariedad','Variedad'],['Nommodalidad','Modalidad de agua'],
+ ['Nomcicloproductivo','Ciclo productivo'],['TipoTecnologia','Tecnología'],['TipoProduccion','Producción'],['TipoMercado','Mercado']
+];
+function microBase(){
+ return D.records.filter(r=>(!state.municipalities.size||state.municipalities.has(r.Nommunicipio))&&(!state.crops.size||state.crops.has(r.Nomcultivo)));
+}
+function microRecords(){
+ const base=microBase(),key=state.microFilterDim,v=state.microFilterValue;
+ return base.filter(r=>!v||String(r[key]??'Sin clasificar')===v);
+}
+function microMatrix(){
+ const rows=microRecords().map(r=>({...r,unit:r.Nomunidad}));
+ const rdim=state.microRows,cdim=state.microCols;
+ const rowMap=new Map(),colMap=new Map(),cellMap=new Map();
+ for(const row of rows){
+  const rk=String(row[rdim]||'Sin clasificar'),ck=String(row[cdim]||'Sin clasificar'),key=rk+'\u0000'+ck;
+  if(!rowMap.has(rk))rowMap.set(rk,[]);rowMap.get(rk).push(row);
+  if(!colMap.has(ck))colMap.set(ck,[]);colMap.get(ck).push(row);
+  if(!cellMap.has(key))cellMap.set(key,[]);cellMap.get(key).push(row);
+ }
+ const metric=state.microMetric,tot=r=>agg(r,metric);
+ const rkeys=[...rowMap.keys()].sort((a,b)=>(tot(rowMap.get(b))||0)-(tot(rowMap.get(a))||0));
+ const ckeys=[...colMap.keys()].sort((a,b)=>(tot(colMap.get(b))||0)-(tot(colMap.get(a))||0));
+ const get=(rk,ck)=>tot(cellMap.get(rk+'\u0000'+ck)||[]);
+ const display=(rk,ck)=>{
+  const val=get(rk,ck);if(val===null)return null;
+  if(state.microMode==='raw')return val;
+  const den=state.microMode==='shareRow'?tot(rowMap.get(rk)):tot(colMap.get(ck));
+  return den>0?val/den*100:null;
+ };
+ const exportRows=rkeys.map(rk=>{
+  const row={[rdim]:rk};
+  ckeys.forEach(ck=>{row[ck]=display(rk,ck)});
+  row.total=tot(rowMap.get(rk));return row;
+ });
+ return {rows,rowMap,colMap,rkeys,ckeys,get,display,exportRows,total:tot(rows)};
+}
+function renderMicro(){
+ const base=microBase(),dimensions=MICRO_DIMS,keys=dimensions.map(x=>x[0]);
+ if(!keys.includes(state.microRows))state.microRows='Nommunicipio';
+ if(!keys.includes(state.microCols)||state.microCols===state.microRows)state.microCols='Nommodalidad';
+ if(!keys.includes(state.microFilterDim))state.microFilterDim='Nommodalidad';
+ const categories=[...new Set(base.map(r=>String(r[state.microFilterDim]||'Sin clasificar')))].sort((a,b)=>a.localeCompare(b,'es'));
+ if(state.microFilterValue&&!categories.includes(state.microFilterValue))state.microFilterValue='';
+ const options=dimensions.map(r=>r.slice());
+ const controls='<div class="lab-subtoolbar"><div><span class="lab-eyebrow">06 / CIERRE DETALLADO</span><h3>Variedades, ciclos y tecnología</h3><p>Tabla cruzada de los 637 registros originales del cierre 2025, condicionada por municipios y cultivos seleccionados.</p></div></div>'+
+ '<div class="lab-micro-notice"><strong>Base 2025 exclusivamente.</strong> Los filtros de periodo histórico no se aplican aquí. Esta sección analiza las observaciones detalladas registradas para 2025; no reconstruye variedades, tecnología o mercado de años anteriores.</div>'+
+ '<div class="lab-pivot-options">'+
+ selector('lab-micro-rows','Filas',options,state.microRows)+
+ selector('lab-micro-cols','Columnas',options,state.microCols)+
+ selector('lab-micro-filter-dim','Filtrar atributo',options,state.microFilterDim)+
+ selector('lab-micro-filter-value','Categoría',[['','Todas las categorías'],...categories.map(x=>[x,x])],state.microFilterValue)+
+ selector('lab-micro-metric','Indicador',[['value','Valor bruto · MDP'],['harvest','Cosechada · ha'],['planted','Sembrada · ha'],['volume','Volumen físico'],['yield','Rendimiento ponderado']],state.microMetric)+
+ selector('lab-micro-mode','Presentación',[['raw','Cifra absoluta'],['shareRow','% dentro de fila'],['shareCol','% dentro de columna']],state.microMode)+
+ '</div>';
+ const filtered=microRecords();
+ const physical=['volume','yield'].includes(state.microMetric);
+ const units=[...new Set(filtered.map(r=>r.Nomunidad).filter(Boolean))];
+ if(physical&&units.length!==1)return controls+'<div class="lab-warning">Las filas contienen '+units.length+' unidades físicas diferentes. Selecciona un solo cultivo o variedades compatibles, o utiliza valor monetario o hectáreas para comparar esta tabla.</div>';
+ if(state.microMetric==='yield'&&state.microMode!=='raw')state.microMode='raw';
+ const matrix=microMatrix(),tr=matrix.rkeys.slice(0,35),tc=matrix.ckeys.slice(0,24);
+ const table='<div class="lab-table-scroll lab-pivot-scroll"><table class="lab-table lab-pivot"><thead><tr><th>'+esc(dimensions.find(x=>x[0]===state.microRows)[1])+'</th>'+
+ tc.map(c=>'<th class="lab-num">'+esc(c)+'</th>').join('')+'<th class="lab-num">Total</th></tr></thead><tbody>'+
+ tr.map(rk=>'<tr><th>'+esc(rk)+'</th>'+tc.map(ck=>{const v=matrix.display(rk,ck);return '<td class="lab-num">'+(v===null?'—':f(v)+(state.microMode==='raw'?'':' %'))+'</td>'}).join('')+
+ '<td class="lab-num lab-strong">'+safeNumber(agg(matrix.rowMap.get(rk),state.microMetric))+'</td></tr>').join('')+'</tbody></table></div>';
+ const stats='<div class="lab-micro-summary"><div><span>REGISTROS SELECCIONADOS</span><strong>'+filtered.length+'</strong></div><div><span>VALOR NOMINAL SELECCIONADO</span><strong>'+f(sum(filtered,'value'))+' MDP</strong></div><div><span>FILAS × COLUMNAS</span><strong>'+matrix.rkeys.length+' × '+matrix.ckeys.length+'</strong></div></div>';
+ return controls+stats+'<div class="lab-pivot-count">Vista previa: '+tr.length+' de '+matrix.rkeys.length+' filas · '+tc.length+' de '+matrix.ckeys.length+' columnas. CSV incluye todas las filas.</div>'+table+
+ '<p class="lab-figure-note">Los guiones indican cruces sin observaciones, no producción cero. El rendimiento se calcula como volumen total dividido por superficie cosechada (solo unidad homogénea). Las categorías «sin clasificar» se conservan como tales.</p>'+
+ '<div class="lab-quick-export"><button data-lab-export="micro-matrix">Exportar matriz CSV ↓</button><button data-lab-export="micro-rows">Descargar registros filtrados de 2025 ↓</button></div>';
+}
 function updateSummary(rows,error){
  const years=new Set(rows.map(r=>r.year)),munis=new Set(rows.map(r=>r.municipio)),crops=new Set(rows.map(r=>r.name));
- const summaryMetric=['estructura','shapley'].includes(state.tab)?'value':state.metric;
+ const summaryMetric=['estructura','shapley','micro2025'].includes(state.tab)?'value':state.metric;
  const series=chartData(rows,summaryMetric),latest=series.at(-1),first=series[0];
  const v=latest?latest.value:null;
  const change=first&&latest&&first.value>0&&(first.year!==latest.year)?(v/first.value-1)*100:null;
@@ -1316,10 +1387,11 @@ function render(){
  if(!ready)return;
  syncSidebar();
  const rows=selection();cacheRows=rows;
- const error=['estructura','shapley'].includes(state.tab)?'':validatePhysical(rows);
+ const error=['estructura','shapley','micro2025'].includes(state.tab)?'':validatePhysical(rows);
  updateSummary(rows,error);
  document.querySelectorAll('[data-lab-tab]').forEach(b=>{const on=b.dataset.labTab===state.tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
  const host=$('lab-content');
+ if(state.tab==='micro2025'){host.innerHTML=renderMicro();return}
  if(error){host.innerHTML='<div class="lab-empty">Corrige la selección de unidades para continuar con el análisis.</div>';return}
  if(!rows.length){host.innerHTML='<div class="lab-empty">No hay observaciones para esta combinación. Amplía el periodo o elimina algún filtro.</div>';return}
  if(state.tab==='serie')host.innerHTML=metricFigure(rows);
@@ -1337,6 +1409,8 @@ function downloads(kind){
  const rows=selection();
  if(kind==='series')return window.GrowaDownloadCSV('growa_serie_filtrada.csv',chartData(rows,state.metric).map(r=>({anio:r.year,indicador:state.metric,valor:r.value,unidad:metricUnit(state.metric,rows),fuente:'DGSIAP Sinaloa'})));
  if(kind==='pivot')return window.GrowaDownloadCSV('growa_tabla_dinamica.csv',pivotExport(pivotData(rows)));
+ if(kind==='micro-rows')return window.GrowaDownloadCSV('growa_detalle_2025.csv',microRecords());
+ if(kind==='micro-matrix')return window.GrowaDownloadCSV('growa_matriz_2025.csv',microMatrix().exportRows);
 }
 function stored(){try{const arr=JSON.parse(localStorage.getItem(savesKey)||'[]');return Array.isArray(arr)?arr:[]}catch(e){return []}}
 function saveList(items){try{localStorage.setItem(savesKey,JSON.stringify(items.slice(0,20)));return true}catch(e){notify('No se pudo guardar la vista en este navegador.');return false}}
@@ -1404,6 +1478,12 @@ function init(){
   else if(id==='lab-econ-muni')state.econMuni=e.target.value;
   else if(id==='lab-lq-crop')state.lqCrop=e.target.value;
   else if(id==='lab-dec-crop')state.shapleyCrop=e.target.value;
+  else if(id==='lab-micro-rows'){state.microRows=e.target.value;if(state.microRows===state.microCols)state.microCols=state.microRows==='Nommunicipio'?'Nommodalidad':'Nommunicipio'}
+  else if(id==='lab-micro-cols'){state.microCols=e.target.value;if(state.microRows===state.microCols)state.microRows=state.microCols==='Nommunicipio'?'Nomcultivo':'Nommunicipio'}
+  else if(id==='lab-micro-filter-dim'){state.microFilterDim=e.target.value;state.microFilterValue=''}
+  else if(id==='lab-micro-filter-value')state.microFilterValue=e.target.value;
+  else if(id==='lab-micro-metric')state.microMetric=e.target.value;
+  else if(id==='lab-micro-mode')state.microMode=e.target.value;
   else if(e.target.dataset.labComp!==undefined){
    const v=e.target.dataset.labComp;
    if(!state.compared.length){state.compared=comparisonValues(selection(),state.compareDimension).slice(0,4).map(r=>r.name)}
