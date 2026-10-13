@@ -1574,3 +1574,205 @@ window.GrowaLab={open:context,snapshot,shapley:shapleyContributions,pivotData,co
 window.addEventListener('growa:data-ready',init);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
+
+
+/* GROWA MAPAS AGRICOLAS V1 — datos DGSIAP + ESA WorldCover + límites geoestadísticos */
+(function(){
+ 'use strict';
+ const $=(root,sel)=>root.querySelector(sel);
+ const fmt=new Intl.NumberFormat('es-MX',{maximumFractionDigits:1});
+ const nameKey=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+ const cap=(n,min,max)=>Math.max(min,Math.min(max,n));
+ const setup=[{kind:'territorio',year:2025,crop:'',metric:'value'},{kind:'cultivos',year:2025,crop:'Maíz grano',metric:'value'}];
+ const bounds=[[22.20,-110.30],[27.90,-105.15]];
+ const WMS='https://mapproxy.terrascope.be/mapproxy/service';
+ const featureUrl='https://lcidsig.inegi.org.mx/server/rest/services/Hosted/Municipios_2025/FeatureServer/0/query';
+ const gbApi='https://www.geoboundaries.org/api/current/gbOpen/MEX/ADM2/';
+ let data=null,geometryPromise=null,polygonData=null,installed=false;
+ const modules=[];
+ const label=(kind)=>kind==='value'?'millones de pesos nominales':'hectáreas reportadas';
+ const value=(n,metric)=>metric==='value'?fmt.format(n)+' MDP':fmt.format(n)+' ha';
+ function readName(p){
+  for(const key of ['NOMGEO','NOM_MUN','NOM_MUNIC','NOM_MUNICIPIO','nom_mun','municipio','MUNICIPIO','shapeName','name','NAME_2','nombre','NOMBRE']){
+   if(p[key])return String(p[key]).trim();
+  }
+  return '';
+ }
+ function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));}
+ function styleFor(v,max){
+  if(v===null)return '#a9b8ad';
+  const p=max>0?v/max:0;
+  return p>.75?'#1f5539':p>.5?'#387951':p>.25?'#69a17a':'#b9d6b6';
+ }
+ function rowsFor(ctx){
+  const grouped=new Map();
+  if(!data)return grouped;
+  const src=ctx.crop?data.crops.filter(x=>x.year===ctx.year&&x.name===ctx.crop):
+    data.municipalities.filter(x=>x.year===ctx.year);
+  const field=ctx.metric==='value'?'value':ctx.metric==='harvest'?'harvest':(ctx.crop?'planted':'area');
+  for(const item of src){
+   const k=ctx.crop?item.municipio:item.name,old=grouped.get(k)||0;
+   grouped.set(k,old+(Number(item[field])||0));
+  }
+  return grouped;
+ }
+ function loading(ctx,msg){const el=$(ctx.root,'[data-ag-status]');if(el)el.textContent=msg;}
+ async function fetchJson(url){
+  const response=await fetch(url,{mode:'cors',headers:{'Accept':'application/json'}});
+  if(!response.ok)throw Error('HTTP '+response.status);
+  return response.json();
+ }
+ async function boundaries(){
+  if(geometryPromise)return geometryPromise;
+  geometryPromise=(async()=>{
+   const e=new URLSearchParams({where:'1=1',geometry:'-110.3,22.2,-105.15,27.9',geometryType:'esriGeometryEnvelope',inSR:'4326',outSR:'4326',outFields:'*',returnGeometry:'true',f:'geojson'});
+   try{
+    const j=await fetchJson(featureUrl+'?'+e.toString());
+    if(j.type==='FeatureCollection'&&Array.isArray(j.features)&&j.features.length){
+     return {features:j.features,source:'INEGI, Municipios 2025'};
+    }
+   }catch(err){console.warn('Límites INEGI no accesibles, se probará geoBoundaries',err);}
+   try{
+    const info=await fetchJson(gbApi);
+    const u=info.simplifiedGeometryGeoJSON||info.gjDownloadURL;
+    if(!u)throw Error('El catálogo no ofrece GeoJSON');
+    const j=await fetchJson(u);
+    if(j.type==='FeatureCollection'&&j.features?.length)return {features:j.features,source:'geoBoundaries, límites simplificados'};
+   }catch(err){console.warn('No se pudieron cargar límites de respaldo',err);}
+   return {features:[],source:null};
+  })();
+  return geometryPromise;
+ }
+ function matchGeometry(p){
+  const n=nameKey(readName(p));
+  const found=data.muniNames.find(x=>nameKey(x)===n);
+  if(!found)return null;
+  // Si algún polígono de otro estado comparte nombre, limitar por caja geográfica en INEGI.
+  return found;
+ }
+ function create(ctx){
+  ctx.root=document.querySelector('[data-agrogeo="'+ctx.kind+'"]');
+  if(!ctx.root||!window.L||!data)return;
+  ctx.root.querySelector('[data-ag-year]').innerHTML=Array.from({length:23},(_,i)=>2025-i).map(y=>'<option value="'+y+'">'+y+'</option>').join('');
+  ctx.root.querySelector('[data-ag-crop]').innerHTML='<option value="">Todos los cultivos</option>'+data.cropNames.map(n=>'<option value="'+safe(n)+'">'+safe(n)+'</option>').join('');
+  ctx.root.querySelector('[data-ag-year]').value=String(ctx.year);
+  ctx.root.querySelector('[data-ag-crop]').value=ctx.crop;
+  ctx.root.querySelector('[data-ag-metric]').value=ctx.metric;
+  ctx.map=L.map('ag-map-'+ctx.kind,{preferCanvas:true,zoomControl:true,minZoom:5,maxZoom:17}).setView([25.00,-107.65],7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(ctx.map);
+  ctx.wms=L.tileLayer.wms(WMS,{layers:'esa-worldcover-map-10m-2021-v2_map',format:'image/png',transparent:true,version:'1.1.1',opacity:.64,attribution:'© ESA WorldCover 2021 / Copernicus, VITO'});
+  ctx.wms.on('tileerror',()=>{if(!ctx.wmsError){ctx.wmsError=true;loading(ctx,'El servicio satelital no respondió. El mapa y los datos municipales permanecen disponibles.');}});
+  ctx.wms.addTo(ctx.map);
+  ctx.polygons=L.layerGroup().addTo(ctx.map);
+  ctx.root.querySelector('[data-ag-year]').addEventListener('change',e=>{ctx.year=Number(e.target.value);render(ctx);});
+  ctx.root.querySelector('[data-ag-crop]').addEventListener('change',e=>{ctx.crop=e.target.value;render(ctx);});
+  ctx.root.querySelector('[data-ag-metric]').addEventListener('change',e=>{ctx.metric=e.target.value;render(ctx);});
+  ctx.root.querySelector('[data-ag-world]').addEventListener('change',e=>{
+   if(e.target.checked)ctx.wms.addTo(ctx.map);else ctx.map.removeLayer(ctx.wms);
+  });
+  ctx.root.querySelector('[data-ag-borders]').addEventListener('change',e=>{
+   if(e.target.checked)ctx.polygons.addTo(ctx.map);else ctx.map.removeLayer(ctx.polygons);
+  });
+  ctx.root.querySelector('[data-ag-reset]').addEventListener('click',()=>ctx.map.fitBounds(bounds,{padding:[16,16]}));
+  ctx.root.querySelector('[data-ag-download]').addEventListener('click',()=>{
+   const d=rowsFor(ctx);
+   const csv=[...d].map(([municipio,numero])=>({municipio,anio:ctx.year,cultivo:ctx.crop||'Todos',indicador:ctx.metric,valor:numero,unidad:ctx.metric==='value'?'MDP nominales':'ha'}));
+   if(window.GrowaDownloadCSV&&csv.length)window.GrowaDownloadCSV('growa_mapa_'+ctx.kind+'_'+ctx.year+'.csv',csv);
+  });
+  ctx.root.querySelector('[data-ag-ranking]').addEventListener('click',e=>{
+   const b=e.target.closest('button[data-name]');if(!b)return;
+   const layer=ctx.locations?.get(b.dataset.name);
+   if(layer){ctx.map.fitBounds(layer.getBounds(),{padding:[28,28],maxZoom:10});layer.openPopup();}
+  });
+  render(ctx);
+  boundaries().then(b=>{ctx.geometry=b;installBoundaries(ctx);});
+ }
+ function installBoundaries(ctx){
+  if(!ctx.geometry?.features?.length||!ctx.map){
+   loading(ctx,'Sin límites vectoriales disponibles; consulte los valores tabulados. No se inventan contornos.');
+   return;
+  }
+  ctx.polygons.clearLayers();
+  ctx.locations=new Map();
+  // Filtramos a los 18 municipios históricos del expediente DGSIAP.
+  const features=ctx.geometry.features.filter(f=>matchGeometry(f.properties||{}));
+  for(const f of features){
+   const n=matchGeometry(f.properties||{});
+   const lyr=L.geoJSON(f,{style:{color:'#3d6545',weight:1.0,fillColor:'#b9d6b6',fillOpacity:.22},onEachFeature:(_feature,layer)=>{
+    layer.bindTooltip(n,{sticky:true});
+    layer.on('mouseover',()=>layer.setStyle({weight:2.3}));
+    layer.on('mouseout',()=>refreshStyles(ctx));
+   }});
+   lyr.addTo(ctx.polygons);ctx.locations.set(n,lyr);
+  }
+  if(ctx.locations.size){loading(ctx,'Límites vinculados: '+ctx.locations.size+' de 18 municipios · '+ctx.geometry.source+'. Las delimitaciones de 2025 no equivalen a las claves estadísticas históricas.');}
+  else loading(ctx,'La geometría recibida no coincidió con el catálogo municipal. Se mantienen indicadores, fuente satelital y rankings.');
+  render(ctx);
+ }
+ function refreshStyles(ctx){
+  if(!ctx.locations)return;
+  const d=rowsFor(ctx),max=Math.max(0,...d.values());
+  for(const [name,lyr] of ctx.locations){
+   const n=d.has(name)?d.get(name):null;
+   lyr.setStyle({color:'#2e6140',weight:1,fillColor:styleFor(n,max),fillOpacity:n===null?.07:.35});
+   lyr.bindPopup('<strong>'+safe(name)+'</strong><div class="ag-pop-value">'+(n===null?'Sin observación':safe(value(n,ctx.metric)))+'</div><div class="ag-pop-sub">'+safe(ctx.crop||'Todos los cultivos')+' · '+ctx.year+'<br>'+safe(label(ctx.metric))+'<br>DGSIAP · agregado municipal, no dato por parcela.</div>');
+  }
+ }
+ function render(ctx){
+  const grouped=rowsFor(ctx),valid=[...grouped].filter(([_,v])=>Number.isFinite(v)).sort((a,b)=>b[1]-a[1]);
+  const total=valid.reduce((s,r)=>s+r[1],0);
+  $(ctx.root,'[data-ag-total]').textContent=ctx.crop||'Conjunto de cultivos';
+  $(ctx.root,'[data-ag-summary]').textContent=ctx.year+' · '+valid.length+' municipios observados · '+value(total,ctx.metric)+' agregados. '+(ctx.crop?'Cultivo seleccionado.':'Todos los cultivos.');
+  const max=Math.max(1,...valid.map(x=>x[1]));
+  $(ctx.root,'[data-ag-ranking]').innerHTML=valid.length?valid.map(([name,n])=>'<button type="button" data-name="'+safe(name)+'" title="Ubicar '+safe(name)+' en el mapa"><span class="ag-rank-top"><span>'+safe(name)+'</span><strong>'+safe(value(n,ctx.metric))+'</strong></span><span class="ag-rank-track"><i style="width:'+cap(n/max*100,0,100).toFixed(1)+'%"></i></span></button>').join(''):'<p>Sin observaciones para esta selección.</p>';
+  refreshStyles(ctx);
+  if(ctx.map){requestAnimationFrame(()=>ctx.map.invalidateSize(false));}
+ }
+ function sync(ctx){
+  if(!window.GrowaExplorer||!ctx.root||!data)return;
+  const x=window.GrowaExplorer.getContext();
+  if(ctx.kind==='territorio'&&x.entity==='Sinaloa'){
+   const y=Number(x.stateYear);
+   if(Number.isFinite(y))ctx.year=y;
+   ctx.crop=x.stateCrop||'';
+  }else if(ctx.kind==='cultivos'&&x.scope==='sinaloa'){
+   const y=Number(x.cropYear);
+   if(Number.isFinite(y))ctx.year=y;
+   if(data.cropNames.includes(x.crop))ctx.crop=x.crop;
+  }else return;
+  $(ctx.root,'[data-ag-year]').value=ctx.year;
+  $(ctx.root,'[data-ag-crop]').value=ctx.crop;
+  render(ctx);
+  if(ctx.kind==='territorio'&&x.municipio&&ctx.locations?.has(x.municipio)){
+   const layer=ctx.locations.get(x.municipio);
+   if(ctx.root.closest('section.section-panel')?.hidden===false)ctx.map.fitBounds(layer.getBounds(),{padding:[30,30],maxZoom:10});
+  }
+ }
+ function init(){
+  if(installed)return;
+  if(!window.GrowaSinaloaData?.D)return;
+  data=window.GrowaSinaloaData.D;
+  if(!window.L){
+   document.querySelectorAll('[data-agrogeo] .ag-map-canvas').forEach(e=>e.innerHTML='<p>No se pudo cargar el motor cartográfico Leaflet. Verifique la conexión.</p>');
+   return;
+  }
+  installed=true;
+  for(const ctx of setup){create(ctx);modules.push(ctx);}
+  const watchers=[['gx-state-view','territorio'],['gx-crop-view','cultivos']];
+  for(const [id,kind] of watchers){
+   const el=document.getElementById(id),ctx=modules.find(m=>m.kind===kind);
+   if(el&&ctx){let last='';new MutationObserver(()=>{
+    const x=window.GrowaExplorer?.getContext();if(!x)return;
+    const signature=kind==='territorio'?[x.entity,x.stateYear,x.stateCrop,x.municipio].join('|'):[x.scope,x.crop,x.cropYear].join('|');
+    if(last!==signature){last=signature;sync(ctx);}
+   }).observe(el,{childList:true,subtree:false});}
+  }
+  document.addEventListener('click',e=>{
+   if(e.target.closest('[data-tab],.nav-link,.gx-choice'))requestAnimationFrame(()=>{for(const ctx of modules)ctx.map?.invalidateSize(false);});
+  });
+  window.addEventListener('resize',()=>modules.forEach(c=>c.map?.invalidateSize(false)));
+ }
+ window.addEventListener('growa:data-ready',init);
+ document.addEventListener('DOMContentLoaded',init);
+ if(document.readyState!=='loading')init();
+})();
