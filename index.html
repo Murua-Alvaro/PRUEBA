@@ -177,35 +177,7 @@
   <div class="gx-page-intro"><div><span class="gx-eyebrow">EXPLORADOR TERRITORIAL / 01</span><h2>Explorar por territorio</h2><p>Elige una entidad. Si seleccionas Sinaloa podrás profundizar hasta municipio, cultivo y características del cierre agrícola.</p></div><span class="gx-intro-mark">01 / TERRITORIO</span></div>
   <div class="gx-open-lab"><span>¿Necesitas comparar varios municipios, años y cultivos simultáneamente?</span><button id="lab-from-state" type="button">Analizar en Laboratorio <span aria-hidden="true">↗</span></button></div>
 
-<section class="ag-map-module" data-agrogeo="territorio" aria-label="Atlas agrícola interactivo de municipios">
- <header class="ag-map-heading">
-  <div><span class="ag-map-eyebrow">ATLAS AGRÍCOLA / TERRITORIO · EDICIÓN GEOESPACIAL</span><h3>Territorio, producción y uso del suelo</h3><p>Explora 23 cierres anuales y su distribución municipal sobre cobertura satelital real.</p></div>
-  <div class="ag-map-source-pill">DGSIAP 2003–2025 <span>+</span> ESA WORLDCOVER 2021</div>
- </header>
- <div class="ag-map-toolbar">
-  <label>AÑO DEL CIERRE<select data-ag-year aria-label="Año para el mapa"></select></label>
-  <label>CULTIVO<select data-ag-crop aria-label="Cultivo que se representa"></select></label>
-  <label>INDICADOR<select data-ag-metric aria-label="Indicador de clasificación municipal"><option value="value">Valor bruto · MDP</option><option value="harvest">Superficie cosechada · ha</option><option value="planted">Superficie sembrada · ha</option></select></label>
-  <button class="ag-map-download" type="button" data-ag-download>Exportar ↓</button>
- </div>
- <div class="ag-map-body">
-  <div class="ag-map-stage">
-   <div class="ag-map-canvas" id="ag-map-territorio" aria-label="Mapa geográfico interactivo de Sinaloa"><p>Preparando cartografía…</p></div>
-   <div class="ag-map-controls">
-    <label><input type="checkbox" data-ag-world checked> Cobertura agrícola satelital</label>
-    <label><input type="checkbox" data-ag-borders checked> Municipios</label>
-    <button type="button" data-ag-reset>Ver todo Sinaloa ⤢</button>
-   </div>
-   <div class="ag-map-maplegend"><span class="ag-map-swatch"></span><strong>Naranja:</strong> cultivos detectados (ESA 2021) <span class="ag-map-sep">·</span> sombreado: indicador municipal</div>
-  </div>
-  <aside class="ag-map-aside">
-   <div class="ag-map-aside-top"><span class="ag-map-eyebrow">LECTURA TERRITORIAL</span><h4 data-ag-total>Datos municipales</h4><p data-ag-summary>Valores comprobados al cargar la base.</p></div>
-   <div class="ag-map-rank" data-ag-ranking aria-live="polite"></div>
-   <p class="ag-map-note" data-ag-status aria-live="polite">La cobertura satelital muestra clases de suelo, no la ubicación de un cultivo específico.</p>
-  </aside>
- </div>
- <footer class="ag-map-footer"><p><strong>Interpretación:</strong> el mapa de ESA distingue cobertura agrícola general, no variedades, propietarios ni aptitud futura. El sombreado municipal usa los registros DGSIAP; no es una estimación por parcela. Las hectáreas sumadas por ciclo no equivalen necesariamente a superficie física única.</p><div class="ag-map-links"><a href="https://www.gob.mx/agricultura/dgsiap/acciones-y-programas/informacion-geoespacial-32571" target="_blank" rel="noopener noreferrer">Frontera Agrícola DGSIAP ↗</a><a href="https://www.fao.org/gaez/en" target="_blank" rel="noopener noreferrer">Aptitud potencial · FAO GAEZ ↗</a></div></footer>
-</section>
+<div class="pro-atlas" data-pro-atlas="territorio"></div>
   <div class="gx-workspace">
     <aside class="gx-sidebar" aria-label="Entidades disponibles"><div class="gx-sidebar-top"><span class="gx-eyebrow">SELECCIÓN TERRITORIAL</span><h3>Entidades</h3><label class="gx-search-label"><span class="gx-visually-hidden">Buscar entidad</span><input id="gx-state-search" type="search" placeholder="Buscar entidad..." autocomplete="off"></label><p>Diez entidades con perfiles del informe nacional; Sinaloa incluye además el expediente municipal completo.</p></div><div id="gx-state-list" class="gx-choice-list" role="group" aria-label="Entidades con perfil"></div><div class="gx-sidebar-foot"><strong>Origen del análisis</strong><p>Detalle histórico: Sinaloa. Otras entidades: perfiles seleccionados del informe nacional de 115 páginas.</p></div></aside>
     <div class="gx-main"><div id="gx-state-view" class="gx-result" aria-live="polite"></div><div id="gx-state-deep" class="gx-deep"></div></div>
@@ -216,35 +188,7 @@
   <div class="gx-page-intro"><div><span class="gx-eyebrow">EXPLORADOR PRODUCTIVO / 02</span><h2>Explorar por cultivo</h2><p>Selecciona un cultivo y acota la consulta por municipio, año y variedad. Compara su evolución y abre el detalle operativo de 2025.</p></div><span class="gx-intro-mark">02 / PRODUCCIÓN</span></div>
   <div class="gx-open-lab"><span>¿Quieres cruzar periodos, municipios, cultivos e indicadores económicos?</span><button id="lab-from-crop" type="button">Analizar en Laboratorio <span aria-hidden="true">↗</span></button></div>
 
-<section class="ag-map-module" data-agrogeo="cultivos" aria-label="Atlas agrícola interactivo de cultivos">
- <header class="ag-map-heading">
-  <div><span class="ag-map-eyebrow">ATLAS AGRÍCOLA / CULTIVOS · EDICIÓN GEOESPACIAL</span><h3>Geografía de cada cultivo</h3><p>Compara la distribución económica del cultivo por municipio con la cobertura agrícola observada desde satélite.</p></div>
-  <div class="ag-map-source-pill">DGSIAP 2003–2025 <span>+</span> ESA WORLDCOVER 2021</div>
- </header>
- <div class="ag-map-toolbar">
-  <label>AÑO DEL CIERRE<select data-ag-year aria-label="Año para el mapa"></select></label>
-  <label>CULTIVO<select data-ag-crop aria-label="Cultivo que se representa"></select></label>
-  <label>INDICADOR<select data-ag-metric aria-label="Indicador de clasificación municipal"><option value="value">Valor bruto · MDP</option><option value="harvest">Superficie cosechada · ha</option><option value="planted">Superficie sembrada · ha</option></select></label>
-  <button class="ag-map-download" type="button" data-ag-download>Exportar ↓</button>
- </div>
- <div class="ag-map-body">
-  <div class="ag-map-stage">
-   <div class="ag-map-canvas" id="ag-map-cultivos" aria-label="Mapa geográfico interactivo de Sinaloa"><p>Preparando cartografía…</p></div>
-   <div class="ag-map-controls">
-    <label><input type="checkbox" data-ag-world checked> Cobertura agrícola satelital</label>
-    <label><input type="checkbox" data-ag-borders checked> Municipios</label>
-    <button type="button" data-ag-reset>Ver todo Sinaloa ⤢</button>
-   </div>
-   <div class="ag-map-maplegend"><span class="ag-map-swatch"></span><strong>Naranja:</strong> cultivos detectados (ESA 2021) <span class="ag-map-sep">·</span> sombreado: indicador municipal</div>
-  </div>
-  <aside class="ag-map-aside">
-   <div class="ag-map-aside-top"><span class="ag-map-eyebrow">LECTURA TERRITORIAL</span><h4 data-ag-total>Datos municipales</h4><p data-ag-summary>Valores comprobados al cargar la base.</p></div>
-   <div class="ag-map-rank" data-ag-ranking aria-live="polite"></div>
-   <p class="ag-map-note" data-ag-status aria-live="polite">La cobertura satelital muestra clases de suelo, no la ubicación de un cultivo específico.</p>
-  </aside>
- </div>
- <footer class="ag-map-footer"><p><strong>Interpretación:</strong> el mapa de ESA distingue cobertura agrícola general, no variedades, propietarios ni aptitud futura. El sombreado municipal usa los registros DGSIAP; no es una estimación por parcela. Las hectáreas sumadas por ciclo no equivalen necesariamente a superficie física única.</p><div class="ag-map-links"><a href="https://www.gob.mx/agricultura/dgsiap/acciones-y-programas/informacion-geoespacial-32571" target="_blank" rel="noopener noreferrer">Frontera Agrícola DGSIAP ↗</a><a href="https://www.fao.org/gaez/en" target="_blank" rel="noopener noreferrer">Aptitud potencial · FAO GAEZ ↗</a></div></footer>
-</section>
+<div class="pro-atlas" data-pro-atlas="cultivos"></div>
   <div class="gx-workspace">
     <aside class="gx-sidebar" aria-label="Catálogo de cultivos"><div class="gx-sidebar-top"><span class="gx-eyebrow">COBERTURA GEOGRÁFICA</span><div class="gx-scope-switch" role="group" aria-label="Cobertura del catálogo"><button id="gx-crop-sinaloa" class="active" type="button" aria-pressed="true">Sinaloa</button><button id="gx-crop-mexico" type="button" aria-pressed="false">México¹</button></div><label class="gx-search-label"><span class="gx-visually-hidden">Buscar cultivo</span><input id="gx-crop-search" type="search" placeholder="Buscar cultivo..." autocomplete="off"></label><p id="gx-crop-count">Cargando catálogo...</p></div><div id="gx-crop-list" class="gx-choice-list" role="group" aria-label="Cultivos disponibles"></div><div class="gx-sidebar-foot"><strong>¹ Alcance nacional</strong><p>Diez cultivos destacados del informe; no representa el catálogo nacional completo.</p></div></aside>
     <div class="gx-main"><div id="gx-crop-view" class="gx-result" aria-live="polite"></div><div id="gx-crop-deep" class="gx-deep"></div></div>
