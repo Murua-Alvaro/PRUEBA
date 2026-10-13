@@ -17,7 +17,7 @@ const YEARS=Array.from({length:23},(_,i)=>2025-i);
 const PALETTE=["#edf3f0","#c8ded5","#8cb8a7","#477f70","#164b44"];
 const DIVERGE=["#a34f56","#d6a1a2","#ecedef","#8ebbac","#277461"];
 const region=[[-110.3,22.1],[-105.1,27.9]];
-const state=Object.fromEntries(["territorio","cultivos"].map(kind=>[kind,{kind,year:2025,crop:kind==="cultivos"?"Maíz grano":"",metric:"value",layer:"municipal",focus:"",showBorders:true,map:null,geo:null,selected:null,rows:[],byName:new Map(),max:0,initialized:false,tiles:null,base:null}]));
+const state=Object.fromEntries(["territorio","cultivos"].map(kind=>[kind,{kind,year:2025,crop:kind==="cultivos"?"Maíz grano":"",metric:"value",layer:"municipal",focus:"",side:"focus",compA:"Culiacán",compB:"Guasave",showBorders:true,map:null,geo:null,selected:null,rows:[],byName:new Map(),max:0,initialized:false,tiles:null,base:null}]));
 let D, GEO, initialized=false;
 function recs(s,year=s.year,crop=s.crop){
  return (crop?D.crops:D.municipalities).filter(r=>r.year===year&&(!crop||r.name===crop));
@@ -73,7 +73,7 @@ function moduleHTML(s){
  '<div class="ap-filters"><label><span>AÑO AGRÍCOLA</span><select data-ap-year></select></label><label class="ap-crop-select"><span>TIPO DE CULTIVO</span><select data-ap-crop></select></label><label><span>INDICADOR ECONÓMICO</span><select data-ap-metric><option value="value">Valor de producción</option><option value="harvest">Superficie cosechada</option><option value="planted">Superficie sembrada</option><option value="growth">Variación anual del valor (%)</option></select></label><button class="ap-export" type="button" data-ap-export aria-label="Descargar los datos de la consulta"><span aria-hidden="true">↓</span> Exportar CSV</button></div>'+
  '<div class="ap-stats"><div><span>ÁMBITO</span><strong>Sinaloa</strong><small>18 municipios históricos</small></div><div><span data-ap-kpi-label>VALOR TOTAL OBSERVADO</span><strong data-ap-total>—</strong><small data-ap-total-sub>Datos registrados</small></div><div><span>COBERTURA MUNICIPAL</span><strong data-ap-count>—</strong><small>Con registros en la selección</small></div><div><span>FUENTE ESTADÍSTICA</span><strong>DGSIAP</strong><small>Serie municipal 2003–2025</small></div></div>'+
  '<div class="ap-main"><div class="ap-map-col"><div class="ap-map-top"><div><div class="ap-overline">VISUALIZADOR GEOESTADÍSTICO</div><strong data-ap-map-heading>Valor bruto de producción · 2025</strong></div><div class="ap-map-actions"><button type="button" data-ap-reset title="Regresar al encuadre estatal">Encuadre estatal ⤢</button><button type="button" data-ap-borders aria-pressed="true" title="Mostrar u ocultar límites municipales">Límites: sí</button></div></div><div class="ap-map-frame"><div class="ap-map" data-ap-map role="application" aria-label="Mapa interactivo de los 18 municipios de Sinaloa"></div><div class="ap-map-corner"><span class="ap-map-dot"></span> SINALOA, MÉXICO <span>25° N / 107° O</span></div><div class="ap-cover-chip" data-ap-cover-chip hidden>ESA WORLDCOVER 2021 · RESOLUCIÓN 10 M</div></div><div class="ap-legend" data-ap-legend></div></div>'+
- '<aside class="ap-side"><div class="ap-side-tabs"><button data-ap-side="focus" type="button" class="is-active">Ficha municipal</button><button data-ap-side="rank" type="button">Clasificación</button></div><div class="ap-side-content"><div class="ap-side-focus" data-ap-focus></div><div class="ap-side-ranking" data-ap-ranking hidden></div></div><div class="ap-side-bottom"><button type="button" data-ap-open-detail>Ver expediente territorial <span>↗</span></button></div></aside></div>'+
+ '<aside class="ap-side"><div class="ap-side-tabs"><button data-ap-side="focus" type="button" class="is-active">Ficha</button><button data-ap-side="rank" type="button">Clasificación</button><button data-ap-side="compare" type="button">Comparar</button></div><div class="ap-side-content"><div class="ap-side-focus" data-ap-focus></div><div class="ap-side-ranking" data-ap-ranking hidden></div><div class="ap-side-comparison" data-ap-compare-panel hidden></div></div><div class="ap-side-bottom"><button type="button" data-ap-open-detail>Ver expediente territorial <span>↗</span></button></div></aside></div>'+
  '<div class="ap-extras"><div class="ap-extra"><strong><span>01.</span> Geometría municipal</strong><p>18 municipios históricos, límites generalizados derivados de datos geoestadísticos. No refleja necesariamente la delimitación de municipios nuevos.</p></div><div class="ap-extra"><strong><span>02.</span> Evidencia productiva</strong><p>Valores DGSIAP en pesos corrientes. Las hectáreas sumadas por ciclos agrícolas no corresponden necesariamente a parcelas únicas.</p></div><div class="ap-extra"><strong><span>03.</span> Aptitud potencial</strong><p>FAO GAEZ evalúa aptitud biofísica; los rásteres de aptitud aún no se han incorporado. <a href="https://www.fao.org/gaez/en" target="_blank" rel="noopener">Consultar GAEZ ↗</a></p></div></div>'+
  '<div class="ap-bottom-line"><span>GROWA RESEARCH / OBSERVATORIO AGRÍCOLA</span><span>PRODUCCIÓN MUNICIPAL ≠ COBERTURA AGRÍCOLA ≠ APTITUD FUTURA</span></div>'+
  '</div>';
@@ -98,8 +98,16 @@ function bind(s){
  $$(root,"[data-ap-reset]").addEventListener("click",()=>{if(s.map&&s.geo)s.map.fitBounds(s.geo.getBounds().pad(.055),{padding:[25,25],animate:true});});
  $$(root,"[data-ap-borders]").addEventListener("click",e=>{s.showBorders=!s.showBorders;e.currentTarget.textContent="Límites: "+(s.showBorders?"sí":"no");e.currentTarget.setAttribute("aria-pressed",String(s.showBorders));styleFeatures(s);});
  $$(root,"[data-ap-export]").addEventListener("click",()=>download(s));
- $$(root,"[data-ap-ranking]").addEventListener("click",e=>{
+ $(root,"[data-ap-ranking]").addEventListener("click",e=>{
   const b=e.target.closest("[data-ap-select]");if(b)select(s,b.dataset.apSelect,true);
+ });
+ $(root,"[data-ap-compare-panel]").addEventListener("change",e=>{
+  if(e.target.dataset.apComparison==="a")s.compA=e.target.value;
+  if(e.target.dataset.apComparison==="b")s.compB=e.target.value;
+  paintSide(s);
+ });
+ $(root,"[data-ap-compare-panel]").addEventListener("click",e=>{
+  if(e.target.closest("[data-ap-switch]")){const tmp=s.compA;s.compA=s.compB;s.compB=tmp;paintSide(s);}
  });
  $$(root,"[data-ap-details]").addEventListener("click",()=>openDetail(s));
  $$(root,"[data-ap-open-detail]").addEventListener("click",()=>openDetail(s));
@@ -178,7 +186,8 @@ function styleFeatures(s){
 }
 function select(s,name,fly){
  if(!s.polygons?.has(name))return;
- s.focus=name;s.side="focus";paintSide(s);styleFeatures(s);
+ if(s.side==="compare"){s.compB=name;}else{s.focus=name;s.side="focus";}
+ paintSide(s);styleFeatures(s);
  if(fly)s.map.flyToBounds(s.polygons.get(name).getBounds(),{padding:[50,50],maxZoom:9.25,duration:.65});
 }
 function legend(s){
@@ -209,8 +218,40 @@ function trendMetric(s,territory){
  const diff=Number.isFinite(previous)&&previous!==0&&Number.isFinite(current)?100*(current/previous-1):null;
  return {count:observed.length,change:diff};
 }
+
+function comparisonSVG(s,a,b){
+ const metric=s.metric==="growth"?"value":s.metric,years=YEARS.slice().reverse();
+ const line=name=>years.map(y=>({year:y,value:figure(s,y,s.crop,metric).get(name)})).filter(r=>Number.isFinite(r.value));
+ const sa=line(a),sb=line(b),both=[...sa,...sb].map(r=>r.value);
+ if(both.length<2)return '<p class="ap-empty">No hay cierres suficientes para esta comparación.</p>';
+ const low=Math.min(0,...both),high=Math.max(1,...both);
+ const x=y=>18+(y-2003)/22*272,yy=v=>99-((v-low)/(high-low))*81;
+ const path=rows=>rows.map((r,i)=>(i?'L':'M')+x(r.year).toFixed(1)+' '+yy(r.value).toFixed(1)).join(' ');
+ return '<svg class="ap-compare-svg" viewBox="0 0 307 126" role="img" aria-label="Dos trayectorias de la serie municipal 2003–2025">'+
+ '<path d="M16 102 H290" stroke="#e3e9e4" stroke-width="1" fill="none"/>'+
+ '<path d="'+path(sa)+'" fill="none" stroke="#2b7862" stroke-width="2.2" stroke-linecap="round"/>'+
+ '<path d="'+path(sb)+'" fill="none" stroke="#bd885d" stroke-width="2.2" stroke-linecap="round"/>'+
+ '<text x="18" y="120">2003</text><text x="290" y="120" text-anchor="end">2025</text></svg>';
+}
+function paintComparison(s){
+ const panel=$(s.root,"[data-ap-compare-panel]");
+ const names=D.muniNames;
+ if(!names.includes(s.compA))s.compA=names[0];
+ if(!names.includes(s.compB))s.compB=names[1];
+ const selector=(k,current)=>'<label>'+ (k==="a"?"MUNICIPIO A":"MUNICIPIO B")+
+ '<select data-ap-comparison="'+k+'">'+names.map(name=>'<option value="'+encode(name)+'"'+(name===current?' selected':'')+'>'+encode(name)+'</option>').join('')+'</select></label>';
+ const av=s.byName.get(s.compA),bv=s.byName.get(s.compB);
+ const delta=Number.isFinite(av)&&Number.isFinite(bv)?av-bv:null;
+ panel.innerHTML='<div class="ap-compare-head"><div class="ap-overline">COMPARACIÓN DIRECTA</div><h4>Dos territorios,<br>una misma escala.</h4><p>Contraste reproducible de municipios con el mismo indicador, cultivo y año.</p></div>'+
+ '<div class="ap-compare-select">'+selector("a",s.compA)+'<button type="button" data-ap-switch aria-label="Intercambiar municipios">⇄</button>'+selector("b",s.compB)+'</div>'+
+ '<div class="ap-compare-values"><div><i></i><span>'+encode(s.compA)+'</span><strong>'+encode(fmt(av,s.metric))+'</strong></div><div><i></i><span>'+encode(s.compB)+'</span><strong>'+encode(fmt(bv,s.metric))+'</strong></div></div>'+
+ '<div class="ap-compare-gap"><span>DIFERENCIA (A MENOS B)</span><strong>'+encode(fmt(delta,s.metric))+'</strong></div>'+
+ '<div class="ap-chart-head"><strong>Trayectorias comparadas</strong><span>2003—2025</span></div>'+
+ comparisonSVG(s,s.compA,s.compB)+
+ '<p class="ap-compare-foot">Comparación descriptiva. Los pesos son nominales y las superficies corresponden a registros por cultivo y ciclo; una divergencia no implica causalidad.</p>';
+}
 function paintSide(s){
- const focus=$$(s.root,"[data-ap-focus]"),rank=$$(s.root,"[data-ap-ranking]");
+ const focus=$(s.root,"[data-ap-focus]"),rank=$(s.root,"[data-ap-ranking]"),compare=$(s.root,"[data-ap-compare-panel]");
  const n=s.focus||s.rows[0]?.[0]||"";
  const val=s.byName.get(n),sum=s.metric==="growth"?null:[...s.byName.values()].reduce((t,v)=>t+v,0);
  const share=val!==undefined&&sum>0?100*val/sum:null;
@@ -226,7 +267,7 @@ function paintSide(s){
  rank.innerHTML='<div class="ap-rank-intro"><strong>Municipios por '+(s.metric==="growth"?"cambio anual":s.metric==="value"?"valor económico":"superficie")+'</strong><small>'+s.year+' · '+encode(s.crop||"Todos los cultivos")+'</small></div>'+
  s.rows.map(([name,v],i)=>'<button class="ap-rank-item'+(name===s.focus?" is-selected":"")+'" type="button" data-ap-select="'+encode(name)+'"><div><small>'+String(i+1).padStart(2,"0")+'</small><strong>'+encode(name)+'</strong><span>'+encode(fmt(v,s.metric))+'</span></div><i><b style="width:'+Math.min(100,Math.abs(v)/max*100).toFixed(1)+'%"></b></i></button>').join("");
  all(s.root,"[data-ap-side]").forEach(b=>b.classList.toggle("is-active",b.dataset.apSide===(s.side||"focus")));
- focus.hidden=(s.side||"focus")!=="focus";rank.hidden=(s.side||"focus")!=="rank";
+ focus.hidden=(s.side||"focus")!=="focus";rank.hidden=(s.side||"focus")!=="rank";compare.hidden=(s.side||"focus")!=="compare";if(!compare.hidden)paintComparison(s);
  $$(s.root,"[data-ap-open-detail]").textContent=s.kind==="territorio"?"Abrir expediente municipal ↗":"Abrir análisis del cultivo ↗";
 }
 function render(s){
