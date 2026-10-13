@@ -1703,3 +1703,26 @@ body{background:#eff4f6;color:var(--ink);font-family:var(--sans);font-size:14px;
 @media(prefers-reduced-motion:reduce){
  .pro-atlas *{transition:none!important}
 }
+
+/* Comparación territorial de dos municipios */
+.ap-side-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ap-side-comparison{padding:18px 19px 22px}
+.ap-compare-head h4{font:400 25px/1.18 Georgia,serif;letter-spacing:-.035em;color:#214639;margin:8px 0}
+.ap-compare-head p{font-size:10.5px;color:#778980;line-height:1.6;margin:0}
+.ap-compare-select{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);gap:6px;align-items:end;margin:18px 0}
+.ap-compare-select label{display:block;font-size:9px;letter-spacing:.07em;color:#879389;font-weight:700;min-width:0}
+.ap-compare-select select{display:block;width:100%;min-width:0;margin-top:6px;padding:9px 6px;border:1px solid #d3dfd6;color:#2c5242;background:#fff;font-size:11px;font-weight:700}
+.ap-compare-select button{height:36px;border:1px solid #d4e1d7;background:#f6f8f5;color:#477460}
+.ap-compare-values{border-top:1px solid #e3eae3;border-bottom:1px solid #e3eae3;margin-top:12px}
+.ap-compare-values>div{display:grid;grid-template-columns:9px minmax(0,1fr);gap:4px 8px;align-items:center;padding:12px 0}
+.ap-compare-values>div+div{border-top:1px solid #e7ede7}
+.ap-compare-values i{width:8px;height:8px;background:#2b7862;display:block}
+.ap-compare-values>div:nth-child(2) i{background:#bd885d}
+.ap-compare-values span{font-size:11px;color:#61766b}
+.ap-compare-values strong{grid-column:2;font-size:20px;color:#315244;letter-spacing:-.02em;font-weight:650}
+.ap-compare-gap{margin-top:15px;padding-bottom:15px;border-bottom:1px solid #e3eae3}
+.ap-compare-gap span{display:block;font-size:9px;font-weight:800;letter-spacing:.055em;color:#829087}
+.ap-compare-gap strong{display:block;margin-top:7px;color:#325a48;font-size:22px}
+.ap-compare-svg{width:100%;height:auto;display:block;margin:10px 0}
+.ap-compare-svg text{fill:#859289;font-size:10px}
+.ap-compare-foot{color:#819189;font-size:10px;line-height:1.6}
