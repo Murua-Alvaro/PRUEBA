@@ -1453,3 +1453,52 @@ body{background:#eff4f6;color:var(--ink);font-family:var(--sans);font-size:14px;
 .lab-table thead th{font-size:11px}
 .lab-report-body p{overflow-wrap:break-word}
 @media(max-width:740px){.lab-policy-grid button{min-height:150px}.lab-toolbar-actions button{min-height:43px}.lab-worktabs{scroll-snap-type:x proximity}.lab-worktabs button{scroll-snap-align:start}}
+
+
+/* GROWA ATLAS — cartografía y exploración FAO Hand-in-Hand / GAEZ, 2026 */
+.ag-map-module{margin:20px 0 28px;border:1px solid #d2d8d2;background:#fff;box-shadow:0 12px 28px rgba(27,39,30,.055);overflow:hidden}
+.ag-map-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:23px 26px 16px;background:#f6f8f4;border-bottom:1px solid #e3e9e2}
+.ag-map-eyebrow{font-size:10px;font-weight:750;letter-spacing:.14em;color:#42654b}
+.ag-map-heading h3{margin:7px 0 5px;font:400 clamp(25px,2.5vw,38px)/1.2 Georgia,'Times New Roman',serif;letter-spacing:-.04em;color:#21352b}
+.ag-map-heading p{margin:0;color:#5c6b60;font-size:12px;line-height:1.65;max-width:700px}
+.ag-map-source-pill{flex:none;max-width:210px;border:1px solid #cbdace;background:#edf3ed;padding:9px 11px;font-size:10px;letter-spacing:.035em;font-weight:700;color:#31563d;text-align:center}
+.ag-map-source-pill span{padding:0 5px;color:#9dae9f}
+.ag-map-toolbar{display:grid;grid-template-columns:minmax(125px,.9fr) minmax(185px,1.6fr) minmax(170px,1.25fr) auto;gap:10px;padding:15px 18px;border-bottom:1px solid #e7ebe5;background:#fff}
+.ag-map-toolbar label{display:flex;flex-direction:column;gap:4px;font-size:10px;font-weight:750;letter-spacing:.09em;color:#67736a}
+.ag-map-toolbar select{width:100%;min-width:0;padding:9px 11px;background:#fff;border:1px solid #d3dbd1;color:#26352d;border-radius:2px;font-size:12.5px;font-weight:650;letter-spacing:0}
+.ag-map-toolbar select:focus-visible{outline:2px solid #466e52}
+.ag-map-download{align-self:end;border:1px solid #2b4836;background:#2b4836;color:white;padding:10px 12px;white-space:nowrap;font-size:12px;font-weight:750}
+.ag-map-download:hover{background:#163021}
+.ag-map-body{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(240px,.85fr);min-height:460px}
+.ag-map-stage{min-width:0;position:relative;min-height:460px;background:#e8eee8}
+.ag-map-canvas{height:100%;min-height:460px;z-index:1}
+.ag-map-canvas>p{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#53695b}
+.ag-map-controls{position:absolute;z-index:400;left:14px;top:14px;display:flex;flex-wrap:wrap;gap:5px;max-width:calc(100% - 42px)}
+.ag-map-controls label,.ag-map-controls button{display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.95);border:1px solid #d3dcd5;color:#213e2d;font-size:11px;font-weight:650;white-space:nowrap;box-shadow:0 1px 5px rgba(0,0,0,.09)}
+.ag-map-controls input{accent-color:#316642;cursor:pointer}
+.ag-map-controls button:hover{background:#e8f0e8}
+.ag-map-maplegend{position:absolute;bottom:13px;left:13px;z-index:400;background:rgba(255,255,255,.95);border:1px solid #d3dcd5;padding:7px 10px;font-size:10px;color:#455a49;box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.ag-map-swatch{width:10px;height:10px;background:#e49635;display:inline-block;margin-right:4px;vertical-align:-1px;border:1px solid #c57b26}
+.ag-map-sep{padding:0 3px;color:#909b93}
+.ag-map-aside{border-left:1px solid #e1e6df;display:flex;flex-direction:column;min-width:0;background:#fbfcfb}
+.ag-map-aside-top{padding:19px 17px 12px;border-bottom:1px solid #e2e7e1}
+.ag-map-aside-top h4{font-size:20px;font-family:Georgia,serif;font-weight:400;letter-spacing:-.025em;margin:6px 0;color:#203d2a}
+.ag-map-aside-top p{font-size:11px;color:#5b695d;margin:0;line-height:1.6}
+.ag-map-rank{overflow:auto;max-height:300px;padding:6px 12px 10px}
+.ag-map-rank button{display:block;width:100%;text-align:left;padding:10px 5px;border:0;border-bottom:1px solid #e9ede7;background:transparent;color:#243c2a}
+.ag-map-rank button:hover,.ag-map-rank button:focus-visible{background:#eef4ec}
+.ag-map-rank .ag-rank-top{display:flex;justify-content:space-between;gap:10px;font-size:11px}
+.ag-map-rank .ag-rank-top strong{white-space:nowrap;font-variant-numeric:tabular-nums}
+.ag-map-rank .ag-rank-track{display:block;background:#e2ebe2;height:4px;margin-top:7px}
+.ag-map-rank .ag-rank-track i{display:block;background:#376b45;height:4px}
+.ag-map-note{font-size:10.5px;color:#617168;line-height:1.5;padding:12px 17px;margin:auto 0 0;border-top:1px solid #e7ede5}
+.ag-map-footer{padding:12px 18px;border-top:1px solid #e3eae1;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ag-map-footer p{margin:0;max-width:860px;line-height:1.55;font-size:10.5px;color:#607064}
+.ag-map-footer a{flex:none;font-size:11px;font-weight:700;color:#285b36}
+.ag-map-module .leaflet-container{background:#e8eee8;font-family:Arial,Helvetica,sans-serif}
+.ag-map-module .leaflet-control-attribution{font-size:9px}
+.ag-map-module .leaflet-popup-content{margin:13px 16px;min-width:168px;font-size:12px;line-height:1.55}
+.ag-map-module .ag-pop-value{font-size:21px;font-weight:750;color:#285c36}
+.ag-map-module .ag-pop-sub{font-size:10px;color:#6a7569;line-height:1.6}
+@media(max-width:1160px){.ag-map-body{grid-template-columns:minmax(0,1fr)}.ag-map-aside{border-left:0;border-top:1px solid #e1e6df}.ag-map-rank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:240px;gap:0 12px}.ag-map-footer{flex-wrap:wrap}}
+@media(max-width:760px){.ag-map-heading{padding:18px;flex-direction:column;gap:12px}.ag-map-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.ag-map-toolbar label:nth-child(2){grid-column:auto}.ag-map-download{height:39px}.ag-map-stage,.ag-map-canvas{min-height:380px}.ag-map-maplegend{right:12px;font-size:9.5px}.ag-map-controls{right:12px}.ag-map-rank{grid-template-columns:1fr}}
