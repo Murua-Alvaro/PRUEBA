@@ -19,18 +19,18 @@
  const kpi=(label,val,detail)=>'<div class="wa-kpi"><span>'+safe(label)+'</span><strong>'+safe(val)+'</strong><small>'+safe(detail)+'</small></div>';
  const info=msg=>'<div class="wa-note">'+msg+'</div>';
  const empty=msg=>'<div class="wa-empty">'+safe(msg)+'</div>';
- const series=(rows,title,units='')=>{
+ const series=(rows,title,units='',axis='year')=>{
   rows=rows.filter(x=>Number.isFinite(Number(x[1])));
   if(rows.length<2)return empty('No hay suficientes observaciones para construir una serie temporal.');
   rows.sort((a,b)=>a[0]-b[0]);const minY=Math.min(...rows.map(x=>x[1])),maxY=Math.max(...rows.map(x=>x[1]));
   const a=minY>=0?0:minY-(maxY-minY)*.08,b=maxY+(maxY-a)*.12||1;
-  const minX=rows[0][0],maxX=rows.at(-1)[0],x=t=>56+(t-minX)/(maxX-minX||1)*800,y=t=>238-(t-a)/(b-a)*201;
+  const minX=rows[0][0],maxX=rows.at(-1)[0],x=t=>56+(t-minX)/(maxX-minX||1)*800,y=t=>238-(t-a)/(b-a)*201;const tick=t=>axis==='date'?new Date(t*86400000).toISOString().slice(0,10):axis==='month'?Math.floor(t/12)+'-'+String(t%12+1).padStart(2,'0'):String(t);
   const path=rows.map((p,i)=>(i?'L':'M')+x(p[0]).toFixed(2)+','+y(p[1]).toFixed(2)).join(' ');
   const ticks=[0,.25,.5,.75,1].map(k=>{let yy=238-k*201,vl=a+k*(b-a);return '<line x1="55" x2="865" y1="'+yy+'" y2="'+yy+'" stroke="#e6ecef" /><text x="46" y="'+(yy+4)+'" text-anchor="end" fill="#79909b" font-size="11">'+safe(f(vl,0))+'</text>'}).join('');
-  const circles=rows.map((p,i)=>{if(rows.length>70&&i%3!==0)return'';return '<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3.5" fill="#1c7582" stroke="#fff" stroke-width="1"><title>'+safe(String(p[0])+' · '+f(p[1],1)+' '+units)+'</title></circle>'}).join('');
+  const circles=rows.map((p,i)=>{if(rows.length>70&&i%3!==0)return'';return '<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3.5" fill="#1c7582" stroke="#fff" stroke-width="1"><title>'+safe(tick(p[0])+' · '+f(p[1],1)+' '+units)+'</title></circle>'}).join('');
   return '<svg class="wa-chart" role="img" aria-label="'+safe(title)+'" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg">'+ticks+
    '<path d="'+path+'" fill="none" stroke="#197b88" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+circles+
-   '<text x="55" y="264" font-size="12" fill="#738994">'+safe(minX)+'</text><text x="865" y="264" font-size="12" text-anchor="end" fill="#738994">'+safe(maxX)+'</text></svg>';
+   '<text x="55" y="264" font-size="12" fill="#738994">'+safe(tick(minX))+'</text><text x="865" y="264" font-size="12" text-anchor="end" fill="#738994">'+safe(tick(maxX))+'</text></svg>';
  };
  const cardStat=(title,records,pairs)=>section('EVOLUCIÓN OBSERVADA',title,series(records,title,pairs)+'<p class="wa-small-note">Comparación descriptiva: años disponibles, sin interpolación de observaciones faltantes.</p>');
  const getAquifers=()=>filtered(D.acuiferos.map(x=>[stateName(x[0]),...x.slice(1)]));
@@ -63,7 +63,7 @@
   let historical='';
   if(st==='Sinaloa'){
     const ss=D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').sort((a,b)=>a[1].localeCompare(b[1]));
-    historical=section('CORTES JUN–OCT 2026 · CUATRO PRESAS','Almacenamiento observado · sistema V-II',series(ss.map(x=>[Date.parse(x[1])/86400000,x[3]]),'Almacenamiento de cuatro presas de Sinaloa','hm³').replace(/<text x="55" y="264"[^]*?<\/text><text x="865" y="264"[^]*?<\/text>/,'')+
+    historical=section('CORTES JUN–OCT 2026 · CUATRO PRESAS','Almacenamiento observado · sistema V-II',series(ss.map(x=>[Date.parse(x[1])/86400000,x[3]]),'Almacenamiento de cuatro presas de Sinaloa','hm³','date')+
       '<div class="wa-stat-row"><div><strong>'+ss.length+' cortes</strong><span>Serie parcial, cuatro presas</span></div><div><strong>'+f(ss.at(-1)?.[3],1)+' hm³</strong><span>Última observación de este sistema</span></div></div>'+
       '<p class="wa-small-note">Sanalona, Adolfo López Mateos, José López Portillo y Eustaquio Buelna. Los datos no representan todas las presas de Sinaloa.</p>','wa-wide');
     historical+=section('PUNTOS AISLADOS · 2018 y 2026','Cortes individuales de presas',
@@ -75,7 +75,7 @@
     const options=codes.map(x=>'<option value="'+safe(x)+'" '+(x===dam?'selected':'')+'>'+safe(x)+'</option>').join('');
     historical=section('SERIE MENSUAL · 1996–2024','Almacenamiento histórico · presa seleccionada',
       '<div class="wa-toolbar-inline"><label for="wa-dam">Clave de presa</label><select id="wa-dam">'+options+'</select></div>'+
-      series(m.map(x=>[Number(x[1].replace('-','')),x[2]]),'Almacenamiento mensual de '+dam,'hm³')+
+      series(m.map(x=>[Number(x[1].slice(0,4))*12+Number(x[1].slice(5,7))-1,x[2]]),'Almacenamiento mensual de '+dam,'hm³','month')+
       '<p class="wa-small-note">'+m.length+' meses incluidos en la vista web. No interpolar los meses sin registros; consultar completitud diaria antes de comparar.</p>','wa-wide');
   }else historical=section('ESTADO DE LOS HISTÓRICOS','Almacenamiento por fecha',empty('La V9 conserva el inventario de presas de '+st+', pero todavía no tiene una serie validada de almacenamiento para este estado.'),'wa-wide');
   return info('La capacidad <strong>NAMO</strong> de una presa es un dato de infraestructura. El almacenamiento real requiere mediciones con fecha. No confundir ambos indicadores.')+
