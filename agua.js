@@ -206,6 +206,7 @@
   const qualityButton=root.querySelector('[data-wa-view="calidad"]');if(qualityButton)qualityButton.hidden=st!=='Sinaloa';
   root.querySelectorAll('[data-wa-view]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.waView===view)));
   if(map){map.remove();map=null}
+  damMarkers.clear();
   const target=byId('wa-content');
   if(view==='resumen')target.innerHTML=renderOverview();
   if(view==='presas')target.innerHTML=renderDams();
@@ -218,22 +219,28 @@
   if(view==='presas'&&window.L&&getDams().length){
    requestAnimationFrame(()=>{
     const container=byId('wa-map');if(!container||root.hidden)return;
-    map=L.map(container,{scrollWheelZoom:false,zoomControl:true});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:17}).addTo(map);
-    const pts=getDams().filter(x=>!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query)));
-    let bounds=[];
+    map=L.map(container,{scrollWheelZoom:false,zoomControl:true,preferCanvas:true});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:16}).addTo(map);
+    L.control.scale({imperial:false,metric:true,position:'bottomleft'}).addTo(map);
+    const pts=getDams().filter(x=>(x[6]??0)>=minCapacity&&(!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query))));
+    const bounds=[];
     for(const p of pts){if(!Number.isFinite(p[4])||!Number.isFinite(p[5]))continue;
-     const marker=L.circleMarker([p[4],p[5]],{radius:6,color:'#0e6073',fillColor:'#2a94a0',weight:2,fillOpacity:.8}).addTo(map);
-     marker.bindPopup('<strong>'+safe(p[2])+'</strong><br>'+safe(p[3])+'<br>Capacidad NAMO: '+f(p[6])+' hm³<br><small>Inventario; no nivel actual</small>');
-     bounds.push([p[4],p[5]])}
-    if(bounds.length)map.fitBounds(bounds,{padding:[26,26],maxZoom:10});else map.setView([24.8,-107.5],6);
+     const radius=Math.min(14,5+Math.sqrt(Math.max(0,p[6]||0))/4);
+     const marker=L.circleMarker([p[4],p[5]],{radius,color:'#fff',fillColor:'#278897',weight:1.3,fillOpacity:.87}).addTo(map);
+     marker.bindPopup('<strong>'+safe(p[2])+'</strong><br>'+safe(p[3])+'<br>NAMO: '+f(p[6])+' hm³<br><small>Capacidad nominal · No nivel actual</small>');
+     marker.on('click',()=>selectDam(p[1],false));
+     damMarkers.set(p[1],marker);bounds.push([p[4],p[5]]);
+    }
+    if(bounds.length)map.fitBounds(bounds,{padding:[26,26],maxZoom:9});else map.setView([24.8,-107.5],6);
+    if(selectedDam)selectDam(selectedDam,false);
+    setTimeout(()=>map&&map.invalidateSize(false),110);
    });
   }
  }
  function exportCsv(){
   let rows=[],headers=[],name='agua-'+view+'-'+st.toLowerCase().replace(/\W+/g,'-')+'.csv';
   if(view==='resumen'||view==='series'){headers=['estado','anio','volumen_riego_hm3','area_regada_ha','m3_por_ha'];rows=riego().map(x=>[st,x[1],x[2],x[3],x[4]])}
-  if(view==='presas'){headers=['estado','clave_sih','presa','municipio','latitud','longitud','capacidad_namo_hm3'];rows=getDams()}
+  if(view==='presas'){headers=['estado','clave_sih','presa','municipio','latitud','longitud','capacidad_namo_hm3'];rows=getDams().filter(x=>(x[6]??0)>=minCapacity&&(!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query))))}
   if(view==='acuiferos'){headers=['estado','clave','acuifero','recarga_hm3_anio','veas_hm3_anio','disponibilidad_hm3_anio','saldo_negativo'];rows=getAquifers().map(x=>[x[0],x[1],x[2],x[3],x[4],x[5],x[6]])}
   if(view==='calidad'){headers=['estado','clave_sitio','nombre_sitio','filas','filas_con_fecha','ph_medio'];rows=D.calidad.filter(x=>belonging(x[0]))}
   if(view==='comparar'){headers=['anio',cmpA+'_'+cmpMetric,cmpB+'_'+cmpMetric];const a=comparisonData(cmpA,cmpMetric),b=comparisonData(cmpB,cmpMetric);const years=[...new Set([...a,...b].map(x=>x[0]))].sort();rows=years.map(year=>[year,a.find(x=>x[0]===year)?.[1]??'',b.find(x=>x[0]===year)?.[1]??''])}
@@ -245,6 +252,7 @@
  root.addEventListener('click',e=>{
   const t=e.target.closest('[data-wa-view]');if(t){view=t.dataset.waView;query='';render();return}
   const m=e.target.closest('[data-wa-metric]');if(m){metric=m.dataset.waMetric;render();return}
+  const row=e.target.closest('[data-wa-dam]');if(row){selectDam(row.dataset.waDam);return}
   if(e.target.closest('#wa-cmp-swap')){const x=cmpA;cmpA=cmpB;cmpB=x;render();return}
   if(e.target.closest('#wa-method-shortcut')){view='fuentes';render();return}
   if(e.target.closest('#wa-copy-link')){
@@ -261,7 +269,7 @@
   if(e.target.id==='wa-cmp-b'){cmpB=e.target.value;render();return}
   if(e.target.id==='wa-cmp-metric'){cmpMetric=e.target.value;render();return}
   if(e.target.id==='wa-cmp-year'){cmpYear=Number(e.target.value);render();return}
-  if(e.target.id==='wa-state'){st=e.target.value;query='';dam='';if(view==='calidad'&&st!=='Sinaloa')view='resumen';render()}if(e.target.id==='wa-dam'){dam=e.target.value;render()}});
+  if(e.target.id==='wa-state'){st=e.target.value;query='';dam='';selectedDam='';minCapacity=0;if(view==='calidad'&&st!=='Sinaloa')view='resumen';render()}if(e.target.id==='wa-dam'){dam=e.target.value;render()}if(e.target.id==='wa-capacity'){minCapacity=Number(e.target.value)||0;selectedDam='';render()}});
  root.addEventListener('input',e=>{if(e.target.id==='wa-search'){const pos=e.target.selectionStart;query=e.target.value;render();const box=byId('wa-search');if(box){box.focus();box.setSelectionRange(Math.min(pos,query.length),Math.min(pos,query.length))}}});
  const observer=new MutationObserver(()=>{if(!root.hidden){syncHeader();if(map)setTimeout(()=>map.invalidateSize(),60)}});
  observer.observe(root,{attributes:true,attributeFilter:['hidden']});
