@@ -8,6 +8,7 @@
   <title>Growa Agricultura | Inteligencia territorial para la gestión pública</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="agua.css">
+  <link rel="stylesheet" href="agua-pro.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
   <script src="app.js" defer></script>
@@ -199,34 +200,56 @@
 </section>
 
 
-<section id="panel-agua" class="section-panel wa-panel" hidden aria-label="Agua y recursos hídricos">
-  <header class="wa-hero">
-    <div>
-      <span class="wa-kicker">OBSERVATORIO / RECURSOS HÍDRICOS / GROWA</span>
-      <h1>Agua y territorio.</h1>
-      <p>Infraestructura, recursos subterráneos y trayectorias históricas para la planeación agrícola. Consulte cinco estados y explore los límites de cada fuente sin confundir capacidad, almacenamiento ni disponibilidad.</p>
+<section id="panel-agua" class="section-panel wa-panel" hidden aria-label="Observatorio de agua">
+  <div class="wa-workspace-head">
+    <div class="wa-head-text">
+      <div class="wa-portal-path"><span class="wa-live-point"></span> GROWA <span class="wa-slash">/</span> INTELIGENCIA TERRITORIAL <span class="wa-slash">/</span> AGUA</div>
+      <h1>Observatorio <span>hídrico.</span></h1>
+      <p>Explore el agua como recurso territorial: infraestructura, reservas, riego y evolución climática. Cada dato conserva su escala, periodo y fuente.</p>
     </div>
-    <div class="wa-hero-stamp"><small>BASE INTEGRADA</small><strong>V9 / 2026</strong><small>SIN DATOS IMPUTADOS</small></div>
-  </header>
-  <div class="wa-tools">
-    <div class="wa-select">
-      <label for="wa-state">Entidad federativa</label>
+    <div class="wa-version">
+      <div class="wa-version-label">BASE ANALÍTICA</div><div class="wa-version-number">V9 <span>/</span> 2026</div>
+      <span class="wa-version-foot"><span class="wa-version-dot"></span> Corte 13 OCT 2026</span>
+    </div>
+  </div>
+  <div class="wa-dataset-ribbon" role="list" aria-label="Cobertura temática de la base">
+    <div role="listitem"><span class="wa-ribbon-icon" aria-hidden="true">◉</span><div><strong>05</strong><small>Entidades de análisis</small></div></div>
+    <div role="listitem"><span class="wa-ribbon-icon" aria-hidden="true">≋</span><div><strong>1997–2023</strong><small>Riego · ciclos</small></div></div>
+    <div role="listitem"><span class="wa-ribbon-icon" aria-hidden="true">◷</span><div><strong>2003–2025</strong><small>Clima municipal</small></div></div>
+    <div role="listitem"><span class="wa-ribbon-icon" aria-hidden="true">◈</span><div><strong>216</strong><small>Acuíferos identificados</small></div></div>
+    <div role="listitem"><span class="wa-ribbon-icon" aria-hidden="true">⌁</span><div><strong>75</strong><small>Presas catalogadas</small></div></div>
+  </div>
+  <div class="wa-commandbar" role="region" aria-label="Controles de agua">
+    <div class="wa-select"><label for="wa-state">ENTIDAD FEDERATIVA</label>
       <select id="wa-state" aria-label="Seleccionar estado" autocomplete="off">
-        <option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Chihuahua">Chihuahua</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option>
+        <option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option>
+        <option value="Chihuahua">Chihuahua</option><option value="Jalisco">Jalisco</option>
+        <option value="Michoacán">Michoacán</option>
       </select>
     </div>
-    <button id="wa-export" class="wa-primary-button" type="button" title="Exportar la tabla correspondiente a la vista seleccionada">Exportar CSV ↓</button>
+    <span class="wa-command-divider" aria-hidden="true"></span>
+    <div class="wa-active-scope"><span class="wa-status-signal"></span><span id="wa-scope-label">Sinaloa <small>· 5 capas de información</small></span></div>
+    <div class="wa-command-actions">
+      <button class="wa-secondary-button" type="button" id="wa-copy-link" title="Copiar enlace a esta sección">Compartir vista ↗</button>
+      <button class="wa-primary-button" type="button" id="wa-export" title="Exportar datos de la consulta en formato CSV">↓ Exportar CSV</button>
+    </div>
   </div>
-  <nav class="wa-views" aria-label="Vistas del observatorio hídrico">
-    <button type="button" class="wa-tab" data-wa-view="resumen" aria-selected="true">Panorama</button>
-    <button type="button" class="wa-tab" data-wa-view="presas" aria-selected="false">Presas y embalses</button>
-    <button type="button" class="wa-tab" data-wa-view="acuiferos" aria-selected="false">Acuíferos</button>
-    <button type="button" class="wa-tab" data-wa-view="series" aria-selected="false">Series históricas</button>
-    <button type="button" class="wa-tab" data-wa-view="calidad" aria-selected="false">Calidad del agua</button>
-    <button type="button" class="wa-tab" data-wa-view="fuentes" aria-selected="false">Fuentes y límites</button>
+  <nav class="wa-views" aria-label="Secciones del observatorio hídrico">
+    <button type="button" class="wa-tab" data-wa-view="resumen" aria-selected="true">01 <span>Panorama</span></button>
+    <button type="button" class="wa-tab" data-wa-view="presas" aria-selected="false">02 <span>Explorador geográfico</span></button>
+    <button type="button" class="wa-tab" data-wa-view="acuiferos" aria-selected="false">03 <span>Acuíferos</span></button>
+    <button type="button" class="wa-tab" data-wa-view="series" aria-selected="false">04 <span>Series históricas</span></button>
+    <button type="button" class="wa-tab" data-wa-view="comparar" aria-selected="false">05 <span>Comparar estados</span></button>
+    <button type="button" class="wa-tab" data-wa-view="calidad" aria-selected="false">06 <span>Calidad</span></button>
+    <button type="button" class="wa-tab" data-wa-view="fuentes" aria-selected="false">07 <span>Metodología</span></button>
   </nav>
-  <div id="wa-content" aria-live="polite"><div class="wa-loading">Preparando datos hídricos de cinco estados…</div></div>
-  <footer class="wa-small-note" style="border-top:1px solid #dce6e8;margin-top:2.5rem;padding-top:1rem">GROWA · Observatorio Hídrico V9 · Corte de integración 13 de octubre de 2026. Los datos nacionales derivados de fuentes secundarias requieren corroboración normativa con CONAGUA antes de emplearse en decisiones regulatorias.</footer>
+  <div class="wa-workspace-body">
+    <div id="wa-content" aria-live="polite"><div class="wa-loading">Cargando información y catálogos territoriales…</div></div>
+  </div>
+  <footer class="wa-workspace-footer">
+    <div><span class="wa-footer-emphasis">GROWA / AGUA</span> · Información para investigación y planeación pública</div>
+    <div>Los inventarios no representan mediciones actuales. <button type="button" id="wa-method-shortcut">Consultar límites de los datos ↗</button></div>
+  </footer>
 </section>
 
 <section id="panel-laboratorio" class="section-panel lab-page" hidden aria-label="Laboratorio de análisis agrícola">
