@@ -53,7 +53,7 @@
   '<div class="wa-stat-row"><div><strong>'+f(p.reduce((s,x)=>s+(n(x[6])||0),0),0)+' hm³</strong><span>Capacidad NAMO agregada de presas catalogadas</span></div><div><strong>'+f(a.reduce((s,x)=>s+(n(x[5])||0),0),1)+' hm³/año</strong><span>Balance contable sumado de acuíferos identificados</span></div><div><strong>'+f(coverage('estaciones_hidrometricas_catalogo'),0)+'</strong><span>Estaciones hidrométricas del catálogo, sin caudales observados</span></div></div>'+
   '<p class="wa-small-note">La suma de balances sirve para describir el inventario, no equivale a agua físicamente disponible a escala estatal.</p>')+
   section('DISPONIBILIDAD DE FUENTES','Qué puede compararse en el tiempo',table(['Conjunto','Alcance'],[['Distritos de riego','Serie anual 1997/98–2023/24'],['Clima','Serie municipal 2003–2025'],['Acuíferos','Balance de corte único'],['Cuencas','757 registros nacionales, corte 2020'],['Calidad','Fechas de medición sin validar'],['Caudales','Sin registros históricos descargados']]))+
-  '</div>'+info('<strong>Interpretación:</strong> este panel reúne capas con periodos distintos. Un cambio anual en lluvia o riego no implica automáticamente un cambio de disponibilidad subterránea.');
+  '</div>'+section('COMPARATIVO · CINCO ESTADOS','Indicadores del último ciclo y catálogos',table(['Estado','Agua distribuida 2023/24 · hm³','Presas catalogadas','Acuíferos','Acuíferos con saldo negativo'],D.estados.map(name=>{const rr=D.riego.filter(x=>stateName(x[0])===name&&x[1]===2023),aa=D.acuiferos.filter(x=>stateName(x[0])===name);return[name,rr.length?f(rr[0][2],1):'—',D.presas.filter(x=>stateName(x[0])===name).length,aa.length,aa.filter(x=>x[6]===1).length]})),'wa-wide')+info('<strong>Interpretación:</strong> este panel reúne capas con periodos distintos. Un cambio anual en lluvia o riego no implica automáticamente un cambio de disponibilidad subterránea.');
  }
  function renderDams(){
   const all=getDams(),term=normalize(query);
@@ -97,7 +97,7 @@
      '<p class="wa-small-note">VEAS es volumen comprometido/concesionado en el balance; no representa necesariamente bombeo observado. No usar para concluir cumplimiento normativo actual.</p>');
  }
  function renderHistory(){
-  const r=riego(),c=clima(),fields=[['riego','Agua distribuida (hm³)'],['lluvia','Precipitación media (mm)'],['et0','Evapotranspiración ET₀ (mm)']];
+  const r=riego(),c=clima(),tr=D.tendencias.filter(x=>belonging(x[0])),fields=[['riego','Agua distribuida (hm³)'],['lluvia','Precipitación media (mm)'],['et0','Evapotranspiración ET₀ (mm)']];
   const control='<div class="wa-pills" role="group" aria-label="Indicador histórico">'+fields.map(([key,name])=>'<button class="wa-pill" type="button" data-wa-metric="'+key+'" aria-pressed="'+(metric===key)+'">'+safe(name)+'</button>').join('')+'</div>';
   const obs=metric==='riego'?r.map(x=>[x[1],x[2]]):c.map(x=>[x[1],metric==='lluvia'?x[2]:x[3]]);
   const unit=metric==='riego'?'hm³':'mm';
@@ -107,6 +107,7 @@
       table(['Ciclo','Distritos','Volumen hm³','Hectáreas regadas','m³/ha'],r.map(x=>[x[1]+'/'+String(x[1]+1).slice(-2),x[5],f(x[2]),f(x[3],0),f(x[4],0)])))+
    section('CONDICIONES METEOROLÓGICAS','Precipitación y demanda atmosférica',
       table(['Año','Precipitación mm','ET₀ mm','Balance P−ET₀ mm'],c.map(x=>[x[1],f(x[2]),f(x[3]),f(x[4])])))+
+   section('ESTIMACIÓN ESTADÍSTICA · DISTRITO','Tendencias Theil–Sen / Kendall',table(['Distrito','Ciclos','Pendiente hm³/año','q FDR','Resultado'],tr.map(x=>[x[2],x[3],f(x[4],2),f(x[5],4),x[6]]))+'<p class="wa-small-note">Estimaciones descriptivas robustas con corrección de pruebas múltiples Benjamini–Hochberg. No atribuyen causas a los cambios.</p>','wa-wide')+
    '</div>'+info('Las observaciones de riego corresponden a ciclos agrícolas; las de clima a años calendario. Se presentan conjuntamente para investigación exploratoria, no como balance hidrológico causal.');
  }
  function renderQuality(){
