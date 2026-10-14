@@ -137,8 +137,10 @@
   return '<div class="wa-provenance">'+items.map(([name,period,source,url])=>'<section class="wa-source"><strong>'+safe(name)+'</strong><p>'+safe(period)+'<br>'+safe(source)+'</p><a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer">Consultar fuente ↗</a></section>').join('')+'</div>'+
    info('<strong>Criterio metodológico:</strong> las capas transversales no se usan como series temporales. No asignar toda la capacidad de una presa o el balance de un acuífero a municipios intersectados. Los indicadores de sequedad no son el Monitor de Sequía oficial.');
  }
+ function syncHeader(){if(root.hidden)return;document.title='Growa | Agua y recursos hídricos · '+st;const crumb=document.querySelector('.breadcrumb');if(crumb)crumb.textContent='GROWA / OBSERVATORIO AGRÍCOLA / AGUA / '+st.toUpperCase();const ux=byId('ux-view-title');if(ux)ux.textContent='Agua · '+st;}
  function render(){
   if(!D)return;
+  syncHeader();
   byId('wa-state').value=st;
   root.querySelectorAll('[data-wa-view]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.waView===view)));
   if(map){map.remove();map=null}
@@ -183,7 +185,7 @@
  });
  root.addEventListener('change',e=>{if(e.target.id==='wa-state'){st=e.target.value;query='';dam='';render()}if(e.target.id==='wa-dam'){dam=e.target.value;render()}});
  root.addEventListener('input',e=>{if(e.target.id==='wa-search'){const pos=e.target.selectionStart;query=e.target.value;render();const box=byId('wa-search');if(box){box.focus();box.setSelectionRange(Math.min(pos,query.length),Math.min(pos,query.length))}}});
- const observer=new MutationObserver(()=>{if(!root.hidden&&map)setTimeout(()=>map.invalidateSize(),60)});
+ const observer=new MutationObserver(()=>{if(!root.hidden){syncHeader();if(map)setTimeout(()=>map.invalidateSize(),60)}});
  observer.observe(root,{attributes:true,attributeFilter:['hidden']});
  async function init(){
   try{let response=await fetch('data/agua-v9.json',{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
