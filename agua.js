@@ -13,6 +13,7 @@
  const period='Corte de integración: octubre de 2026';
  let D,st='Sinaloa',view='resumen',metric='riego',dam='',query='',map=null;
  let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023,aqFilter='todos';
+ let selectedDam='',minCapacity=0;
  const damMarkers=new Map();
  const belonging=(v)=>stateName(v)===st;
  const filtered=(arr,i=0)=>arr.filter(x=>belonging(x[i]));
