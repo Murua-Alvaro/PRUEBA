@@ -13,6 +13,7 @@
  const period='Corte de integración: octubre de 2026';
  let D,st='Sinaloa',view='resumen',metric='riego',dam='',query='',map=null;
  let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023;
+ const damMarkers=new Map();
  const belonging=(v)=>stateName(v)===st;
  const filtered=(arr,i=0)=>arr.filter(x=>belonging(x[i]));
  const table=(heads,rows,empty)=>rows.length?'<div class="wa-table-wrap"><table class="wa-table"><thead><tr>'+heads.map(h=>'<th>'+safe(h)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map((cell,i)=>'<td'+(typeof cell==='number'?' data-num':'')+'>'+safe(cell==null?'—':cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'<div class="wa-empty">'+safe(empty||'Sin registros verificados para esta selección.')+'</div>';
@@ -56,11 +57,26 @@
   section('DISPONIBILIDAD DE FUENTES','Qué puede compararse en el tiempo',table(['Conjunto','Alcance'],[['Distritos de riego','Serie anual 1997/98–2023/24'],['Clima','Serie municipal 2003–2025'],['Acuíferos','Balance de corte único'],['Cuencas','757 registros nacionales, corte 2020'],['Calidad','Fechas de medición sin validar'],['Caudales','Sin registros históricos descargados']]))+
   '</div>'+section('COMPARATIVO · CINCO ESTADOS','Indicadores del último ciclo y catálogos',table(['Estado','Agua distribuida 2023/24 · hm³','Presas catalogadas','Acuíferos','Acuíferos con saldo negativo'],D.estados.map(name=>{const rr=D.riego.filter(x=>stateName(x[0])===name&&x[1]===2023),aa=D.acuiferos.filter(x=>stateName(x[0])===name);return[name,rr.length?f(rr[0][2],1):'—',D.presas.filter(x=>stateName(x[0])===name).length,aa.length,aa.filter(x=>x[6]===1).length]})),'wa-wide')+info('<strong>Interpretación:</strong> este panel reúne capas con periodos distintos. Un cambio anual en lluvia o riego no implica automáticamente un cambio de disponibilidad subterránea.');
  }
+
+ function damDetails(row){
+  if(!row)return'<div class="wa-map-point"><div><h3>Seleccione una presa</h3><p>Haga clic en el mapa o en el inventario para consultar su ficha.</p></div></div>';
+  return'<div class="wa-map-point"><div><div class="wa-eyebrow">FICHA DE INFRAESTRUCTURA · '+safe(row[1])+'</div><h3>'+safe(row[2])+'</h3><p>'+safe(row[3])+' · '+safe(st)+'<br>Coordenadas '+f(row[4],4)+', '+f(row[5],4)+'</p></div><div style="text-align:right"><strong>'+f(row[6])+'</strong><span style="display:block;color:#81949d;font-size:10px">hm³ NAMO</span></div></div>'+
+  '<div class="wa-small-note">La cifra es capacidad nominal. No indica llenado actual ni agua disponible.</div>';
+ }
+ function selectDam(code,focus=true){
+  const row=getDams().find(x=>x[1]===code);if(!row)return;
+  selectedDam=code;const detail=byId('wa-dam-detail');if(detail)detail.innerHTML=damDetails(row);
+  root.querySelectorAll('[data-wa-dam]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.waDam===code)));
+  const pair=damMarkers.get(code);
+  if(map&&pair&&focus){map.panTo([row[4],row[5]]);pair.openPopup();}
+  for(const [key,marker] of damMarkers){marker.setStyle(key===code?{radius:10,weight:3,fillColor:'#0a5662',color:'#fff'}:{radius:Math.min(14,5+Math.sqrt(Math.max(0,getDams().find(x=>x[1]===key)?.[6]||0))/4),weight:1.3,fillColor:'#278897',color:'#fff'})}
+ }
  function renderDams(){
-  const all=getDams(),term=normalize(query);
-  const p=all.filter(x=>!term||normalize(x[2]+' '+x[3]+' '+x[1]).includes(term));
-  const bar='<div class="wa-toolbar-inline"><input type="search" id="wa-search" value="'+safe(query)+'" placeholder="Buscar presa o municipio" aria-label="Buscar presas" autocomplete="off"/><span class="wa-small-note">'+p.length+' de '+all.length+' presas</span></div>';
-  const list=table(['Presa','Municipio','Clave','NAMO hm³'],p.map(x=>[x[2],x[3],x[1],f(x[6],1)]),'No se encontraron presas para esta búsqueda.');
+  const all=getDams(),term=normalize(query),p=all.filter(x=>(x[6]??0)>=minCapacity&&(!term||normalize(x[2]+' '+x[3]+' '+x[1]).includes(term)));
+  if(!p.some(x=>x[1]===selectedDam))selectedDam=p[0]?.[1]||'';
+  const options=[[0,'Todas las capacidades'],[100,'NAMO ≥100 hm³'],[500,'NAMO ≥500 hm³'],[1000,'NAMO ≥1,000 hm³']].map(([value,label])=>'<option value="'+value+'" '+(minCapacity===value?'selected':'')+'>'+label+'</option>').join('');
+  const bar='<div class="wa-focus-band wa-toolbar-rail"><div class="wa-toolset"><label for="wa-search">BUSCAR</label><input type="search" id="wa-search" value="'+safe(query)+'" placeholder="Presa, clave o municipio" aria-label="Buscar presas"/><label for="wa-capacity">CAPACIDAD</label><select id="wa-capacity">'+options+'</select></div><span class="wa-timestamp">'+p.length+' de '+all.length+' presas visibles</span></div>';
+  const list=p.length?p.map(row=>'<button type="button" class="wa-map-row-btn" data-wa-dam="'+safe(row[1])+'" aria-pressed="'+(row[1]===selectedDam)+'">'+safe(row[2])+'<small>'+safe(row[3])+' · '+f(row[6],1)+' hm³ NAMO</small></button>').join(''):empty('No hay presas que cumplan los filtros.');
   let historical='';
   if(st==='Sinaloa'){
     const ss=D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').sort((a,b)=>a[1].localeCompare(b[1]));
@@ -79,12 +95,17 @@
       series(m.map(x=>[Number(x[1].slice(0,4))*12+Number(x[1].slice(5,7))-1,x[2]]),'Almacenamiento mensual de '+dam,'hm³','month')+
       '<p class="wa-small-note">'+m.length+' meses incluidos en la vista web. No interpolar los meses sin registros; consultar completitud diaria antes de comparar.</p>','wa-wide');
   }else historical=section('ESTADO DE LOS HISTÓRICOS','Almacenamiento por fecha',empty('La V9 conserva el inventario de presas de '+st+', pero todavía no tiene una serie validada de almacenamiento para este estado.'),'wa-wide');
-  return info('La capacidad <strong>NAMO</strong> de una presa es un dato de infraestructura. El almacenamiento real requiere mediciones con fecha. No confundir ambos indicadores.')+
-   bar+'<div class="wa-map-and-list">'+section('CARTOGRAFÍA','Ubicación de presas del catálogo','<div id="wa-map" class="wa-map" role="region" aria-label="Mapa interactivo de presas"></div><p class="wa-small-note">Puntos del inventario de la V9. No son polígonos de embalse ni disponibilidad actual.</p>')+
-   section('INVENTARIO · '+st,'Presas registradas','<div class="wa-scroll">'+list+'</div>')+'</div><div class="wa-panels" style="margin-top:1.1rem">'+historical+'</div>';
+
+  return '<div class="wa-splithead"><div><div class="wa-eyebrow">GEOGRAFÍA E INFRAESTRUCTURA</div><h2>Explorador de presas.</h2><p>Puntos de ubicación, capacidad de diseño y almacenamiento histórico sólo donde hay mediciones.</p></div><span class="wa-provenance-chip">INVENTARIO · NO TIEMPO REAL</span></div>'+
+    bar+'<div class="wa-map-and-list">'+
+    section('MAPA DE INFRAESTRUCTURA','Puntos georreferenciados', '<div id="wa-map" class="wa-map" role="region" aria-label="Mapa de presas, seleccionar marcadores"></div>'+
+       '<div class="wa-focus-legend wa-small-note"><span><i class="wa-dot"></i> Capacidad NAMO (tamaño proporcional)</span><span><i class="wa-dot grey"></i> No implica volumen actual</span></div>')+
+    section('EXPLORACIÓN VINCULADA · '+st,'Catálogo y ficha individual','<div class="wa-scroll">'+list+'</div><div id="wa-dam-detail">'+damDetails(p.find(x=>x[1]===selectedDam))+'</div>')+'</div>'+
+    info('Las ubicaciones son puntos de un catálogo secundario con 75 presas en cinco estados. No se representa el área de embalse ni la disponibilidad actual.')+
+    '<div class="wa-panels">'+historical+'</div>';
  }
  function renderAquifers(){
-  const a=getAquifers(),def=a.filter(x=>x[7]===1), term=normalize(query);
+  const a=getAquifers(),def=a.filter(x=>x[6]===1), term=normalize(query);
   const subset=a.filter(x=>normalize(x[2]+' '+x[1]).includes(term)).sort((x,y)=>(x[5]??0)-(y[5]??0));
   return '<div class="wa-kpi-grid wa-grid">'+kpi('Acuíferos identificados',a.length,'Catálogo de corte único')+
    kpi('Balance negativo',def.length,'No equivale a tendencia')+
