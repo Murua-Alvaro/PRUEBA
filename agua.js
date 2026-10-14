@@ -12,7 +12,7 @@
  const COLORS=['#197b88','#bc7f44','#577caa','#6a9a70','#8264a7'];
  const period='Corte de integración: octubre de 2026';
  let D,st='Sinaloa',view='resumen',metric='riego',dam='',query='',map=null;
- let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023;
+ let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023,aqFilter='todos';
  const damMarkers=new Map();
  const belonging=(v)=>stateName(v)===st;
  const filtered=(arr,i=0)=>arr.filter(x=>belonging(x[i]));
@@ -126,18 +126,25 @@
  }
 
  function renderAquifers(){
-  const a=getAquifers(),def=a.filter(x=>x[6]===1), term=normalize(query);
-  const subset=a.filter(x=>normalize(x[2]+' '+x[1]).includes(term)).sort((x,y)=>(x[5]??0)-(y[5]??0));
-  return '<div class="wa-kpi-grid wa-grid">'+kpi('Acuíferos identificados',a.length,'Catálogo de corte único')+
-   kpi('Balance negativo',def.length,'No equivale a tendencia')+
-   kpi('Recarga total reportada',f(a.reduce((s,x)=>s+(x[3]||0),0),0)+' hm³/año','Sumatoria contable descriptiva')+
-   kpi('Extracción VEAS reportada',f(a.reduce((s,x)=>s+(x[4]||0),0),0)+' hm³/año','No corresponde a extracción real medida')+'</div>'+
-   info('La disponibilidad de cada acuífero se expresa como balance contable de un único corte nacional no certificado. No se infiere cuánto puede extraerse por municipio.')+
-   section('BALANCES SUBTERRÁNEOS','Acuíferos de '+st,
-     '<div class="wa-toolbar-inline"><input type="search" id="wa-search" value="'+safe(query)+'" placeholder="Buscar acuífero o clave" aria-label="Buscar acuíferos"><span class="wa-small-note">'+subset.length+' de '+a.length+'</span></div>'+
-     table(['Acuífero','Clave','Recarga hm³/año','VEAS hm³/año','Disponibilidad hm³/año','Condición'],
-       subset.map(x=>[x[2],x[1],f(x[3]),f(x[4]),f(x[5]),x[6]===1?'Saldo negativo':'Saldo no negativo']))+
-     '<p class="wa-small-note">VEAS es volumen comprometido/concesionado en el balance; no representa necesariamente bombeo observado. No usar para concluir cumplimiento normativo actual.</p>');
+  const all=getAquifers(),def=all.filter(x=>x[6]===1),term=normalize(query);
+  const subset=all.filter(x=>(aqFilter==='todos'||(aqFilter==='negativos'?x[6]===1:x[6]!==1))&&normalize(x[2]+' '+x[1]).includes(term)).sort((x,y)=>(x[5]??0)-(y[5]??0));
+  const strongest=def.slice().sort((a,b)=>a[5]-b[5]).slice(0,6);
+  const max=Math.max(1,...strongest.map(x=>Math.abs(x[5]||0)));
+  const bars=strongest.length?'<div class="wa-deficit-list">'+strongest.map(x=>'<div><div class="wa-deficit-head"><span>'+safe(x[2])+'</span><strong>'+f(x[5])+' hm³/año</strong></div><div class="wa-deficit-track"><div style="width:'+Math.max(3,100*Math.abs(x[5]||0)/max).toFixed(1)+'%"></div></div></div>').join('')+'</div>':empty('No aparecen balances negativos en esta selección.');
+  const choices=[['todos','Todos'],['negativos','Saldo negativo'],['no-negativos','Saldo no negativo']].map(([key,label])=>'<button type="button" class="wa-pill" data-wa-aq-filter="'+key+'" aria-pressed="'+(aqFilter===key)+'">'+label+'</button>').join('');
+  return'<div class="wa-splithead"><div><div class="wa-eyebrow">RECURSOS SUBTERRÁNEOS</div><h2>Balances de acuíferos.</h2><p>Datos de disponibilidad, recarga y volumen comprometido según el inventario de la V9.</p></div><span class="wa-provenance-chip">TRANSVERSAL · SIN SERIE ANUAL</span></div>'+
+   '<div class="wa-kpi-grid wa-grid">'+kpi('Acuíferos identificados',all.length,'Balance nacional de corte único')+
+   kpi('Saldo contable negativo',def.length,'No representa una tendencia histórica')+
+   kpi('Recarga reportada',f(all.reduce((v,x)=>v+(x[3]||0),0),0)+' hm³/año','Total de acuíferos del inventario')+
+   kpi('VEAS comprometido',f(all.reduce((v,x)=>v+(x[4]||0),0),0)+' hm³/año','No equivale a bombeo observado')+'</div>'+
+   info('La disponibilidad es un balance contable cuya vigencia normativa nacional no está certificada. Un saldo negativo no expresa por sí solo el nivel físico almacenado ni el volumen extraído realmente.')+
+   '<div class="wa-panels">'+section('LECTURA DEL INVENTARIO','Principales balances negativos',bars+'<p class="wa-small-note">Selección ordenada por magnitud negativa; no establece una clasificación de riesgo actual.</p>')+
+   section('METODOLOGÍA','Qué representa la disponibilidad', '<p>Recarga media anual menos descarga natural comprometida y volumen de extracción incluido en el balance administrativo.</p><div class="wa-formula">DMA = R − DNC − VEAS</div><p>Las unidades de los cuatro términos son hm³/año. No sumamos balances de acuíferos para estimar agua disponible por municipio.</p>')+'</div>'+
+   section('EXPLORACIÓN · '+st,'Listado completo de acuíferos',
+     '<div class="wa-toolbar-inline"><input type="search" id="wa-search" aria-label="Buscar acuíferos" value="'+safe(query)+'" placeholder="Nombre o clave de acuífero"/><span class="wa-small-note">'+subset.length+' de '+all.length+' registros</span></div><div class="wa-pills" aria-label="Filtrar estado del balance">'+choices+'</div>'+
+     table(['Acuífero','Clave','Recarga (hm³/año)','VEAS (hm³/año)','Saldo (hm³/año)','Condición'],
+       subset.map(x=>[x[2],x[1],f(x[3]),f(x[4]),f(x[5]),x[6]===1?'Negativo':'No negativo']))+
+     '<p class="wa-small-note">Usar la publicación normativa de CONAGUA antes de aplicaciones de gestión o concesionamiento.</p>','wa-wide');
  }
  function renderHistory(){
   const r=riego(),c=clima(),tr=D.tendencias.filter(x=>belonging(x[0])),fields=[['riego','Agua distribuida (hm³)'],['lluvia','Precipitación media (mm)'],['et0','Evapotranspiración ET₀ (mm)']];
@@ -275,6 +282,7 @@
  root.addEventListener('click',e=>{
   const t=e.target.closest('[data-wa-view]');if(t){view=t.dataset.waView;query='';render();return}
   const m=e.target.closest('[data-wa-metric]');if(m){metric=m.dataset.waMetric;render();return}
+  const aq=e.target.closest('[data-wa-aq-filter]');if(aq){aqFilter=aq.dataset.waAqFilter;render();return}
   const row=e.target.closest('[data-wa-dam]');if(row){selectDam(row.dataset.waDam);return}
   if(e.target.closest('#wa-cmp-swap')){const x=cmpA;cmpA=cmpB;cmpB=x;render();return}
   if(e.target.closest('#wa-method-shortcut')){view='fuentes';render();return}
