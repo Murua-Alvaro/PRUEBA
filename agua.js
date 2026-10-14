@@ -28,7 +28,7 @@
   rows.sort((a,b)=>a[0]-b[0]);const minY=Math.min(...rows.map(x=>x[1])),maxY=Math.max(...rows.map(x=>x[1]));
   const a=minY>=0?0:minY-(maxY-minY)*.08,b=maxY+(maxY-a)*.12||1;
   const minX=rows[0][0],maxX=rows.at(-1)[0],x=t=>56+(t-minX)/(maxX-minX||1)*800,y=t=>238-(t-a)/(b-a)*201;const tick=t=>axis==='date'?new Date(t*86400000).toISOString().slice(0,10):axis==='month'?Math.floor(t/12)+'-'+String(t%12+1).padStart(2,'0'):String(t);
-  const path=rows.map((p,i)=>(i?'L':'M')+x(p[0]).toFixed(2)+','+y(p[1]).toFixed(2)).join(' ');
+  const path=rows.map((p,i)=>((i===0||(axis==='month'&&p[0]-rows[i-1][0]>1)||(axis==='date'&&p[0]-rows[i-1][0]>4))?'M':'L')+x(p[0]).toFixed(2)+','+y(p[1]).toFixed(2)).join(' ');
   const ticks=[0,.25,.5,.75,1].map(k=>{let yy=238-k*201,vl=a+k*(b-a);return '<line x1="55" x2="865" y1="'+yy+'" y2="'+yy+'" stroke="#e6ecef" /><text x="46" y="'+(yy+4)+'" text-anchor="end" fill="#79909b" font-size="11">'+safe(f(vl,0))+'</text>'}).join('');
   const circles=rows.map((p,i)=>{if(rows.length>70&&i%3!==0)return'';return '<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3.5" fill="#1c7582" stroke="#fff" stroke-width="1"><title>'+safe(tick(p[0])+' · '+f(p[1],1)+' '+units)+'</title></circle>'}).join('');
   return '<svg class="wa-chart" role="img" aria-label="'+safe(title)+'" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg">'+ticks+
@@ -162,19 +162,20 @@
    '</div>'+info('Las observaciones de riego corresponden a ciclos agrícolas; las de clima a años calendario. Se presentan conjuntamente para investigación exploratoria, no como balance hidrológico causal.');
  }
  function renderQuality(){
-  const q=D.calidad.filter(x=>belonging(x[0]));
-  const sites=q.length;
-  return '<div class="wa-kpi-grid wa-grid">'+kpi('Sitios con datos recuperados',sites,'Registros en base V9')+
-  kpi('Filas de medición',q.reduce((s,x)=>s+(x[3]||0),0),'Sin temporalidad acreditada')+
-  kpi('Filas con fecha verificada',q.reduce((s,x)=>s+(x[4]||0),0),'No construir tendencias')+
-  kpi('Cobertura histórica','No validada','No extrapolar resultados a todo el estado')+'</div>'+
-  (st!=='Sinaloa'?empty('No hay mediciones de calidad del agua recuperadas y verificadas para '+st+' en la V9. Esto no significa que no existan sitios oficiales de monitoreo.') :
-  info('Los valores de pH de este conjunto son estadísticas descriptivas por sitio de registros sin fecha. No permiten evaluar tendencias, cumplimiento normativo o calidad actual del agua.')+
-  section('RED DE SITIOS · SINALOA','Registros disponibles por sitio',
-    table(['Sitio','Clave','Registros','pH medio (sin fechas)'],q.map(x=>[x[2],x[1],x[3],f(x[5],2)]))+
-    '<p class="wa-small-note">Se conservaron los 223 sitios del libro V9. El número de registros no equivale a número de campañas de muestreo fechadas.</p>'));
+  const all=D.calidad.filter(x=>belonging(x[0])),q=all.filter(x=>normalize(x[1]+' '+x[2]).includes(normalize(query)));
+  const sites=all.length;
+  return '<div class="wa-splithead"><div><div class="wa-eyebrow">MUESTREO Y TRAZABILIDAD</div><h2>Calidad del agua.</h2><p>Registros recuperados a nivel de sitio. No se presentan como mediciones actuales ni series temporales verificadas.</p></div><span class="wa-provenance-chip">FECHAS NO ACREDITADAS</span></div>'+
+   '<div class="wa-kpi-grid wa-grid">'+kpi('Sitios identificados',sites,'Catálogo de sitios en V9')+
+   kpi('Registros recuperados',all.reduce((v,x)=>v+(x[3]||0),0),'Sin fecha de muestreo comprobada')+
+   kpi('Registros con fecha verificada',all.reduce((v,x)=>v+(x[4]||0),0),'No estimar tendencias')+
+   kpi('Estados con esta tabla',1,'Únicamente Sinaloa, no cinco estados')+'</div>'+
+   (st!=='Sinaloa'?empty('La edición V9 todavía no contiene mediciones de calidad del agua recuperadas para '+st+'. Consulte el inventario oficial de CONAGUA para ampliar cobertura.') :
+   info('El pH presentado es un promedio simple de registros sin fecha verificable. No debe interpretarse como cumplimiento de normas, estatus sanitario o calidad actual del agua.')+
+   section('RED DE MONITOREO · SINALOA','Explorar los sitios recuperados',
+      '<div class="wa-toolbar-inline"><input id="wa-search" type="search" aria-label="Buscar sitios de calidad del agua" placeholder="Buscar por nombre o clave" value="'+safe(query)+'"/><span class="wa-small-note">'+q.length+' de '+sites+' sitios</span></div>'+
+      table(['Nombre del sitio','Clave','Registros','Fechas verificadas','pH medio'],q.map(x=>[x[2],x[1],x[3],x[4],f(x[5],2)]))+
+      '<p class="wa-small-note">La cantidad de filas por sitio no equivale a una periodicidad válida de muestreo.</p>','wa-wide'));
  }
-
  function comparisonData(name,ind){
   const source=ind==='riego'?D.riego:D.clima;
   const column=ind==='riego'?2:ind==='lluvia'?2:ind==='et0'?3:4;
