@@ -181,6 +181,7 @@
   if(!D)return;
   syncHeader();
   byId('wa-state').value=st;
+  const label=byId('wa-scope-label');if(label)label.innerHTML=safe(st)+' <small>· '+getDams().length+' presas · '+getAquifers().length+' acuíferos</small>';
   const qualityButton=root.querySelector('[data-wa-view="calidad"]');if(qualityButton)qualityButton.hidden=st!=='Sinaloa';
   root.querySelectorAll('[data-wa-view]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.waView===view)));
   if(map){map.remove();map=null}
@@ -190,6 +191,7 @@
   if(view==='acuiferos')target.innerHTML=renderAquifers();
   if(view==='series')target.innerHTML=renderHistory();
   if(view==='calidad')target.innerHTML=renderQuality();
+  if(view==='comparar')target.innerHTML=renderComparison();
   if(view==='fuentes')target.innerHTML=renderSources();
   byId('wa-export').hidden=view==='fuentes';
   if(view==='presas'&&window.L&&getDams().length){
@@ -213,6 +215,7 @@
   if(view==='presas'){headers=['estado','clave_sih','presa','municipio','latitud','longitud','capacidad_namo_hm3'];rows=getDams()}
   if(view==='acuiferos'){headers=['estado','clave','acuifero','recarga_hm3_anio','veas_hm3_anio','disponibilidad_hm3_anio','saldo_negativo'];rows=getAquifers().map(x=>[x[0],x[1],x[2],x[3],x[4],x[5],x[6]])}
   if(view==='calidad'){headers=['estado','clave_sitio','nombre_sitio','filas','filas_con_fecha','ph_medio'];rows=D.calidad.filter(x=>belonging(x[0]))}
+  if(view==='comparar'){headers=['anio',cmpA+'_'+cmpMetric,cmpB+'_'+cmpMetric];const a=comparisonData(cmpA,cmpMetric),b=comparisonData(cmpB,cmpMetric);const years=[...new Set([...a,...b].map(x=>x[0]))].sort();rows=years.map(year=>[year,a.find(x=>x[0]===year)?.[1]??'',b.find(x=>x[0]===year)?.[1]??''])}
   if(!rows.length)return;
   const csv='\ufeff'+[headers,...rows].map(row=>row.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
   const a=document.createElement('a'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
@@ -221,15 +224,32 @@
  root.addEventListener('click',e=>{
   const t=e.target.closest('[data-wa-view]');if(t){view=t.dataset.waView;query='';render();return}
   const m=e.target.closest('[data-wa-metric]');if(m){metric=m.dataset.waMetric;render();return}
+  if(e.target.closest('#wa-cmp-swap')){const x=cmpA;cmpA=cmpB;cmpB=x;render();return}
+  if(e.target.closest('#wa-method-shortcut')){view='fuentes';render();return}
+  if(e.target.closest('#wa-copy-link')){
+    const u=new URL(location.href);u.searchParams.set('aguaEstado',st);u.searchParams.set('aguaVista',view);u.hash='agua';
+    const button=e.target.closest('#wa-copy-link'),initial=button.textContent;
+    if(navigator.clipboard?.writeText)navigator.clipboard.writeText(u.href).then(()=>{button.textContent='Copiado ✓';setTimeout(()=>button.textContent=initial,1700)}).catch(()=>button.textContent='Error al copiar');
+    else{button.textContent='Copie el enlace del navegador';setTimeout(()=>button.textContent=initial,2400)}
+    return;
+  }
   if(e.target.closest('#wa-export'))exportCsv();
  });
- root.addEventListener('change',e=>{if(e.target.id==='wa-state'){st=e.target.value;query='';dam='';if(view==='calidad'&&st!=='Sinaloa')view='resumen';render()}if(e.target.id==='wa-dam'){dam=e.target.value;render()}});
+ root.addEventListener('change',e=>{
+  if(e.target.id==='wa-cmp-a'){cmpA=e.target.value;render();return}
+  if(e.target.id==='wa-cmp-b'){cmpB=e.target.value;render();return}
+  if(e.target.id==='wa-cmp-metric'){cmpMetric=e.target.value;render();return}
+  if(e.target.id==='wa-cmp-year'){cmpYear=Number(e.target.value);render();return}
+  if(e.target.id==='wa-state'){st=e.target.value;query='';dam='';if(view==='calidad'&&st!=='Sinaloa')view='resumen';render()}if(e.target.id==='wa-dam'){dam=e.target.value;render()}});
  root.addEventListener('input',e=>{if(e.target.id==='wa-search'){const pos=e.target.selectionStart;query=e.target.value;render();const box=byId('wa-search');if(box){box.focus();box.setSelectionRange(Math.min(pos,query.length),Math.min(pos,query.length))}}});
  const observer=new MutationObserver(()=>{if(!root.hidden){syncHeader();if(map)setTimeout(()=>map.invalidateSize(),60)}});
  observer.observe(root,{attributes:true,attributeFilter:['hidden']});
  async function init(){
   try{let response=await fetch('data/agua-v9.json',{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
    D=await response.json();if(D.presas.length!==75||D.acuiferos.length!==216)throw Error('La edición V9 no coincide con la estructura esperada');
+   const params=new URL(location.href).searchParams;
+   if(D.estados.includes(params.get('aguaEstado')))st=params.get('aguaEstado');
+   if(['resumen','presas','acuiferos','series','comparar','calidad','fuentes'].includes(params.get('aguaVista')))view=params.get('aguaVista');
    byId('wa-state').innerHTML=D.estados.map(x=>'<option value="'+safe(x)+'">'+safe(x)+'</option>').join('');
    render();
    if(location.hash==='#agua'&&typeof window.GrowaNavigate==='function')window.GrowaNavigate('agua');
