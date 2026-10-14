@@ -104,6 +104,27 @@
     info('Las ubicaciones son puntos de un catálogo secundario con 75 presas en cinco estados. No se representa el área de embalse ni la disponibilidad actual.')+
     '<div class="wa-panels">'+historical+'</div>';
  }
+
+ function renderCuencas(){
+  const stations=D.cobertura.find(x=>stateName(x[0])===st&&x[1]==='estaciones_hidrometricas_catalogo')?.[2]||0;
+  return'<div class="wa-splithead"><div><div class="wa-eyebrow">AGUA SUPERFICIAL / UNIDADES HIDROLÓGICAS</div><h2>Cuencas y observación fluvial.</h2><p>Inventarios nacionales y mediciones hidrométricas son capas distintas. Aquí se muestra el alcance verificable.</p></div><span class="wa-provenance-chip">CATÁLOGO · CORTE HISTÓRICO</span></div>'+
+  '<div class="wa-kpi-grid wa-grid">'+kpi('Cuencas registradas en México','757','Cobertura nacional · corte 2020')+
+   kpi('Cuencas con disponibilidad','653','Clasificación transversal nacional')+
+   kpi('Cuencas sin disponibilidad','104','Clasificación transversal nacional')+
+   kpi('Estaciones catalogadas en '+st,stations,'Sin series de caudales integradas')+'</div>'+
+  '<div class="wa-panels">'+
+    section('ESTRUCTURA DE DATOS','Disponibilidad superficial',
+      '<div class="wa-availability"><div class="wa-availability-row"><span>Con disponibilidad</span><strong>653</strong></div><div class="wa-availability-track"><div style="width:86.26%;background:#177b87;height:100%"></div></div><div class="wa-availability-row"><span>Sin disponibilidad</span><strong>104</strong></div><div class="wa-availability-track"><div style="width:13.74%;background:#bc8d53;height:100%"></div></div></div>'+
+      '<p>Los valores representan la clasificación de un único corte nacional, no la evolución de las cuencas ni la asignación a un estado.</p>')+
+    section('ESTACIONES HIDROMÉTRICAS','Datos observables y datos pendientes',
+      '<div class="wa-stat-row"><div><strong>'+stations+'</strong><span>Estaciones catalogadas en '+safe(st)+'</span></div><div><strong>0</strong><span>Series históricas de caudales descargadas para este estado en V9</span></div></div>'+
+      '<p>El catálogo identifica ubicaciones y claves, pero no acredita operación actual ni aporta todavía caudales medidos.</p>')+
+    section('COBERTURA Y TRAZABILIDAD','Por qué no mostramos un mapa de cuencas',
+      '<p>El proyecto conserva 757 registros nacionales, pero esta edición web no incluye polígonos oficiales verificados ni cruces espaciales cuenca-estado. Dibujar polígonos o imputar un balance estatal sería incorrecto.</p>'+
+      '<p>Las fichas y series individuales se habilitarán al incorporar cartografía validada y archivos diarios de estaciones desde CONAGUA.</p>'+
+      '<a class="wa-reference-link" href="https://sih.conagua.gob.mx/" target="_blank" rel="noopener noreferrer">Consultar SIH / CONAGUA ↗</a>','wa-wide')+'</div>';
+ }
+
  function renderAquifers(){
   const a=getAquifers(),def=a.filter(x=>x[6]===1), term=normalize(query);
   const subset=a.filter(x=>normalize(x[2]+' '+x[1]).includes(term)).sort((x,y)=>(x[5]??0)-(y[5]??0));
@@ -211,6 +232,7 @@
   if(view==='resumen')target.innerHTML=renderOverview();
   if(view==='presas')target.innerHTML=renderDams();
   if(view==='acuiferos')target.innerHTML=renderAquifers();
+  if(view==='cuencas')target.innerHTML=renderCuencas();
   if(view==='series')target.innerHTML=renderHistory();
   if(view==='calidad')target.innerHTML=renderQuality();
   if(view==='comparar')target.innerHTML=renderComparison();
@@ -242,6 +264,7 @@
   if(view==='resumen'||view==='series'){headers=['estado','anio','volumen_riego_hm3','area_regada_ha','m3_por_ha'];rows=riego().map(x=>[st,x[1],x[2],x[3],x[4]])}
   if(view==='presas'){headers=['estado','clave_sih','presa','municipio','latitud','longitud','capacidad_namo_hm3'];rows=getDams().filter(x=>(x[6]??0)>=minCapacity&&(!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query))))}
   if(view==='acuiferos'){headers=['estado','clave','acuifero','recarga_hm3_anio','veas_hm3_anio','disponibilidad_hm3_anio','saldo_negativo'];rows=getAquifers().map(x=>[x[0],x[1],x[2],x[3],x[4],x[5],x[6]])}
+  if(view==='cuencas'){headers=['estado','componente','registros','inicio','fin','temporalidad'];rows=D.cobertura.filter(x=>stateName(x[0])===st&&(/cuencas|hidrometricas/i).test(x[1])).map(x=>x.slice(0,6))}
   if(view==='calidad'){headers=['estado','clave_sitio','nombre_sitio','filas','filas_con_fecha','ph_medio'];rows=D.calidad.filter(x=>belonging(x[0]))}
   if(view==='comparar'){headers=['anio',cmpA+'_'+cmpMetric,cmpB+'_'+cmpMetric];const a=comparisonData(cmpA,cmpMetric),b=comparisonData(cmpB,cmpMetric);const years=[...new Set([...a,...b].map(x=>x[0]))].sort();rows=years.map(year=>[year,a.find(x=>x[0]===year)?.[1]??'',b.find(x=>x[0]===year)?.[1]??''])}
   if(!rows.length)return;
@@ -278,7 +301,7 @@
    D=await response.json();if(D.presas.length!==75||D.acuiferos.length!==216)throw Error('La edición V9 no coincide con la estructura esperada');
    const params=new URL(location.href).searchParams;
    if(D.estados.includes(params.get('aguaEstado')))st=params.get('aguaEstado');
-   if(['resumen','presas','acuiferos','series','comparar','calidad','fuentes'].includes(params.get('aguaVista')))view=params.get('aguaVista');
+   if(['resumen','presas','acuiferos','cuencas','series','comparar','calidad','fuentes'].includes(params.get('aguaVista')))view=params.get('aguaVista');
    byId('wa-state').innerHTML=D.estados.map(x=>'<option value="'+safe(x)+'">'+safe(x)+'</option>').join('');
    render();
    if(location.hash==='#agua'&&typeof window.GrowaNavigate==='function')window.GrowaNavigate('agua');
