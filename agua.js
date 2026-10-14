@@ -289,7 +289,7 @@
   if(e.target.closest('#wa-cmp-swap')){const x=cmpA;cmpA=cmpB;cmpB=x;render();return}
   if(e.target.closest('#wa-method-shortcut')){view='fuentes';render();return}
   if(e.target.closest('#wa-copy-link')){
-    const u=new URL(location.href);u.searchParams.set('aguaEstado',st);u.searchParams.set('aguaVista',view);u.hash='agua';
+    const u=new URL(location.href);u.searchParams.set('aguaEstado',st);u.searchParams.set('aguaVista',view);u.searchParams.set('aguaA',cmpA);u.searchParams.set('aguaB',cmpB);u.searchParams.set('aguaIndicador',cmpMetric);u.searchParams.set('aguaAnio',String(cmpYear));u.searchParams.set('aguaFiltro',query.slice(0,80));u.searchParams.set('aguaMin',String(minCapacity));u.hash='agua';
     const button=e.target.closest('#wa-copy-link'),initial=button.textContent;
     if(navigator.clipboard?.writeText)navigator.clipboard.writeText(u.href).then(()=>{button.textContent='Copiado ✓';setTimeout(()=>button.textContent=initial,1700)}).catch(()=>button.textContent='Error al copiar');
     else{button.textContent='Copie el enlace del navegador';setTimeout(()=>button.textContent=initial,2400)}
@@ -312,6 +312,12 @@
    const params=new URL(location.href).searchParams;
    if(D.estados.includes(params.get('aguaEstado')))st=params.get('aguaEstado');
    if(['resumen','presas','acuiferos','cuencas','series','comparar','calidad','fuentes'].includes(params.get('aguaVista')))view=params.get('aguaVista');
+   if(D.estados.includes(params.get('aguaA')))cmpA=params.get('aguaA');
+   if(D.estados.includes(params.get('aguaB')))cmpB=params.get('aguaB');
+   if(['riego','lluvia','et0','balance'].includes(params.get('aguaIndicador')))cmpMetric=params.get('aguaIndicador');
+   if(/^20\d{2}$/.test(params.get('aguaAnio')||''))cmpYear=Number(params.get('aguaAnio'));
+   if(params.get('aguaFiltro'))query=params.get('aguaFiltro').slice(0,80);
+   if(['0','100','500','1000'].includes(params.get('aguaMin')))minCapacity=Number(params.get('aguaMin'));
    byId('wa-state').innerHTML=D.estados.map(x=>'<option value="'+safe(x)+'">'+safe(x)+'</option>').join('');
    render();
    if(location.hash==='#agua'&&typeof window.GrowaNavigate==='function')window.GrowaNavigate('agua');
