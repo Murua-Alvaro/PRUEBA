@@ -40,7 +40,7 @@
  const coverage=(code)=>D.cobertura.find(x=>belonging(x[0])&&x[1]===code)?.[2]??null;
  const yearCheck=a=>a.length?String(a.at(-1)[1])+'/24':'Sin corte';
  function renderOverview(){
-  const a=getAquifers(),p=getDams(),r=riego(),c=clima(),last=r.at(-1),neg=a.filter(x=>x[7]===1);
+  const a=getAquifers(),p=getDams(),r=riego(),c=clima(),last=r.at(-1),neg=a.filter(x=>x[6]===1);
   return '<div class="wa-kpi-grid wa-grid">'+kpi('Acuíferos del catálogo',f(a.length,0),'Balance transversal, corte no certificado')+
   kpi('Saldo contable negativo',f(neg.length,0),'Acuíferos con disponibilidad neta menor que cero')+
   kpi('Presas inventariadas',f(p.length,0),'Capacidad nominal; no volumen almacenado')+
@@ -50,7 +50,7 @@
   section('CLIMA MUNICIPAL AGREGADO · 2003–2025','Precipitación media municipal',series(c.map(x=>[x[1],x[2]]),'Precipitación en '+st,'mm')+
   '<p>Promedio entre municipios del estado, no lluvia ponderada por superficie geográfica.</p>')+
   section('ANÁLISIS TERRITORIAL','Infraestructura y reservas identificadas',
-  '<div class="wa-stat-row"><div><strong>'+f(p.reduce((s,x)=>s+(n(x[6])||0),0),0)+' hm³</strong><span>Capacidad NAMO agregada de presas catalogadas</span></div><div><strong>'+f(a.reduce((s,x)=>s+(n(x[6])||0),0),1)+' hm³/año</strong><span>Balance contable sumado de acuíferos identificados</span></div></div>'+
+  '<div class="wa-stat-row"><div><strong>'+f(p.reduce((s,x)=>s+(n(x[6])||0),0),0)+' hm³</strong><span>Capacidad NAMO agregada de presas catalogadas</span></div><div><strong>'+f(a.reduce((s,x)=>s+(n(x[5])||0),0),1)+' hm³/año</strong><span>Balance contable sumado de acuíferos identificados</span></div></div>'+
   '<p class="wa-small-note">La suma de balances sirve para describir el inventario, no equivale a agua físicamente disponible a escala estatal.</p>')+
   section('DISPONIBILIDAD DE FUENTES','Qué puede compararse en el tiempo',table(['Conjunto','Alcance'],[['Distritos de riego','Serie anual 1997/98–2023/24'],['Clima','Serie municipal 2003–2025'],['Acuíferos','Balance de corte único'],['Cuencas','757 registros nacionales, corte 2020'],['Calidad','Fechas de medición sin validar'],['Caudales','Sin registros históricos descargados']]))+
   '</div>'+info('<strong>Interpretación:</strong> este panel reúne capas con periodos distintos. Un cambio anual en lluvia o riego no implica automáticamente un cambio de disponibilidad subterránea.');
@@ -84,7 +84,7 @@
  }
  function renderAquifers(){
   const a=getAquifers(),def=a.filter(x=>x[7]===1), term=normalize(query);
-  const subset=a.filter(x=>normalize(x[2]+' '+x[1]).includes(term)).sort((x,y)=>(x[6]??0)-(y[6]??0));
+  const subset=a.filter(x=>normalize(x[2]+' '+x[1]).includes(term)).sort((x,y)=>(x[5]??0)-(y[5]??0));
   return '<div class="wa-kpi-grid wa-grid">'+kpi('Acuíferos identificados',a.length,'Catálogo de corte único')+
    kpi('Balance negativo',def.length,'No equivale a tendencia')+
    kpi('Recarga total reportada',f(a.reduce((s,x)=>s+(x[3]||0),0),0)+' hm³/año','Sumatoria contable descriptiva')+
@@ -93,7 +93,7 @@
    section('BALANCES SUBTERRÁNEOS','Acuíferos de '+st,
      '<div class="wa-toolbar-inline"><input type="search" id="wa-search" value="'+safe(query)+'" placeholder="Buscar acuífero o clave" aria-label="Buscar acuíferos"><span class="wa-small-note">'+subset.length+' de '+a.length+'</span></div>'+
      table(['Acuífero','Clave','Recarga hm³/año','VEAS hm³/año','Disponibilidad hm³/año','Condición'],
-       subset.map(x=>[x[2],x[1],f(x[3]),f(x[4]),f(x[6]),x[7]===1?'Saldo negativo':'Saldo no negativo']))+
+       subset.map(x=>[x[2],x[1],f(x[3]),f(x[4]),f(x[5]),x[6]===1?'Saldo negativo':'Saldo no negativo']))+
      '<p class="wa-small-note">VEAS es volumen comprometido/concesionado en el balance; no representa necesariamente bombeo observado. No usar para concluir cumplimiento normativo actual.</p>');
  }
  function renderHistory(){
@@ -169,7 +169,7 @@
   let rows=[],headers=[],name='agua-'+view+'-'+st.toLowerCase().replace(/\W+/g,'-')+'.csv';
   if(view==='resumen'||view==='series'){headers=['estado','anio','volumen_riego_hm3','area_regada_ha','m3_por_ha'];rows=riego().map(x=>[st,x[1],x[2],x[3],x[4]])}
   if(view==='presas'){headers=['estado','clave_sih','presa','municipio','latitud','longitud','capacidad_namo_hm3'];rows=getDams()}
-  if(view==='acuiferos'){headers=['estado','clave','acuifero','recarga_hm3_anio','veas_hm3_anio','disponibilidad_hm3_anio','saldo_negativo'];rows=getAquifers().map(x=>[x[0],x[1],x[2],x[3],x[4],x[6],x[7]])}
+  if(view==='acuiferos'){headers=['estado','clave','acuifero','recarga_hm3_anio','veas_hm3_anio','disponibilidad_hm3_anio','saldo_negativo'];rows=getAquifers().map(x=>[x[0],x[1],x[2],x[3],x[4],x[5],x[6]])}
   if(view==='calidad'){headers=['estado','clave_sitio','nombre_sitio','filas','filas_con_fecha','ph_medio'];rows=D.calidad.filter(x=>belonging(x[0]))}
   if(!rows.length)return;
   const csv='\ufeff'+[headers,...rows].map(row=>row.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
