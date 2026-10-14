@@ -12,6 +12,7 @@
  const COLORS=['#197b88','#bc7f44','#577caa','#6a9a70','#8264a7'];
  const period='Corte de integración: octubre de 2026';
  let D,st='Sinaloa',view='resumen',metric='riego',dam='',query='',map=null;
+ let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023;
  const belonging=(v)=>stateName(v)===st;
  const filtered=(arr,i=0)=>arr.filter(x=>belonging(x[i]));
  const table=(heads,rows,empty)=>rows.length?'<div class="wa-table-wrap"><table class="wa-table"><thead><tr>'+heads.map(h=>'<th>'+safe(h)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map((cell,i)=>'<td'+(typeof cell==='number'?' data-num':'')+'>'+safe(cell==null?'—':cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'<div class="wa-empty">'+safe(empty||'Sin registros verificados para esta selección.')+'</div>';
@@ -123,6 +124,43 @@
     table(['Sitio','Clave','Registros','pH medio (sin fechas)'],q.map(x=>[x[2],x[1],x[3],f(x[5],2)]))+
     '<p class="wa-small-note">Se conservaron los 223 sitios del libro V9. El número de registros no equivale a número de campañas de muestreo fechadas.</p>'));
  }
+
+ function comparisonData(name,ind){
+  const source=ind==='riego'?D.riego:D.clima;
+  const column=ind==='riego'?2:ind==='lluvia'?2:ind==='et0'?3:4;
+  return source.filter(row=>stateName(row[0])===name).map(row=>[row[1],row[column]]).sort((a,b)=>a[0]-b[0]);
+ }
+ function compareGraph(a,b,label,unit){
+  const all=[...a,...b].filter(p=>Number.isFinite(p[1]));
+  if(all.length===0)return empty('Sin observaciones para comparar.');
+  const years=all.map(p=>p[0]),values=all.map(p=>p[1]);
+  const x0=Math.min(...years),x1=Math.max(...years),lo=Math.min(0,...values),hi=Math.max(...values),span=hi-lo||1;
+  const X=x=>55+790*(x-x0)/(x1-x0||1),Y=y=>235-187*(y-lo+span*.04)/(span*1.16);
+  const line=(arr,c)=>'<path d="'+arr.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ')+'" stroke="'+c+'" stroke-width="3" stroke-linejoin="round" fill="none"/>'+arr.map(p=>'<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="3" fill="'+c+'"><title>'+safe(p[0]+' · '+f(p[1])+' '+unit)+'</title></circle>').join('');
+  const ticks=[0,.25,.5,.75,1].map(t=>{const v=lo+(hi-lo)*t,y=Y(v);return '<line x1="52" x2="848" y1="'+y+'" y2="'+y+'" stroke="#e2e9eb"/><text x="45" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="#7c919a">'+safe(f(v,0))+'</text>'}).join('');
+  return '<svg class="wa-chart" role="img" aria-label="'+safe(label)+'" viewBox="0 0 895 270" xmlns="http://www.w3.org/2000/svg">'+ticks+line(a,'#137c88')+line(b,'#b98557')+'<text x="54" y="265" font-size="11" fill="#718a93">'+x0+'</text><text x="848" y="265" font-size="11" text-anchor="end" fill="#718a93">'+x1+'</text></svg>';
+ }
+ function renderComparison(){
+  const titles={riego:['Agua distribuida (hm³)','hm³','Ciclo agrícola, no extracción real por cultivo'],lluvia:['Precipitación media municipal (mm)','mm','Promedio simple de municipios observados'],et0:['ET₀ media municipal (mm)','mm','Demanda atmosférica estimada'],balance:['Balance climático P−ET₀ (mm)','mm','No es balance hídrico de cuenca']};
+  const labels=titles[cmpMetric],a=comparisonData(cmpA,cmpMetric),b=comparisonData(cmpB,cmpMetric);
+  const low=cmpMetric==='riego'?1997:2003,high=cmpMetric==='riego'?2023:2025;
+  cmpYear=Math.max(low,Math.min(high,cmpYear));
+  const aValue=a.find(x=>x[0]===cmpYear)?.[1],bValue=b.find(x=>x[0]===cmpYear)?.[1];
+  const selected=(list,current)=>list.map(x=>'<option value="'+safe(x[0])+'" '+(current===x[0]?'selected':'')+'>'+safe(x[1])+'</option>').join('');
+  const states=D.estados.map(x=>[x,x]),metrics=Object.entries(titles).map(([k,v])=>[k,v[0]]),years=Array.from({length:high-low+1},(_,i)=>[String(high-i),String(high-i)]);
+  const control=(id,label,options,value)=>'<label for="'+id+'">'+label+'</label><select id="'+id+'">'+selected(options,String(value))+'</select>';
+  const count=a.filter(x=>b.some(y=>x[0]===y[0])).length;
+  const diff=aValue==null||bValue==null?null:aValue-bValue;
+  const latest=D.estados.map(x=>{const v=comparisonData(x,cmpMetric).find(z=>z[0]===cmpYear);return[x,v?f(v[1]):'—']});
+  return '<div class="wa-splithead"><div><div class="wa-eyebrow">ANÁLISIS MULTIESTATAL</div><h2>Comparación de trayectorias.</h2><p>Dos territorios, un indicador y una escala temporal común.</p></div><span class="wa-provenance-chip">SERIES OBSERVADAS</span></div>'+
+   '<div class="wa-focus-band wa-toolbar-rail"><div class="wa-toolset">'+control('wa-cmp-a','ESTADO A',states,cmpA)+control('wa-cmp-b','ESTADO B',states,cmpB)+control('wa-cmp-metric','INDICADOR',metrics,cmpMetric)+control('wa-cmp-year','AÑO / CICLO',years,cmpYear)+'</div><button type="button" id="wa-cmp-swap" class="wa-mini-btn">⇄ Intercambiar</button></div>'+
+   '<div class="wa-compare-kpis"><div class="wa-compare-kpi"><span><i class="wa-comparison-swatch a"></i>'+safe(cmpA)+'</span><strong>'+f(aValue)+' '+labels[1]+'</strong><small>'+cmpYear+' · Entidad A</small></div><div class="wa-compare-kpi"><span><i class="wa-comparison-swatch b"></i>'+safe(cmpB)+'</span><strong>'+f(bValue)+' '+labels[1]+'</strong><small>'+cmpYear+' · Entidad B</small></div></div>'+
+   '<div class="wa-compare-shell"><div class="wa-comparison-card"><div class="wa-card-head"><h3>'+safe(labels[0])+'</h3></div>'+compareGraph(a,b,labels[0],labels[1])+'<div class="wa-legend"><span style="--wa-legend:#137c88">'+safe(cmpA)+'</span><span style="--wa-legend:#b98557">'+safe(cmpB)+'</span></div></div>'+
+   '<aside class="wa-comparison-card"><div class="wa-eyebrow">LECTURA ESTADÍSTICA</div><h3>Diferencia del corte '+cmpYear+'</h3><div class="wa-stat-row"><div><strong>'+(diff==null?'—':(diff>0?'+':'')+f(diff)+' '+labels[1])+'</strong><span>A menos B</span></div><div><strong>'+count+'</strong><span>Periodos comunes</span></div></div><p>'+safe(labels[2])+'. No se infiere causalidad ni jerarquía de gestión pública.</p></aside></div>'+
+   section('CORTE MULTIESTATAL · '+cmpYear,'Las cinco entidades',table(['Estado',labels[0]],latest),'wa-wide')+
+   info('Comparación descriptiva: los estados difieren en tamaño, composición de distritos y superficie agrícola. No deben interpretarse valores absolutos como medidas de eficiencia.');
+ }
+
  function renderSources(){
   const items=[
    ['Distritos de riego · histórico','1997/98–2023/24','CONAGUA (compilación de series distritales)','https://www.gob.mx/conagua'],
