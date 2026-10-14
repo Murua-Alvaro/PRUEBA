@@ -272,9 +272,9 @@
   let rows=[],headers=[],name='agua-'+view+'-'+st.toLowerCase().replace(/\W+/g,'-')+'.csv';
   if(view==='resumen'||view==='series'){headers=['estado','anio','volumen_riego_hm3','area_regada_ha','m3_por_ha'];rows=riego().map(x=>[st,x[1],x[2],x[3],x[4]])}
   if(view==='presas'){headers=['estado','clave_sih','presa','municipio','latitud','longitud','capacidad_namo_hm3'];rows=getDams().filter(x=>(x[6]??0)>=minCapacity&&(!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query))))}
-  if(view==='acuiferos'){headers=['estado','clave','acuifero','recarga_hm3_anio','veas_hm3_anio','disponibilidad_hm3_anio','saldo_negativo'];rows=getAquifers().map(x=>[x[0],x[1],x[2],x[3],x[4],x[5],x[6]])}
+  if(view==='acuiferos'){headers=['estado','clave','acuifero','recarga_hm3_anio','veas_hm3_anio','disponibilidad_hm3_anio','saldo_negativo'];rows=getAquifers().filter(x=>(aqFilter==='todos'||(aqFilter==='negativos'?x[6]===1:x[6]!==1))&&normalize(x[1]+' '+x[2]).includes(normalize(query))).map(x=>[x[0],x[1],x[2],x[3],x[4],x[5],x[6]])}
   if(view==='cuencas'){headers=['estado','componente','registros','inicio','fin','temporalidad'];rows=D.cobertura.filter(x=>stateName(x[0])===st&&(/cuencas|hidrometricas/i).test(x[1])).map(x=>x.slice(0,6))}
-  if(view==='calidad'){headers=['estado','clave_sitio','nombre_sitio','filas','filas_con_fecha','ph_medio'];rows=D.calidad.filter(x=>belonging(x[0]))}
+  if(view==='calidad'){headers=['estado','clave_sitio','nombre_sitio','filas','filas_con_fecha','ph_medio'];rows=D.calidad.filter(x=>belonging(x[0])&&normalize(x[1]+' '+x[2]).includes(normalize(query)))}
   if(view==='comparar'){headers=['anio',cmpA+'_'+cmpMetric,cmpB+'_'+cmpMetric];const a=comparisonData(cmpA,cmpMetric),b=comparisonData(cmpB,cmpMetric);const years=[...new Set([...a,...b].map(x=>x[0]))].sort();rows=years.map(year=>[year,a.find(x=>x[0]===year)?.[1]??'',b.find(x=>x[0]===year)?.[1]??''])}
   if(!rows.length)return;
   const csv='\ufeff'+[headers,...rows].map(row=>row.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
@@ -286,6 +286,7 @@
   const m=e.target.closest('[data-wa-metric]');if(m){metric=m.dataset.waMetric;render();return}
   const aq=e.target.closest('[data-wa-aq-filter]');if(aq){aqFilter=aq.dataset.waAqFilter;render();return}
   const row=e.target.closest('[data-wa-dam]');if(row){selectDam(row.dataset.waDam);return}
+  if(e.target.closest('#wa-print')){window.print();return}
   if(e.target.closest('#wa-cmp-swap')){const x=cmpA;cmpA=cmpB;cmpB=x;render();return}
   if(e.target.closest('#wa-method-shortcut')){view='fuentes';render();return}
   if(e.target.closest('#wa-copy-link')){
@@ -315,7 +316,7 @@
    if(D.estados.includes(params.get('aguaA')))cmpA=params.get('aguaA');
    if(D.estados.includes(params.get('aguaB')))cmpB=params.get('aguaB');
    if(['riego','lluvia','et0','balance'].includes(params.get('aguaIndicador')))cmpMetric=params.get('aguaIndicador');
-   if(/^20\d{2}$/.test(params.get('aguaAnio')||''))cmpYear=Number(params.get('aguaAnio'));
+   if(/^(19|20)\d{2}$/.test(params.get('aguaAnio')||''))cmpYear=Number(params.get('aguaAnio'));
    if(params.get('aguaFiltro'))query=params.get('aguaFiltro').slice(0,80);
    if(['0','100','500','1000'].includes(params.get('aguaMin')))minCapacity=Number(params.get('aguaMin'));
    byId('wa-state').innerHTML=D.estados.map(x=>'<option value="'+safe(x)+'">'+safe(x)+'</option>').join('');
