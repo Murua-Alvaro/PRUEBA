@@ -292,6 +292,93 @@ body[data-view="agua"] .page{max-width:none!important;padding:0 20px!important;w
 #panel-agua .aw-layer-dropdown>small{top:75px;border-top:0;font-size:10px;color:#81949f}
 #panel-agua .aw-layer-dropdown input{accent-color:#117f99;width:16px;height:16px}
 
+
+/* V15: data-centered product refinements, municipal autocomplete and discoverability */
+#panel-agua.aw-root{font-size:14px!important;line-height:1.56}
+#panel-agua .aw-heading{padding:16px 23px}
+#panel-agua .aw-titleline h1{font-family:var(--sans,Inter,Arial,sans-serif);font-size:26px;font-weight:760;letter-spacing:-.045em}
+#panel-agua .aw-heading-copy p{font-size:12.5px}
+#panel-agua .aw-tabs button{font-size:12px;min-height:49px;padding:13px 15px;font-weight:740}
+#panel-agua .aw-commandline{padding:14px 20px}
+#panel-agua .aw-workbench{grid-template-columns:265px minmax(0,1fr) 335px;min-height:640px}
+#panel-agua .aw-sidebar{position:relative;z-index:750;overflow:visible}
+#panel-agua .aw-filter-group{padding:15px 19px}
+#panel-agua .aw-filter-group label{font-size:12px}
+#panel-agua .aw-filter-group small{font-size:10.5px}
+#panel-agua .aw-sidebar-header{padding:18px 19px 13px}
+#panel-agua .aw-main{position:relative;z-index:1;padding:16px 17px;overflow:visible}
+#panel-agua .aw-inspector{z-index:2}
+#panel-agua .aw-map-stage{height:clamp(320px,40vh,475px)}
+#panel-agua .aw-map-overlay{top:12px;right:12px}
+#panel-agua .aw-map-toolbar{padding:11px 13px}
+#panel-agua .aw-bottom-drawer{margin-top:12px}
+#panel-agua .aw-data-table th{font-size:11px;padding:11px 13px}
+#panel-agua .aw-data-table td{font-size:12px;padding:12px 13px}
+#panel-agua .aw-data-table td.aw-text-cell{max-width:385px}
+#panel-agua .aw-drawer-title{padding:14px 16px}
+#panel-agua .aw-inspector-head h3{font-size:17px}
+#panel-agua .aw-record-name{font-size:21px}
+#panel-agua .aw-inspector-nav{padding:12px 16px 13px;background:#f8fafb;border-bottom:1px solid #dce7eb}
+#panel-agua .aw-inspector-nav[hidden]{display:none}
+#panel-agua .aw-inspector-nav label{display:block;font-size:10px;font-weight:760;color:#62828f;margin-bottom:7px}
+#panel-agua .aw-inspector-nav select{display:block;width:100%;font-size:12px;font-weight:710;color:#214e63;min-height:40px;padding:8px 10px;border:1px solid #c6dbe3;background:#fff;border-radius:4px}
+#panel-agua .aw-inspector-steps{display:flex;justify-content:space-between;gap:9px;margin-top:8px}
+#panel-agua .aw-inspector-steps button{border:0;background:transparent;color:#27758a;font-size:11px;font-weight:780;padding:6px 0}
+#panel-agua .aw-inspector-steps button:hover{text-decoration:underline;text-underline-offset:3px}
+#panel-agua .aw-label-helper{font-size:10px;font-weight:590;color:#8da1aa;margin-left:5px}
+#panel-agua .aw-municipality-group{position:relative;z-index:900}
+#panel-agua .aw-municipality-group[hidden]{display:none!important}
+#panel-agua .aw-combobox{position:relative}
+#panel-agua .aw-combo-input-wrap{display:flex;position:relative;min-height:41px}
+#panel-agua .aw-combo-input-wrap>input{width:100%;min-width:0;border:1px solid #b7cfd9;border-radius:4px;background:#fff;font-size:12px;color:#245064;font-weight:670;padding:8px 37px 8px 10px;min-height:41px}
+#panel-agua .aw-combo-toggle{position:absolute;right:2px;top:2px;bottom:2px;width:35px;display:grid;place-items:center;background:#f6f9fa;border:0;border-left:1px solid #d9e5e9;border-radius:0 3px 3px 0;color:#26758b;font-size:17px}
+#panel-agua .aw-combo-toggle:hover{background:#e5f2f6}
+#panel-agua #aw-muni-options{position:absolute;top:calc(100% + 5px);left:0;width:max(100%,280px);max-width:min(390px,90vw);max-height:315px;overflow:auto;z-index:9998;box-shadow:0 13px 40px #163d5540;border:1px solid #bdd4de;background:#fff;border-radius:5px;padding:5px;scrollbar-color:#acbec8 #f1f6f8}
+#panel-agua #aw-muni-options[hidden]{display:none!important}
+#panel-agua .aw-combo-top{font-size:10px;letter-spacing:.04em;color:#839aa4;font-weight:740;padding:9px 10px;border-bottom:1px solid #ecf1f4}
+#panel-agua .aw-combo-option{border:0;border-left:3px solid transparent;border-bottom:1px solid #eef3f5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 10px;text-align:left;width:100%;background:#fff;min-height:48px;color:#244e60;cursor:pointer}
+#panel-agua .aw-combo-option strong{font-size:12px;font-weight:740}
+#panel-agua .aw-combo-option small{font-size:10px;font-weight:500;color:#8098a3;max-width:130px;text-align:right;line-height:1.35}
+#panel-agua .aw-combo-option:hover,#panel-agua .aw-combo-option.aw-combo-active{background:#ebf5f7;border-left-color:#16839c}
+#panel-agua .aw-combo-option[aria-selected=true]{background:#e4f0f3}
+#panel-agua .aw-combo-empty{font-size:12px;padding:19px 12px;color:#728b99;line-height:1.6}
+#panel-agua .aw-muni-clear{margin-top:8px;border:0;background:transparent;color:#196d85;font-size:10.5px;font-weight:780;padding:7px 0;text-align:left;display:block}
+#panel-agua .aw-muni-clear[hidden]{display:none!important}
+#panel-agua .aw-data-btn{font-weight:800!important;background:#f1f7f9!important;color:#115970!important;border-color:#a9cbd5!important}
+#panel-agua .aw-data-btn:hover{background:#e1eff3!important}
+#panel-agua .aw-library-table{max-height:475px}
+#panel-agua .aw-library-table .aw-data-table th{position:sticky;top:0}
+#panel-agua .aw-library-table .aw-data-table td{white-space:normal;vertical-align:middle;line-height:1.6}
+#panel-agua .aw-library-table .aw-data-table td:nth-child(2){font-weight:780;color:#245970;font-variant-numeric:tabular-nums;white-space:nowrap}
+#panel-agua .aw-interpretation{margin-top:13px}
+#panel-agua .aw-interpretation h3{color:#214d62;font-size:17px;margin:8px 0}
+#panel-agua .aw-interpretation p{font-size:12.5px;color:#657f8d;line-height:1.8}
+#panel-agua .aw-interpretation .aw-link-row button{font-size:11px;border:1px solid #d2e1e7;border-radius:4px;background:#fff;padding:10px;color:#226e85;font-weight:770}
+#panel-agua .aw-surface-index{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:12px 0 0;padding:12px 15px;background:#fff;border:1px solid #dbe5ea;border-radius:4px;font-size:11px;color:#68818d}
+#panel-agua .aw-surface-index strong{font-size:11px;color:#1e4a5c}
+#panel-agua .aw-surface-index button{font-size:11px;font-weight:740;color:#146b83;border:1px solid #d6e6ea;background:#f8fbfc;padding:6px 9px;border-radius:4px}
+#panel-agua .aw-surface-index button:hover{background:#e8f2f5}
+@media(max-width:1330px){
+ #panel-agua .aw-workbench{grid-template-columns:235px minmax(0,1fr) 293px}
+ #panel-agua .aw-tabs button{font-size:11px;padding-inline:12px}
+}
+@media(max-width:1060px){
+ #panel-agua .aw-workbench{grid-template-columns:228px minmax(0,1fr)}
+ #panel-agua .aw-inspector{display:none}
+ #panel-agua .aw-combobox #aw-muni-options{z-index:9999}
+}
+@media(max-width:700px){
+ #panel-agua .aw-workbench{display:block}
+ #panel-agua .aw-sidebar{z-index:1200}
+ #panel-agua .aw-municipality-group{position:relative}
+ #panel-agua #aw-muni-options{width:100%;max-width:none}
+ #panel-agua .aw-heading{padding:15px}
+ #panel-agua .aw-tabs button{font-size:11px}
+ #panel-agua .aw-map-stage{height:360px}
+ #panel-agua .aw-command-tools .aw-data-btn{display:inline-flex}
+ #panel-agua .aw-library-table{max-height:none}
+}
+
 </style>
 </head>
 <body>
@@ -498,12 +585,14 @@ body[data-view="agua"] .page{max-width:none!important;padding:0 20px!important;w
       <button type="button" data-aw-view="presas" aria-pressed="true"><span class="aw-tab-index">01</span> Presas y embalses</button>
       <button type="button" data-aw-view="acuiferos" aria-pressed="false"><span class="aw-tab-index">02</span> Acuíferos</button>
       <button type="button" data-aw-view="cuencas" aria-pressed="false"><span class="aw-tab-index">03</span> Cuencas y caudales</button>
-      <button type="button" data-aw-view="riego" aria-pressed="false"><span class="aw-tab-index">03</span> Distritos de riego</button>
-      <button type="button" data-aw-view="clima" aria-pressed="false"><span class="aw-tab-index">04</span> Clima y agua</button>
-      <button type="button" data-aw-view="almacenamiento" aria-pressed="false"><span class="aw-tab-index">05</span> Almacenamiento</button>
-      <button type="button" data-aw-view="comparar" aria-pressed="false"><span class="aw-tab-index">06</span> Comparador</button>
-      <button type="button" data-aw-view="calidad" aria-pressed="false"><span class="aw-tab-index">07</span> Calidad</button>
-      <button type="button" data-aw-view="fuentes" aria-pressed="false"><span class="aw-tab-index">08</span> Fuentes</button>
+      <button type="button" data-aw-view="riego" aria-pressed="false"><span class="aw-tab-index">04</span> Distritos de riego</button>
+      <button type="button" data-aw-view="clima" aria-pressed="false"><span class="aw-tab-index">05</span> Clima y agua</button>
+      <button type="button" data-aw-view="almacenamiento" aria-pressed="false"><span class="aw-tab-index">06</span> Almacenamiento</button>
+      <button type="button" data-aw-view="comparar" aria-pressed="false"><span class="aw-tab-index">07</span> Comparador</button>
+      <button type="button" data-aw-view="calidad" aria-pressed="false"><span class="aw-tab-index">08</span> Calidad</button>
+      <button type="button" data-aw-view="tendencias" aria-pressed="false"><span class="aw-tab-index">09</span> Tendencias</button>
+      <button type="button" data-aw-view="biblioteca" aria-pressed="false"><span class="aw-tab-index">10</span> Biblioteca de datos</button>
+      <button type="button" data-aw-view="fuentes" aria-pressed="false"><span class="aw-tab-index">11</span> Fuentes</button>
     </nav>
     <div class="aw-commandline">
       <div class="aw-command-title"><span id="aw-section-tag">EXPLORACIÓN CARTOGRÁFICA</span><h2 id="aw-section-title">Presas y embalses</h2><p id="aw-section-desc">Localización y capacidad nominal de las presas catalogadas.</p></div>
@@ -511,6 +600,7 @@ body[data-view="agua"] .page{max-width:none!important;padding:0 20px!important;w
         <button type="button" class="aw-btn aw-btn-small" data-aw-action="reset" title="Restablecer los filtros"><span aria-hidden="true">↺</span> Restablecer</button>
         <button type="button" class="aw-btn aw-btn-small" data-aw-action="link" title="Copiar un enlace con los filtros actuales">Compartir <span aria-hidden="true">↗</span></button>
         <button type="button" class="aw-btn aw-btn-small" data-aw-action="show-inspector" aria-controls="aw-inspector">Ficha ▤</button>
+        <button type="button" class="aw-btn aw-btn-small aw-data-btn" data-aw-view="biblioteca" aria-label="Abrir catálogo de todas las bases de agua">Todas las bases <span aria-hidden="true">▤</span></button>
         <button type="button" class="aw-btn aw-btn-small aw-mobile-filters" data-aw-action="filters" aria-controls="aw-sidebar" aria-expanded="false">Filtros <span aria-hidden="true">☷</span></button>
       </div>
     </div>
@@ -521,6 +611,18 @@ body[data-view="agua"] .page{max-width:none!important;padding:0 20px!important;w
           <label for="aw-state">Entidad federativa</label>
           <select id="aw-state" aria-label="Seleccionar estado"><option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Chihuahua">Chihuahua</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option></select>
           <small>La cobertura de cada variable depende de la fuente.</small>
+        </div>
+        <div class="aw-filter-group aw-municipality-group" id="aw-muni-group">
+          <label for="aw-muni-input">Municipio <span class="aw-label-helper">buscar y seleccionar</span></label>
+          <div class="aw-combobox" id="aw-muni-combo">
+            <div class="aw-combo-input-wrap">
+              <input type="text" id="aw-muni-input" role="combobox" aria-label="Buscar y seleccionar municipio" aria-autocomplete="list" aria-expanded="false" aria-controls="aw-muni-options" autocomplete="off" placeholder="Todos los municipios">
+              <button class="aw-combo-toggle" type="button" data-aw-action="open-municipios" aria-label="Mostrar municipios" title="Mostrar municipios">▾</button>
+            </div>
+            <div id="aw-muni-options" role="listbox" aria-label="Municipios disponibles" hidden></div>
+          </div>
+          <small id="aw-muni-help">Sólo se filtran presas identificadas en el municipio. Otras series son estatales.</small>
+          <button type="button" class="aw-muni-clear" data-aw-action="clear-municipio" hidden id="aw-muni-clear">× Quitar municipio seleccionado</button>
         </div>
         <div class="aw-filter-group" id="aw-search-group">
           <label for="aw-search">Buscar registro</label>
@@ -541,6 +643,7 @@ body[data-view="agua"] .page{max-width:none!important;padding:0 20px!important;w
       </main>
       <aside class="aw-inspector" id="aw-inspector" aria-label="Ficha de la selección">
         <div class="aw-inspector-head"><div><span>INSPECTOR</span><h3 id="aw-inspector-heading">Detalle del registro</h3></div><button type="button" class="aw-icon-btn" data-aw-action="hide-inspector" title="Ocultar panel de detalle" aria-label="Ocultar inspector">×</button></div>
+        <div class="aw-inspector-nav"><label for="aw-inspector-select">Seleccionar registro</label><select id="aw-inspector-select" aria-label="Ir al expediente de un registro"></select><div class="aw-inspector-steps"><button type="button" data-aw-action="previous-record" title="Registro anterior">← Anterior</button><button type="button" data-aw-action="next-record" title="Registro siguiente">Siguiente →</button></div></div>
         <div id="aw-inspector-content"><div class="aw-empty-inspector">Seleccione un elemento para consultar sus variables y procedencia.</div></div>
       </aside>
     </div>
@@ -690,7 +793,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
 const n=v=>v===null||v===''||v===undefined?null:Number(v);
 const slug=s=>norm(s).toLowerCase().replace(/[^a-z0-9]+/g,'-');
-const names={presas:['CARTOGRAFÍA E INFRAESTRUCTURA','Presas y embalses','Localización y capacidad nominal de las instalaciones catalogadas.'],acuiferos:['AGUA SUBTERRÁNEA','Acuíferos','Recarga, extracción registrada y disponibilidad administrativa por acuífero.'],cuencas:['HIDROLOGÍA SUPERFICIAL','Cuencas y caudales','Cobertura nacional de disponibilidad y límites del inventario regional.'],riego:['OPERACIÓN AGRÍCOLA','Distritos de riego','Agua distribuida y superficie regada por ciclo agrícola, 1997/98–2023/24.'],clima:['SERIES METEOROLÓGICAS','Clima y agua','Precipitación y evapotranspiración de referencia, 2003–2025.'],almacenamiento:['OBSERVACIÓN DE EMBALSES','Almacenamiento','Cortes históricos de embalses, únicamente donde la serie está integrada.'],comparar:['ANÁLISIS TERRITORIAL','Comparar estados','Dos entidades, una variable y un periodo compatible.'],calidad:['SITIOS DE MONITOREO','Calidad del agua','Inventario de sitios, sin inferencias de calidad sanitaria actual.'],fuentes:['TRANSPARENCIA METODOLÓGICA','Fuentes y cobertura','Origen, escalas, fechas, registros faltantes y límites de interpretación.']};
+const names={presas:['CARTOGRAFÍA E INFRAESTRUCTURA','Presas y embalses','Localización y capacidad nominal de las instalaciones catalogadas.'],acuiferos:['AGUA SUBTERRÁNEA','Acuíferos','Recarga, extracción registrada y disponibilidad administrativa por acuífero.'],cuencas:['HIDROLOGÍA SUPERFICIAL','Cuencas y caudales','Cobertura nacional de disponibilidad y límites del inventario regional.'],riego:['OPERACIÓN AGRÍCOLA','Distritos de riego','Agua distribuida y superficie regada por ciclo agrícola, 1997/98–2023/24.'],clima:['SERIES METEOROLÓGICAS','Clima y agua','Precipitación y evapotranspiración de referencia, 2003–2025.'],almacenamiento:['OBSERVACIÓN DE EMBALSES','Almacenamiento','Cortes históricos de embalses, únicamente donde la serie está integrada.'],comparar:['ANÁLISIS TERRITORIAL','Comparar estados','Dos entidades, una variable y un periodo compatible.'],calidad:['SITIOS DE MONITOREO','Calidad del agua','Inventario de sitios, sin inferencias de calidad sanitaria actual.'],biblioteca:['CATÁLOGO DOCUMENTAL','Biblioteca de datos','Todas las fuentes, tablas, fechas y brechas del paquete integrado.'],tendencias:['ANÁLISIS ESTADÍSTICO','Tendencias de distritos','Resultados de tendencias históricas reportados para distritos de riego.'],fuentes:['TRANSPARENCIA METODOLÓGICA','Fuentes y cobertura','Origen, escalas, fechas, registros faltantes y límites de interpretación.']};
 const sources=[
  ['Distritos de riego','1997/98–2023/24','CONAGUA · series distritales compiladas','https://www.gob.mx/conagua'],
  ['Clima y ET₀','2003–2025','NASA POWER / integración GROWA','https://power.larc.nasa.gov/'],
@@ -701,7 +804,7 @@ const sources=[
  ['Cuencas y caudales','757 cuencas nacionales, un corte de 2020','Sin asignación geográfica estatal validada ni series de caudal','https://sih.conagua.gob.mx/hidros.html'],
  ['Calidad del agua','223 sitios de Sinaloa','Fechas de medición sin validar; no establecer tendencias','https://www.gob.mx/conagua']
 ];
-const S={view:'presas',state:'Sinaloa',search:'',min:0,sort:'capacidad',saldo:'todos',metric:'lluvia',from:null,to:null,compare:'Sonora',compareMetric:'riego',storageCode:'',basemap:'calles',selected:'',page:1,limit:12,inspector:true,showTable:true,filterOpen:false,showPoints:true};
+const S={view:'presas',state:'Sinaloa',search:'',municipio:'',municipalOpen:false,municipalQuery:'',municipalCursor:0,min:0,sort:'capacidad',saldo:'todos',metric:'lluvia',from:null,to:null,compare:'Sonora',compareMetric:'riego',storageCode:'',basemap:'calles',selected:'',page:1,limit:12,inspector:true,showTable:true,filterOpen:false,showPoints:true};
 let D=null,map=null,mapTiles=null,tileErrors=0,mapMarks=new Map(),toastTimer=null,initialized=false;
 const belongs=x=>norm(x[0])===norm(S.state);
 const dams=()=>D.presas.filter(belongs);
@@ -709,6 +812,45 @@ const aquifers=()=>D.acuiferos.filter(belongs);
 const irrigation=()=>D.riego.filter(belongs).sort((a,b)=>a[1]-b[1]);
 const climate=()=>D.clima.filter(belongs).sort((a,b)=>a[1]-b[1]);
 const quality=()=>D.calidad.filter(belongs);
+/* Catálogo Sinaloa: INEGI, Clasificación de países, entidades y municipios, edición 2025.
+   Para otros estados sólo se ofrecen municipios presentes en las presas del paquete web. */
+const SINALOA_MUNICIPIOS=[
+ 'Ahome','Angostura','Badiraguato','Concordia','Cosalá','Culiacán','Choix','Elota','Escuinapa','El Fuerte','Guasave','Mazatlán','Mocorito','Rosario','Salvador Alvarado','San Ignacio','Sinaloa','Navolato','Eldorado','Juan José Ríos'
+].sort((a,b)=>a.localeCompare(b,'es'));
+function municipioCatalogo(){
+ if(S.state==='Sinaloa')return SINALOA_MUNICIPIOS;
+ return [...new Set(dams().map(x=>x[3]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+}
+function municipalMatches(){
+ const q=norm(S.municipalQuery.trim());
+ const all=municipioCatalogo();
+ return (q?all.filter(m=>norm(m).includes(q)):all).slice(0,80);
+}
+function renderMunicipios(){
+ const group=$('aw-muni-group'),input=$('aw-muni-input'),list=$('aw-muni-options'),help=$('aw-muni-help'),clear=$('aw-muni-clear');
+ if(!group||!input||!list)return;
+ group.hidden=S.view!=='presas';
+ if(group.hidden){S.municipalOpen=false;list.hidden=true;return}
+ if(document.activeElement!==input)input.value=S.municipalOpen?S.municipalQuery:S.municipio;
+ if(help)help.textContent=S.state==='Sinaloa'?'Catálogo INEGI: 20 municipios. Sólo las presas con municipio identificado se pueden filtrar.':'Municipios registrados en el catálogo de presas (no es el padrón oficial completo).';
+ if(clear)clear.hidden=!S.municipio;
+ const options=municipalMatches();
+ list.hidden=!S.municipalOpen;
+ if(S.municipalCursor>=options.length+1)S.municipalCursor=options.length?1:0;
+ if(!S.municipalOpen)return;
+ list.innerHTML='<div class="aw-combo-top">'+esc(options.length)+' opciones · escribir para filtrar</div>'+
+  '<button type="button" role="option" aria-selected="'+(!S.municipio)+'" class="aw-combo-option '+(S.municipalCursor===0?'aw-combo-active':'')+'" data-aw-muni=""><strong>Todos los municipios</strong><small>Restablecer el filtro territorial</small></button>'+
+  (options.length?options.map((m,i)=>{
+   const count=dams().filter(x=>norm(x[3])===norm(m)).length;
+   return '<button type="button" role="option" aria-selected="'+(S.municipio===m)+'" class="aw-combo-option '+(S.municipalCursor===i+1?'aw-combo-active':'')+'" data-aw-muni="'+esc(m)+'"><strong>'+esc(m)+'</strong><small>'+count+' presas catalogadas'+(count?'':' · sin registros en esta base')+'</small></button>';
+  }).join(''):'<div class="aw-combo-empty">No hay municipios que coincidan. Use otra búsqueda.</div>');
+}
+function chooseMunicipio(value){
+ S.municipio=value;S.municipalOpen=false;S.municipalQuery='';S.municipalCursor=0;S.page=1;S.selected='';
+ const input=$('aw-muni-input');if(input){input.value=value;input.setAttribute('aria-expanded','false')}
+ render();
+}
+
 const listYears=(view)=>view==='riego'?irrigation().map(x=>x[1]):view==='clima'?climate().map(x=>x[1]):[];
 const dataMeta=view=>({presas:['Presa','Municipio','NAMO (hm³)','Clave'],acuiferos:['Acuífero','Clave','Recarga (hm³/año)','VEAS (hm³/año)','Saldo (hm³/año)'],calidad:['Sitio de muestreo','Clave','Registros','pH medio','Fechas verificadas']})[view];
 const rowData=()=>{
@@ -716,6 +858,7 @@ const rowData=()=>{
  if(S.view==='presas')rows=dams().filter(x=>(n(x[6])??0)>=S.min).map(x=>({id:String(x[1]),text:x[2]+' '+x[3]+' '+x[1],cols:[x[2],x[3],fmt(x[6]),x[1]],sort:[x[2],x[3],n(x[6])??0,x[1]],raw:x}));
  if(S.view==='acuiferos')rows=aquifers().filter(x=>S.saldo==='todos'||(S.saldo==='negativo'?x[6]===1:x[6]!==1)).map(x=>({id:String(x[1]),text:x[1]+' '+x[2],cols:[x[2],x[1],fmt(x[3]),fmt(x[4]),fmt(x[5])],sort:[x[2],x[1],n(x[3])??0,n(x[4])??0,n(x[5])??0],raw:x}));
  if(S.view==='calidad')rows=quality().map(x=>({id:String(x[1]),text:x[1]+' '+x[2],cols:[x[2],x[1],fmt(x[3],0),fmt(x[5],2),fmt(x[4],0)],sort:[x[2],x[1],x[3],n(x[5])??0,x[4]],raw:x}));
+ if(S.municipio&&S.view==='presas')rows=rows.filter(x=>norm(x.raw[3])===norm(S.municipio));
  if(S.search.trim())rows=rows.filter(x=>norm(x.text).includes(norm(S.search.trim())));
  const sortCol=S.sort==='nombre'?0:S.sort==='municipio'&&S.view==='presas'?1:S.view==='presas'?2:S.view==='acuiferos'&&S.sort==='saldo'?4:S.view==='acuiferos'&&S.sort==='recarga'?2:S.view==='calidad'&&S.sort==='cantidad'?2:0;
  rows.sort((a,b)=>{const x=a.sort[sortCol],y=b.sort[sortCol];return typeof x==='number'&&typeof y==='number'?(S.view==='acuiferos'&&S.sort==='saldo'?x-y:y-x):String(x).localeCompare(String(y),'es',{numeric:true})});
@@ -742,6 +885,7 @@ function selector(label,id,opts,value,description=''){
 function renderFilters(){
  $('aw-state').value=S.state;$('aw-search').value=S.search;
  const searchGroup=$('aw-search-group');if(searchGroup)searchGroup.hidden=!['presas','acuiferos','calidad'].includes(S.view);
+ renderMunicipios();
  let html='';
  if(S.view==='presas')html=selector('Capacidad NAMO mínima','aw-min',[[0,'Todas'],[100,'100 hm³ o más'],[500,'500 hm³ o más'],[1000,'1,000 hm³ o más']],S.min,'Capacidad nominal; no es el volumen almacenado.')+
  selector('Ordenar por','aw-sort',[['capacidad','Mayor capacidad'],['nombre','Nombre A–Z'],['municipio','Municipio A–Z']],S.sort);
@@ -757,9 +901,9 @@ function renderFilters(){
   html=selector('Clave de presa','aw-storage',codes.map(x=>[x,x]),S.storageCode,'Serie mensual disponible para este identificador.');
  }
  $('aw-context-filters').innerHTML=html;
- const controlRows=['presas','acuiferos','calidad'].includes(S.view)?rowData():S.view==='riego'?periodFilter(irrigation()):S.view==='clima'?periodFilter(climate()):S.view==='comparar'?D.estados.length:S.view==='almacenamiento'?S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS'):S.state==='Jalisco'?D.jalisco.filter(x=>x[0]===S.storageCode):[]:D.cobertura.filter(belongs);
+ const controlRows=['presas','acuiferos','calidad'].includes(S.view)?rowData():S.view==='riego'?periodFilter(irrigation()):S.view==='clima'?periodFilter(climate()):S.view==='comparar'?D.estados.length:S.view==='tendencias'?D.tendencias.filter(x=>norm(x[0])===norm(S.state)):S.view==='biblioteca'?D.cobertura.filter(belongs):S.view==='almacenamiento'?S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS'):S.state==='Jalisco'?D.jalisco.filter(x=>x[0]===S.storageCode):[]:D.cobertura.filter(belongs);
  $('aw-visible-count').textContent=fmt(Array.isArray(controlRows)?controlRows.length:controlRows,0);
- $('aw-filter-count').textContent=(S.search?1:0)+(S.min>0?1:0)+(S.saldo!=='todos'?1:0)+' filtros manuales';
+ $('aw-filter-count').textContent=(S.search?1:0)+(S.municipio&&S.view==='presas'?1:0)+(S.min>0?1:0)+(S.saldo!=='todos'?1:0)+' filtros manuales';
 }
 function tableMarkup(head,rows,{view=S.view,pageable=true,selectable=false}={}){
  const total=rows.length,size=S.limit,pages=Math.max(1,Math.ceil(total/size));S.page=Math.min(Math.max(1,S.page),pages);
@@ -802,10 +946,13 @@ function timePane(title,description,serie,unit,raw,heads,mapper,opt={}){
 }
 function renderPresas(){
  const rows=rowData(),cap=rows.reduce((s,x)=>s+(n(x.raw[6])||0),0);
+ const munText=S.municipio?'Municipio: '+S.municipio+' · ':'';
  $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">VISOR GEOESPACIAL · '+esc(S.state.toUpperCase())+'</span><h3>Localización de infraestructura</h3><p>Inventario filtrado · Las burbujas reflejan capacidad nominal NAMO</p></div><button type="button" class="aw-mini-button" data-aw-action="geojson">↓ GeoJSON</button></div>'+
+ (S.municipio&&!rows.length?warning('<strong>Sin registros georreferenciados para '+esc(S.municipio)+'.</strong> Este resultado sólo significa que el catálogo web no identifica presas en este municipio. No demuestra ausencia de infraestructura, agua disponible ni instalaciones aguas arriba.'):'')+
  warning('<strong>Qué representa el mapa:</strong> ubicación de instalaciones y capacidad de diseño en hm³. No representa polígonos de embalse, disponibilidad diaria ni porcentaje de llenado.')+
- '<section class="aw-map-shell" id="aw-map-shell"><div class="aw-map-toolbar"><span><strong>'+fmt(rows.length,0)+'</strong> presas visibles · NAMO agregado '+fmt(cap,1)+' hm³</span><div class="aw-toolbar-controls"><label for="aw-basemap">Mapa base</label><select id="aw-basemap"><option value="calles" '+(S.basemap==='calles'?'selected':'')+'>Calles (OSM)</option><option value="topo" '+(S.basemap==='topo'?'selected':'')+'>Topográfico (Esri)</option><option value="sat" '+(S.basemap==='sat'?'selected':'')+'>Imágenes (Esri)</option></select><details class="aw-layer-dropdown"><summary>Capas ▾</summary><label><input type="checkbox" id="aw-layer-points" '+(S.showPoints?"checked":"")+'> Puntos de presas</label><small>Sin capas de cuencas inventadas</small></details><button class="aw-mini-button" data-aw-action="fit">Enfocar</button><button class="aw-mini-button" data-aw-action="fullscreen">Pantalla completa ⛶</button></div></div>'+
+ '<section class="aw-map-shell" id="aw-map-shell"><div class="aw-map-toolbar"><span><strong>'+fmt(rows.length,0)+'</strong> presas visibles · '+esc(munText)+'NAMO agregado '+fmt(cap,1)+' hm³</span><div class="aw-toolbar-controls"><label for="aw-basemap">Mapa base</label><select id="aw-basemap"><option value="calles" '+(S.basemap==='calles'?'selected':'')+'>Calles (OSM)</option><option value="topo" '+(S.basemap==='topo'?'selected':'')+'>Topográfico (Esri)</option><option value="sat" '+(S.basemap==='sat'?'selected':'')+'>Imágenes (Esri)</option></select><details class="aw-layer-dropdown"><summary>Capas ▾</summary><label><input type="checkbox" id="aw-layer-points" '+(S.showPoints?"checked":"")+'> Puntos de presas</label><small>Sin capas de cuencas inventadas</small></details><button class="aw-mini-button" data-aw-action="fit">Enfocar</button><button class="aw-mini-button" data-aw-action="fullscreen">Pantalla completa ⛶</button></div></div>'+
  '<div class="aw-map-stage"><div id="aw-map" aria-label="Mapa interactivo con puntos de presas"></div><div class="aw-map-overlay"><strong>'+fmt(rows.length,0)+'</strong><small><i></i>UBICACIONES DEL CATÁLOGO</small></div></div><div class="aw-map-legend"><span><i class="aw-legend-dot"></i> Capacidad NAMO (símbolo proporcional)</span><b>Coordenadas aproximadas de catálogo · corte histórico</b></div></section>'+
+ '<div class="aw-surface-index"><strong>Otras bases consultables:</strong><button type="button" data-aw-view="almacenamiento">Almacenamiento</button><button type="button" data-aw-view="acuiferos">Acuíferos</button><button type="button" data-aw-view="riego">Riego 1997–2023</button><button type="button" data-aw-view="tendencias">Tendencias distritales</button><button type="button" data-aw-view="biblioteca">Ver todos los datos ↗</button></div>'+
  drawer('Inventario de presas','Seleccione una fila para abrir su ficha',dataMeta('presas'),rows,{selectable:true})+
  sourceLine('75 presas en la edición V9, distribuidas en cinco entidades; cobertura parcial.');
  if(!S.selected||!rows.some(x=>x.id===S.selected))S.selected=rows[0]?.id||'';
@@ -893,6 +1040,67 @@ function renderCuencas(){
  '<div class="aw-dataviz"><div class="aw-chart-title"><div><span class="aw-overline">INVENTARIO DE ESTACIONES</span><h3>Cobertura disponible</h3></div></div><div class="aw-breakdown"><div><span>Estaciones catalogadas en '+esc(S.state)+'</span><b>'+fmt(hyd?.[2]??0,0)+'</b></div><div><span>Series históricas de caudal integradas</span><b>0</b></div></div>'+
  '<div class="aw-link-row"><a target="_blank" rel="noopener noreferrer" href="https://sih.conagua.gob.mx/hidros.html">Consultar estaciones hidrométricas / SIH ↗</a></div></div>';
 }
+
+function sourceMap(key){
+ if(key.startsWith('distritos_riego'))return ['riego',D.riego.filter(x=>norm(x[0])===norm(S.state)).length,'Serie agregada por estado; desglose distrital no incluido'];
+ if(key.startsWith('clima_municipio'))return ['clima',D.clima.filter(x=>norm(x[0])===norm(S.state)).length,'Sólo agregados municipales promediados por entidad; sin filas por municipio'];
+ if(key==='acuiferos_corte_unico')return ['acuiferos',aquifers().length,'Inventario con valores, si están cargados'];
+ if(key==='presas_capacidad_corte_unico')return ['presas',dams().length,'Puntos y capacidades, si están cargados'];
+ if(key==='calidad_agua_fechas_no_verificadas')return ['calidad',quality().length,'Resumen por sitio; mediciones individuales y fechas ausentes'];
+ if(key==='presas_individuales_2018_2026')return ['almacenamiento',D.sinaloa.length,'Registros discontinuos por fecha'];
+ if(key==='presas_agregado_cuatro_2026')return ['almacenamiento',D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').length,'Cortes de un sistema parcial de cuatro presas'];
+ if(key==='presas_diarias_1996_2024')return ['almacenamiento',D.jalisco.length,'Cortes mensuales de tres presas; base diaria no empacada'];
+ if(key==='estaciones_hidrometricas_catalogo')return ['cuencas',0,'Número disponible sólo como metadato; sin fichas georreferenciadas'];
+ if(key.startsWith('cuencas_')||key.startsWith('caudales_'))return ['cuencas',0,'No hay filas regionalizadas y verificadas'];
+ return ['fuentes',0,'Metadato de integración'];
+}
+function renderTendencias(){
+ const t=D.tendencias.filter(x=>norm(x[0])===norm(S.state));
+ const significant=t.filter(x=>x[6]!=='NO_SIGNIFICATIVA');
+ const increasing=significant.filter(x=>String(x[6]).includes('CRECIENTE_')&&!String(x[6]).includes('DECRECIENTE')).length;
+ const decreasing=significant.filter(x=>String(x[6]).includes('DECRECIENTE')).length;
+ const data=t.map(x=>[x[1],x[2],fmt(x[3],0),fmt(x[4],3),fmt(x[5],6),x[6]==='NO_SIGNIFICATIVA'?'No significativa':x[6].includes('DECRECIENTE')?'Decreciente · FDR 5 %':'Creciente · FDR 5 %']);
+ $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">BASE ESTADÍSTICA / 32 REGISTROS EN CINCO ESTADOS</span><h3>Tendencias de distritos de riego · '+esc(S.state)+'</h3><p>Resultados precalculados en la base, no pruebas recalculadas por el navegador.</p></div></div>'+
+ warning('<strong>Lectura:</strong> las etiquetas de significancia provienen del conjunto integrado. Se muestran pendiente, valor p ajustado y número de observaciones por distrito. Antes de defender inferencia estadística deben auditarse la estimación original, las unidades de la pendiente y los supuestos del modelo.')+
+ '<div class="aw-statgrid">'+renderStat('Distritos con resultado',fmt(t.length,0),'Registros analíticos del estado')+
+ renderStat('Tendencia creciente · FDR 5 %',fmt(increasing,0),'Etiquetas del paquete integrado')+
+ renderStat('Tendencia decreciente · FDR 5 %',fmt(decreasing,0),'No implica causalidad')+'</div>'+
+ drawer('Resultados de tendencias por distrito','Todos los indicadores de la tabla analítica V9',['Clave','Distrito de riego','Observaciones','Pendiente reportada*','p ajustado','Clasificación'],data,{pageable:true})+
+ '<section class="aw-dataviz aw-interpretation"><span class="aw-overline">INTERPRETACIÓN TÉCNICA</span><h3>Qué puede concluirse y qué no</h3><p>La significancia FDR se refiere al procedimiento de comparaciones múltiples declarado en el conjunto original. Una pendiente significativa describe una asociación temporal estimada, pero no explica sus causas. Las unidades de la pendiente deben confirmarse antes de utilizar sus magnitudes en un reporte.</p><p>*Pendiente reportada sin unidad validada en el diccionario de datos de esta versión. Conserve las claves DR para rastrear cada observación.</p></section>'+
+ sourceLine('32 resultados de tendencias publicados en V9; cálculo no reestimado en este visor.');
+}
+function renderBiblioteca(){
+ const cover=D.cobertura.filter(belongs);
+ const groups=[
+  ['Presas georreferenciadas','presas',dams().length,'Puntos, clave, municipio, coordenadas y capacidad NAMO','Inventario / fecha normativa sin verificar'],
+  ['Acuíferos','acuiferos',aquifers().length,'Recarga, VEAS, saldo administrativo','Inventario / corte único'],
+  ['Riego agregado','riego',irrigation().length,'Año de ciclo, volumen, superficie y eficiencia descriptiva','1997/98–2023/24'],
+  ['Clima estatal agregado','clima',climate().length,'Precipitación, ET₀ y diferencia P−ET₀','2003–2025'],
+  ['Análisis de tendencias distritales','tendencias',D.tendencias.filter(x=>norm(x[0])===norm(S.state)).length,'Distrito, observaciones, pendiente, p ajustado y etiqueta FDR','Resultados analíticos compilados'],
+  ['Registros individuales de presas','almacenamiento',S.state==='Sinaloa'?D.sinaloa.length:0,'Fechas individuales discontinuas','Sólo Sinaloa'],
+  ['Sistema de cuatro presas','almacenamiento',S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').length:0,'Volumen agregado de cuatro presas','Sólo Sinaloa · 2026'],
+  ['Almacenamiento mensual Jalisco','almacenamiento',S.state==='Jalisco'?D.jalisco.length:0,'Almacenamiento y % NAMO por mes','Sólo Jalisco · 1996–2024'],
+  ['Sitios de calidad del agua','calidad',quality().length,'Nombre, clave, número de mediciones y pH medio','Sólo Sinaloa / sin fechas verificadas'],
+  ['Metadatos de cobertura','fuentes',cover.length,'Inventario de fuentes, unidades, número de registros e intervalo','Catálogo documental por estado']
+ ];
+ const rowGrid=groups.map((g,i)=>'<tr><td class="aw-text-cell"><strong>'+String(i+1).padStart(2,'0')+'</strong> '+esc(g[0])+'</td><td>'+fmt(g[2],0)+'</td><td>'+esc(g[4])+'</td><td class="aw-text-cell">'+esc(g[3])+'</td><td><button class="aw-mini-button" type="button" data-aw-view="'+g[1]+'">'+(g[2]>0?'Explorar ↗':'Ver alcance ↗')+'</button></td></tr>').join('');
+ const materialized=groups.reduce((s,g)=>s+g[2],0),metadata=D.cobertura.filter(belongs);
+ const discrep=metadata.filter(x=>{const link=sourceMap(x[1]);return n(x[2])>0&&link[1]===0}).length;
+ const coverageRows=metadata.map(x=>{const [view,real,note]=sourceMap(x[1]);
+   const meta=n(x[2])??0;
+   return '<tr><td class="aw-text-cell">'+esc(x[1].replaceAll('_',' '))+'</td><td>'+fmt(meta,0)+'</td><td>'+fmt(real,0)+'</td><td class="aw-text-cell">'+esc(note)+'</td><td><button class="aw-mini-button" type="button" data-aw-view="'+view+'">Abrir ↗</button></td></tr>';
+ }).join('');
+ const totalSummary='En esta edición se publican 10 colecciones diferentes con diferentes grados de integración. El número de filas de las series estatales NO equivale al número de registros municipales o distritales descrito por los metadatos. Los números de cobertura y de filas cargadas se muestran separados.';
+ $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">EXPLORADOR DEL PATRIMONIO DE DATOS · '+esc(S.state.toUpperCase())+'</span><h3>Biblioteca hídrica disponible</h3><p>Conjuntos consultables, variables, historia y brechas de integración.</p></div><button class="aw-mini-button" type="button" data-aw-action="export">↓ Exportar metadatos</button></div>'+
+ warning('<strong>Inventario verificable:</strong> '+esc(totalSummary))+
+ '<div class="aw-statgrid">'+renderStat('Colecciones de datos','10','Bases y derivados diferenciados')+
+ renderStat('Filas de tablas materializadas',fmt(materialized,0),'Suma de las colecciones visibles; no suma hidrogeológica')+
+ renderStat('Fuentes con brechas',fmt(discrep,0),'Metadatos sin filas materializadas en este estado')+'</div>'+
+ '<section class="aw-bottom-drawer"><div class="aw-drawer-title"><strong>Conjuntos que puede consultar</strong><span>Filas publicadas para '+esc(S.state)+'</span></div><div class="aw-data-table-wrap aw-library-table"><table class="aw-data-table"><thead><tr><th>Conjunto</th><th>Filas web</th><th>Periodo / alcance</th><th>Variables observables</th><th>Acción</th></tr></thead><tbody>'+rowGrid+'</tbody></table></div></section>'+
+ '<section class="aw-bottom-drawer"><div class="aw-drawer-title"><strong>Auditoría de cobertura: publicado vs. declarado</strong><span>'+metadata.length+' renglones de metadatos para '+esc(S.state)+'</span></div><div class="aw-data-table-wrap aw-library-table"><table class="aw-data-table"><thead><tr><th>Tabla en metadatos</th><th>Registros declarados</th><th>Filas accesibles</th><th>Diferencia / limitación</th><th>Consulta</th></tr></thead><tbody>'+coverageRows+'</tbody></table></div></section>'+
+ '<section class="aw-dataviz aw-interpretation"><span class="aw-overline">OTRAS CAPAS DEL PROYECTO</span><h3>Componentes registrados, todavía no navegables</h3><p>Existen 757 referencias nacionales de cuencas y 349 estaciones hidrométricas catalogadas, pero el paquete web no incluye sus polígonos o series históricas de caudal regionalizadas. No sería correcto dibujarlas o construir indicadores municipales con esos totales.</p><p>El proyecto describe además coberturas municipales históricas de clima y datos por distrito de riego que <strong>no se incluyen con ese nivel de desagregación en el archivo web actual</strong>. Aquí se muestran las 23 filas anuales estatales de clima y los 27 agregados de riego realmente disponibles por entidad.</p><div class="aw-link-row"><button type="button" data-aw-view="fuentes">Documentación y fuentes ↗</button><a href="https://app.conagua.gob.mx/sistemasdeagua/" target="_blank" rel="noopener noreferrer">Portal oficial CONAGUA ↗</a></div></section>';
+}
+
 function renderSources(){
  const cover=D.cobertura.filter(belongs);
  $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">TRAZABILIDAD DE LOS CONJUNTOS</span><h3>Catálogo de fuentes</h3></div></div>'+
@@ -903,6 +1111,15 @@ function renderSources(){
 function inspector(){
  $('aw-inspector-heading').textContent=S.view==='presas'?'Expediente de presa':S.view==='acuiferos'?'Ficha de acuífero':S.view==='calidad'?'Ficha del sitio':S.view==='riego'?'Lectura del indicador':S.view==='clima'?'Lectura del indicador':'Notas de interpretación';
  const rows=['presas','acuiferos','calidad'].includes(S.view)?rowData():[],item=rows.find(x=>x.id===S.selected);
+ if(rows.length&&!rows.some(x=>x.id===S.selected))S.selected=rows[0].id;
+ const selector=$('aw-inspector-select');
+ const menu=selector?.closest('.aw-inspector-nav');
+ if(menu)menu.hidden=!['presas','acuiferos','calidad'].includes(S.view);
+ if(selector&&menu&&!menu.hidden){
+  selector.innerHTML=rows.length?rows.map(x=>'<option value="'+esc(x.id)+'" '+(x.id===S.selected?'selected':'')+'>'+esc(x.cols[0])+'</option>').join(''):'<option value="">Sin registros para el filtro</option>';
+  selector.disabled=!rows.length;
+ }
+
  const facts=(arr)=>'<table class="aw-facts"><tbody>'+arr.map(x=>'<tr><th>'+esc(x[0])+'</th><td>'+esc(x[1])+'</td></tr>').join('')+'</tbody></table>';
  let html='';
  if(S.view==='presas'&&item){const x=item.raw;
@@ -967,6 +1184,7 @@ function highlightMap(){
  if(!map)return;for(const [id,mark]of mapMarks){const r=dams().find(x=>String(x[1])===id),size=Math.min(15,5+Math.sqrt(n(r?.[6])||0)/4);mark.setStyle(id===S.selected?{radius:size+3,color:'#fff',weight:3,fillColor:'#153c53',fillOpacity:1}:{radius:size,color:'#fff',weight:1.5,fillColor:'#1884a3',fillOpacity:.92})}
 }
 function pick(id,move=false){
+ if(!rowData().some(x=>x.id===String(id)))return;
  S.selected=String(id);inspector();root.querySelectorAll('[data-aw-pick]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.awPick===id)));
  highlightMap();if(window.innerWidth<=1000){S.inspector=true;root.classList.remove('aw-inspector-hidden');root.classList.add('aw-mobile-inspector')}const marker=mapMarks.get(S.selected);if(marker&&map&&move){map.panTo(marker.getLatLng());marker.openTooltip()}
 }
@@ -983,10 +1201,12 @@ function render(){
  if(S.view==='comparar')renderCompare();
  if(S.view==='calidad')renderQuality();
  if(S.view==='fuentes')renderSources();
+ if(S.view==='tendencias')renderTendencias();
+ if(S.view==='biblioteca')renderBiblioteca();
  inspector();updateURL();
 }
 function serialize(u){
- const params={wa:S.view,ws:S.state,wq:S.search,wb:S.basemap,wmin:String(S.min),wsort:S.sort,wsaldo:S.saldo,wfrom:S.from==null?'':String(S.from),wto:S.to==null?'':String(S.to),wm:S.metric,wcomp:S.compare,wcm:S.compareMetric,wsc:S.storageCode};
+ const params={wa:S.view,ws:S.state,wq:S.search,wmun:S.municipio,wb:S.basemap,wmin:String(S.min),wsort:S.sort,wsaldo:S.saldo,wfrom:S.from==null?'':String(S.from),wto:S.to==null?'':String(S.to),wm:S.metric,wcomp:S.compare,wcm:S.compareMetric,wsc:S.storageCode};
  for(const [k,v]of Object.entries(params)){if(v===''||v===null)u.searchParams.delete(k);else u.searchParams.set(k,v)}
 }
 function updateURL(){if(root.hidden&&location.hash!=='#agua')return;const u=new URL(location.href);serialize(u);u.hash='agua';history.replaceState(null,'',u.pathname+u.search+u.hash)}
@@ -1001,6 +1221,8 @@ function exportCSV(){
  if(S.view==='clima'){hdr=['estado','anio','precipitacion_mm','et0_mm','diferencia_p_et0_mm','razon'];rows=periodFilter(climate())}
  if(S.view==='almacenamiento'){if(S.state==='Sinaloa'){hdr=['sistema','fecha','num_presas','volumen_hm3','porcentaje_namo'];rows=D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS')}else if(S.state==='Jalisco'){hdr=['clave','mes','volumen_hm3','pct_namo','dias_observados','dias_mes'];rows=D.jalisco.filter(x=>x[0]===S.storageCode)}}
  if(S.view==='comparar'){hdr=['periodo',S.state,S.compare,'unidad'];const a=new Map(compareSeries(S.state,S.compareMetric)),b=new Map(compareSeries(S.compare,S.compareMetric));const ys=[...new Set([...a.keys(),...b.keys()])].sort();rows=ys.map(y=>[y,a.get(y)??'',b.get(y)??'',S.compareMetric==='riego'?'hm3':'mm'])}
+ if(S.view==='tendencias'){hdr=['estado','clave_distrito','distrito','observaciones','pendiente_reportada','p_ajustado','clasificacion_fdr'];rows=D.tendencias.filter(x=>norm(x[0])===norm(S.state))}
+ if(S.view==='biblioteca'){hdr=['entidad','componente','registros_declarados','inicio','fin','temporalidad'];rows=D.cobertura.filter(belongs)}
  if(S.view==='cuencas'||S.view==='fuentes'){hdr=['entidad','componente','registros','inicio','fin','temporalidad'];rows=D.cobertura.filter(belongs)}
  if(!rows.length){notice('Esta vista no contiene registros exportables para la selección.');return}
  const csv='\ufeff'+[hdr,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');
@@ -1011,14 +1233,21 @@ function exportGeo(){
  const collection={type:'FeatureCollection',features:rowData().map(r=>{const x=r.raw;return {type:'Feature',geometry:{type:'Point',coordinates:[x[5],x[4]]},properties:{estado:x[0],clave:x[1],presa:x[2],municipio:x[3],capacidad_namo_hm3:x[6],nota:'Capacidad nominal; no lectura en tiempo real'}}})};
  download('growa-presas-'+slug(S.state)+'.geojson',JSON.stringify(collection,null,2),'application/geo+json');
 }
-function resetFilters(){S.search='';S.min=0;S.sort=S.view==='presas'?'capacidad':S.view==='acuiferos'?'saldo':'nombre';S.saldo='todos';S.from=null;S.to=null;S.page=1;S.selected='';render();notice('Filtros restablecidos.')}
-function changeView(view){
+function resetFilters(){S.search='';S.municipio='';S.municipalOpen=false;S.min=0;S.sort=S.view==='presas'?'capacidad':S.view==='acuiferos'?'saldo':'nombre';S.saldo='todos';S.from=null;S.to=null;S.page=1;S.selected='';render();notice('Filtros restablecidos.')}
+function changeView(view){S.municipalOpen=false;
  if(!names[view])return;S.view=view;S.search='';S.min=0;S.saldo='todos';S.from=null;S.to=null;S.page=1;S.selected='';S.sort=view==='presas'?'capacidad':view==='acuiferos'?'saldo':'nombre';S.filterOpen=false;render();
 }
-function changeState(state){if(!D.estados.includes(state))return;S.state=state;S.page=1;S.selected='';S.search='';S.from=null;S.to=null;S.storageCode='';if(S.compare===S.state)S.compare=D.estados.find(x=>x!==S.state)||S.state;render()}
+function changeState(state){if(!D.estados.includes(state))return;S.state=state;S.municipio='';S.municipalOpen=false;S.municipalQuery='';S.page=1;S.selected='';S.search='';S.from=null;S.to=null;S.storageCode='';if(S.compare===S.state)S.compare=D.estados.find(x=>x!==S.state)||S.state;render()}
 function share(){const u=new URL(location.href);serialize(u);u.hash='agua';const link=u.toString();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>notice('Enlace con la consulta copiado.')).catch(()=>fallbackCopy(link));else fallbackCopy(link)}
 function fallbackCopy(text){const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.left='-100vw';document.body.append(field);field.select();try{document.execCommand('copy');notice('Enlace copiado.')}catch(e){notice('Copie el enlace desde la barra del navegador.')}field.remove()}
 function action(name){
+ if(name==='next-record'||name==='previous-record'){
+  const records=rowData();if(!records.length)return;
+  const at=records.findIndex(x=>x.id===S.selected);const next=(at+(name==='next-record'?1:-1)+records.length)%records.length;
+  pick(records[next].id,true);return
+ }
+ if(name==='open-municipios'){S.municipalOpen=!S.municipalOpen;S.municipalQuery='';S.municipalCursor=0;const input=$('aw-muni-input');if(input){input.value='';input.setAttribute('aria-expanded',String(S.municipalOpen));input.focus()}renderMunicipios();return}
+ if(name==='clear-municipio'){chooseMunicipio('');return}
  if(name==='help'){$('aw-guide').showModal();return}
  if(name==='close-guide'){$('aw-guide').close();return}
  if(name==='export'){exportCSV();return}
@@ -1035,15 +1264,27 @@ function action(name){
  if(name==='copy-coords'){const r=dams().find(x=>String(x[1])===S.selected);if(r){const s=r[4]+', '+r[5];if(navigator.clipboard?.writeText)navigator.clipboard.writeText(s).then(()=>notice('Coordenadas copiadas.'));else fallbackCopy(s)}}
 }
 root.addEventListener('click',e=>{
+ if(S.municipalOpen&&!e.target.closest('#aw-muni-combo')){S.municipalOpen=false;renderMunicipios()}
+ const muni=e.target.closest('[data-aw-muni]');if(muni){chooseMunicipio(muni.dataset.awMuni);return}
  const nav=e.target.closest('[data-aw-view]');if(nav){changeView(nav.dataset.awView);return}
  const act=e.target.closest('[data-aw-action]');if(act){action(act.dataset.awAction);return}
  const pg=e.target.closest('[data-aw-page]');if(pg){S.page+=Number(pg.dataset.awPage);render();return}
  const pk=e.target.closest('[data-aw-pick]');if(pk){pick(pk.dataset.awPick,true);return}
 });
-root.addEventListener('keydown',e=>{if(e.target.matches('tr[data-aw-pick]')&&['Enter',' '].includes(e.key)){e.preventDefault();pick(e.target.dataset.awPick,true)}if(e.key==='Escape'&&S.filterOpen){S.filterOpen=false;root.classList.remove('aw-filters-open')}});
+root.addEventListener('keydown',e=>{
+ if(e.target.id==='aw-muni-input'){
+  const opts=municipalMatches();
+  if(e.key==='ArrowDown'){e.preventDefault();S.municipalOpen=true;S.municipalCursor=Math.min(opts.length,S.municipalCursor+1);renderMunicipios();return}
+  if(e.key==='ArrowUp'){e.preventDefault();S.municipalOpen=true;S.municipalCursor=Math.max(0,S.municipalCursor-1);renderMunicipios();return}
+  if(e.key==='Enter'){e.preventDefault();if(!S.municipalOpen){S.municipalOpen=true;renderMunicipios();return}
+   const selected=S.municipalCursor===0?'':opts[S.municipalCursor-1];if(selected!==undefined)chooseMunicipio(selected);return}
+  if(e.key==='Escape'){S.municipalOpen=false;e.target.value=S.municipio;renderMunicipios();return}
+ }
+ if(e.target.matches('tr[data-aw-pick]')&&['Enter',' '].includes(e.key)){e.preventDefault();pick(e.target.dataset.awPick,true)}if(e.key==='Escape'&&S.filterOpen){S.filterOpen=false;root.classList.remove('aw-filters-open')}});
 root.addEventListener('change',e=>{
  const id=e.target.id,v=e.target.value;
  if(id==='aw-state'){changeState(v);return}
+ if(id==='aw-inspector-select'){pick(v,true);return}
  if(id==='aw-min'){S.min=Number(v)||0;S.page=1;render();return}
  if(id==='aw-sort'){S.sort=v;S.page=1;render();return}
  if(id==='aw-saldo'){S.saldo=v;S.page=1;render();return}
@@ -1055,7 +1296,12 @@ root.addEventListener('change',e=>{
  if(id==='aw-layer-points'){S.showPoints=e.target.checked;if(map){for(const marker of mapMarks.values()){if(S.showPoints)marker.addTo(map);else map.removeLayer(marker)}}else if(S.view==='presas')mountMap(rowData());return}
  if(id==='aw-basemap'){S.basemap=v;const rows=rowData();mountMap(rows);updateURL();return}
 });
-root.addEventListener('input',e=>{if(e.target.id==='aw-search'){S.search=e.target.value;S.page=1;clearMap();setStatus();const box=$('aw-visible-count');if(box)box.textContent=fmt(rowData().length,0);if(S.view==='presas')renderPresas();else if(S.view==='acuiferos')renderAcuiferos();else if(S.view==='calidad')renderQuality();inspector()}});
+root.addEventListener('input',e=>{
+ if(e.target.id==='aw-muni-input'){
+  S.municipalOpen=true;S.municipalQuery=e.target.value;S.municipalCursor=municipalMatches().length&&e.target.value.trim()?1:0;e.target.setAttribute('aria-expanded','true');
+  renderMunicipios();return
+ }
+ if(e.target.id==='aw-search'){S.search=e.target.value;S.page=1;clearMap();setStatus();const box=$('aw-visible-count');if(box)box.textContent=fmt(rowData().length,0);if(S.view==='presas')renderPresas();else if(S.view==='acuiferos')renderAcuiferos();else if(S.view==='calidad')renderQuality();inspector()}});
 document.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){e.preventDefault();$('aw-search')?.focus()}});
 const observer=new MutationObserver(()=>{if(!root.hidden&&D&&S.view==='presas'&&!map){const node=$('aw-map');if(node&&!node.querySelector('svg.aw-vector'))mountMap(rowData())}});
 observer.observe(root,{attributes:true,attributeFilter:['hidden']});
@@ -1063,6 +1309,7 @@ function restore(){
  const q=new URL(location.href).searchParams,v=q.get('wa'),st=q.get('ws'),base=q.get('wb');
  if(names[v])S.view=v;if(D.estados.includes(st))S.state=st;if(base&&tiles[base])S.basemap=base;
  S.search=String(q.get('wq')||'').slice(0,90);
+ const m=String(q.get('wmun')||'');if(municipioCatalogo().includes(m))S.municipio=m;
  const min=Number(q.get('wmin'));if([0,100,500,1000].includes(min))S.min=min;
  const sort=q.get('wsort');if(['capacidad','nombre','municipio','saldo','recarga','cantidad'].includes(sort))S.sort=sort;
  const saldo=q.get('wsaldo');if(['todos','negativo','no-negativo'].includes(saldo))S.saldo=saldo;
