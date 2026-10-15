@@ -11,7 +11,7 @@
  const stateName=s=>{const v=normalize(s);if(v.includes('SINALOA'))return'Sinaloa';if(v.includes('SONORA'))return'Sonora';if(v.includes('CHIHUAHUA'))return'Chihuahua';if(v.includes('JALISCO'))return'Jalisco';if(v.includes('MICHOAC'))return'Michoacán';return s};
  const COLORS=['#197b88','#bc7f44','#577caa','#6a9a70','#8264a7'];
  const period='Corte de integración: octubre de 2026';
- let D,st='Sinaloa',view='resumen',metric='riego',dam='',query='',map=null;
+ let D,st='Sinaloa',view='presas',metric='riego',dam='',query='',map=null,baseLayer=null,baseStyle='claro';
  let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023,aqFilter='todos';
  let selectedDam='',minCapacity=0;
  const damMarkers=new Map();
@@ -99,7 +99,8 @@
 
   return '<div class="wa-splithead"><div><div class="wa-eyebrow">GEOGRAFÍA E INFRAESTRUCTURA</div><h2>Explorador de presas.</h2><p>Puntos de ubicación, capacidad de diseño y almacenamiento histórico sólo donde hay mediciones.</p></div><span class="wa-provenance-chip">INVENTARIO · NO TIEMPO REAL</span></div>'+
     bar+'<div class="wa-map-and-list">'+
-    section('MAPA DE INFRAESTRUCTURA','Puntos georreferenciados', '<div id="wa-map" class="wa-map" role="region" aria-label="Mapa de presas, seleccionar marcadores"></div>'+
+    section('MAPA DE INFRAESTRUCTURA','Puntos georreferenciados', '<div class="wa-map-utility"><label for="wa-basemap">MAPA BASE <select id="wa-basemap" aria-label="Seleccionar mapa base"><option value="claro" '+(baseStyle==='claro'?'selected':'')+'>Cartográfico claro</option><option value="calles" '+(baseStyle==='calles'?'selected':'')+'>Calles</option><option value="relieve" '+(baseStyle==='relieve'?'selected':'')+'>Relieve</option></select></label><button type="button" id="wa-zoom-all">Ajustar a presas visibles ↗</button></div>'+
+       '<div id="wa-map" class="wa-map" role="region" aria-label="Mapa de presas, seleccionar marcadores"></div>'+
        '<div class="wa-focus-legend wa-small-note"><span><i class="wa-dot"></i> Capacidad NAMO (tamaño proporcional)</span><span><i class="wa-dot grey"></i> No implica volumen actual</span></div>')+
     section('EXPLORACIÓN VINCULADA · '+st,'Catálogo y ficha individual','<div class="wa-scroll">'+list+'</div><div id="wa-dam-detail">'+damDetails(p.find(x=>x[1]===selectedDam))+'</div>')+'</div>'+
     info('Las ubicaciones son puntos de un catálogo secundario con 75 presas en cinco estados. No se representa el área de embalse ni la disponibilidad actual.')+
@@ -233,6 +234,10 @@
   syncHeader();
   byId('wa-state').value=st;
   const label=byId('wa-scope-label');if(label)label.innerHTML=safe(st)+' <small>· '+getDams().length+' presas · '+getAquifers().length+' acuíferos</small>';
+   const names={presas:'MAPA DE PRESAS',resumen:'PANORAMA EJECUTIVO',acuiferos:'AGUA SUBTERRÁNEA',cuencas:'CUENCAS Y CAUDALES',series:'SERIES HISTÓRICAS',comparar:'COMPARAR ESTADOS',calidad:'CALIDAD DEL AGUA',fuentes:'FUENTES Y MÉTODO'};
+   const descriptions={presas:'Infraestructura georreferenciada, inventarios de capacidad nominal y fichas técnicas.',resumen:'Síntesis territorial, indicadores y cobertura de fuentes.',acuiferos:'Recarga y disponibilidad administrativa del recurso subterráneo.',cuencas:'Disponibilidad superficial y límites de los registros de caudales.',series:'Series longitudinales de riego, precipitación y evapotranspiración.',comparar:'Comparación de dos estados por indicador y año.',calidad:'Sitios identificados y límites de verificación temporal.',fuentes:'Procedencia, unidades, cobertura y límites de interpretación.'};
+   if(byId('wa-active-view-title'))byId('wa-active-view-title').textContent=names[view];
+   if(byId('wa-view-description'))byId('wa-view-description').textContent=descriptions[view];
   const qualityButton=root.querySelector('[data-wa-view="calidad"]');if(qualityButton)qualityButton.hidden=st!=='Sinaloa';
   root.querySelectorAll('[data-wa-view]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.waView===view)));
   if(map){map.remove();map=null}
@@ -247,11 +252,14 @@
   if(view==='comparar')target.innerHTML=renderComparison();
   if(view==='fuentes')target.innerHTML=renderSources();
   byId('wa-export').hidden=view==='fuentes';
-  if(view==='presas'&&window.L&&getDams().length){
+  if(view==='presas'&&!window.L){const el=byId('wa-map');if(el)el.innerHTML='<div class="wa-empty">Mapa base temporalmente no disponible. El inventario y las fichas siguen accesibles a la derecha.</div>'}
+   if(view==='presas'&&window.L&&getDams().length){
    requestAnimationFrame(()=>{
     const container=byId('wa-map');if(!container||root.hidden)return;
     map=L.map(container,{scrollWheelZoom:false,zoomControl:true,preferCanvas:true});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:16}).addTo(map);
+    const styles={claro:['https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','© OpenStreetMap · © CARTO'],calles:['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],relieve:['https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png','© OpenTopoMap contributors']};
+    const cfg=styles[baseStyle]||styles.claro;
+    baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);
     L.control.scale({imperial:false,metric:true,position:'bottomleft'}).addTo(map);
     const pts=getDams().filter(x=>(x[6]??0)>=minCapacity&&(!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query))));
     const bounds=[];
@@ -287,7 +295,8 @@
   const aq=e.target.closest('[data-wa-aq-filter]');if(aq){aqFilter=aq.dataset.waAqFilter;render();return}
   const row=e.target.closest('[data-wa-dam]');if(row){selectDam(row.dataset.waDam);return}
   if(e.target.closest('#wa-print')){window.print();return}
-  if(e.target.closest('#wa-cmp-swap')){const x=cmpA;cmpA=cmpB;cmpB=x;render();return}
+  if(e.target.closest('#wa-zoom-all')&&map){const marks=[...damMarkers.values()];if(marks.length)map.fitBounds(L.featureGroup(marks).getBounds(),{padding:[25,25],maxZoom:9});return}
+   if(e.target.closest('#wa-cmp-swap')){const x=cmpA;cmpA=cmpB;cmpB=x;render();return}
   if(e.target.closest('#wa-method-shortcut')){view='fuentes';render();return}
   if(e.target.closest('#wa-copy-link')){
     const u=new URL(location.href);u.searchParams.set('aguaEstado',st);u.searchParams.set('aguaVista',view);u.searchParams.set('aguaA',cmpA);u.searchParams.set('aguaB',cmpB);u.searchParams.set('aguaIndicador',cmpMetric);u.searchParams.set('aguaAnio',String(cmpYear));u.searchParams.set('aguaFiltro',query.slice(0,80));u.searchParams.set('aguaMin',String(minCapacity));u.hash='agua';
@@ -299,17 +308,27 @@
   if(e.target.closest('#wa-export'))exportCsv();
  });
  root.addEventListener('change',e=>{
-  if(e.target.id==='wa-cmp-a'){cmpA=e.target.value;render();return}
+  if(e.target.id==='wa-basemap'&&map&&window.L){
+    baseStyle=e.target.value;
+    const styles={claro:['https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','© OpenStreetMap · © CARTO'],calles:['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],relieve:['https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png','© OpenTopoMap contributors']};
+    if(baseLayer)map.removeLayer(baseLayer);
+    const cfg=styles[baseStyle]||styles.claro;
+    baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);baseLayer.bringToBack();return
+   }
+   if(e.target.id==='wa-cmp-a'){cmpA=e.target.value;render();return}
   if(e.target.id==='wa-cmp-b'){cmpB=e.target.value;render();return}
   if(e.target.id==='wa-cmp-metric'){cmpMetric=e.target.value;render();return}
   if(e.target.id==='wa-cmp-year'){cmpYear=Number(e.target.value);render();return}
   if(e.target.id==='wa-state'){st=e.target.value;query='';dam='';selectedDam='';minCapacity=0;if(view==='calidad'&&st!=='Sinaloa')view='resumen';render()}if(e.target.id==='wa-dam'){dam=e.target.value;render()}if(e.target.id==='wa-capacity'){minCapacity=Number(e.target.value)||0;selectedDam='';render()}});
  root.addEventListener('input',e=>{if(e.target.id==='wa-search'){const pos=e.target.selectionStart;query=e.target.value;render();const box=byId('wa-search');if(box){box.focus();box.setSelectionRange(Math.min(pos,query.length),Math.min(pos,query.length))}}});
- const observer=new MutationObserver(()=>{if(!root.hidden){syncHeader();if(map)setTimeout(()=>map.invalidateSize(),60)}});
+ const observer=new MutationObserver(()=>{if(!root.hidden){syncHeader();if(view==='presas'&&!map)render();else if(map)setTimeout(()=>map.invalidateSize(),60)}});
  observer.observe(root,{attributes:true,attributeFilter:['hidden']});
  async function init(){
-  try{let response=await fetch('data/agua-v9.json',{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
-   D=await response.json();if(D.presas.length!==75||D.acuiferos.length!==216)throw Error('La edición V9 no coincide con la estructura esperada');
+  try{const embedded=byId('wa-embedded-dataset');
+   if(embedded&&embedded.textContent){D=JSON.parse(embedded.textContent)}else{
+    const response=await fetch('data/agua-v9.json',{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
+    D=await response.json();
+   }if(D.presas.length!==75||D.acuiferos.length!==216)throw Error('La edición V9 no coincide con la estructura esperada');
    const params=new URL(location.href).searchParams;
    if(D.estados.includes(params.get('aguaEstado')))st=params.get('aguaEstado');
    if(['resumen','presas','acuiferos','cuencas','series','comparar','calidad','fuentes'].includes(params.get('aguaVista')))view=params.get('aguaVista');
