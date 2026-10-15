@@ -11,15 +11,19 @@ const d=JSON.parse(read('data/agua-v9.json'));
 const html=read('index.html'),build=read('render.yaml');
 const checks=[];
 function test(name,fn){fn();checks.push(name);console.log('✓ '+name)}
-test('HTML incorpora la navegación y las ocho vistas',()=>{
+test('HTML incorpora la navegación cartográfica y las ocho vistas',()=>{
  assert.match(html,/id="panel-agua"/);
  for(const v of ['resumen','presas','acuiferos','cuencas','series','comparar','calidad','fuentes'])assert.ok(html.includes('data-wa-view="'+v+'"'),v);
  assert.ok(html.includes('data-tab="agua"'));
+ assert.ok(html.includes('wa-console')&&html.includes('wa-side'));
+ assert.ok(html.includes('wa-basemap')&&html.includes('wa-zoom-all'));
+ assert.ok(html.includes('wa-view-description'));
+ assert.ok(html.includes('No son mediciones en tiempo real.'));
 });
 test('JavaScript de agua sintácticamente válido',()=>new vm.Script(read('agua.js')));
 test('Assets de agua incorporados al build de Render',()=>{
  for(const f of ['agua.js','agua.css','agua-pro.css','data/agua-v9.json'])assert.ok(build.includes(f),f);
- for(const f of ['agua.js','agua.css','agua-pro.css'])assert.ok(html.includes(f),f);
+ for(const f of ['wa-bundled-styles','wa-bundled-runtime','wa-embedded-dataset','wa-institutional-v11'])assert.ok(html.includes('id="'+f+'"'),f);
 });
 test('Cinco estados completos en series de riego y clima',()=>{
  assert.equal(d.estados.length,5);
