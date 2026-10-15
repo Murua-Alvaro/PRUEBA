@@ -37,7 +37,7 @@ check('Filtros, inspector y exportaciones están implementados',()=>{
  assert.match(js,/data-aw-pick/);assert.match(js,/data-aw-page/);assert.match(js,/aw-mobile-inspector/);
 });
 check('Unidades y restricciones metodológicas visibles',()=>{
- for(const phrase of ['No equivale a un dictamen','No representa','No es el consumo','no es agua almacenada','No controlan superficie','No se interpolan','no significa'])assert.ok((hsrc+js).toLowerCase().includes(phrase.toLowerCase()),phrase);
+ for(const phrase of ['No equivale a un dictamen','No representa','No es el consumo','no agua almacenada hoy','No controlan superficie','No se interpolan','no significa'])assert.ok((hsrc+js).toLowerCase().includes(phrase.toLowerCase()),phrase);
 });
 check('No hay IDs duplicados en marcado HTML estático',()=>{
  const bare=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,'');
