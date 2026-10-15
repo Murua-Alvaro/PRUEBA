@@ -276,9 +276,12 @@
    requestAnimationFrame(()=>{
     const container=byId('wa-map');if(!container||root.hidden)return;
     map=L.map(container,{scrollWheelZoom:false,zoomControl:true,preferCanvas:true});
-    const styles={claro:['https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','© OpenStreetMap · © CARTO'],calles:['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],relieve:['https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png','© OpenTopoMap contributors']};
+    const styles={claro:['https://tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],topografico:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}','© Esri, HERE, Garmin, USGS'],satelite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','© Esri, Maxar, Earthstar Geographics']};
     const cfg=styles[baseStyle]||styles.claro;
     baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);
+    let tileFailures=0;
+    baseLayer.on('tileerror',()=>{if(++tileFailures>=3&&baseStyle!=='claro'&&map){map.removeLayer(baseLayer);baseStyle='claro';const osm=styles.claro;baseLayer=L.tileLayer(osm[0],{attribution:osm[1],maxZoom:19}).addTo(map);baseLayer.bringToBack();const control=byId('wa-basemap');if(control)control.value='claro'}});
+
     L.control.scale({imperial:false,metric:true,position:'bottomleft'}).addTo(map);
     const pts=getDams().filter(x=>(x[6]??0)>=minCapacity&&(!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query))));
     const bounds=[];
@@ -329,10 +332,13 @@
  root.addEventListener('change',e=>{
   if(e.target.id==='wa-basemap'&&map&&window.L){
     baseStyle=e.target.value;
-    const styles={claro:['https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','© OpenStreetMap · © CARTO'],calles:['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],relieve:['https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png','© OpenTopoMap contributors']};
+    const styles={claro:['https://tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],topografico:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}','© Esri, HERE, Garmin, USGS'],satelite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','© Esri, Maxar, Earthstar Geographics']};
     if(baseLayer)map.removeLayer(baseLayer);
     const cfg=styles[baseStyle]||styles.claro;
-    baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);baseLayer.bringToBack();return
+    baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);baseLayer.bringToBack();
+    let tileErrors=0;
+    baseLayer.on('tileerror',()=>{if(++tileErrors>=3&&baseStyle!=='claro'&&map){map.removeLayer(baseLayer);baseStyle='claro';const osm=styles.claro;baseLayer=L.tileLayer(osm[0],{attribution:osm[1],maxZoom:19}).addTo(map);baseLayer.bringToBack();const control=byId('wa-basemap');if(control)control.value='claro'}});
+    return
    }
    if(e.target.id==='wa-dam-sort'){damSort=e.target.value;render();return}
    if(e.target.id==='wa-cmp-a'){cmpA=e.target.value;render();return}
