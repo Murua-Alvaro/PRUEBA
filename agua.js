@@ -11,7 +11,7 @@
  const stateName=s=>{const v=normalize(s);if(v.includes('SINALOA'))return'Sinaloa';if(v.includes('SONORA'))return'Sonora';if(v.includes('CHIHUAHUA'))return'Chihuahua';if(v.includes('JALISCO'))return'Jalisco';if(v.includes('MICHOAC'))return'Michoacán';return s};
  const COLORS=['#197b88','#bc7f44','#577caa','#6a9a70','#8264a7'];
  const period='Corte de integración: octubre de 2026';
- let D,st='Sinaloa',view='presas',metric='riego',dam='',query='',map=null,baseLayer=null,baseStyle='claro';
+ let D,st='Sinaloa',view='resumen',metric='riego',dam='',query='',map=null,baseLayer=null,baseStyle='claro';
  let damSort='capacidad';
  let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023,aqFilter='todos';
  let selectedDam='',minCapacity=0;
@@ -44,20 +44,82 @@
  const coverage=(code)=>D.cobertura.find(x=>belonging(x[0])&&x[1]===code)?.[2]??null;
  const yearCheck=a=>a.length?String(a.at(-1)[1])+'/24':'Sin corte';
  function renderOverview(){
-  const a=getAquifers(),p=getDams(),r=riego(),c=clima(),last=r.at(-1),neg=a.filter(x=>x[6]===1);
-  return '<div class="wa-kpi-grid wa-grid">'+kpi('Acuíferos del catálogo',f(a.length,0),'Balance transversal, corte no certificado')+
-  kpi('Saldo contable negativo',f(neg.length,0),'Acuíferos con disponibilidad neta menor que cero')+
-  kpi('Presas inventariadas',f(p.length,0),'Capacidad nominal; no volumen almacenado')+
-  kpi('Agua distribuida · último ciclo',last?f(last[2],0)+' hm³':'Sin registro',last?last[1]+'/'+String(last[1]+1).slice(-2)+' · Distritos de riego':'Datos históricos')+'</div>'+
-  '<div class="wa-panels">'+section('SERIE ANUAL · 1997/98–2023/24','Volumen distribuido en distritos de riego',series(r.map(x=>[x[1],x[2]]),'Agua distribuida en '+st,'hm³')+
-  '<p>No equivale al consumo real de los cultivos, ni mide la disponibilidad por municipio.</p>')+
-  section('CLIMA MUNICIPAL AGREGADO · 2003–2025','Precipitación media municipal',series(c.map(x=>[x[1],x[2]]),'Precipitación en '+st,'mm')+
-  '<p>Promedio entre municipios del estado, no lluvia ponderada por superficie geográfica.</p>')+
-  section('ANÁLISIS TERRITORIAL','Infraestructura y reservas identificadas',
-  '<div class="wa-stat-row"><div><strong>'+f(p.reduce((s,x)=>s+(n(x[6])||0),0),0)+' hm³</strong><span>Capacidad NAMO agregada de presas catalogadas</span></div><div><strong>'+f(a.reduce((s,x)=>s+(n(x[5])||0),0),1)+' hm³/año</strong><span>Balance contable sumado de acuíferos identificados</span></div><div><strong>'+f(coverage('estaciones_hidrometricas_catalogo'),0)+'</strong><span>Estaciones hidrométricas del catálogo, sin caudales observados</span></div></div>'+
-  '<p class="wa-small-note">La suma de balances sirve para describir el inventario, no equivale a agua físicamente disponible a escala estatal.</p>')+
-  section('DISPONIBILIDAD DE FUENTES','Qué puede compararse en el tiempo',table(['Conjunto','Alcance'],[['Distritos de riego','Serie anual 1997/98–2023/24'],['Clima','Serie municipal 2003–2025'],['Acuíferos','Balance de corte único'],['Cuencas','757 registros nacionales, corte 2020'],['Calidad','Fechas de medición sin validar'],['Caudales','Sin registros históricos descargados']]))+
-  '</div>'+section('COMPARATIVO · CINCO ESTADOS','Indicadores del último ciclo y catálogos',table(['Estado','Agua distribuida 2023/24 · hm³','Presas catalogadas','Acuíferos','Acuíferos con saldo negativo'],D.estados.map(name=>{const rr=D.riego.filter(x=>stateName(x[0])===name&&x[1]===2023),aa=D.acuiferos.filter(x=>stateName(x[0])===name);return[name,rr.length?f(rr[0][2],1):'—',D.presas.filter(x=>stateName(x[0])===name).length,aa.length,aa.filter(x=>x[6]===1).length]})),'wa-wide')+info('<strong>Interpretación:</strong> este panel reúne capas con periodos distintos. Un cambio anual en lluvia o riego no implica automáticamente un cambio de disponibilidad subterránea.');
+  const a=getAquifers(),p=getDams(),r=riego(),c=clima(),last=r.at(-1),prior=r.at(-2),lastCl=c.at(-1),priorCl=c.at(-2);
+  const neg=a.filter(x=>x[6]===1), aquiferShare=a.length?neg.length/a.length*100:null;
+  const percent=(now,then)=>now==null||then==null||!Number.isFinite(then)||then===0?null:(now/then-1)*100;
+  const change=last&&prior?percent(last[2],prior[2]):null;
+  const rainChange=lastCl&&priorCl?lastCl[2]-priorCl[2]:null;
+  const changeText=change==null?'Sin comparación':(change<0?'−':'+')+f(Math.abs(change),1)+' %';
+  const rainText=rainChange==null?'Sin comparación':(rainChange<0?'−':'+')+f(Math.abs(rainChange),1)+' mm';
+  const cycle=last?last[1]+'/'+String(last[1]+1).slice(-2):'sin ciclo';
+  const priorCycle=prior?prior[1]+'/'+String(prior[1]+1).slice(-2):'sin ciclo anterior';
+  const topNeg=neg.slice().sort((x,y)=>x[5]-y[5]).slice(0,4);
+  const topDam=p.slice().sort((x,y)=>(Number(y[6])||0)-(Number(x[6])||0)).slice(0,4);
+  const sourceNote='<p class="wa13-source-note">Fuente: base integrada GROWA V9 (CONAGUA / NASA POWER y compilaciones identificadas). No se ha certificado de nuevo su vigencia contra los portales oficiales. <button type="button" data-wa-view="fuentes">Ver procedencia y alcance ↗</button></p>';
+  const differenceNarrative=change==null?'La serie no permite comparar el último ciclo con el anterior.':change<0?
+    'El registro de agua distribuida a los distritos de riego es menor que el del ciclo anterior. Esto NO permite concluir por sí solo que exista esa misma disminución en el agua total del estado, ni identificar la causa.':
+    'El registro de agua distribuida a los distritos de riego es mayor que el del ciclo anterior. No debe confundirse con un incremento equivalente del agua almacenada en las presas.';
+  const rainfallNarrative=rainChange==null?'No hay dos años comparables en esta tabla.':rainChange>=0?
+    'La precipitación media municipal fue mayor que el año previo. El dato es un promedio no ponderado de los municipios observados y no mide por sí mismo la recuperación de presas o acuíferos.':
+    'La precipitación media municipal fue menor que el año previo. La diferencia no demuestra por sí sola sequía hidrológica, menor recarga o escasez de abastecimiento.';
+  const part1='<div class="wa13-heading"><div class="wa13-label">INFORME DE SITUACIÓN / '+safe(st.toUpperCase())+'</div>'+
+    '<h2>¿Qué muestran los datos sobre el agua en '+safe(st)+'?</h2>'+
+    '<p>Una lectura de los últimos registros integrados. Separamos el agua <strong>distribuida en riego</strong>, la <strong>lluvia</strong>, los <strong>acuíferos</strong> y las <strong>presas</strong>, porque representan cosas distintas.</p></div>';
+  const lead='<div class="wa13-main-findings"><article class="wa13-main-finding">'+
+    '<span class="wa13-section-label">01 / EL DATO MÁS RECIENTE DE RIEGO</span>'+
+    '<h3>Agua entregada a distritos de riego</h3>'+
+    '<div class="wa13-lead-measure"><strong>'+ (last?f(last[2],1):'—') +'</strong><span>millones de m³ (hm³)<br>ciclo '+safe(cycle)+'</span></div>'+
+    '<div class="wa13-variation"><strong>'+safe(changeText)+'</strong><span>frente al ciclo '+safe(priorCycle)+' ('+(prior?f(prior[2],1):'—')+' hm³)</span></div>'+
+    '<p>'+safe(differenceNarrative)+'</p>'+
+    '<button type="button" class="wa13-text-action" data-wa-view="series">Examinar los 27 ciclos de riego <span>→</span></button>'+
+    '</article><aside class="wa13-side-explanation">'+
+    '<span class="wa13-section-label">CÓMO INTERPRETAR ESTE RESULTADO</span><h3>¿Qué significa «volumen distribuido»?</h3>'+
+    '<p>Es el agua que aparece registrada como distribuida en los distritos de riego del estado durante un ciclo agrícola. <strong>No es todo el agua de Sinaloa</strong>, ni el volumen actual de las presas.</p>'+
+    '<div class="wa13-mini-definition"><strong>1 hm³</strong><span>= un millón de metros cúbicos (m³).</span></div>'+
+    '<p>Para estudiar por qué cambió hace falta contrastar almacenamiento, aportaciones, superficie efectivamente regada y operación de cada distrito.</p>'+
+    '</aside></div>';
+  const three='<div class="wa13-three-findings">'+
+    '<article><span class="wa13-section-label">02 / AGUA SUBTERRÁNEA</span><div class="wa13-card-number">'+f(neg.length,0)+' <small>de '+f(a.length,0)+'</small></div><h3>Acuíferos con saldo administrativo negativo</h3>'+
+    '<p>'+ (a.length?'El '+f(aquiferShare,1)+' % de los acuíferos incluidos aparece con disponibilidad contable negativa en el corte integrado.':'No hay acuíferos identificados para este estado en la base.')+' <strong>Saldo negativo no significa que un acuífero esté vacío.</strong></p>'+
+    '<button data-wa-view="acuiferos" type="button">Consultar acuíferos →</button></article>'+
+    '<article><span class="wa13-section-label">03 / LLUVIA MUNICIPAL</span><div class="wa13-card-number">'+(lastCl?f(lastCl[2],1):'—')+' <small>mm</small></div><h3>Precipitación media, '+(lastCl?lastCl[1]:'sin año')+'</h3>'+
+    '<p>'+safe(rainfallNarrative)+' Cambio observado: <strong>'+safe(rainText)+'</strong> respecto de '+(priorCl?priorCl[1]:'otro año')+'.</p>'+
+    '<button data-wa-view="series" type="button">Ver evolución climática →</button></article>'+
+    '<article><span class="wa13-section-label">04 / INFRAESTRUCTURA</span><div class="wa13-card-number">'+f(p.length,0)+' <small>registros</small></div><h3>Presas y embalses del inventario</h3>'+
+    '<p>La base identifica instalaciones y su capacidad nominal (NAMO). <strong>No indica qué porcentaje están llenas hoy.</strong> El inventario es parcial y no representa todas las obras del estado.</p>'+
+    '<button data-wa-view="presas" type="button">Abrir mapa e inventario →</button></article></div>';
+  const figures='<div class="wa13-section-heading"><div><span class="wa13-section-label">LAS OBSERVACIONES QUE RESPALDAN EL DIAGNÓSTICO</span><h2>Evolución histórica</h2></div><p>Deslice o abra la tabla del indicador para revisar los registros de cada año.</p></div>'+
+    '<div class="wa13-charts">'+
+    '<section class="wa13-chart-card"><div class="wa13-chart-card-head"><div><span>1997/98–2023/24 · CICLOS AGRÍCOLAS</span><h3>¿Cómo cambió el agua distribuida?</h3></div><button type="button" data-wa-view="series">Ver datos →</button></div>'+
+    '<div class="wa13-chart-value"><strong>'+(last?f(last[2],1):'—')+' hm³</strong><span>último ciclo '+safe(cycle)+'</span></div>'+
+    series(r.map(x=>[x[1],x[2]]),'Volumen de riego de '+st,'hm³')+
+    '<p>Lectura: cada punto representa un ciclo agrícola completo. La línea describe el volumen registrado, no un caudal continuo ni almacenamiento.</p></section>'+
+    '<section class="wa13-chart-card"><div class="wa13-chart-card-head"><div><span>2003–2025 · AÑOS CALENDARIO</span><h3>¿Cómo varió la precipitación?</h3></div><button type="button" data-wa-view="series">Ver datos →</button></div>'+
+    '<div class="wa13-chart-value"><strong>'+(lastCl?f(lastCl[2],1):'—')+' mm</strong><span>promedio municipal de '+(lastCl?lastCl[1]:'año desconocido')+'</span></div>'+
+    series(c.map(x=>[x[1],x[2]]),'Precipitación municipal media de '+st,'mm')+
+    '<p>Lectura: promedio simple de los municipios observados. No es la lluvia medida en una presa ni una estimación de escurrimiento.</p></section>'+
+    '</div>';
+  const rankings='<div class="wa13-section-heading"><div><span class="wa13-section-label">EXPLORACIÓN TERRITORIAL</span><h2>¿Dónde conviene examinar con más detalle?</h2></div></div>'+
+   '<div class="wa13-rankgrid"><section class="wa13-ranked"><div><span>AGUA SUBTERRÁNEA</span><h3>Saldos administrativos más negativos</h3><p>Selección dentro de los acuíferos incluidos; no constituye un ranking oficial de riesgo actual.</p></div>'+
+   (topNeg.length?topNeg.map((x,i)=>'<div class="wa13-rank-row"><span>'+(i+1).toString().padStart(2,'0')+'</span><strong>'+safe(x[2])+'</strong><b>'+f(x[5],1)+' hm³/año</b></div>').join(''):empty('Sin saldos negativos registrados en el inventario de '+st+'.'))+
+   '<button type="button" data-wa-view="acuiferos">Ver detalle de recarga, VEAS y saldo →</button></section>'+
+   '<section class="wa13-ranked"><div><span>INFRAESTRUCTURA HIDRÁULICA</span><h3>Mayores capacidades nominales catalogadas</h3><p>Comparación por capacidad NAMO, no por volumen actual ni operación.</p></div>'+
+   (topDam.length?topDam.map((x,i)=>'<div class="wa13-rank-row"><span>'+(i+1).toString().padStart(2,'0')+'</span><strong>'+safe(x[2])+'</strong><b>'+f(x[6],1)+' hm³</b></div>').join(''):empty('Sin instalaciones identificadas en esta selección.'))+
+   '<button type="button" data-wa-view="presas">Localizar las instalaciones en el mapa →</button></section></div>';
+  const recentYears=[...r.slice(-4)].reverse(),recentCl=[...c.slice(-4)].reverse();
+  const detail='<div class="wa13-section-heading"><div><span class="wa13-section-label">TRAZABILIDAD / DATOS PARA COMPROBAR</span><h2>Últimos registros de las series</h2></div></div>'+
+   '<div class="wa13-tables">'+section('DISTRITOS DE RIEGO · hm³','Volumen por ciclo agrícola',
+    table(['Ciclo','Volumen distribuido (hm³)','Superficie regada (ha)'],recentYears.map(x=>[x[1]+'/'+String(x[1]+1).slice(-2),f(x[2],1),f(x[3],0)]))+
+    '<button type="button" class="wa13-text-action" data-wa-view="series">Consultar todos los ciclos →</button>')+
+   section('CLIMA · mm','Precipitación municipal media',
+    table(['Año','Lluvia (mm)','ET₀ (mm)','P−ET₀ (mm)'],recentCl.map(x=>[x[1],f(x[2],1),f(x[3],1),f(x[4],1)]))+
+    '<p class="wa-small-note">P−ET₀ es una diferencia climática. No representa disponibilidad ni balance hidrológico de cuenca.</p>')+'</div>';
+  const glossary='<div class="wa13-definitions"><div class="wa13-definition-title"><span>GLOSARIO ESENCIAL</span><h3>Cuatro conceptos para no confundir los datos</h3></div>'+
+   '<div><strong>hm³</strong><span>Un millón de metros cúbicos de agua.</span></div>'+
+   '<div><strong>NAMO</strong><span>Nivel de Aguas Máximas Ordinarias. Capacidad nominal de referencia de una presa; no su llenado actual.</span></div>'+
+   '<div><strong>Saldo de acuífero</strong><span>Resultado administrativo de recarga, descarga natural comprometida y volumen de extracción registrado.</span></div>'+
+   '<div><strong>ET₀</strong><span>Evapotranspiración de referencia: indicador de demanda atmosférica, no volumen extraído.</span></div></div>';
+  return '<div class="wa13-overview">'+part1+lead+three+figures+rankings+detail+glossary+sourceNote+'</div>';
  }
 
  function damDetails(row){
