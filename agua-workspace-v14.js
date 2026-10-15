@@ -38,7 +38,7 @@ const rowData=()=>{
  if(S.view==='calidad')rows=quality().map(x=>({id:String(x[1]),text:x[1]+' '+x[2],cols:[x[2],x[1],fmt(x[3],0),fmt(x[5],2),fmt(x[4],0)],sort:[x[2],x[1],x[3],n(x[5])??0,x[4]],raw:x}));
  if(S.search.trim())rows=rows.filter(x=>norm(x.text).includes(norm(S.search.trim())));
  const sortCol=S.sort==='nombre'?0:S.sort==='municipio'&&S.view==='presas'?1:S.view==='presas'?2:S.view==='acuiferos'&&S.sort==='saldo'?4:S.view==='acuiferos'&&S.sort==='recarga'?2:S.view==='calidad'&&S.sort==='cantidad'?2:0;
- rows.sort((a,b)=>{const x=a.sort[sortCol],y=b.sort[sortCol];return typeof x==='number'&&typeof y==='number'?((S.sort==='nombre'||S.sort==='municipio')?x-y:y-x):String(x).localeCompare(String(y),'es',{numeric:true})});
+ rows.sort((a,b)=>{const x=a.sort[sortCol],y=b.sort[sortCol];return typeof x==='number'&&typeof y==='number'?(S.view==='acuiferos'&&S.sort==='saldo'?x-y:y-x):String(x).localeCompare(String(y),'es',{numeric:true})});
  return rows;
 };
 const periodFilter=(arr)=>arr.filter(x=>(S.from==null||x[1]>=S.from)&&(S.to==null||x[1]<=S.to));
@@ -304,7 +304,7 @@ function render(){
  if(S.view==='fuentes')renderSources();
  inspector();updateURL();
 }
-function updateURL(){const u=new URL(location.href);u.searchParams.set('wa',S.view);u.searchParams.set('ws',S.state);if(S.search)u.searchParams.set('wq',S.search);else u.searchParams.delete('wq');u.searchParams.set('wb',S.basemap);u.hash='agua';history.replaceState(null,'',u.pathname+u.search+u.hash)}
+function updateURL(){if(root.hidden&&location.hash!=='#agua')return;const u=new URL(location.href);u.searchParams.set('wa',S.view);u.searchParams.set('ws',S.state);if(S.search)u.searchParams.set('wq',S.search);else u.searchParams.delete('wq');u.searchParams.set('wb',S.basemap);u.hash='agua';history.replaceState(null,'',u.pathname+u.search+u.hash)}
 function download(name,blob,mime){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([blob],{type:mime}));a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);notice('Archivo preparado: '+name)}
 function csvCell(x){let s=String(x??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
 function exportCSV(){
@@ -382,7 +382,7 @@ function init(){
  try{const el=$('wa-embedded-dataset');if(!el?.textContent)throw Error('Dataset V9 no empacado');
  D=JSON.parse(el.textContent);
  if(!Array.isArray(D.estados)||D.estados.length!==5||D.presas.length!==75||D.acuiferos.length!==216)throw Error('Control de integridad del catálogo no superado');
- restore();initialized=true;render();if(!root.hidden&&S.view==='presas')mountMap(rowData());
+ restore();initialized=true;render();
  window.GrowaWaterV14={snapshot:()=>({state:S.state,view:S.view,rows:rowData().length,selected:S.selected}),navigate:changeView,selectState:changeState,exportCSV};
  }catch(err){console.error('GROWA WATER V14',err);const main=$('aw-main');if(main)main.innerHTML=empty('No se pudieron cargar los registros',String(err.message||err)+'. Revise la integración o la conexión al repositorio.')}
 }
