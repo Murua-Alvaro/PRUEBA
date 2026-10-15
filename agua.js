@@ -314,19 +314,20 @@
   if(!D)return;
   syncHeader();
   byId('wa-state').value=st;
-  const aquifers=getAquifers(),dams=getDams(),latestIrrigation=riego().at(-1);
+  const aquifers=getAquifers(),dams=getDams(),ri=riego(),latestIrrigation=ri.at(-1),priorIrrigation=ri.at(-2);
   const negativeAquifers=aquifers.filter(x=>x[6]===1).length;
-  const totalNominalCapacity=dams.reduce((sum,x)=>sum+(Number(x[6])||0),0);
+  const irrigationChange=latestIrrigation&&priorIrrigation&&priorIrrigation[2]?100*(latestIrrigation[2]/priorIrrigation[2]-1):null;
+  const variation=irrigationChange==null?'—':(irrigationChange<0?'−':'+')+f(Math.abs(irrigationChange),1)+' %';
   const metrics=[
-   ['PRESAS EN EL INVENTARIO',f(dams.length,0),'Ubicaciones georreferenciadas'],
-   ['CAPACIDAD NOMINAL (NAMO)',f(totalNominalCapacity,0)+' hm³','Suma del catálogo; no almacenamiento'],
-   ['ACUÍFEROS CON SALDO NEGATIVO',f(negativeAquifers,0)+' / '+f(aquifers.length,0),'Balance administrativo · corte único'],
-   ['AGUA DISTRIBUIDA EN RIEGO',latestIrrigation?f(latestIrrigation[2],0)+' hm³':'—',latestIrrigation?('Último ciclo '+latestIrrigation[1]+'/'+String(latestIrrigation[1]+1).slice(-2)):'Sin serie integrada']
+   ['RIEGO · CICLO 2023/24',latestIrrigation?f(latestIrrigation[2],1)+' hm³':'Sin dato','Volumen distribuido registrado'],
+   ['CAMBIO ENTRE DOS CICLOS',variation,'Último ciclo frente al anterior'],
+   ['SALDO NEGATIVO DE ACUÍFEROS',f(negativeAquifers,0)+' de '+f(aquifers.length,0),'Balance contable; no están vacíos'],
+   ['PRESAS DEL INVENTARIO',f(dams.length,0),'Catálogo parcial; no mide llenado']
   ];
   const metricHost=byId('wa-metrics');
   if(metricHost)metricHost.innerHTML=metrics.map(x=>'<div class="wa12-metric"><small>'+safe(x[0])+'</small><strong>'+safe(x[1])+'</strong><span>'+safe(x[2])+'</span></div>').join('');
   const label=byId('wa-scope-label');if(label)label.textContent=st+' · '+dams.length+' presas · '+aquifers.length+' acuíferos';
-   const names={presas:'MAPA DE PRESAS',resumen:'PANORAMA EJECUTIVO',acuiferos:'AGUA SUBTERRÁNEA',cuencas:'CUENCAS Y CAUDALES',series:'SERIES HISTÓRICAS',comparar:'COMPARAR ESTADOS',calidad:'CALIDAD DEL AGUA',fuentes:'FUENTES Y MÉTODO'};
+   const names={presas:'MAPA DE PRESAS',resumen:'DIAGNÓSTICO EXPLICADO',acuiferos:'AGUA SUBTERRÁNEA',cuencas:'CUENCAS Y CAUDALES',series:'SERIES HISTÓRICAS',comparar:'COMPARAR ESTADOS',calidad:'CALIDAD DEL AGUA',fuentes:'FUENTES Y MÉTODO'};
    const descriptions={presas:'Infraestructura georreferenciada, inventarios de capacidad nominal y fichas técnicas.',resumen:'Síntesis territorial, indicadores y cobertura de fuentes.',acuiferos:'Recarga y disponibilidad administrativa del recurso subterráneo.',cuencas:'Disponibilidad superficial y límites de los registros de caudales.',series:'Series longitudinales de riego, precipitación y evapotranspiración.',comparar:'Comparación de dos estados por indicador y año.',calidad:'Sitios identificados y límites de verificación temporal.',fuentes:'Procedencia, unidades, cobertura y límites de interpretación.'};
    if(byId('wa-active-view-title'))byId('wa-active-view-title').textContent=names[view];
    if(byId('wa-view-description'))byId('wa-view-description').textContent=descriptions[view];
@@ -343,6 +344,20 @@
   if(view==='calidad')target.innerHTML=renderQuality();
   if(view==='comparar')target.innerHTML=renderComparison();
   if(view==='fuentes')target.innerHTML=renderSources();
+
+  if(view!=='resumen'){
+   const explanations={
+    presas:['QUÉ ESTÁ VIENDO','Cada círculo es la ubicación de una presa o embalse del inventario. El número «NAMO» es capacidad nominal; no es agua almacenada hoy. Seleccione un punto para leer el expediente.'],
+    acuiferos:['QUÉ SIGNIFICA EL SALDO','El saldo se calcula administrativamente a partir de recarga, descarga natural comprometida y volumen registrado de extracción. Un saldo negativo no significa un acuífero vacío ni mide riesgo actualizado.'],
+    cuencas:['ATENCIÓN A LA ESCALA','La tabla de 757 cuencas representa un corte nacional, no una distribución entre los cinco estados. Todavía no hay polígonos por cuenca o caudales continuos verificados para trazar el mapa.'],
+    series:['DOS RELOJES DISTINTOS','El riego se organiza por ciclos agrícolas (1997/98–2023/24). La lluvia y la evapotranspiración se organizan por año calendario (2003–2025). No deben mezclarse como si representaran la misma medición.'],
+    comparar:['CÓMO COMPARAR CORRECTAMENTE','Compare el mismo indicador y el mismo año entre estados. Estas medidas no controlan tamaño de población, superficie agrícola ni clima regional y no prueban causalidad.'],
+    calidad:['COBERTURA DE LA CALIDAD','La tabla recuperada de calidad corresponde únicamente a Sinaloa. Las fechas de muestreo no pudieron verificarse, de modo que no se reportan niveles actuales ni tendencias.'],
+    fuentes:['PROCEDENCIA Y RESPONSABILIDAD','Esta es una integración documental; cada conjunto tiene fechas, unidades y limitaciones distintas. Los datos deben cotejarse con las fuentes oficiales antes de usarse para decisiones regulatorias.']
+   };
+   const item=explanations[view];
+   if(item)target.innerHTML='<div class="wa13-view-explanation"><span>'+safe(item[0])+'</span><p>'+safe(item[1])+'</p><button type="button" data-wa-view="resumen">Volver al diagnóstico →</button></div>'+target.innerHTML;
+  }
   byId('wa-export').hidden=view==='fuentes';
   if(view==='presas'&&!window.L){const el=byId('wa-map');if(el)el.innerHTML='<div class="wa-empty">Mapa base temporalmente no disponible. El inventario y las fichas siguen accesibles a la derecha.</div>'}
    if(view==='presas'&&window.L&&getDams().length){
