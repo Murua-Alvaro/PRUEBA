@@ -24,7 +24,7 @@
  const info=msg=>'<div class="wa-note">'+msg+'</div>';
  const empty=msg=>'<div class="wa-empty">'+safe(msg)+'</div>';
  const series=(rows,title,units='',axis='year')=>{
-  rows=rows.filter(x=>Number.isFinite(Number(x[1])));
+  rows=rows.filter(x=>x[1]!==null&&x[1]!==undefined&&x[1]!==''&&Number.isFinite(Number(x[1])));
   if(rows.length<2)return empty('No hay suficientes observaciones para construir una serie temporal.');
   rows.sort((a,b)=>a[0]-b[0]);const minY=Math.min(...rows.map(x=>x[1])),maxY=Math.max(...rows.map(x=>x[1]));
   const a=minY>=0?0:minY-(maxY-minY)*.08,b=maxY+(maxY-a)*.12||1;
@@ -252,7 +252,18 @@
   if(!D)return;
   syncHeader();
   byId('wa-state').value=st;
-  const label=byId('wa-scope-label');if(label)label.innerHTML=safe(st)+' <small>· '+getDams().length+' presas · '+getAquifers().length+' acuíferos</small>';
+  const aquifers=getAquifers(),dams=getDams(),latestIrrigation=riego().at(-1);
+  const negativeAquifers=aquifers.filter(x=>x[6]===1).length;
+  const totalNominalCapacity=dams.reduce((sum,x)=>sum+(Number(x[6])||0),0);
+  const metrics=[
+   ['PRESAS EN EL INVENTARIO',f(dams.length,0),'Ubicaciones georreferenciadas'],
+   ['CAPACIDAD NOMINAL (NAMO)',f(totalNominalCapacity,0)+' hm³','Suma del catálogo; no almacenamiento'],
+   ['ACUÍFEROS CON SALDO NEGATIVO',f(negativeAquifers,0)+' / '+f(aquifers.length,0),'Balance administrativo · corte único'],
+   ['AGUA DISTRIBUIDA EN RIEGO',latestIrrigation?f(latestIrrigation[2],0)+' hm³':'—',latestIrrigation?('Último ciclo '+latestIrrigation[1]+'/'+String(latestIrrigation[1]+1).slice(-2)):'Sin serie integrada']
+  ];
+  const metricHost=byId('wa-metrics');
+  if(metricHost)metricHost.innerHTML=metrics.map(x=>'<div class="wa12-metric"><small>'+safe(x[0])+'</small><strong>'+safe(x[1])+'</strong><span>'+safe(x[2])+'</span></div>').join('');
+  const label=byId('wa-scope-label');if(label)label.textContent=st+' · '+dams.length+' presas · '+aquifers.length+' acuíferos';
    const names={presas:'MAPA DE PRESAS',resumen:'PANORAMA EJECUTIVO',acuiferos:'AGUA SUBTERRÁNEA',cuencas:'CUENCAS Y CAUDALES',series:'SERIES HISTÓRICAS',comparar:'COMPARAR ESTADOS',calidad:'CALIDAD DEL AGUA',fuentes:'FUENTES Y MÉTODO'};
    const descriptions={presas:'Infraestructura georreferenciada, inventarios de capacidad nominal y fichas técnicas.',resumen:'Síntesis territorial, indicadores y cobertura de fuentes.',acuiferos:'Recarga y disponibilidad administrativa del recurso subterráneo.',cuencas:'Disponibilidad superficial y límites de los registros de caudales.',series:'Series longitudinales de riego, precipitación y evapotranspiración.',comparar:'Comparación de dos estados por indicador y año.',calidad:'Sitios identificados y límites de verificación temporal.',fuentes:'Procedencia, unidades, cobertura y límites de interpretación.'};
    if(byId('wa-active-view-title'))byId('wa-active-view-title').textContent=names[view];
