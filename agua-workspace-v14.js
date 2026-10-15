@@ -89,7 +89,7 @@ function tableMarkup(head,rows,{view=S.view,pageable=true,selectable=false}={}){
  (pageable?'<div class="aw-pagination"><span>'+fmt(total,0)+' registros · Página '+S.page+' de '+pages+'</span><div class="aw-pagination-controls"><button type="button" data-aw-page="-1" '+(S.page<=1?'disabled':'')+'>← Anterior</button><button type="button" data-aw-page="1" '+(S.page>=pages?'disabled':'')+'>Siguiente →</button></div></div>':'');
 }
 function drawer(title,subtitle,thead,rows,opt={}){return '<section class="aw-bottom-drawer"><div class="aw-drawer-title"><strong>'+esc(title)+'</strong><span>'+esc(subtitle)+'</span></div>'+tableMarkup(thead,rows,opt)+'</section>'}
-function chart(series,title,units,secondary){
+function chart(series,title,units,secondary,axis="annual"){
  const streams=[{data:series,color:'#147995',label:title},...(secondary?[{data:secondary.data,color:'#c28c4e',label:secondary.label}]:[])];
  const pts=streams.flatMap(x=>x.data).filter(x=>x[1]!=null&&Number.isFinite(n(x[1])));
  if(pts.length<2)return empty('Sin serie suficiente','La selección necesita al menos dos observaciones con valor numérico.');
@@ -98,15 +98,17 @@ function chart(series,title,units,secondary){
  const floor=Math.min(0,min),ceil=Math.max(max,floor+1),margin=(ceil-floor)*.08||1;
  const lo=floor<0?floor-margin:0,hi=ceil+margin;
  const X=x=>52+816*(x-x0)/(x1-x0||1),Y=y=>225-186*(y-lo)/(hi-lo);
+ const formatX=v=>axis==='date'?new Date(v*86400000).toISOString().slice(0,10):axis==='month'?String(Math.floor(v/12))+'-'+String(v%12+1).padStart(2,'0'):String(Math.round(v));
+ const gap=axis==='date'?22:axis==='month'?1.5:1.5;
  const ticks=[0,.25,.5,.75,1].map(t=>{const y=225-t*186;return '<line x1="52" y1="'+y+'" x2="875" y2="'+y+'" stroke="#e5edef"/><text x="44" y="'+(y+4)+'" text-anchor="end" fill="#78909d" font-size="12">'+esc(fmt(lo+(hi-lo)*t,0))+'</text>'}).join('');
  const lines=streams.map(stream=>{
   const points=stream.data.filter(x=>x[1]!=null&&Number.isFinite(n(x[1])));
-  const path=points.map((r,i)=>(i?'L':'M')+X(r[0]).toFixed(1)+','+Y(r[1]).toFixed(1)).join(' ');
+  const path=points.map((r,i)=>((!i||r[0]-points[i-1][0]>gap)?'M':'L')+X(r[0]).toFixed(1)+','+Y(r[1]).toFixed(1)).join(' ');
   const circles=points.map((r,i)=>i%Math.max(1,Math.floor(points.length/30))?'':'<circle cx="'+X(r[0])+'" cy="'+Y(r[1])+'" r="4" fill="'+stream.color+'" stroke="#fff" stroke-width="1.3"><title>'+esc(r[0]+': '+fmt(r[1],1)+' '+units+' · '+stream.label)+'</title></circle>').join('');
   return '<path d="'+path+'" fill="none" stroke="'+stream.color+'" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'+circles;
  }).join('');
  const legend=secondary?'<text x="55" y="15" font-size="11" fill="#147995">● '+esc(title)+'</text><text x="320" y="15" font-size="11" fill="#c28c4e">● '+esc(secondary.label)+'</text>':'';
- return '<svg class="aw-chart" viewBox="0 0 920 265" role="img" aria-label="'+esc(title)+' en '+units+'" xmlns="http://www.w3.org/2000/svg">'+ticks+legend+lines+'<text x="53" y="256" fill="#7c929b" font-size="12">'+x0+'</text><text x="870" y="256" text-anchor="end" fill="#7c929b" font-size="12">'+x1+'</text></svg>';
+ return '<svg class="aw-chart" viewBox="0 0 920 265" role="img" aria-label="'+esc(title)+' en '+units+'" xmlns="http://www.w3.org/2000/svg">'+ticks+legend+lines+'<text x="53" y="256" fill="#7c929b" font-size="12" >'+esc(formatX(x0))+'</text><text x="870" y="256" text-anchor="end" fill="#7c929b" font-size="12">'+esc(formatX(x1))+'</text></svg>';
 }
 function timePane(title,description,serie,unit,raw,heads,mapper,opt={}){
  const last=serie.at(-1),prev=serie.at(-2),diff=last&&prev&&prev[1]?(last[1]/prev[1]-1)*100:null;
@@ -171,7 +173,7 @@ function renderStorage(){
  '<div class="aw-statgrid">'+renderStat('Observaciones visibles',fmt(data.length,0),'Cortes efectivamente integrados')+
  renderStat('Última observación',fmt(items.at(-1)?.[1],1)+' hm³',S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').at(-1)?.[1]||'—':S.storageCode)+
  renderStat('Cobertura',S.state==='Sinaloa'?'Cuatro presas':'Una presa','No representa todo el estado')+'</div>'+
- '<section class="aw-dataviz"><div class="aw-chart-title"><div><span class="aw-overline">MEDICIONES POR FECHA</span><h3>'+esc(title)+'</h3></div></div>'+chart(items,title,'hm³')+'</section>'+
+ '<section class="aw-dataviz"><div class="aw-chart-title"><div><span class="aw-overline">MEDICIONES POR FECHA</span><h3>'+esc(title)+'</h3></div></div>'+chart(items,title,'hm³',null,S.state==='Sinaloa'?'date':'month')+'</section>'+
  drawer('Registros de almacenamiento','Sin relleno de periodos faltantes',headers,data,{pageable:true})+
  (S.state==='Sinaloa'?drawer('Puntos individuales / Sinaloa','Fechas aisladas; no formar serie continua',['Fecha','Clave','Volumen (hm³)','% NAMO'],D.sinaloa.map(x=>[x[1],x[0],fmt(x[2]),fmt(x[3])]),{pageable:false}):''))+
  sourceLine('Datos parciales identificados en SIH y compilaciones V9; no son datos en tiempo real.');
@@ -341,6 +343,7 @@ function action(name){
  if(name==='fit'){if(map&&mapMarks.size)map.fitBounds(L.featureGroup([...mapMarks.values()]).getBounds(),{padding:[25,25],maxZoom:8});else if(S.view==='presas')mountMap(rowData());return}
  if(name==='fullscreen'){const el=$('aw-map-shell');if(!el)return;if(document.fullscreenElement)document.exitFullscreen();else el.requestFullscreen?.();return}
  if(name==='filters'){S.filterOpen=!S.filterOpen;root.classList.toggle('aw-filters-open',S.filterOpen);root.querySelector('[data-aw-action="filters"]')?.setAttribute('aria-expanded',String(S.filterOpen));return}
+ if(name==='show-inspector'){S.inspector=true;root.classList.remove('aw-inspector-hidden');return}
  if(name==='hide-inspector'){S.inspector=!S.inspector;root.classList.toggle('aw-inspector-hidden',!S.inspector);return}
  if(name==='focus-selected'){focusSelected();return}
  if(name==='copy-coords'){const r=dams().find(x=>String(x[1])===S.selected);if(r){const s=r[4]+', '+r[5];if(navigator.clipboard?.writeText)navigator.clipboard.writeText(s).then(()=>notice('Coordenadas copiadas.'));else fallbackCopy(s)}}
