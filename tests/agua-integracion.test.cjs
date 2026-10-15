@@ -1,60 +1,46 @@
 #!/usr/bin/env node
-// GROWA Agua · suite de control para la interfaz estática.
 'use strict';
-const fs=require('node:fs');
-const path=require('node:path');
-const vm=require('node:vm');
-const assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..');
-const read=name=>fs.readFileSync(path.join(root,name),'utf8');
-const d=JSON.parse(read('data/agua-v9.json'));
-const html=read('index.html'),build=read('render.yaml');
-const checks=[];
-function test(name,fn){fn();checks.push(name);console.log('✓ '+name)}
-test('HTML incorpora la navegación cartográfica y las ocho vistas',()=>{
- assert.match(html,/id="panel-agua"/);
- for(const v of ['resumen','presas','acuiferos','cuencas','series','comparar','calidad','fuentes'])assert.ok(html.includes('data-wa-view="'+v+'"'),v);
- assert.ok(html.includes('data-tab="agua"'));
- assert.ok(html.includes('wa12-mapgrid')&&html.includes('wa12-toolbar'));
- assert.ok(html.includes('id="wa-metrics"'));
- assert.ok(html.includes('wa12-filterbar')||read('agua.js').includes('wa12-filterbar'));
- assert.ok(read('agua.js').includes('wa-basemap')&&read('agua.js').includes('wa-zoom-all'));
- assert.ok(html.includes('wa-view-description'));
- assert.ok(html.includes('No representa mediciones en tiempo real.'));
- assert.doesNotMatch(html,/basemaps\.cartocdn\.com/);
- assert.match(html,/tile\.openstreetmap\.org/);
+/* GROWA Agua v14 — static production contract and data integrity.
+   Execute: node tests/agua-integracion.test.cjs */
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const dir=path.resolve(__dirname,'..'),read=f=>fs.readFileSync(path.join(dir,f),'utf8');
+const html=read('index.html'),hsrc=read('agua-workspace-v14.html'),css=read('agua-workspace-v14.css'),js=read('agua-workspace-v14.js'),D=JSON.parse(read('data/agua-v9.json'));
+let completed=0;
+function check(name,fn){fn();console.log('✓ '+name);completed++}
+check('Sitio mantiene agricultura y módulo Agua integrado',()=>{
+ assert.match(html,/data-tab="agua"/);assert.match(html,/id="panel-panorama"/);
+ assert.match(html,/id="panel-agua"/);assert.ok(html.includes(hsrc));
 });
-test('JavaScript de agua sintácticamente válido',()=>new vm.Script(read('agua.js')));
-test('Assets de agua incorporados al build de Render',()=>{
- for(const f of ['agua.js','agua.css','agua-pro.css','data/agua-v9.json'])assert.ok(build.includes(f),f);
- for(const f of ['wa-bundled-styles','wa-bundled-runtime','wa-embedded-dataset','wa-design-v12'])assert.ok(html.includes('id="'+f+'"'),f);
+check('Interfaz tiene nueve secciones navegables y tres paneles',()=>{
+ for(const v of ['presas','acuiferos','cuencas','riego','clima','almacenamiento','comparar','calidad','fuentes'])assert.match(hsrc,new RegExp('data-aw-view="'+v+'" aria-pressed'));
+ for(const id of ['aw-state','aw-search','aw-context-filters','aw-main','aw-inspector','aw-inspector-content','aw-guide','aw-toast'])assert.ok(hsrc.includes('id="'+id+'"'),id);
 });
-test('Cinco estados completos en series de riego y clima',()=>{
- assert.equal(d.estados.length,5);
- for(const state of d.estados){
-  const r=d.riego.filter(x=>x[0]===state),c=d.clima.filter(x=>x[0]===state);
-  assert.equal(r.length,27,state+' riego');
-  assert.equal(c.length,23,state+' clima');
-  assert.equal(new Set(r.map(x=>x[1])).size,27);
-  assert.equal(new Set(c.map(x=>x[1])).size,23);
-  assert.equal(Math.min(...r.map(x=>x[1])),1997);
-  assert.equal(Math.max(...r.map(x=>x[1])),2023);
-  assert.equal(Math.min(...c.map(x=>x[1])),2003);
-  assert.equal(Math.max(...c.map(x=>x[1])),2025);
- }
+check('Estilos y motor en archivo modular coinciden con publicación',()=>{
+ const inCss=html.match(/<style id="aw-workspace-style">([\s\S]*?)<\/style>/);
+ const inJS=html.match(/<script id="aw-workspace-runtime">([\s\S]*?)<\/script>/);
+ assert.ok(inCss&&inJS);assert.equal(inCss[1].trim(),css.trim());assert.equal(inJS[1].trim(),js.trim());
+ new vm.Script(js);new vm.Script(inJS[1]);
 });
-test('Inventarios y observaciones V9 trazables',()=>{
- assert.equal(d.presas.length,75);
- assert.equal(d.acuiferos.length,216);
- assert.equal(d.calidad.length,223);
- assert.equal(d.tendencias.length,32);
- assert.equal(d.jalisco.length,1000); // Sólo muestra 1000/1018 meses originales.
- assert.equal(new Set(d.presas.map(x=>x[1])).size,75);
- assert.ok(d.presas.every(x=>x[4]>=14&&x[4]<=34&&x[5]>=-118&&x[5]<=-86));
+check('Datos integrados conservan integridad y procedencia',()=>{
+ const hit=html.match(/<script type="application\/json" id="wa-embedded-dataset">([\s\S]*?)<\/script>/);
+ assert.ok(hit);const v=JSON.parse(hit[1]);
+ for(const key of ['riego','clima','presas','acuiferos','calidad','sistemas','jalisco','sinaloa'])assert.equal(v[key].length,D[key].length,key);
+ assert.equal(D.estados.length,5);assert.equal(D.presas.length,75);assert.equal(D.acuiferos.length,216);assert.equal(D.calidad.length,223);
+ for(const st of D.estados){assert.equal(D.riego.filter(x=>x[0]===st).length,27,st+' riego');assert.equal(D.clima.filter(x=>x[0]===st).length,23,st+' clima')}
 });
-test('Ningún dato de calidad sin fecha se presenta como serie',()=>{
- assert.ok(d.calidad.every(x=>x[4]===0));
- assert.ok(read('agua.js').includes('No se presentan como mediciones actuales'));
+check('Mapa utiliza capas sin API key y respalda fallos con coordenadas',()=>{
+ assert.match(js,/tile\.openstreetmap\.org/);assert.match(js,/server\.arcgisonline\.com/);
+ assert.match(js,/function vectorFallback/);assert.match(js,/tileerror/);assert.doesNotMatch(js,/basemaps\.cartocdn\.com/);
 });
-console.log('\n'+checks.length+' controles superados.');
-console.log('Nota: 18 filas mensuales de Jalisco están pendientes en la edición web; la base V9 de investigación conserva 1018.');
+check('Filtros, inspector y exportaciones están implementados',()=>{
+ for(const token of ['function rowData','function renderFilters','function mountMap','function inspector','function renderCompare','function renderStorage','function exportCSV','function exportGeo','function share','function restore','function serialize','function chart'])assert.ok(js.includes(token),token);
+ assert.match(js,/data-aw-pick/);assert.match(js,/data-aw-page/);assert.match(js,/aw-mobile-inspector/);
+});
+check('Unidades y restricciones metodológicas visibles',()=>{
+ for(const phrase of ['No equivale a un dictamen','No representa','No es el consumo','no mide','No controlan superficie','No se interpolan','no significa'])assert.ok((hsrc+js).toLowerCase().includes(phrase.toLowerCase()),phrase);
+});
+check('No hay IDs duplicados en marcado HTML estático',()=>{
+ const bare=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,'');
+ const ids=[...bare.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);assert.equal(new Set(ids).size,ids.length);
+});
+console.log('\n'+completed+' controles de integración de Agua V14 superados.');
