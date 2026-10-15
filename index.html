@@ -580,72 +580,49 @@
 </section>
 
 
-<section id="panel-agua" class="section-panel wa-panel wa-v11" hidden aria-label="Observatorio hídrico GROWA">
-  <div class="wa-institution-bar">
-    <div class="wa-institution-identity"><span class="wa-institution-symbol" aria-hidden="true">≋</span><strong>GROWA</strong><span class="wa-identity-divider"></span><span>OBSERVATORIO DE RECURSOS HÍDRICOS</span></div>
-    <div class="wa-institution-status"><span class="wa-hollow-point" aria-hidden="true"></span> EDICIÓN DOCUMENTAL <b>OCTUBRE 2026</b></div>
-  </div>
-  <header class="wa-workspace-head">
-    <div class="wa-head-text">
-      <div class="wa-portal-path"><span class="wa-live-point"></span> PLATAFORMA DE ANÁLISIS TERRITORIAL <span class="wa-slash">/</span> MÉXICO</div>
-      <h1>El agua, <span>en perspectiva.</span></h1>
-      <p>Infraestructura hidráulica, recursos subterráneos y series históricas en un mismo espacio. Cada indicador presenta su escala, periodo y límites metodológicos.</p>
-      <div class="wa-head-quick"><button type="button" class="wa-start-button" data-wa-view="presas">Explorar el mapa ↗</button><button type="button" class="wa-head-text-link" data-wa-view="fuentes">Conocer las fuentes →</button></div>
+<section id="panel-agua" class="section-panel wa-panel wa-v12" hidden aria-label="GROWA Observatorio del agua">
+  <header class="wa12-head">
+    <div class="wa12-head-main">
+      <div class="wa12-kicker"><span class="wa12-kicker-line"></span> INTELIGENCIA TERRITORIAL <span class="wa12-kicker-slash">/</span> RECURSOS HÍDRICOS</div>
+      <h1>Observatorio <em>del agua</em></h1>
+      <p>Infraestructura hidráulica, disponibilidad subterránea y evolución histórica. Un espacio de consulta geográfica con trazabilidad documental.</p>
     </div>
-    <div class="wa-head-metadata"><div class="wa-head-index">01 <span>/</span> 08</div><div class="wa-head-index-label">ÁREAS DE CONSULTA</div><div class="wa-head-meta-line"><span>VERSIÓN DE DATOS</span><strong>V9 · 2026</strong></div><div class="wa-head-meta-line"><span>ÚLTIMO CORTE INTEGRADO</span><strong>13 OCT 2026</strong></div><div class="wa-head-meta-line"><span>NATURALEZA</span><strong>HISTÓRICO / CATÁLOGOS</strong></div></div>
+    <div class="wa12-head-right">
+      <label for="wa-state">TERRITORIO DE ANÁLISIS</label>
+      <select id="wa-state" aria-label="Entidad federativa"><option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Chihuahua">Chihuahua</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option></select>
+      <div class="wa12-data-cut"><span class="wa12-status-circle"></span> BASE INTEGRADA · 13 OCT 2026</div>
+    </div>
   </header>
-  <div class="wa-coverage-strip" aria-label="Cobertura documentada">
-    <div class="wa-coverage-unit"><strong>05</strong><span>Estados disponibles</span></div>
-    <div class="wa-coverage-unit"><strong>75</strong><span>Presas catalogadas</span></div>
-    <div class="wa-coverage-unit"><strong>216</strong><span>Acuíferos identificados</span></div>
-    <div class="wa-coverage-unit wa-coverage-years"><strong>1997–2025</strong><span>Horizontes distintos según indicador</span></div>
-    <div class="wa-coverage-warning"><span class="wa-warning-mark" aria-hidden="true">i</span><span>Inventarios y series históricas. <b>No son mediciones en tiempo real.</b></span></div>
+  <div id="wa-metrics" class="wa12-metrics" aria-live="polite"><div class="wa12-metric"><small>COBERTURA DOCUMENTADA</small><strong>5 estados</strong><span>Conjuntos históricos e inventarios</span></div></div>
+  <div class="wa12-nav-wrap">
+    <nav class="wa-views wa12-nav" aria-label="Áreas de consulta hídrica">
+      <button type="button" class="wa-tab" data-wa-view="presas" aria-selected="true"><span class="wa12-nav-no">01</span> Mapa de presas</button>
+      <button type="button" class="wa-tab" data-wa-view="resumen" aria-selected="false"><span class="wa12-nav-no">02</span> Panorama</button>
+      <button type="button" class="wa-tab" data-wa-view="acuiferos" aria-selected="false"><span class="wa12-nav-no">03</span> Acuíferos</button>
+      <button type="button" class="wa-tab" data-wa-view="cuencas" aria-selected="false"><span class="wa12-nav-no">04</span> Cuencas</button>
+      <button type="button" class="wa-tab" data-wa-view="series" aria-selected="false"><span class="wa12-nav-no">05</span> Series históricas</button>
+      <button type="button" class="wa-tab" data-wa-view="comparar" aria-selected="false"><span class="wa12-nav-no">06</span> Comparar</button>
+      <button type="button" class="wa-tab" data-wa-view="calidad" aria-selected="false"><span class="wa12-nav-no">07</span> Calidad</button>
+      <button type="button" class="wa-tab" data-wa-view="fuentes" aria-selected="false"><span class="wa12-nav-no">08</span> Metodología</button>
+    </nav>
+    <div class="wa12-dataset-mark">EDICIÓN 2026 <span>•</span> SERIES NO CONTINUAS</div>
   </div>
-  <div class="wa-console">
-    <aside class="wa-side" aria-label="Navegación hídrica">
-      <div class="wa-region-selector">
-        <div class="wa-side-kicker">ÁREA DE ESTUDIO</div>
-        <label for="wa-state">Entidad federativa</label>
-        <select id="wa-state" aria-label="Seleccionar entidad federativa"><option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Chihuahua">Chihuahua</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option></select>
-        <div class="wa-select-context">● Cinco entidades con cobertura desigual</div>
-      </div>
-      <nav class="wa-views" aria-label="Secciones del observatorio hídrico">
-        <div class="wa-nav-label">EXPLORACIÓN</div>
-        <button type="button" class="wa-tab" data-wa-view="presas" aria-selected="true"><span class="wa-tab-index">01</span><span class="wa-tab-text">Mapa de presas</span><span class="wa-tab-arrow">↗</span></button>
-        <button type="button" class="wa-tab" data-wa-view="resumen" aria-selected="false"><span class="wa-tab-index">02</span><span class="wa-tab-text">Panorama ejecutivo</span><span class="wa-tab-arrow">↗</span></button>
-        <div class="wa-nav-label">RECURSOS HÍDRICOS</div>
-        <button type="button" class="wa-tab" data-wa-view="acuiferos" aria-selected="false"><span class="wa-tab-index">03</span><span class="wa-tab-text">Agua subterránea</span><span class="wa-tab-arrow">↗</span></button>
-        <button type="button" class="wa-tab" data-wa-view="cuencas" aria-selected="false"><span class="wa-tab-index">04</span><span class="wa-tab-text">Cuencas y caudales</span><span class="wa-tab-arrow">↗</span></button>
-        <div class="wa-nav-label">ANÁLISIS</div>
-        <button type="button" class="wa-tab" data-wa-view="series" aria-selected="false"><span class="wa-tab-index">05</span><span class="wa-tab-text">Series históricas</span><span class="wa-tab-arrow">↗</span></button>
-        <button type="button" class="wa-tab" data-wa-view="comparar" aria-selected="false"><span class="wa-tab-index">06</span><span class="wa-tab-text">Comparar estados</span><span class="wa-tab-arrow">↗</span></button>
-        <button type="button" class="wa-tab" data-wa-view="calidad" aria-selected="false"><span class="wa-tab-index">07</span><span class="wa-tab-text">Calidad del agua</span><span class="wa-tab-arrow">↗</span></button>
-        <div class="wa-nav-label">TRANSPARENCIA</div>
-        <button type="button" class="wa-tab" data-wa-view="fuentes" aria-selected="false"><span class="wa-tab-index">08</span><span class="wa-tab-text">Fuentes y método</span><span class="wa-tab-arrow">↗</span></button>
-      </nav>
-      <div class="wa-sidebar-foot">
-        <span class="wa-sidebar-foot-title">CÓMO LEER LOS DATOS</span>
-        <div class="wa-sidebar-data"><span><i class="wa-sidebar-indicator wa-indicator-blue"></i> Series</span><b>Riego y clima</b></div>
-        <div class="wa-sidebar-data"><span><i class="wa-sidebar-indicator wa-indicator-sand"></i> Corte único</span><b>Acuíferos</b></div>
-        <div class="wa-sidebar-data"><span><i class="wa-sidebar-indicator wa-indicator-slate"></i> Parcial</span><b>Almacenamiento</b></div>
-        <button id="wa-method-shortcut" class="wa-sidebar-method" type="button">Limitaciones de la fuente →</button>
-      </div>
-    </aside>
-    <div class="wa-workspace-main">
-      <div class="wa-commandbar" role="region" aria-label="Herramientas">
-        <div class="wa-location-stack"><span class="wa-command-eyebrow">GROWA / AGUA / <span id="wa-active-view-title">MAPA DE PRESAS</span></span><div class="wa-active-scope"><span class="wa-status-signal"></span><span id="wa-scope-label">Sinaloa <small>· Cargando catálogo</small></span></div></div>
-        <div class="wa-command-actions">
-          <button class="wa-secondary-button" type="button" id="wa-copy-link" title="Copiar vista y filtros">Compartir ↗</button>
-          <button class="wa-secondary-button" type="button" id="wa-print" title="Imprimir o guardar como PDF">Imprimir / PDF</button>
-          <button class="wa-primary-button" type="button" id="wa-export">Exportar CSV ↓</button>
-        </div>
-      </div>
-      <div class="wa-context-line"><span id="wa-view-description">Infraestructura georreferenciada, inventarios de capacidad nominal y fichas técnicas.</span><b>DATOS DOCUMENTALES · NO TIEMPO REAL</b></div>
-      <div class="wa-workspace-body"><div id="wa-content" aria-live="polite"><div class="wa-loading">Preparando mapas e indicadores…</div></div></div>
-      <footer class="wa-workspace-footer"><span><b>GROWA / AGUA</b> · Investigación y planeación basada en evidencia</span><span>Referencias de diseño: <a href="https://sih.conagua.gob.mx/" target="_blank" rel="noopener noreferrer">CONAGUA</a> · <a href="https://dashboard.waterdata.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS</a> · <a href="https://www.wri.org/aqueduct" target="_blank" rel="noopener noreferrer">WRI</a>. Plataforma independiente.</span></footer>
+  <div class="wa12-toolbar">
+    <div class="wa12-toolbar-context">
+      <div id="wa-active-view-title">MAPA DE PRESAS</div>
+      <p id="wa-view-description">Localización, capacidad nominal y expedientes de infraestructura.</p>
+    </div>
+    <div class="wa12-tools">
+      <span id="wa-scope-label" class="wa12-scope">Sinaloa · seleccionando registros</span>
+      <button type="button" id="wa-copy-link" class="wa-secondary-button" title="Compartir selección y filtros">Compartir ↗</button>
+      <button type="button" id="wa-print" class="wa-secondary-button" title="Imprimir o guardar PDF">Imprimir</button>
+      <button type="button" id="wa-export" class="wa-primary-button" title="Exportar los registros de esta vista">Descargar CSV ↓</button>
     </div>
   </div>
+  <main class="wa12-main"><div id="wa-content" aria-live="polite"><div class="wa-loading">Cargando las fuentes hídricas…</div></div></main>
+  <footer class="wa12-foot"><div><strong>GROWA / AGUA</strong><span>Base documental y registros históricos. No representa mediciones en tiempo real.</span></div><button type="button" id="wa-method-shortcut">Ver fuentes y limitaciones <span aria-hidden="true">↗</span></button></footer>
 </section>
+
 
 <section id="panel-laboratorio" class="section-panel lab-page" hidden aria-label="Laboratorio de análisis agrícola">
   <header class="lab-intro">
