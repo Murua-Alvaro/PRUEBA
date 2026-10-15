@@ -11,9 +11,9 @@ check('Sitio mantiene agricultura y módulo Agua integrado',()=>{
  assert.match(html,/data-tab="agua"/);assert.match(html,/id="panel-panorama"/);
  assert.match(html,/id="panel-agua"/);assert.ok(html.includes(hsrc));
 });
-check('Interfaz tiene nueve secciones navegables y tres paneles',()=>{
- for(const v of ['presas','acuiferos','cuencas','riego','clima','almacenamiento','comparar','calidad','fuentes'])assert.match(hsrc,new RegExp('data-aw-view="'+v+'" aria-pressed'));
- for(const id of ['aw-state','aw-search','aw-context-filters','aw-main','aw-inspector','aw-inspector-content','aw-guide','aw-toast'])assert.ok(hsrc.includes('id="'+id+'"'),id);
+check('Interfaz tiene once secciones y tres paneles',()=>{
+ for(const v of ['presas','acuiferos','cuencas','riego','clima','almacenamiento','comparar','calidad','tendencias','biblioteca','fuentes'])assert.match(hsrc,new RegExp('data-aw-view="'+v+'" aria-pressed'));
+ for(const id of ['aw-state','aw-search','aw-muni-input','aw-muni-options','aw-muni-clear','aw-inspector-select','aw-context-filters','aw-main','aw-inspector','aw-inspector-content','aw-guide','aw-toast'])assert.ok(hsrc.includes('id="'+id+'"'),id);
 });
 check('Estilos y motor en archivo modular coinciden con publicación',()=>{
  const inCss=html.match(/<style id="aw-workspace-style">([\s\S]*?)<\/style>/);
@@ -24,8 +24,8 @@ check('Estilos y motor en archivo modular coinciden con publicación',()=>{
 check('Datos integrados conservan integridad y procedencia',()=>{
  const hit=html.match(/<script type="application\/json" id="wa-embedded-dataset">([\s\S]*?)<\/script>/);
  assert.ok(hit);const v=JSON.parse(hit[1]);
- for(const key of ['riego','clima','presas','acuiferos','calidad','sistemas','jalisco','sinaloa'])assert.equal(v[key].length,D[key].length,key);
- assert.equal(D.estados.length,5);assert.equal(D.presas.length,75);assert.equal(D.acuiferos.length,216);assert.equal(D.calidad.length,223);
+ for(const key of ['riego','clima','presas','acuiferos','calidad','sistemas','jalisco','sinaloa','tendencias','cobertura'])assert.equal(v[key].length,D[key].length,key);
+ assert.equal(D.estados.length,5);assert.equal(D.presas.length,75);assert.equal(D.acuiferos.length,216);assert.equal(D.calidad.length,223);assert.equal(D.tendencias.length,32);assert.equal(D.cobertura.length,43);
  for(const st of D.estados){assert.equal(D.riego.filter(x=>x[0]===st).length,27,st+' riego');assert.equal(D.clima.filter(x=>x[0]===st).length,23,st+' clima')}
 });
 check('Mapa utiliza capas sin API key y respalda fallos con coordenadas',()=>{
@@ -35,6 +35,8 @@ check('Mapa utiliza capas sin API key y respalda fallos con coordenadas',()=>{
 check('Filtros, inspector y exportaciones están implementados',()=>{
  for(const token of ['const rowData=','function renderFilters','function mountMap','function inspector','function renderCompare','function renderStorage','function exportCSV','function exportGeo','function share','function restore','function serialize','function chart'])assert.ok(js.includes(token),token);
  assert.match(js,/data-aw-pick/);assert.match(js,/data-aw-page/);assert.match(js,/aw-mobile-inspector/);
+ for(const t of ['function renderMunicipios','function municipalMatches','function chooseMunicipio','SINALOA_MUNICIPIOS','function renderBiblioteca','function renderTendencias','data-aw-muni','data-aw-action="next-record"'])assert.ok((js+hsrc).includes(t),t);
+ assert.match(js,/Sin registros georreferenciados para/);
 });
 check('Unidades y restricciones metodológicas visibles',()=>{
  for(const phrase of ['No equivale a un dictamen','No representa','No es el consumo','no agua almacenada hoy','No controlan superficie','No se interpolan','no significa'])assert.ok((hsrc+js).toLowerCase().includes(phrase.toLowerCase()),phrase);
@@ -43,4 +45,12 @@ check('No hay IDs duplicados en marcado HTML estático',()=>{
  const bare=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,'');
  const ids=[...bare.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);assert.equal(new Set(ids).size,ids.length);
 });
-console.log('\n'+completed+' controles de integración de Agua V14 superados.');
+check('Autocompletado municipal y cobertura bibliográfica explícita',()=>{
+ assert.ok(js.includes('Mazatlán'), 'El catálogo de municipios incluye Mazatlán');
+ assert.ok(js.includes('Juan José Ríos')&&js.includes('Eldorado'));
+ assert.match(hsrc,/role="combobox"/);assert.match(hsrc,/role="listbox"/);
+ assert.match(js,/Filas accesibles/);assert.match(js,/Registros declarados/);
+ assert.ok(D.cobertura.some(x=>x[0]==='Michoacán'&&x[1]==='presas_capacidad_corte_unico'&&x[2]===21));
+ assert.equal(D.presas.filter(x=>x[0]==='Michoacán').length,0);
+});
+console.log('\n'+completed+' controles de integración de Agua V15 superados.');
