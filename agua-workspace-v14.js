@@ -10,7 +10,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
 const n=v=>v===null||v===''||v===undefined?null:Number(v);
 const slug=s=>norm(s).toLowerCase().replace(/[^a-z0-9]+/g,'-');
-const names={presas:['CARTOGRAFÍA E INFRAESTRUCTURA','Presas y embalses','Localización y capacidad nominal de las instalaciones catalogadas.'],acuiferos:['AGUA SUBTERRÁNEA','Acuíferos','Recarga, extracción registrada y disponibilidad administrativa por acuífero.'],cuencas:['HIDROLOGÍA SUPERFICIAL','Cuencas y caudales','Cobertura nacional de disponibilidad y límites del inventario regional.'],riego:['OPERACIÓN AGRÍCOLA','Distritos de riego','Agua distribuida y superficie regada por ciclo agrícola, 1997/98–2023/24.'],clima:['SERIES METEOROLÓGICAS','Clima y agua','Precipitación y evapotranspiración de referencia, 2003–2025.'],almacenamiento:['OBSERVACIÓN DE EMBALSES','Almacenamiento','Cortes históricos de embalses, únicamente donde la serie está integrada.'],comparar:['ANÁLISIS TERRITORIAL','Comparar estados','Dos entidades, una variable y un periodo compatible.'],calidad:['SITIOS DE MONITOREO','Calidad del agua','Inventario de sitios, sin inferencias de calidad sanitaria actual.'],fuentes:['TRANSPARENCIA METODOLÓGICA','Fuentes y cobertura','Origen, escalas, fechas, registros faltantes y límites de interpretación.']};
+const names={presas:['CARTOGRAFÍA E INFRAESTRUCTURA','Presas y embalses','Localización y capacidad nominal de las instalaciones catalogadas.'],acuiferos:['AGUA SUBTERRÁNEA','Acuíferos','Recarga, extracción registrada y disponibilidad administrativa por acuífero.'],cuencas:['HIDROLOGÍA SUPERFICIAL','Cuencas y caudales','Cobertura nacional de disponibilidad y límites del inventario regional.'],riego:['OPERACIÓN AGRÍCOLA','Distritos de riego','Agua distribuida y superficie regada por ciclo agrícola, 1997/98–2023/24.'],clima:['SERIES METEOROLÓGICAS','Clima y agua','Precipitación y evapotranspiración de referencia, 2003–2025.'],almacenamiento:['OBSERVACIÓN DE EMBALSES','Almacenamiento','Cortes históricos de embalses, únicamente donde la serie está integrada.'],comparar:['ANÁLISIS TERRITORIAL','Comparar estados','Dos entidades, una variable y un periodo compatible.'],calidad:['SITIOS DE MONITOREO','Calidad del agua','Inventario de sitios, sin inferencias de calidad sanitaria actual.'],biblioteca:['CATÁLOGO DOCUMENTAL','Biblioteca de datos','Todas las fuentes, tablas, fechas y brechas del paquete integrado.'],tendencias:['ANÁLISIS ESTADÍSTICO','Tendencias de distritos','Resultados de tendencias históricas reportados para distritos de riego.'],fuentes:['TRANSPARENCIA METODOLÓGICA','Fuentes y cobertura','Origen, escalas, fechas, registros faltantes y límites de interpretación.']};
 const sources=[
  ['Distritos de riego','1997/98–2023/24','CONAGUA · series distritales compiladas','https://www.gob.mx/conagua'],
  ['Clima y ET₀','2003–2025','NASA POWER / integración GROWA','https://power.larc.nasa.gov/'],
@@ -21,7 +21,7 @@ const sources=[
  ['Cuencas y caudales','757 cuencas nacionales, un corte de 2020','Sin asignación geográfica estatal validada ni series de caudal','https://sih.conagua.gob.mx/hidros.html'],
  ['Calidad del agua','223 sitios de Sinaloa','Fechas de medición sin validar; no establecer tendencias','https://www.gob.mx/conagua']
 ];
-const S={view:'presas',state:'Sinaloa',search:'',min:0,sort:'capacidad',saldo:'todos',metric:'lluvia',from:null,to:null,compare:'Sonora',compareMetric:'riego',storageCode:'',basemap:'calles',selected:'',page:1,limit:12,inspector:true,showTable:true,filterOpen:false,showPoints:true};
+const S={view:'presas',state:'Sinaloa',search:'',municipio:'',municipalOpen:false,municipalQuery:'',municipalCursor:0,min:0,sort:'capacidad',saldo:'todos',metric:'lluvia',from:null,to:null,compare:'Sonora',compareMetric:'riego',storageCode:'',basemap:'calles',selected:'',page:1,limit:12,inspector:true,showTable:true,filterOpen:false,showPoints:true};
 let D=null,map=null,mapTiles=null,tileErrors=0,mapMarks=new Map(),toastTimer=null,initialized=false;
 const belongs=x=>norm(x[0])===norm(S.state);
 const dams=()=>D.presas.filter(belongs);
@@ -29,6 +29,45 @@ const aquifers=()=>D.acuiferos.filter(belongs);
 const irrigation=()=>D.riego.filter(belongs).sort((a,b)=>a[1]-b[1]);
 const climate=()=>D.clima.filter(belongs).sort((a,b)=>a[1]-b[1]);
 const quality=()=>D.calidad.filter(belongs);
+/* Catálogo Sinaloa: INEGI, Clasificación de países, entidades y municipios, edición 2025.
+   Para otros estados sólo se ofrecen municipios presentes en las presas del paquete web. */
+const SINALOA_MUNICIPIOS=[
+ 'Ahome','Angostura','Badiraguato','Concordia','Cosalá','Culiacán','Choix','Elota','Escuinapa','El Fuerte','Guasave','Mazatlán','Mocorito','Rosario','Salvador Alvarado','San Ignacio','Sinaloa','Navolato','Eldorado','Juan José Ríos'
+].sort((a,b)=>a.localeCompare(b,'es'));
+function municipioCatalogo(){
+ if(S.state==='Sinaloa')return SINALOA_MUNICIPIOS;
+ return [...new Set(dams().map(x=>x[3]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+}
+function municipalMatches(){
+ const q=norm(S.municipalQuery.trim());
+ const all=municipioCatalogo();
+ return (q?all.filter(m=>norm(m).includes(q)):all).slice(0,80);
+}
+function renderMunicipios(){
+ const group=$('aw-muni-group'),input=$('aw-muni-input'),list=$('aw-muni-options'),help=$('aw-muni-help'),clear=$('aw-muni-clear');
+ if(!group||!input||!list)return;
+ group.hidden=S.view!=='presas';
+ if(group.hidden){S.municipalOpen=false;list.hidden=true;return}
+ if(document.activeElement!==input)input.value=S.municipalOpen?S.municipalQuery:S.municipio;
+ if(help)help.textContent=S.state==='Sinaloa'?'Catálogo INEGI: 20 municipios. Sólo las presas con municipio identificado se pueden filtrar.':'Municipios registrados en el catálogo de presas (no es el padrón oficial completo).';
+ if(clear)clear.hidden=!S.municipio;
+ const options=municipalMatches();
+ list.hidden=!S.municipalOpen;
+ if(S.municipalCursor>=options.length+1)S.municipalCursor=0;
+ if(!S.municipalOpen)return;
+ list.innerHTML='<div class="aw-combo-top">'+esc(options.length)+' opciones · escribir para filtrar</div>'+
+  '<button type="button" role="option" aria-selected="'+(!S.municipio)+'" class="aw-combo-option '+(S.municipalCursor===0?'aw-combo-active':'')+'" data-aw-muni=""><strong>Todos los municipios</strong><small>Restablecer el filtro territorial</small></button>'+
+  (options.length?options.map((m,i)=>{
+   const count=dams().filter(x=>norm(x[3])===norm(m)).length;
+   return '<button type="button" role="option" aria-selected="'+(S.municipio===m)+'" class="aw-combo-option '+(S.municipalCursor===i+1?'aw-combo-active':'')+'" data-aw-muni="'+esc(m)+'"><strong>'+esc(m)+'</strong><small>'+count+' presas catalogadas'+(count?'':' · sin registros en esta base')+'</small></button>';
+  }).join(''):'<div class="aw-combo-empty">No hay municipios que coincidan. Use otra búsqueda.</div>');
+}
+function chooseMunicipio(value){
+ S.municipio=value;S.municipalOpen=false;S.municipalQuery='';S.municipalCursor=0;S.page=1;S.selected='';
+ const input=$('aw-muni-input');if(input){input.value=value;input.setAttribute('aria-expanded','false')}
+ render();
+}
+
 const listYears=(view)=>view==='riego'?irrigation().map(x=>x[1]):view==='clima'?climate().map(x=>x[1]):[];
 const dataMeta=view=>({presas:['Presa','Municipio','NAMO (hm³)','Clave'],acuiferos:['Acuífero','Clave','Recarga (hm³/año)','VEAS (hm³/año)','Saldo (hm³/año)'],calidad:['Sitio de muestreo','Clave','Registros','pH medio','Fechas verificadas']})[view];
 const rowData=()=>{
@@ -36,6 +75,7 @@ const rowData=()=>{
  if(S.view==='presas')rows=dams().filter(x=>(n(x[6])??0)>=S.min).map(x=>({id:String(x[1]),text:x[2]+' '+x[3]+' '+x[1],cols:[x[2],x[3],fmt(x[6]),x[1]],sort:[x[2],x[3],n(x[6])??0,x[1]],raw:x}));
  if(S.view==='acuiferos')rows=aquifers().filter(x=>S.saldo==='todos'||(S.saldo==='negativo'?x[6]===1:x[6]!==1)).map(x=>({id:String(x[1]),text:x[1]+' '+x[2],cols:[x[2],x[1],fmt(x[3]),fmt(x[4]),fmt(x[5])],sort:[x[2],x[1],n(x[3])??0,n(x[4])??0,n(x[5])??0],raw:x}));
  if(S.view==='calidad')rows=quality().map(x=>({id:String(x[1]),text:x[1]+' '+x[2],cols:[x[2],x[1],fmt(x[3],0),fmt(x[5],2),fmt(x[4],0)],sort:[x[2],x[1],x[3],n(x[5])??0,x[4]],raw:x}));
+ if(S.municipio&&S.view==='presas')rows=rows.filter(x=>norm(x.raw[3])===norm(S.municipio));
  if(S.search.trim())rows=rows.filter(x=>norm(x.text).includes(norm(S.search.trim())));
  const sortCol=S.sort==='nombre'?0:S.sort==='municipio'&&S.view==='presas'?1:S.view==='presas'?2:S.view==='acuiferos'&&S.sort==='saldo'?4:S.view==='acuiferos'&&S.sort==='recarga'?2:S.view==='calidad'&&S.sort==='cantidad'?2:0;
  rows.sort((a,b)=>{const x=a.sort[sortCol],y=b.sort[sortCol];return typeof x==='number'&&typeof y==='number'?(S.view==='acuiferos'&&S.sort==='saldo'?x-y:y-x):String(x).localeCompare(String(y),'es',{numeric:true})});
@@ -62,6 +102,7 @@ function selector(label,id,opts,value,description=''){
 function renderFilters(){
  $('aw-state').value=S.state;$('aw-search').value=S.search;
  const searchGroup=$('aw-search-group');if(searchGroup)searchGroup.hidden=!['presas','acuiferos','calidad'].includes(S.view);
+ renderMunicipios();
  let html='';
  if(S.view==='presas')html=selector('Capacidad NAMO mínima','aw-min',[[0,'Todas'],[100,'100 hm³ o más'],[500,'500 hm³ o más'],[1000,'1,000 hm³ o más']],S.min,'Capacidad nominal; no es el volumen almacenado.')+
  selector('Ordenar por','aw-sort',[['capacidad','Mayor capacidad'],['nombre','Nombre A–Z'],['municipio','Municipio A–Z']],S.sort);
@@ -79,7 +120,7 @@ function renderFilters(){
  $('aw-context-filters').innerHTML=html;
  const controlRows=['presas','acuiferos','calidad'].includes(S.view)?rowData():S.view==='riego'?periodFilter(irrigation()):S.view==='clima'?periodFilter(climate()):S.view==='comparar'?D.estados.length:S.view==='almacenamiento'?S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS'):S.state==='Jalisco'?D.jalisco.filter(x=>x[0]===S.storageCode):[]:D.cobertura.filter(belongs);
  $('aw-visible-count').textContent=fmt(Array.isArray(controlRows)?controlRows.length:controlRows,0);
- $('aw-filter-count').textContent=(S.search?1:0)+(S.min>0?1:0)+(S.saldo!=='todos'?1:0)+' filtros manuales';
+ $('aw-filter-count').textContent=(S.search?1:0)+(S.municipio&&S.view==='presas'?1:0)+(S.min>0?1:0)+(S.saldo!=='todos'?1:0)+' filtros manuales';
 }
 function tableMarkup(head,rows,{view=S.view,pageable=true,selectable=false}={}){
  const total=rows.length,size=S.limit,pages=Math.max(1,Math.ceil(total/size));S.page=Math.min(Math.max(1,S.page),pages);
@@ -303,10 +344,12 @@ function render(){
  if(S.view==='comparar')renderCompare();
  if(S.view==='calidad')renderQuality();
  if(S.view==='fuentes')renderSources();
+ if(S.view==='tendencias')renderTendencias();
+ if(S.view==='biblioteca')renderBiblioteca();
  inspector();updateURL();
 }
 function serialize(u){
- const params={wa:S.view,ws:S.state,wq:S.search,wb:S.basemap,wmin:String(S.min),wsort:S.sort,wsaldo:S.saldo,wfrom:S.from==null?'':String(S.from),wto:S.to==null?'':String(S.to),wm:S.metric,wcomp:S.compare,wcm:S.compareMetric,wsc:S.storageCode};
+ const params={wa:S.view,ws:S.state,wq:S.search,wmun:S.municipio,wb:S.basemap,wmin:String(S.min),wsort:S.sort,wsaldo:S.saldo,wfrom:S.from==null?'':String(S.from),wto:S.to==null?'':String(S.to),wm:S.metric,wcomp:S.compare,wcm:S.compareMetric,wsc:S.storageCode};
  for(const [k,v]of Object.entries(params)){if(v===''||v===null)u.searchParams.delete(k);else u.searchParams.set(k,v)}
 }
 function updateURL(){if(root.hidden&&location.hash!=='#agua')return;const u=new URL(location.href);serialize(u);u.hash='agua';history.replaceState(null,'',u.pathname+u.search+u.hash)}
@@ -331,14 +374,16 @@ function exportGeo(){
  const collection={type:'FeatureCollection',features:rowData().map(r=>{const x=r.raw;return {type:'Feature',geometry:{type:'Point',coordinates:[x[5],x[4]]},properties:{estado:x[0],clave:x[1],presa:x[2],municipio:x[3],capacidad_namo_hm3:x[6],nota:'Capacidad nominal; no lectura en tiempo real'}}})};
  download('growa-presas-'+slug(S.state)+'.geojson',JSON.stringify(collection,null,2),'application/geo+json');
 }
-function resetFilters(){S.search='';S.min=0;S.sort=S.view==='presas'?'capacidad':S.view==='acuiferos'?'saldo':'nombre';S.saldo='todos';S.from=null;S.to=null;S.page=1;S.selected='';render();notice('Filtros restablecidos.')}
-function changeView(view){
+function resetFilters(){S.search='';S.municipio='';S.municipalOpen=false;S.min=0;S.sort=S.view==='presas'?'capacidad':S.view==='acuiferos'?'saldo':'nombre';S.saldo='todos';S.from=null;S.to=null;S.page=1;S.selected='';render();notice('Filtros restablecidos.')}
+function changeView(view){S.municipalOpen=false;
  if(!names[view])return;S.view=view;S.search='';S.min=0;S.saldo='todos';S.from=null;S.to=null;S.page=1;S.selected='';S.sort=view==='presas'?'capacidad':view==='acuiferos'?'saldo':'nombre';S.filterOpen=false;render();
 }
-function changeState(state){if(!D.estados.includes(state))return;S.state=state;S.page=1;S.selected='';S.search='';S.from=null;S.to=null;S.storageCode='';if(S.compare===S.state)S.compare=D.estados.find(x=>x!==S.state)||S.state;render()}
+function changeState(state){if(!D.estados.includes(state))return;S.state=state;S.municipio='';S.municipalOpen=false;S.municipalQuery='';S.page=1;S.selected='';S.search='';S.from=null;S.to=null;S.storageCode='';if(S.compare===S.state)S.compare=D.estados.find(x=>x!==S.state)||S.state;render()}
 function share(){const u=new URL(location.href);serialize(u);u.hash='agua';const link=u.toString();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>notice('Enlace con la consulta copiado.')).catch(()=>fallbackCopy(link));else fallbackCopy(link)}
 function fallbackCopy(text){const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.left='-100vw';document.body.append(field);field.select();try{document.execCommand('copy');notice('Enlace copiado.')}catch(e){notice('Copie el enlace desde la barra del navegador.')}field.remove()}
 function action(name){
+ if(name==='open-municipios'){S.municipalOpen=!S.municipalOpen;S.municipalQuery='';S.municipalCursor=0;const input=$('aw-muni-input');if(input){input.value='';input.setAttribute('aria-expanded',String(S.municipalOpen));input.focus()}renderMunicipios();return}
+ if(name==='clear-municipio'){chooseMunicipio('');return}
  if(name==='help'){$('aw-guide').showModal();return}
  if(name==='close-guide'){$('aw-guide').close();return}
  if(name==='export'){exportCSV();return}
@@ -355,15 +400,26 @@ function action(name){
  if(name==='copy-coords'){const r=dams().find(x=>String(x[1])===S.selected);if(r){const s=r[4]+', '+r[5];if(navigator.clipboard?.writeText)navigator.clipboard.writeText(s).then(()=>notice('Coordenadas copiadas.'));else fallbackCopy(s)}}
 }
 root.addEventListener('click',e=>{
+ const muni=e.target.closest('[data-aw-muni]');if(muni){chooseMunicipio(muni.dataset.awMuni);return}
  const nav=e.target.closest('[data-aw-view]');if(nav){changeView(nav.dataset.awView);return}
  const act=e.target.closest('[data-aw-action]');if(act){action(act.dataset.awAction);return}
  const pg=e.target.closest('[data-aw-page]');if(pg){S.page+=Number(pg.dataset.awPage);render();return}
  const pk=e.target.closest('[data-aw-pick]');if(pk){pick(pk.dataset.awPick,true);return}
 });
-root.addEventListener('keydown',e=>{if(e.target.matches('tr[data-aw-pick]')&&['Enter',' '].includes(e.key)){e.preventDefault();pick(e.target.dataset.awPick,true)}if(e.key==='Escape'&&S.filterOpen){S.filterOpen=false;root.classList.remove('aw-filters-open')}});
+root.addEventListener('keydown',e=>{
+ if(e.target.id==='aw-muni-input'){
+  const opts=municipalMatches();
+  if(e.key==='ArrowDown'){e.preventDefault();S.municipalOpen=true;S.municipalCursor=Math.min(opts.length,S.municipalCursor+1);renderMunicipios();return}
+  if(e.key==='ArrowUp'){e.preventDefault();S.municipalOpen=true;S.municipalCursor=Math.max(0,S.municipalCursor-1);renderMunicipios();return}
+  if(e.key==='Enter'){e.preventDefault();if(!S.municipalOpen){S.municipalOpen=true;renderMunicipios();return}
+   const selected=S.municipalCursor===0?'':opts[S.municipalCursor-1];if(selected!==undefined)chooseMunicipio(selected);return}
+  if(e.key==='Escape'){S.municipalOpen=false;e.target.value=S.municipio;renderMunicipios();return}
+ }
+ if(e.target.matches('tr[data-aw-pick]')&&['Enter',' '].includes(e.key)){e.preventDefault();pick(e.target.dataset.awPick,true)}if(e.key==='Escape'&&S.filterOpen){S.filterOpen=false;root.classList.remove('aw-filters-open')}});
 root.addEventListener('change',e=>{
  const id=e.target.id,v=e.target.value;
  if(id==='aw-state'){changeState(v);return}
+ if(id==='aw-inspector-select'){pick(v,true);return}
  if(id==='aw-min'){S.min=Number(v)||0;S.page=1;render();return}
  if(id==='aw-sort'){S.sort=v;S.page=1;render();return}
  if(id==='aw-saldo'){S.saldo=v;S.page=1;render();return}
@@ -375,7 +431,12 @@ root.addEventListener('change',e=>{
  if(id==='aw-layer-points'){S.showPoints=e.target.checked;if(map){for(const marker of mapMarks.values()){if(S.showPoints)marker.addTo(map);else map.removeLayer(marker)}}else if(S.view==='presas')mountMap(rowData());return}
  if(id==='aw-basemap'){S.basemap=v;const rows=rowData();mountMap(rows);updateURL();return}
 });
-root.addEventListener('input',e=>{if(e.target.id==='aw-search'){S.search=e.target.value;S.page=1;clearMap();setStatus();const box=$('aw-visible-count');if(box)box.textContent=fmt(rowData().length,0);if(S.view==='presas')renderPresas();else if(S.view==='acuiferos')renderAcuiferos();else if(S.view==='calidad')renderQuality();inspector()}});
+root.addEventListener('input',e=>{
+ if(e.target.id==='aw-muni-input'){
+  S.municipalOpen=true;S.municipalQuery=e.target.value;S.municipalCursor=0;e.target.setAttribute('aria-expanded','true');
+  renderMunicipios();return
+ }
+ if(e.target.id==='aw-search'){S.search=e.target.value;S.page=1;clearMap();setStatus();const box=$('aw-visible-count');if(box)box.textContent=fmt(rowData().length,0);if(S.view==='presas')renderPresas();else if(S.view==='acuiferos')renderAcuiferos();else if(S.view==='calidad')renderQuality();inspector()}});
 document.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){e.preventDefault();$('aw-search')?.focus()}});
 const observer=new MutationObserver(()=>{if(!root.hidden&&D&&S.view==='presas'&&!map){const node=$('aw-map');if(node&&!node.querySelector('svg.aw-vector'))mountMap(rowData())}});
 observer.observe(root,{attributes:true,attributeFilter:['hidden']});
@@ -383,6 +444,7 @@ function restore(){
  const q=new URL(location.href).searchParams,v=q.get('wa'),st=q.get('ws'),base=q.get('wb');
  if(names[v])S.view=v;if(D.estados.includes(st))S.state=st;if(base&&tiles[base])S.basemap=base;
  S.search=String(q.get('wq')||'').slice(0,90);
+ const m=String(q.get('wmun')||'');if(municipioCatalogo().includes(m))S.municipio=m;
  const min=Number(q.get('wmin'));if([0,100,500,1000].includes(min))S.min=min;
  const sort=q.get('wsort');if(['capacidad','nombre','municipio','saldo','recarga','cantidad'].includes(sort))S.sort=sort;
  const saldo=q.get('wsaldo');if(['todos','negativo','no-negativo'].includes(saldo))S.saldo=saldo;
