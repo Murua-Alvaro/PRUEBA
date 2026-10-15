@@ -287,7 +287,7 @@ function highlightMap(){
 }
 function pick(id,move=false){
  S.selected=String(id);inspector();root.querySelectorAll('[data-aw-pick]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.awPick===id)));
- highlightMap();if(window.innerWidth<=1000){root.classList.add('aw-mobile-inspector')}const marker=mapMarks.get(S.selected);if(marker&&map&&move){map.panTo(marker.getLatLng());marker.openTooltip()}
+ highlightMap();if(window.innerWidth<=1000){S.inspector=true;root.classList.remove('aw-inspector-hidden');root.classList.add('aw-mobile-inspector')}const marker=mapMarks.get(S.selected);if(marker&&map&&move){map.panTo(marker.getLatLng());marker.openTooltip()}
 }
 function focusSelected(){if(map&&mapMarks.has(S.selected)){const marker=mapMarks.get(S.selected);map.setView(marker.getLatLng(),Math.max(map.getZoom(),8));marker.openTooltip()}else notice('Seleccione una presa en el catálogo.')}
 function render(){
