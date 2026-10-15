@@ -53,7 +53,7 @@ function renderMunicipios(){
  if(clear)clear.hidden=!S.municipio;
  const options=municipalMatches();
  list.hidden=!S.municipalOpen;
- if(S.municipalCursor>=options.length+1)S.municipalCursor=0;
+ if(S.municipalCursor>=options.length+1)S.municipalCursor=options.length?1:0;
  if(!S.municipalOpen)return;
  list.innerHTML='<div class="aw-combo-top">'+esc(options.length)+' opciones · escribir para filtrar</div>'+
   '<button type="button" role="option" aria-selected="'+(!S.municipio)+'" class="aw-combo-option '+(S.municipalCursor===0?'aw-combo-active':'')+'" data-aw-muni=""><strong>Todos los municipios</strong><small>Restablecer el filtro territorial</small></button>'+
@@ -163,10 +163,13 @@ function timePane(title,description,serie,unit,raw,heads,mapper,opt={}){
 }
 function renderPresas(){
  const rows=rowData(),cap=rows.reduce((s,x)=>s+(n(x.raw[6])||0),0);
+ const munText=S.municipio?'Municipio: '+S.municipio+' · ':'';
  $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">VISOR GEOESPACIAL · '+esc(S.state.toUpperCase())+'</span><h3>Localización de infraestructura</h3><p>Inventario filtrado · Las burbujas reflejan capacidad nominal NAMO</p></div><button type="button" class="aw-mini-button" data-aw-action="geojson">↓ GeoJSON</button></div>'+
+ (S.municipio&&!rows.length?warning('<strong>Sin registros georreferenciados para '+esc(S.municipio)+'.</strong> Este resultado sólo significa que el catálogo web no identifica presas en este municipio. No demuestra ausencia de infraestructura, agua disponible ni instalaciones aguas arriba.'):'')+
  warning('<strong>Qué representa el mapa:</strong> ubicación de instalaciones y capacidad de diseño en hm³. No representa polígonos de embalse, disponibilidad diaria ni porcentaje de llenado.')+
- '<section class="aw-map-shell" id="aw-map-shell"><div class="aw-map-toolbar"><span><strong>'+fmt(rows.length,0)+'</strong> presas visibles · NAMO agregado '+fmt(cap,1)+' hm³</span><div class="aw-toolbar-controls"><label for="aw-basemap">Mapa base</label><select id="aw-basemap"><option value="calles" '+(S.basemap==='calles'?'selected':'')+'>Calles (OSM)</option><option value="topo" '+(S.basemap==='topo'?'selected':'')+'>Topográfico (Esri)</option><option value="sat" '+(S.basemap==='sat'?'selected':'')+'>Imágenes (Esri)</option></select><details class="aw-layer-dropdown"><summary>Capas ▾</summary><label><input type="checkbox" id="aw-layer-points" '+(S.showPoints?"checked":"")+'> Puntos de presas</label><small>Sin capas de cuencas inventadas</small></details><button class="aw-mini-button" data-aw-action="fit">Enfocar</button><button class="aw-mini-button" data-aw-action="fullscreen">Pantalla completa ⛶</button></div></div>'+
+ '<section class="aw-map-shell" id="aw-map-shell"><div class="aw-map-toolbar"><span><strong>'+fmt(rows.length,0)+'</strong> presas visibles · '+esc(munText)+'NAMO agregado '+fmt(cap,1)+' hm³</span><div class="aw-toolbar-controls"><label for="aw-basemap">Mapa base</label><select id="aw-basemap"><option value="calles" '+(S.basemap==='calles'?'selected':'')+'>Calles (OSM)</option><option value="topo" '+(S.basemap==='topo'?'selected':'')+'>Topográfico (Esri)</option><option value="sat" '+(S.basemap==='sat'?'selected':'')+'>Imágenes (Esri)</option></select><details class="aw-layer-dropdown"><summary>Capas ▾</summary><label><input type="checkbox" id="aw-layer-points" '+(S.showPoints?"checked":"")+'> Puntos de presas</label><small>Sin capas de cuencas inventadas</small></details><button class="aw-mini-button" data-aw-action="fit">Enfocar</button><button class="aw-mini-button" data-aw-action="fullscreen">Pantalla completa ⛶</button></div></div>'+
  '<div class="aw-map-stage"><div id="aw-map" aria-label="Mapa interactivo con puntos de presas"></div><div class="aw-map-overlay"><strong>'+fmt(rows.length,0)+'</strong><small><i></i>UBICACIONES DEL CATÁLOGO</small></div></div><div class="aw-map-legend"><span><i class="aw-legend-dot"></i> Capacidad NAMO (símbolo proporcional)</span><b>Coordenadas aproximadas de catálogo · corte histórico</b></div></section>'+
+ '<div class="aw-surface-index"><strong>Otras bases consultables:</strong><button type="button" data-aw-view="almacenamiento">Almacenamiento</button><button type="button" data-aw-view="acuiferos">Acuíferos</button><button type="button" data-aw-view="riego">Riego 1997–2023</button><button type="button" data-aw-view="tendencias">Tendencias distritales</button><button type="button" data-aw-view="biblioteca">Ver todos los datos ↗</button></div>'+
  drawer('Inventario de presas','Seleccione una fila para abrir su ficha',dataMeta('presas'),rows,{selectable:true})+
  sourceLine('75 presas en la edición V9, distribuidas en cinco entidades; cobertura parcial.');
  if(!S.selected||!rows.some(x=>x.id===S.selected))S.selected=rows[0]?.id||'';
@@ -325,6 +328,7 @@ function renderSources(){
 function inspector(){
  $('aw-inspector-heading').textContent=S.view==='presas'?'Expediente de presa':S.view==='acuiferos'?'Ficha de acuífero':S.view==='calidad'?'Ficha del sitio':S.view==='riego'?'Lectura del indicador':S.view==='clima'?'Lectura del indicador':'Notas de interpretación';
  const rows=['presas','acuiferos','calidad'].includes(S.view)?rowData():[],item=rows.find(x=>x.id===S.selected);
+ if(rows.length&&!rows.some(x=>x.id===S.selected))S.selected=rows[0].id;
  const selector=$('aw-inspector-select');
  const menu=selector?.closest('.aw-inspector-nav');
  if(menu)menu.hidden=!['presas','acuiferos','calidad'].includes(S.view);
@@ -477,6 +481,7 @@ function action(name){
  if(name==='copy-coords'){const r=dams().find(x=>String(x[1])===S.selected);if(r){const s=r[4]+', '+r[5];if(navigator.clipboard?.writeText)navigator.clipboard.writeText(s).then(()=>notice('Coordenadas copiadas.'));else fallbackCopy(s)}}
 }
 root.addEventListener('click',e=>{
+ if(S.municipalOpen&&!e.target.closest('#aw-muni-combo')){S.municipalOpen=false;renderMunicipios()}
  const muni=e.target.closest('[data-aw-muni]');if(muni){chooseMunicipio(muni.dataset.awMuni);return}
  const nav=e.target.closest('[data-aw-view]');if(nav){changeView(nav.dataset.awView);return}
  const act=e.target.closest('[data-aw-action]');if(act){action(act.dataset.awAction);return}
@@ -510,7 +515,7 @@ root.addEventListener('change',e=>{
 });
 root.addEventListener('input',e=>{
  if(e.target.id==='aw-muni-input'){
-  S.municipalOpen=true;S.municipalQuery=e.target.value;S.municipalCursor=0;e.target.setAttribute('aria-expanded','true');
+  S.municipalOpen=true;S.municipalQuery=e.target.value;S.municipalCursor=municipalMatches().length&&e.target.value.trim()?1:0;e.target.setAttribute('aria-expanded','true');
   renderMunicipios();return
  }
  if(e.target.id==='aw-search'){S.search=e.target.value;S.page=1;clearMap();setStatus();const box=$('aw-visible-count');if(box)box.textContent=fmt(rowData().length,0);if(S.view==='presas')renderPresas();else if(S.view==='acuiferos')renderAcuiferos();else if(S.view==='calidad')renderQuality();inspector()}});
