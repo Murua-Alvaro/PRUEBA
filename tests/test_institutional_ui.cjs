@@ -18,7 +18,8 @@ for(const name of ['lab-report','lab-report-sheet','lab-report-close','lab-repor
  assert.ok(html.includes('id="'+name+'"'),name);
 for(const name of ['territory','compare','growth','detail'])
  assert.ok(html.includes('data-lab-preset="'+name+'"'),name);
-const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);
+const markupOnly=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'');
+const ids=[...markupOnly.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);
 assert.equal(ids.length,new Set(ids).size);
 const route=js.match(/navigate\(\['panorama'[^\n]*\.includes\(location\.hash\.slice\(1\)\)/);
 assert.ok(route&&route[0].includes("'laboratorio'"),'deep-link #laboratorio');
