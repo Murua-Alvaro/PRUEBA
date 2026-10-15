@@ -1,0 +1,78 @@
+<section id="panel-agua" class="section-panel aw-root" hidden aria-label="GROWA · Explorador hídrico" data-aw-view="presas">
+  <div class="aw-platform">
+    <header class="aw-heading">
+      <div class="aw-heading-copy">
+        <div class="aw-breadcrumb"><span class="aw-pulse" aria-hidden="true"></span> GROWA <span>/</span> INTELIGENCIA TERRITORIAL <span>/</span> AGUA</div>
+        <div class="aw-titleline"><h1>Explorador hídrico</h1><span class="aw-version">EDICIÓN 2026 · V14</span></div>
+        <p>Consulte infraestructura, agua subterránea y series históricas. Cada indicador muestra sus unidades, fuente y periodo.</p>
+      </div>
+      <div class="aw-heading-actions">
+        <span class="aw-cut"><span aria-hidden="true">◌</span> CORTE DE INTEGRACIÓN · 13 OCT 2026</span>
+        <button type="button" class="aw-btn aw-btn-quiet" data-aw-action="help" aria-label="Abrir guía de uso"><span aria-hidden="true">ⓘ</span> Guía</button>
+        <button type="button" class="aw-btn aw-btn-primary" data-aw-action="export">Exportar <span aria-hidden="true">↓</span></button>
+      </div>
+    </header>
+    <nav class="aw-tabs" aria-label="Conjuntos de datos hídricos">
+      <button type="button" data-aw-view="presas" aria-pressed="true"><span class="aw-tab-index">01</span> Presas y embalses</button>
+      <button type="button" data-aw-view="acuiferos" aria-pressed="false"><span class="aw-tab-index">02</span> Acuíferos</button>
+      <button type="button" data-aw-view="riego" aria-pressed="false"><span class="aw-tab-index">03</span> Distritos de riego</button>
+      <button type="button" data-aw-view="clima" aria-pressed="false"><span class="aw-tab-index">04</span> Clima y agua</button>
+      <button type="button" data-aw-view="almacenamiento" aria-pressed="false"><span class="aw-tab-index">05</span> Almacenamiento</button>
+      <button type="button" data-aw-view="comparar" aria-pressed="false"><span class="aw-tab-index">06</span> Comparador</button>
+      <button type="button" data-aw-view="calidad" aria-pressed="false"><span class="aw-tab-index">07</span> Calidad</button>
+      <button type="button" data-aw-view="fuentes" aria-pressed="false"><span class="aw-tab-index">08</span> Fuentes</button>
+    </nav>
+    <div class="aw-commandline">
+      <div class="aw-command-title"><span id="aw-section-tag">EXPLORACIÓN CARTOGRÁFICA</span><h2 id="aw-section-title">Presas y embalses</h2><p id="aw-section-desc">Localización y capacidad nominal de las presas catalogadas.</p></div>
+      <div class="aw-command-tools">
+        <button type="button" class="aw-btn aw-btn-small" data-aw-action="reset" title="Restablecer los filtros"><span aria-hidden="true">↺</span> Restablecer</button>
+        <button type="button" class="aw-btn aw-btn-small" data-aw-action="link" title="Copiar un enlace con los filtros actuales">Compartir <span aria-hidden="true">↗</span></button>
+        <button type="button" class="aw-btn aw-btn-small aw-mobile-filters" data-aw-action="filters" aria-controls="aw-sidebar" aria-expanded="false">Filtros <span aria-hidden="true">☷</span></button>
+      </div>
+    </div>
+    <div class="aw-workbench">
+      <aside class="aw-sidebar" id="aw-sidebar" aria-label="Controles del explorador">
+        <div class="aw-sidebar-header"><strong>Parámetros de consulta</strong><span id="aw-filter-count">0 filtros activos</span></div>
+        <div class="aw-filter-group">
+          <label for="aw-state">Entidad federativa</label>
+          <select id="aw-state" aria-label="Seleccionar estado"><option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Chihuahua">Chihuahua</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option></select>
+          <small>La cobertura de cada variable depende de la fuente.</small>
+        </div>
+        <div class="aw-filter-group">
+          <label for="aw-search">Buscar registro</label>
+          <div class="aw-search-wrap"><span aria-hidden="true">⌕</span><input type="search" id="aw-search" autocomplete="off" placeholder="Nombre, clave o municipio"></div>
+        </div>
+        <div id="aw-context-filters"></div>
+        <div class="aw-filter-bottom">
+          <div class="aw-side-fact"><span>Registros mostrados</span><strong id="aw-visible-count">—</strong></div>
+          <button type="button" class="aw-btn aw-btn-reset" data-aw-action="reset">Limpiar filtros <span aria-hidden="true">↺</span></button>
+        </div>
+        <details class="aw-scope-disclosure"><summary>Interpretar los indicadores <span>⌄</span></summary>
+          <p><b>NAMO</b> es capacidad nominal, no agua almacenada hoy. <b>hm³</b> equivale a un millón de m³. La disponibilidad de acuíferos representa un balance administrativo, no nivel físico.</p>
+        </details>
+        <div class="aw-sidebar-source"><span class="aw-status-dot" aria-hidden="true"></span> BASE DOCUMENTAL, NO TELEMETRÍA EN VIVO</div>
+      </aside>
+      <main class="aw-main" id="aw-main" aria-live="polite">
+        <div class="aw-loading"><div class="aw-loader"></div><strong>Preparando el explorador</strong><span>Cargando registros y controles de consulta…</span></div>
+      </main>
+      <aside class="aw-inspector" id="aw-inspector" aria-label="Ficha de la selección">
+        <div class="aw-inspector-head"><div><span>INSPECTOR</span><h3 id="aw-inspector-heading">Detalle del registro</h3></div><button type="button" class="aw-icon-btn" data-aw-action="hide-inspector" title="Ocultar panel de detalle" aria-label="Ocultar inspector">×</button></div>
+        <div id="aw-inspector-content"><div class="aw-empty-inspector">Seleccione un elemento para consultar sus variables y procedencia.</div></div>
+      </aside>
+    </div>
+    <footer class="aw-footer">
+      <div><strong>GROWA / AGUA</strong> <span>Datos integrados con alcance histórico y cobertura parcial. No equivale a un dictamen de disponibilidad actual.</span></div>
+      <div><button type="button" data-aw-view="fuentes">Metodología y fuentes ↗</button><span>·</span><a href="https://sih.conagua.gob.mx/" target="_blank" rel="noopener noreferrer">SIH / CONAGUA ↗</a></div>
+    </footer>
+  </div>
+  <div class="aw-toast" id="aw-toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="aw-guide" class="aw-modal" aria-labelledby="aw-guide-title">
+    <div class="aw-modal-head"><div><span>MANUAL DE CONSULTA</span><h2 id="aw-guide-title">Cómo usar el explorador</h2></div><button type="button" data-aw-action="close-guide" class="aw-icon-btn" aria-label="Cerrar guía">×</button></div>
+    <div class="aw-modal-body"><p>Seleccione una categoría en la barra superior. Use los filtros de la izquierda para delimitar su consulta y abra un registro para revisar el expediente a la derecha.</p>
+      <div><strong>Mapa e inventarios</strong><p>Haga clic en una presa o fila para seleccionar. Los puntos representan coordenadas del catálogo, no polígonos de embalse.</p></div>
+      <div><strong>Series y comparaciones</strong><p>Los distritos de riego se miden por ciclo agrícola (1997/98–2023/24) y el clima por año (2003–2025). No mezcle ambas escalas temporales.</p></div>
+      <div><strong>Exportación</strong><p>Descargue el conjunto filtrado como CSV. En presas también puede exportar las coordenadas como GeoJSON. Use «Compartir» para conservar los filtros en un enlace.</p></div>
+      <div><strong>Limitaciones</strong><p>Esta edición no dispone de niveles actuales de todas las presas, polígonos oficiales de cuencas ni fechas válidas para las mediciones de calidad. Los datos faltantes se señalan expresamente.</p></div>
+    </div><div class="aw-modal-foot"><button type="button" class="aw-btn aw-btn-primary" data-aw-action="close-guide">Entendido</button></div>
+  </dialog>
+</section>
