@@ -253,3 +253,14 @@ body[data-view="agua"] .page{max-width:none!important;padding:0 20px!important;w
 }
 @media(prefers-reduced-motion:reduce){#panel-agua *,#panel-agua *::before{animation:none!important;transition:none!important}}
 @media print{body[data-view="agua"] .rail,body[data-view="agua"] .navigation,body[data-view="agua"] .topline,#panel-agua .aw-tabs,#panel-agua .aw-sidebar,#panel-agua .aw-heading-actions,#panel-agua .aw-command-tools,#panel-agua .aw-map-stage{display:none!important}#panel-agua .aw-workbench{display:block}#panel-agua .aw-main{padding:0;background:white}#panel-agua .aw-platform{box-shadow:none;border:0}#panel-agua .aw-dataviz,#panel-agua .aw-bottom-drawer{break-inside:avoid}#panel-agua .aw-inspector{display:block;border:0}#panel-agua .aw-heading{padding:10px}}
+
+/* Ajustes de legibilidad y acceso al inspector en tablet/móvil. */
+#panel-agua .aw-data-table th,#panel-agua .aw-data-table td{font-size:12px}
+#panel-agua .aw-inspector .aw-facts th,#panel-agua .aw-inspector .aw-facts td{font-size:12px}
+#panel-agua .aw-filter-group label{font-size:12px}
+#panel-agua .aw-main-title p,#panel-agua .aw-chart-title p{font-size:12px}
+@media(max-width:1000px){
+ #panel-agua.aw-mobile-inspector .aw-inspector{display:flex!important;position:fixed;inset:0 0 0 auto;width:min(385px,92vw);max-height:none;background:#fff;z-index:10080;box-shadow:-14px 0 40px #15374740;overflow:auto}
+ #panel-agua.aw-mobile-inspector .aw-inspector::before{content:"GROWA · FICHA TÉCNICA";display:block;background:#153c50;color:#fff;font-size:10px;letter-spacing:.1em;font-weight:800;padding:13px 18px}
+ #panel-agua.aw-mobile-inspector .aw-inspector-head{flex:0 0 auto}
+}
