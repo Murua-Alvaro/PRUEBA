@@ -1087,7 +1087,7 @@
   if(e.target.id==='wa-cmp-year'){cmpYear=Number(e.target.value);render();return}
   if(e.target.id==='wa-state'){st=e.target.value;query='';dam='';selectedDam='';minCapacity=0;if(view==='calidad'&&st!=='Sinaloa')view='resumen';render()}if(e.target.id==='wa-dam'){dam=e.target.value;render()}if(e.target.id==='wa-capacity'){minCapacity=Number(e.target.value)||0;selectedDam='';render()}});
  root.addEventListener('input',e=>{if(e.target.id==='wa-search'){const pos=e.target.selectionStart;query=e.target.value;render();const box=byId('wa-search');if(box){box.focus();box.setSelectionRange(Math.min(pos,query.length),Math.min(pos,query.length))}}});
- const observer=new MutationObserver(()=>{if(!root.hidden){syncHeader();if(map)setTimeout(()=>map.invalidateSize(),60)}});
+ const observer=new MutationObserver(()=>{if(!root.hidden){syncHeader();if(view==='presas'&&!map)render();else if(map)setTimeout(()=>map.invalidateSize(),60)}});
  observer.observe(root,{attributes:true,attributeFilter:['hidden']});
  async function init(){
   try{const embedded=byId('wa-embedded-dataset');
