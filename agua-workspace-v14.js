@@ -118,7 +118,7 @@ function renderFilters(){
   html=selector('Clave de presa','aw-storage',codes.map(x=>[x,x]),S.storageCode,'Serie mensual disponible para este identificador.');
  }
  $('aw-context-filters').innerHTML=html;
- const controlRows=['presas','acuiferos','calidad'].includes(S.view)?rowData():S.view==='riego'?periodFilter(irrigation()):S.view==='clima'?periodFilter(climate()):S.view==='comparar'?D.estados.length:S.view==='almacenamiento'?S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS'):S.state==='Jalisco'?D.jalisco.filter(x=>x[0]===S.storageCode):[]:D.cobertura.filter(belongs);
+ const controlRows=['presas','acuiferos','calidad'].includes(S.view)?rowData():S.view==='riego'?periodFilter(irrigation()):S.view==='clima'?periodFilter(climate()):S.view==='comparar'?D.estados.length:S.view==='tendencias'?D.tendencias.filter(x=>norm(x[0])===norm(S.state)):S.view==='biblioteca'?D.cobertura.filter(belongs):S.view==='almacenamiento'?S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS'):S.state==='Jalisco'?D.jalisco.filter(x=>x[0]===S.storageCode):[]:D.cobertura.filter(belongs);
  $('aw-visible-count').textContent=fmt(Array.isArray(controlRows)?controlRows.length:controlRows,0);
  $('aw-filter-count').textContent=(S.search?1:0)+(S.municipio&&S.view==='presas'?1:0)+(S.min>0?1:0)+(S.saldo!=='todos'?1:0)+' filtros manuales';
 }
@@ -254,6 +254,67 @@ function renderCuencas(){
  '<div class="aw-dataviz"><div class="aw-chart-title"><div><span class="aw-overline">INVENTARIO DE ESTACIONES</span><h3>Cobertura disponible</h3></div></div><div class="aw-breakdown"><div><span>Estaciones catalogadas en '+esc(S.state)+'</span><b>'+fmt(hyd?.[2]??0,0)+'</b></div><div><span>Series históricas de caudal integradas</span><b>0</b></div></div>'+
  '<div class="aw-link-row"><a target="_blank" rel="noopener noreferrer" href="https://sih.conagua.gob.mx/hidros.html">Consultar estaciones hidrométricas / SIH ↗</a></div></div>';
 }
+
+function sourceMap(key){
+ if(key.startsWith('distritos_riego'))return ['riego',D.riego.filter(x=>norm(x[0])===norm(S.state)).length,'Serie agregada por estado; desglose distrital no incluido'];
+ if(key.startsWith('clima_municipio'))return ['clima',D.clima.filter(x=>norm(x[0])===norm(S.state)).length,'Sólo agregados municipales promediados por entidad; sin filas por municipio'];
+ if(key==='acuiferos_corte_unico')return ['acuiferos',aquifers().length,'Inventario con valores, si están cargados'];
+ if(key==='presas_capacidad_corte_unico')return ['presas',dams().length,'Puntos y capacidades, si están cargados'];
+ if(key==='calidad_agua_fechas_no_verificadas')return ['calidad',quality().length,'Resumen por sitio; mediciones individuales y fechas ausentes'];
+ if(key==='presas_individuales_2018_2026')return ['almacenamiento',D.sinaloa.length,'Registros discontinuos por fecha'];
+ if(key==='presas_agregado_cuatro_2026')return ['almacenamiento',D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').length,'Cortes de un sistema parcial de cuatro presas'];
+ if(key==='presas_diarias_1996_2024')return ['almacenamiento',D.jalisco.length,'Cortes mensuales de tres presas; base diaria no empacada'];
+ if(key==='estaciones_hidrometricas_catalogo')return ['cuencas',0,'Número disponible sólo como metadato; sin fichas georreferenciadas'];
+ if(key.startsWith('cuencas_')||key.startsWith('caudales_'))return ['cuencas',0,'No hay filas regionalizadas y verificadas'];
+ return ['fuentes',0,'Metadato de integración'];
+}
+function renderTendencias(){
+ const t=D.tendencias.filter(x=>norm(x[0])===norm(S.state));
+ const significant=t.filter(x=>x[6]!=='NO_SIGNIFICATIVA');
+ const increasing=significant.filter(x=>String(x[6]).includes('CRECIENTE_')&&!String(x[6]).includes('DECRECIENTE')).length;
+ const decreasing=significant.filter(x=>String(x[6]).includes('DECRECIENTE')).length;
+ const data=t.map(x=>[x[1],x[2],fmt(x[3],0),fmt(x[4],3),fmt(x[5],6),x[6]==='NO_SIGNIFICATIVA'?'No significativa':x[6].includes('DECRECIENTE')?'Decreciente · FDR 5 %':'Creciente · FDR 5 %']);
+ $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">BASE ESTADÍSTICA / 32 REGISTROS EN CINCO ESTADOS</span><h3>Tendencias de distritos de riego · '+esc(S.state)+'</h3><p>Resultados precalculados en la base, no pruebas recalculadas por el navegador.</p></div></div>'+
+ warning('<strong>Lectura:</strong> las etiquetas de significancia provienen del conjunto integrado. Se muestran pendiente, valor p ajustado y número de observaciones por distrito. Antes de defender inferencia estadística deben auditarse la estimación original, las unidades de la pendiente y los supuestos del modelo.')+
+ '<div class="aw-statgrid">'+renderStat('Distritos con resultado',fmt(t.length,0),'Registros analíticos del estado')+
+ renderStat('Tendencia creciente · FDR 5 %',fmt(increasing,0),'Etiquetas del paquete integrado')+
+ renderStat('Tendencia decreciente · FDR 5 %',fmt(decreasing,0),'No implica causalidad')+'</div>'+
+ drawer('Resultados de tendencias por distrito','Todos los indicadores de la tabla analítica V9',['Clave','Distrito de riego','Observaciones','Pendiente reportada*','p ajustado','Clasificación'],data,{pageable:true})+
+ '<section class="aw-dataviz aw-interpretation"><span class="aw-overline">INTERPRETACIÓN TÉCNICA</span><h3>Qué puede concluirse y qué no</h3><p>La significancia FDR se refiere al procedimiento de comparaciones múltiples declarado en el conjunto original. Una pendiente significativa describe una asociación temporal estimada, pero no explica sus causas. Las unidades de la pendiente deben confirmarse antes de utilizar sus magnitudes en un reporte.</p><p>*Pendiente reportada sin unidad validada en el diccionario de datos de esta versión. Conserve las claves DR para rastrear cada observación.</p></section>'+
+ sourceLine('32 resultados de tendencias publicados en V9; cálculo no reestimado en este visor.');
+}
+function renderBiblioteca(){
+ const cover=D.cobertura.filter(belongs);
+ const groups=[
+  ['Presas georreferenciadas','presas',dams().length,'Puntos, clave, municipio, coordenadas y capacidad NAMO','Inventario / fecha normativa sin verificar'],
+  ['Acuíferos','acuiferos',aquifers().length,'Recarga, VEAS, saldo administrativo','Inventario / corte único'],
+  ['Riego agregado','riego',irrigation().length,'Año de ciclo, volumen, superficie y eficiencia descriptiva','1997/98–2023/24'],
+  ['Clima estatal agregado','clima',climate().length,'Precipitación, ET₀ y diferencia P−ET₀','2003–2025'],
+  ['Análisis de tendencias distritales','tendencias',D.tendencias.filter(x=>norm(x[0])===norm(S.state)).length,'Distrito, observaciones, pendiente, p ajustado y etiqueta FDR','Resultados analíticos compilados'],
+  ['Registros individuales de presas','almacenamiento',S.state==='Sinaloa'?D.sinaloa.length:0,'Fechas individuales discontinuas','Sólo Sinaloa'],
+  ['Sistema de cuatro presas','almacenamiento',S.state==='Sinaloa'?D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').length:0,'Volumen agregado de cuatro presas','Sólo Sinaloa · 2026'],
+  ['Almacenamiento mensual Jalisco','almacenamiento',S.state==='Jalisco'?D.jalisco.length:0,'Almacenamiento y % NAMO por mes','Sólo Jalisco · 1996–2024'],
+  ['Sitios de calidad del agua','calidad',quality().length,'Nombre, clave, número de mediciones y pH medio','Sólo Sinaloa / sin fechas verificadas'],
+  ['Metadatos de cobertura','fuentes',cover.length,'Inventario de fuentes, unidades, número de registros e intervalo','Catálogo documental por estado']
+ ];
+ const rowGrid=groups.map((g,i)=>'<tr><td class="aw-text-cell"><strong>'+String(i+1).padStart(2,'0')+'</strong> '+esc(g[0])+'</td><td>'+fmt(g[2],0)+'</td><td>'+esc(g[4])+'</td><td class="aw-text-cell">'+esc(g[3])+'</td><td><button class="aw-mini-button" type="button" data-aw-view="'+g[1]+'">'+(g[2]>0?'Explorar ↗':'Ver alcance ↗')+'</button></td></tr>').join('');
+ const materialized=groups.reduce((s,g)=>s+g[2],0),metadata=D.cobertura.filter(belongs);
+ const discrep=metadata.filter(x=>{const link=sourceMap(x[1]);return n(x[2])>0&&link[1]===0}).length;
+ const coverageRows=metadata.map(x=>{const [view,real,note]=sourceMap(x[1]);
+   const meta=n(x[2])??0;
+   return '<tr><td class="aw-text-cell">'+esc(x[1].replaceAll('_',' '))+'</td><td>'+fmt(meta,0)+'</td><td>'+fmt(real,0)+'</td><td class="aw-text-cell">'+esc(note)+'</td><td><button class="aw-mini-button" type="button" data-aw-view="'+view+'">Abrir ↗</button></td></tr>';
+ }).join('');
+ const totalSummary='En esta edición se publican 10 colecciones diferentes con diferentes grados de integración. El número de filas de las series estatales NO equivale al número de registros municipales o distritales descrito por los metadatos. Los números de cobertura y de filas cargadas se muestran separados.';
+ $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">EXPLORADOR DEL PATRIMONIO DE DATOS · '+esc(S.state.toUpperCase())+'</span><h3>Biblioteca hídrica disponible</h3><p>Conjuntos consultables, variables, historia y brechas de integración.</p></div><button class="aw-mini-button" type="button" data-aw-action="export">↓ Exportar metadatos</button></div>'+
+ warning('<strong>Inventario verificable:</strong> '+esc(totalSummary))+
+ '<div class="aw-statgrid">'+renderStat('Colecciones de datos','10','Bases y derivados diferenciados')+
+ renderStat('Filas de tablas materializadas',fmt(materialized,0),'Suma de las colecciones visibles; no suma hidrogeológica')+
+ renderStat('Fuentes con brechas',fmt(discrep,0),'Metadatos sin filas materializadas en este estado')+'</div>'+
+ '<section class="aw-bottom-drawer"><div class="aw-drawer-title"><strong>Conjuntos que puede consultar</strong><span>Filas publicadas para '+esc(S.state)+'</span></div><div class="aw-data-table-wrap aw-library-table"><table class="aw-data-table"><thead><tr><th>Conjunto</th><th>Filas web</th><th>Periodo / alcance</th><th>Variables observables</th><th>Acción</th></tr></thead><tbody>'+rowGrid+'</tbody></table></div></section>'+
+ '<section class="aw-bottom-drawer"><div class="aw-drawer-title"><strong>Auditoría de cobertura: publicado vs. declarado</strong><span>'+metadata.length+' renglones de metadatos para '+esc(S.state)+'</span></div><div class="aw-data-table-wrap aw-library-table"><table class="aw-data-table"><thead><tr><th>Tabla en metadatos</th><th>Registros declarados</th><th>Filas accesibles</th><th>Diferencia / limitación</th><th>Consulta</th></tr></thead><tbody>'+coverageRows+'</tbody></table></div></section>'+
+ '<section class="aw-dataviz aw-interpretation"><span class="aw-overline">OTRAS CAPAS DEL PROYECTO</span><h3>Componentes registrados, todavía no navegables</h3><p>Existen 757 referencias nacionales de cuencas y 349 estaciones hidrométricas catalogadas, pero el paquete web no incluye sus polígonos o series históricas de caudal regionalizadas. No sería correcto dibujarlas o construir indicadores municipales con esos totales.</p><p>El proyecto describe además coberturas municipales históricas de clima y datos por distrito de riego que <strong>no se incluyen con ese nivel de desagregación en el archivo web actual</strong>. Aquí se muestran las 23 filas anuales estatales de clima y los 27 agregados de riego realmente disponibles por entidad.</p><div class="aw-link-row"><button type="button" data-aw-view="fuentes">Documentación y fuentes ↗</button><a href="https://app.conagua.gob.mx/sistemasdeagua/" target="_blank" rel="noopener noreferrer">Portal oficial CONAGUA ↗</a></div></section>';
+}
+
 function renderSources(){
  const cover=D.cobertura.filter(belongs);
  $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">TRAZABILIDAD DE LOS CONJUNTOS</span><h3>Catálogo de fuentes</h3></div></div>'+
@@ -264,6 +325,14 @@ function renderSources(){
 function inspector(){
  $('aw-inspector-heading').textContent=S.view==='presas'?'Expediente de presa':S.view==='acuiferos'?'Ficha de acuífero':S.view==='calidad'?'Ficha del sitio':S.view==='riego'?'Lectura del indicador':S.view==='clima'?'Lectura del indicador':'Notas de interpretación';
  const rows=['presas','acuiferos','calidad'].includes(S.view)?rowData():[],item=rows.find(x=>x.id===S.selected);
+ const selector=$('aw-inspector-select');
+ const menu=selector?.closest('.aw-inspector-nav');
+ if(menu)menu.hidden=!['presas','acuiferos','calidad'].includes(S.view);
+ if(selector&&menu&&!menu.hidden){
+  selector.innerHTML=rows.length?rows.map(x=>'<option value="'+esc(x.id)+'" '+(x.id===S.selected?'selected':'')+'>'+esc(x.cols[0])+'</option>').join(''):'<option value="">Sin registros para el filtro</option>';
+  selector.disabled=!rows.length;
+ }
+
  const facts=(arr)=>'<table class="aw-facts"><tbody>'+arr.map(x=>'<tr><th>'+esc(x[0])+'</th><td>'+esc(x[1])+'</td></tr>').join('')+'</tbody></table>';
  let html='';
  if(S.view==='presas'&&item){const x=item.raw;
@@ -328,6 +397,7 @@ function highlightMap(){
  if(!map)return;for(const [id,mark]of mapMarks){const r=dams().find(x=>String(x[1])===id),size=Math.min(15,5+Math.sqrt(n(r?.[6])||0)/4);mark.setStyle(id===S.selected?{radius:size+3,color:'#fff',weight:3,fillColor:'#153c53',fillOpacity:1}:{radius:size,color:'#fff',weight:1.5,fillColor:'#1884a3',fillOpacity:.92})}
 }
 function pick(id,move=false){
+ if(!rowData().some(x=>x.id===String(id)))return;
  S.selected=String(id);inspector();root.querySelectorAll('[data-aw-pick]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.awPick===id)));
  highlightMap();if(window.innerWidth<=1000){S.inspector=true;root.classList.remove('aw-inspector-hidden');root.classList.add('aw-mobile-inspector')}const marker=mapMarks.get(S.selected);if(marker&&map&&move){map.panTo(marker.getLatLng());marker.openTooltip()}
 }
@@ -364,6 +434,8 @@ function exportCSV(){
  if(S.view==='clima'){hdr=['estado','anio','precipitacion_mm','et0_mm','diferencia_p_et0_mm','razon'];rows=periodFilter(climate())}
  if(S.view==='almacenamiento'){if(S.state==='Sinaloa'){hdr=['sistema','fecha','num_presas','volumen_hm3','porcentaje_namo'];rows=D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS')}else if(S.state==='Jalisco'){hdr=['clave','mes','volumen_hm3','pct_namo','dias_observados','dias_mes'];rows=D.jalisco.filter(x=>x[0]===S.storageCode)}}
  if(S.view==='comparar'){hdr=['periodo',S.state,S.compare,'unidad'];const a=new Map(compareSeries(S.state,S.compareMetric)),b=new Map(compareSeries(S.compare,S.compareMetric));const ys=[...new Set([...a.keys(),...b.keys()])].sort();rows=ys.map(y=>[y,a.get(y)??'',b.get(y)??'',S.compareMetric==='riego'?'hm3':'mm'])}
+ if(S.view==='tendencias'){hdr=['estado','clave_distrito','distrito','observaciones','pendiente_reportada','p_ajustado','clasificacion_fdr'];rows=D.tendencias.filter(x=>norm(x[0])===norm(S.state))}
+ if(S.view==='biblioteca'){hdr=['entidad','componente','registros_declarados','inicio','fin','temporalidad'];rows=D.cobertura.filter(belongs)}
  if(S.view==='cuencas'||S.view==='fuentes'){hdr=['entidad','componente','registros','inicio','fin','temporalidad'];rows=D.cobertura.filter(belongs)}
  if(!rows.length){notice('Esta vista no contiene registros exportables para la selección.');return}
  const csv='\ufeff'+[hdr,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');
@@ -382,6 +454,11 @@ function changeState(state){if(!D.estados.includes(state))return;S.state=state;S
 function share(){const u=new URL(location.href);serialize(u);u.hash='agua';const link=u.toString();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>notice('Enlace con la consulta copiado.')).catch(()=>fallbackCopy(link));else fallbackCopy(link)}
 function fallbackCopy(text){const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.left='-100vw';document.body.append(field);field.select();try{document.execCommand('copy');notice('Enlace copiado.')}catch(e){notice('Copie el enlace desde la barra del navegador.')}field.remove()}
 function action(name){
+ if(name==='next-record'||name==='previous-record'){
+  const records=rowData();if(!records.length)return;
+  const at=records.findIndex(x=>x.id===S.selected);const next=(at+(name==='next-record'?1:-1)+records.length)%records.length;
+  pick(records[next].id,true);return
+ }
  if(name==='open-municipios'){S.municipalOpen=!S.municipalOpen;S.municipalQuery='';S.municipalCursor=0;const input=$('aw-muni-input');if(input){input.value='';input.setAttribute('aria-expanded',String(S.municipalOpen));input.focus()}renderMunicipios();return}
  if(name==='clear-municipio'){chooseMunicipio('');return}
  if(name==='help'){$('aw-guide').showModal();return}
