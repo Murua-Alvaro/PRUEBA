@@ -152,3 +152,18 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
 @media(max-width:870px){.wa12-head{padding:25px 0;align-items:flex-start}.wa12-head h1{font-size:33px}.wa12-head-right{min-width:180px;padding-left:15px}.wa-v12 #wa-state{min-width:165px}.wa12-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.wa12-metric:nth-child(2){border-right:0}.wa12-metric:nth-child(-n+2){border-bottom:1px solid #dfe8ec}.wa12-mapgrid{grid-template-columns:1fr}.wa12-mapspace{min-height:480px}.wa-v12 .wa-map{min-height:480px!important}.wa12-catalog-list{max-height:285px}.wa12-catalog{display:grid;grid-template-columns:1fr 1fr}.wa12-catalog-head{grid-column:1/-1}.wa12-catalog-list{max-height:320px;min-height:300px}.wa12-dam-detail{min-height:300px;border-top:0;border-left:1px solid #dce7eb}.wa12-historyhead{padding-top:28px}.wa12-filterbar{grid-template-columns:1fr 1fr}.wa12-searchbox{grid-column:span 2}.wa-v12 .wa12-historical-panels{grid-template-columns:1fr}.wa12-toolbar{gap:14px}.wa-v12 .wa-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:590px){.wa12-head{flex-direction:column;gap:16px;padding:21px 0}.wa12-head h1{font-size:33px}.wa12-head-right{border-left:0;padding-left:0;min-width:100%;width:100%;flex-direction:row;flex-wrap:wrap;align-items:center}.wa12-head-right label{width:100%}.wa-v12 #wa-state{width:58%;min-width:190px}.wa12-data-cut{font-size:9px}.wa12-metrics{margin:14px 0}.wa12-metric{padding:14px;min-height:91px}.wa12-metric strong{font-size:21px}.wa12-nav-wrap{margin:0 -7px}.wa-v12 .wa-tab{min-height:44px;padding:11px 12px}.wa12-toolbar{padding:17px 0}.wa12-toolbar-context #wa-active-view-title{font-size:18px}.wa12-tools{justify-content:flex-start}.wa12-mapintro{display:block}.wa12-inventory-tag{display:inline-flex;margin-top:13px}.wa12-filterbar{padding:13px;gap:11px}.wa12-mapframe-head{padding:15px}.wa12-mapframe-head h3{font-size:15px}.wa12-mapspace{min-height:375px}.wa-v12 .wa-map{min-height:375px!important}.wa12-map-bottom{font-size:9px}.wa12-catalog{display:block}.wa12-catalog-list{max-height:245px;min-height:100px}.wa12-dam-detail{border-left:0;border-top:1px solid #dce7eb}.wa12-historyhead{display:block}.wa12-historyhead h2{font-size:25px}.wa12-historyhead p{margin-top:10px}.wa-v12 .wa-card{padding:17px!important}.wa12-foot{align-items:flex-start;flex-direction:column;gap:8px}.wa12-foot>div{flex-direction:column;align-items:flex-start;gap:3px}}
 @media print{body[data-view="agua"] .wa12-tools,body[data-view="agua"] .wa12-nav-wrap,body[data-view="agua"] .wa12-filterbar,body[data-view="agua"] .wa12-head-right,body[data-view="agua"] .wa12-mapspace,body[data-view="agua"] .wa12-catalog-list{display:none!important}body[data-view="agua"] .wa12-mapgrid{display:block!important}body[data-view="agua"] .wa12-dam-detail{border:1px solid #dce6ea!important}body[data-view="agua"] .wa-card{break-inside:avoid!important}}
+
+/* Pantalla inicial densa: prioriza el mapa sobre una portada decorativa. */
+@media(min-width:871px){
+ .wa-v12 .wa12-head{padding:20px 3px 17px}
+ .wa-v12 .wa12-head h1{font-size:35px;margin:8px 0 6px}
+ .wa-v12 .wa12-head p{font-size:11.5px}
+ .wa-v12 .wa12-metrics{margin:13px 0 12px;min-height:84px}
+ .wa-v12 .wa12-metric{padding:13px 18px 12px;gap:3px}
+ .wa-v12 .wa12-metric strong{font-size:24px}
+ .wa-v12 .wa-tab{min-height:44px;padding:12px 14px 10px}
+ .wa-v12 .wa12-toolbar{padding:17px 0 13px}
+ .wa-v12 .wa12-mapintro{padding:0 0 13px}
+ .wa-v12 .wa12-mapintro h2{font-size:27px;margin:5px 0 3px}
+ .wa-v12 .wa12-filterbar{padding:12px 14px;margin-bottom:12px}
+}
