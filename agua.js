@@ -74,7 +74,7 @@
     '<button type="button" class="wa13-text-action" data-wa-view="series">Examinar los 27 ciclos de riego <span>→</span></button>'+
     '</article><aside class="wa13-side-explanation">'+
     '<span class="wa13-section-label">CÓMO INTERPRETAR ESTE RESULTADO</span><h3>¿Qué significa «volumen distribuido»?</h3>'+
-    '<p>Es el agua que aparece registrada como distribuida en los distritos de riego del estado durante un ciclo agrícola. <strong>No es todo el agua de Sinaloa</strong>, ni el volumen actual de las presas.</p>'+
+    '<p>Es el agua que aparece registrada como distribuida en los distritos de riego del estado durante un ciclo agrícola. <strong>No es todo el agua de '+safe(st)+'</strong>, ni el volumen actual de las presas.</p>'+
     '<div class="wa13-mini-definition"><strong>1 hm³</strong><span>= un millón de metros cúbicos (m³).</span></div>'+
     '<p>Para estudiar por qué cambió hace falta contrastar almacenamiento, aportaciones, superficie efectivamente regada y operación de cada distrito.</p>'+
     '</aside></div>';
