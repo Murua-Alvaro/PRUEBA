@@ -260,139 +260,163 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
   <script src="app.js" defer></script>
 
-  <style id="wa-institutional-v11">
+  <style id="wa-design-v12">
+/* GROWA | Observatorio del agua — Diseño cartográfico V12 (15 oct 2026)
+   Referencias de patrones de interacción: USGS National Water Dashboard y datos abiertos CONAGUA.
+   Diseño original; datos históricos, nunca telemetría en vivo. */
+body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width:1720px;padding-left:clamp(16px,2.35vw,40px);padding-right:clamp(16px,2.35vw,40px)}
+.wa-v12{--w12-ink:#123247;--w12-deep:#102e42;--w12-accent:#0c7089;--w12-soft:#eef4f6;--w12-edge:#dce6eb;--w12-mute:#6c8290;background:#fff!important;color:var(--w12-ink)!important;font-family:var(--sans,Arial,sans-serif);letter-spacing:normal;font-size:13px;padding-bottom:20px!important}
+.wa-v12 *{box-sizing:border-box}
+.wa-v12[hidden],.wa-v12 [hidden]{display:none!important}
+.wa-v12 :is(input,select,button,a):focus-visible{outline:3px solid #1b87a1;outline-offset:2px}
+.wa-v12 button{cursor:pointer}
+.wa12-head{display:flex;justify-content:space-between;align-items:center;gap:26px;padding:31px 3px 25px;border-bottom:1px solid #d6e1e6;background:white}
+.wa12-head-main{max-width:800px}
+.wa12-kicker{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:830;color:#5c7b8d;letter-spacing:.11em}
+.wa12-kicker-line{width:18px;height:2px;background:#0a8096}
+.wa12-kicker-slash{color:#a6b7c1}
+.wa12-head h1{font-family:var(--serif,Georgia,serif);font-size:clamp(30px,2.65vw,43px);font-weight:580;line-height:1.1;letter-spacing:-.047em;color:#0f3145;margin:11px 0 8px}
+.wa12-head h1 em{font-style:normal;color:#0b788e}
+.wa12-head p{color:#6a8290;font-size:12px;line-height:1.65;margin:0;max-width:700px}
+.wa12-head-right{display:flex;flex-direction:column;gap:7px;align-items:flex-start;min-width:230px;padding-left:25px;border-left:1px solid #dee7eb}
+.wa12-head-right label{font-size:9px;font-weight:850;letter-spacing:.1em;color:#728996}
+.wa-v12 #wa-state{height:44px;padding:9px 14px;min-width:215px;width:100%;font-size:14px;font-weight:720;color:#173e53;border:1px solid #b7cdd6;border-radius:5px;background:#fff;box-shadow:none}
+.wa12-data-cut{display:flex;align-items:center;gap:7px;font-weight:750;font-size:9px;color:#698391;letter-spacing:.045em}
+.wa12-status-circle{width:7px;height:7px;border:1.5px solid #27809a;border-radius:50%;display:inline-block}
+.wa12-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#f7f9fa;border:1px solid #e0e8ed;margin:21px 0 19px;border-radius:6px;overflow:hidden;min-height:98px}
+.wa12-metric{background:#f9fbfc;padding:17px 22px 16px;min-width:0;display:flex;flex-direction:column;gap:5px;border-right:1px solid #dfe8ec}
+.wa12-metric:last-child{border-right:0}
+.wa12-metric small{font-size:9px;letter-spacing:.085em;font-weight:850;color:#77909b;line-height:1.4}
+.wa12-metric strong{font-weight:730;font-size:clamp(21px,1.8vw,28px);line-height:1.12;letter-spacing:-.045em;color:#123a50;font-variant-numeric:tabular-nums}
+.wa12-metric>span{color:#7b919e;font-size:10px;line-height:1.35}
+.wa12-nav-wrap{display:flex;align-items:stretch;justify-content:space-between;border-bottom:1px solid #cddce3;background:#fff;gap:15px;position:relative}
+.wa-v12 .wa-views.wa12-nav{display:flex;flex-direction:row;gap:0;align-items:stretch;padding:0;margin:0;background:transparent;border:0;overflow-x:auto;scrollbar-width:thin;flex:1;min-width:0}
+.wa-v12 .wa-tab{padding:15px 16px 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;min-height:50px;flex:0 0 auto;margin:0;border:0;border-bottom:3px solid transparent;color:#5a7280;background:#fff;font-weight:670;font-size:12px;letter-spacing:0;text-align:center}
+.wa-v12 .wa-tab:hover{color:#0d667f;background:#f3f8fa}
+.wa-v12 .wa-tab[aria-selected="true"]{color:#0b607a;background:#f5f9fb;border-bottom:3px solid #0a8396;font-weight:800}
+.wa-v12 .wa12-nav-no{font-size:9px;font-weight:740;color:#95a8b1}
+.wa-v12 .wa-tab[aria-selected="true"] .wa12-nav-no{color:#2389a0}
+.wa12-dataset-mark{align-self:center;white-space:nowrap;font-weight:800;font-size:9px;letter-spacing:.045em;color:#81939b;padding:0 12px}
+.wa12-dataset-mark span{color:#1a8c98}
+.wa12-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:23px 0 19px}
+.wa12-toolbar-context #wa-active-view-title{font-size:20px;font-weight:775;letter-spacing:-.033em;color:#173c4e;line-height:1.3}
+.wa12-toolbar-context p{font-size:11px;color:#6f8490;margin:5px 0 0;line-height:1.4}
+.wa12-tools{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.wa12-scope{font-size:10px;font-weight:750;color:#67808c;margin-right:10px;max-width:240px}
+.wa-v12 :is(.wa-secondary-button,.wa-primary-button){border-radius:5px;min-height:37px;padding:10px 12px;font-size:11px;font-weight:750;letter-spacing:0}
+.wa-v12 .wa-secondary-button{background:white;color:#2e6174;border:1px solid #cbdce3}
+.wa-v12 .wa-secondary-button:hover{background:#f0f7f9;border-color:#89b4c2}
+.wa-v12 .wa-primary-button{background:#0d6079;border:1px solid #0d6079;color:white}
+.wa-v12 .wa-primary-button:hover{background:#09465a}
+.wa12-main{background:#fff;min-height:540px}
+.wa12-mapintro{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:7px 0 17px}
+.wa12-eyebrow{display:block;font-size:10px;font-weight:820;letter-spacing:.09em;color:#6491a4}
+.wa12-mapintro h2{font-family:var(--serif,Georgia,serif);font-size:clamp(26px,2vw,33px);letter-spacing:-.045em;line-height:1.15;color:#102f42;font-weight:550;margin:8px 0 6px}
+.wa12-mapintro p{color:#6d8592;font-size:12px;line-height:1.5;margin:0;max-width:850px}
+.wa12-inventory-tag{align-self:center;border:1px solid #c7dce3;color:#557a89;background:#f1f7f9;border-radius:100px;white-space:nowrap;font-size:9px;font-weight:820;padding:9px 12px;letter-spacing:.03em}
+.wa12-inventory-tag span{display:inline-block;width:6px;height:6px;background:#6a9cae;border-radius:50%;vertical-align:middle;margin-right:5px}
+.wa12-filterbar{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,205px) minmax(155px,205px) 120px;gap:14px;align-items:end;background:#f3f7f9;border:1px solid #dbe6eb;padding:15px 16px;margin:0 0 15px;border-radius:6px}
+.wa12-searchbox,.wa12-filterselect{display:flex;flex-direction:column;gap:7px;min-width:0}
+.wa12-filterbar label{color:#688290;font-size:9px;font-weight:840;letter-spacing:.065em;line-height:1.4}
+.wa-v12 .wa12-filterbar input,.wa-v12 .wa12-filterbar select{height:41px;width:100%;border:1px solid #cadbe2;background:#fff;color:#264e62;border-radius:4px;font-size:12px;font-weight:630;padding:8px 12px;letter-spacing:0}
+.wa-v12 .wa12-filterbar input::placeholder{color:#a0b0ba;font-weight:450}
+.wa12-filter-results{display:flex;flex-direction:column;gap:3px;border-left:1px solid #d5e2e8;padding:0 2px 3px 14px}
+.wa12-filter-results strong{font-size:24px;font-weight:730;color:#135575;letter-spacing:-.04em;line-height:1.1}
+.wa12-filter-results span{font-size:10px;color:#8398a3;white-space:nowrap}
+.wa12-mapgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(315px,356px);gap:15px;align-items:stretch}
+.wa12-mapframe,.wa12-catalog{border:1px solid #d8e4e9;border-radius:6px;overflow:hidden;background:#fff;min-width:0;box-shadow:0 3px 12px #183b5008}
+.wa12-mapframe{display:flex;flex-direction:column}
+.wa12-mapframe-head,.wa12-catalog-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 18px;background:#fff;border-bottom:1px solid #e1e9ed;min-height:78px}
+.wa12-mapframe-head span,.wa12-catalog-head span{font-size:9px;letter-spacing:.095em;color:#7896a4;font-weight:820}
+.wa12-mapframe-head h3,.wa12-catalog-head h3{font-size:17px;line-height:1.3;letter-spacing:-.025em;font-weight:780;color:#183c51;margin:5px 0 0}
+.wa12-mapframe-head label{display:flex;align-items:center;gap:9px;white-space:nowrap;font-size:9px;color:#74909e;font-weight:850}
+.wa-v12 .wa12-mapframe-head select{font-weight:675;font-size:11px;color:#214a61;border:1px solid #c8dce5;border-radius:4px;padding:8px 9px;min-width:142px;height:38px;background:#fff}
+.wa12-mapspace{position:relative;flex:1;min-height:540px;background:#e4ecf0}
+.wa-v12 .wa-map{height:100%!important;min-height:540px!important;border:0!important;background:#dfe8ed!important}
+.wa-v12 .wa-map .leaflet-tile-pane{filter:none}
+.wa-v12 .wa-map .leaflet-control-attribution{background:#fffdfc;font-size:9px;color:#4a6574}
+.wa-v12 .wa-map .leaflet-control-zoom{box-shadow:0 1px 5px #152f4016;border:1px solid #d7e2e8!important;border-radius:4px}
+.wa-v12 .wa-map .leaflet-control-zoom a{color:#28556c!important;background:#fff!important}
+.wa12-map-corner{position:absolute;top:14px;right:14px;z-index:500;padding:10px 12px;background:#fffef4ee;border:1px solid #dce6e9;box-shadow:0 3px 9px #24425216;border-radius:4px;font-size:11px;font-weight:760;color:#24546a;pointer-events:none}
+.wa12-map-dot{width:8px;height:8px;display:inline-block;border-radius:50%;background:#177e9a;margin-right:4px}
+.wa12-map-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:47px;padding:11px 15px;border-top:1px solid #e2e9ed;background:#fff;color:#6d8592;font-size:10px}
+.wa12-legend-bubble{width:11px;height:11px;display:inline-block;border:2px solid #fff;outline:1px solid #2789a3;border-radius:50%;background:#1585a3;margin-right:7px;vertical-align:middle}
+.wa-v12 .wa12-map-bottom button{border:0;background:none;padding:4px 0;font-weight:820;color:#136c84;font-size:11px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.wa12-catalog{display:flex;flex-direction:column;align-self:stretch}
+.wa12-catalog-head{background:#fafcfd}
+.wa12-count{border-radius:5px;padding:6px 10px;color:#18647d;background:#e3eff3;font-weight:820;font-size:15px}
+.wa12-catalog-list{min-height:250px;max-height:340px;overflow:auto;flex:1;scrollbar-color:#b9c9cf #f3f6f7}
+.wa-v12 .wa12-inventory-row{padding:14px 15px!important;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:65px;border:0;border-bottom:1px solid #ebf0f3;border-left:3px solid transparent;width:100%;text-align:left;color:#1d4358}
+.wa-v12 .wa12-inventory-row:hover{background:#f0f7fa}
+.wa-v12 .wa12-inventory-row[aria-pressed="true"]{border-left:3px solid #13829d;background:#eaf4f7;padding-left:15px!important}
+.wa12-list-main{display:flex;flex-direction:column;gap:6px;min-width:0}
+.wa12-list-main strong{font-size:12px;font-weight:735;color:#204658;line-height:1.25}
+.wa12-list-main small{font-size:10px;color:#7a939f;line-height:1.35;font-weight:450}
+.wa12-list-measure{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:0 0 auto;font-size:14px;font-weight:780;letter-spacing:-.025em;color:#24617a}
+.wa12-list-measure small{font-size:9px;font-weight:540;color:#8da1aa;letter-spacing:0}
+.wa12-dam-detail{margin-top:auto;padding:19px 17px 17px;background:#f3f7f9;border-top:1px solid #d9e5e9;min-height:220px}
+.wa12-detail-kicker{font-size:9px;font-weight:850;letter-spacing:.075em;color:#6791a3;display:flex;justify-content:space-between;gap:10px}
+.wa12-detail-kicker span{color:#94a7b0}
+.wa12-detail-title{font-size:18px;letter-spacing:-.03em;color:#173e52;line-height:1.2;font-weight:790;margin:12px 0 5px}
+.wa12-detail-place{font-size:11px;color:#6e8a97;margin:0 0 17px}
+.wa12-detail-stats{display:grid;grid-template-columns:1fr 1.2fr;gap:17px}
+.wa12-detail-stats>div{min-width:0;display:flex;flex-direction:column;gap:6px}
+.wa12-detail-stats>div+div{border-left:1px solid #d3e0e6;padding-left:16px}
+.wa12-detail-stats small{font-size:9px;font-weight:820;color:#7c96a2;letter-spacing:.045em}
+.wa12-detail-stats strong{font-size:25px;font-weight:790;letter-spacing:-.045em;color:#154c64;font-variant-numeric:tabular-nums;line-height:1.1}
+.wa12-detail-stats .wa12-coord{font-size:12px;letter-spacing:0;line-height:1.8}
+.wa12-detail-stats span{font-size:10px;color:#7e959e}
+.wa12-detail-caution{border-top:1px solid #dae4e8;padding:12px 0 0;margin:15px 0 0;font-size:10px;line-height:1.55;color:#6e8996}
+.wa12-detail-empty{font-size:12px;line-height:1.8;color:#6e8996}
+.wa12-mapnote{border-left:3px solid #0c8194;background:#eff6f8;color:#607d8c;font-size:11px;line-height:1.75;padding:13px 17px;margin:15px 0 0}
+.wa12-mapnote strong{color:#1c586c}
+.wa12-historyhead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:36px 0 17px}
+.wa12-historyhead span{color:#7497a6;letter-spacing:.09em;font-weight:850;font-size:9px}
+.wa12-historyhead h2{font-family:var(--serif,Georgia,serif);font-size:30px;line-height:1.2;font-weight:550;color:#173c50;letter-spacing:-.035em;margin:8px 0 0}
+.wa12-historyhead p{color:#7d919d;max-width:420px;line-height:1.55;font-size:11px;margin:0}
+.wa-v12 .wa12-historical-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.wa-v12 .wa12-historical-panels>.wa-wide{grid-column:span 1}
+.wa-v12 .wa-card{background:#fff;border:1px solid #dce6ea;border-radius:5px;box-shadow:none;padding:23px!important;position:relative}
+.wa-v12 .wa-card::before{display:none}
+.wa-v12 .wa-card-head{border-bottom:1px solid #e3ebee;padding-bottom:13px;margin-bottom:16px}
+.wa-v12 .wa-card .wa-eyebrow{font-size:10px;letter-spacing:.07em;color:#6d96a6;font-weight:830}
+.wa-v12 .wa-card h2{color:#20465a;font-size:20px;line-height:1.25;font-weight:750;letter-spacing:-.03em}
+.wa-v12 .wa-card p{font-size:12px;line-height:1.8;color:#6f8794}
+.wa-v12 .wa-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.wa-v12 .wa-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px;border:0}
+.wa-v12 .wa-kpi{border:1px solid #dfe7ec!important;background:#f7fafb!important;border-radius:5px;min-height:120px;padding:20px}
+.wa-v12 .wa-kpi:not(:first-child){border-left:1px solid #dfe7ec}
+.wa-v12 .wa-kpi span{color:#6d8797;font-size:11px;letter-spacing:0;text-transform:none}
+.wa-v12 .wa-kpi strong{font-size:27px;color:#1b465d;letter-spacing:-.04em}
+.wa-v12 .wa-kpi small{font-size:10px;color:#7c94a0}
+.wa-v12 .wa-splithead{margin-bottom:20px}
+.wa-v12 .wa-splithead h2{font-size:28px;font-family:var(--serif,Georgia,serif);color:#173c50;letter-spacing:-.04em}
+.wa-v12 .wa-splithead p{font-size:12px;line-height:1.7;color:#718a98}
+.wa-v12 .wa-provenance-chip{font-size:10px;border-radius:100px;background:#e9f4f6;color:#307185;border:1px solid #d3e5e9;padding:8px 11px}
+.wa-v12 .wa-note{border:1px solid #d9e7ea;border-left:3px solid #318d9b;background:#eff7f8;color:#5e7e8c;font-size:11px;line-height:1.8;padding:15px}
+.wa-v12 .wa-chart{width:100%;max-height:300px}
+.wa-v12 .wa-table{font-size:12px;width:100%}
+.wa-v12 .wa-table th{font-size:10px;letter-spacing:.03em;color:#5b7d90;background:#edf3f6;font-weight:780;padding:13px}
+.wa-v12 .wa-table td{font-size:12px;line-height:1.5;color:#416173;padding:12px 13px}
+.wa-v12 .wa-table tbody tr:nth-child(even){background:#fafcfd}
+.wa-v12 .wa-table-wrap{border:1px solid #dce5eb;border-radius:5px;overflow-x:auto}
+.wa-v12 .wa-compare-shell{grid-template-columns:minmax(0,1fr) 275px}
+.wa-v12 .wa-pill{font-size:11px;border-radius:5px;padding:10px 13px}
+.wa-v12 .wa-pill[aria-pressed="true"]{background:#145e79}
+.wa-v12 input[type=search],.wa-v12 .wa-toolset select{border:1px solid #cadce3;border-radius:4px;min-height:40px;font-size:12px}
+.wa-v12 .wa-empty{font-size:12px;border:1px dashed #cbdde4;border-radius:5px;color:#6e8997;background:#f6fafb}
+.wa12-foot{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:22px 0 5px;margin-top:35px;border-top:1px solid #dce5e9;color:#8597a1;font-size:10px;line-height:1.7}
+.wa12-foot>div{display:flex;align-items:center;gap:14px}
+.wa12-foot strong{font-size:10px;letter-spacing:.07em;color:#26546a}
+.wa-v12 .wa12-foot button{border:0;background:none;color:#276d84;text-decoration:underline;text-underline-offset:3px;font-weight:760;font-size:11px;padding:6px}
+@media(min-width:1700px){.wa12-mapgrid{grid-template-columns:minmax(0,1fr) 390px}.wa12-mapspace{min-height:590px}.wa-v12 .wa-map{min-height:590px!important}}
+@media(max-width:1320px){.wa12-dataset-mark{display:none}.wa-v12 .wa-tab{padding:14px 12px;font-size:11px}.wa12-mapgrid{grid-template-columns:minmax(0,1fr) 330px}.wa12-mapspace{min-height:510px}.wa-v12 .wa-map{min-height:510px!important}}
+@media(max-width:1110px){.wa12-mapgrid{grid-template-columns:minmax(0,1fr) minmax(280px,320px)}.wa12-filterbar{grid-template-columns:1fr 170px 160px}.wa12-filter-results{display:none}.wa12-toolbar{align-items:flex-start}.wa12-scope{display:none}.wa12-mapframe-head{flex-wrap:wrap}}
+@media(max-width:870px){.wa12-head{padding:25px 0;align-items:flex-start}.wa12-head h1{font-size:33px}.wa12-head-right{min-width:180px;padding-left:15px}.wa-v12 #wa-state{min-width:165px}.wa12-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.wa12-metric:nth-child(2){border-right:0}.wa12-metric:nth-child(-n+2){border-bottom:1px solid #dfe8ec}.wa12-mapgrid{grid-template-columns:1fr}.wa12-mapspace{min-height:480px}.wa-v12 .wa-map{min-height:480px!important}.wa12-catalog-list{max-height:285px}.wa12-catalog{display:grid;grid-template-columns:1fr 1fr}.wa12-catalog-head{grid-column:1/-1}.wa12-catalog-list{max-height:320px;min-height:300px}.wa12-dam-detail{min-height:300px;border-top:0;border-left:1px solid #dce7eb}.wa12-historyhead{padding-top:28px}.wa12-filterbar{grid-template-columns:1fr 1fr}.wa12-searchbox{grid-column:span 2}.wa-v12 .wa12-historical-panels{grid-template-columns:1fr}.wa12-toolbar{gap:14px}.wa-v12 .wa-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:590px){.wa12-head{flex-direction:column;gap:16px;padding:21px 0}.wa12-head h1{font-size:33px}.wa12-head-right{border-left:0;padding-left:0;min-width:100%;width:100%;flex-direction:row;flex-wrap:wrap;align-items:center}.wa12-head-right label{width:100%}.wa-v12 #wa-state{width:58%;min-width:190px}.wa12-data-cut{font-size:9px}.wa12-metrics{margin:14px 0}.wa12-metric{padding:14px;min-height:91px}.wa12-metric strong{font-size:21px}.wa12-nav-wrap{margin:0 -7px}.wa-v12 .wa-tab{min-height:44px;padding:11px 12px}.wa12-toolbar{padding:17px 0}.wa12-toolbar-context #wa-active-view-title{font-size:18px}.wa12-tools{justify-content:flex-start}.wa12-mapintro{display:block}.wa12-inventory-tag{display:inline-flex;margin-top:13px}.wa12-filterbar{padding:13px;gap:11px}.wa12-mapframe-head{padding:15px}.wa12-mapframe-head h3{font-size:15px}.wa12-mapspace{min-height:375px}.wa-v12 .wa-map{min-height:375px!important}.wa12-map-bottom{font-size:9px}.wa12-catalog{display:block}.wa12-catalog-list{max-height:245px;min-height:100px}.wa12-dam-detail{border-left:0;border-top:1px solid #dce7eb}.wa12-historyhead{display:block}.wa12-historyhead h2{font-size:25px}.wa12-historyhead p{margin-top:10px}.wa-v12 .wa-card{padding:17px!important}.wa12-foot{align-items:flex-start;flex-direction:column;gap:8px}.wa12-foot>div{flex-direction:column;align-items:flex-start;gap:3px}}
+@media print{body[data-view="agua"] .wa12-tools,body[data-view="agua"] .wa12-nav-wrap,body[data-view="agua"] .wa12-filterbar,body[data-view="agua"] .wa12-head-right,body[data-view="agua"] .wa12-mapspace,body[data-view="agua"] .wa12-catalog-list{display:none!important}body[data-view="agua"] .wa12-mapgrid{display:block!important}body[data-view="agua"] .wa12-dam-detail{border:1px solid #dce6ea!important}body[data-view="agua"] .wa-card{break-inside:avoid!important}}
 
-/* GROWA Agua v11 · Observatorio institucional. Diseño propio, inspirado en CONAGUA SIH, USGS NWD y WRI Aqueduct. */
-.wa-v11{--navy:#102f40;--blue:#125767;--teal:#087986;--ink:#233f4c;--line:#dce5e8;--muted:#758a94;font-size:13px;background:white;color:var(--ink);padding-bottom:0!important}
-.wa-v11 [hidden]{display:none!important}
-.wa-v11 :is(button,select,input,a):focus-visible{outline:3px solid #13959f;outline-offset:3px}
-.wa-v11 .wa-institution-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--navy);color:#d5e6ec;min-height:44px;padding:9px 24px;font-size:9px;letter-spacing:.10em}
-.wa-v11 .wa-institution-identity,.wa-v11 .wa-institution-status{display:flex;align-items:center;gap:11px}
-.wa-v11 .wa-institution-identity strong{font-size:13px;color:white;letter-spacing:.15em}
-.wa-v11 .wa-institution-symbol{display:grid;place-items:center;width:26px;height:26px;background:#245260;border:1px solid #56848b;color:#c5f2e9;font-size:19px;line-height:1}
-.wa-v11 .wa-identity-divider{width:1px;height:18px;background:#4e7280}
-.wa-v11 .wa-hollow-point{width:7px;height:7px;border:1px solid #96d8d4;border-radius:50%}
-.wa-v11 .wa-institution-status b{color:#fff;letter-spacing:.08em}
-.wa-v11 .wa-workspace-head{display:flex;gap:32px;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding:42px 26px 36px;margin:0;background:linear-gradient(105deg,#fff 50%,#f2f7f8 100%)}
-.wa-v11 .wa-portal-path{font-size:10px;color:#437f88;letter-spacing:.12em;font-weight:800}
-.wa-v11 .wa-head-text{max-width:660px}
-.wa-v11 .wa-head-text h1{font-family:var(--serif,Georgia,serif);font-weight:450;font-size:clamp(36px,3.85vw,58px);line-height:1.1;letter-spacing:-.06em;margin:17px 0 13px;color:var(--navy)}
-.wa-v11 .wa-head-text h1 span{color:#167886}
-.wa-v11 .wa-head-text p{color:#657b86;font-size:12.5px;max-width:585px;line-height:1.85}
-.wa-v11 .wa-head-quick{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin-top:22px}
-.wa-v11 .wa-start-button{background:#126270;border:1px solid #126270;border-radius:4px;color:#fff;padding:11px 15px;font-weight:750;font-size:11px;cursor:pointer}
-.wa-v11 .wa-start-button:hover{background:#0e5260}
-.wa-v11 .wa-head-text-link{border:0;background:transparent;color:#126270;padding:10px;font-size:11px;font-weight:750;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.wa-v11 .wa-head-metadata{min-width:210px;padding-left:23px;border-left:1px solid #d7e2e5}
-.wa-v11 .wa-head-index{font:450 45px/1 var(--serif,Georgia,serif);letter-spacing:-.05em;color:#204b5b}
-.wa-v11 .wa-head-index span{color:#a6bac1}
-.wa-v11 .wa-head-index-label{font-size:9px;letter-spacing:.11em;color:#8497a1;font-weight:800;margin:5px 0 21px}
-.wa-v11 .wa-head-meta-line{padding:9px 0;border-top:1px solid #e1e9ea;display:flex;flex-direction:column;gap:4px}
-.wa-v11 .wa-head-meta-line span{font-size:9px;letter-spacing:.06em;font-weight:750;color:#7e929b}
-.wa-v11 .wa-head-meta-line strong{font-size:11px;font-weight:730;color:#285363}
-.wa-v11 .wa-coverage-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 1.4fr 1.9fr;background:#fff;border-bottom:1px solid var(--line)}
-.wa-v11 .wa-coverage-unit{display:flex;align-items:center;gap:11px;min-height:70px;padding:15px 17px;border-right:1px solid #e2e9eb}
-.wa-v11 .wa-coverage-unit strong{font-size:23px;color:#214b5c;font-weight:690;letter-spacing:-.05em;white-space:nowrap}
-.wa-v11 .wa-coverage-unit span{color:#798d96;font-size:10px;line-height:1.4}
-.wa-v11 .wa-coverage-years strong{font-size:19px}
-.wa-v11 .wa-coverage-warning{display:flex;gap:10px;align-items:center;background:#f5f8f8;padding:12px 15px;color:#708790;font-size:10px;line-height:1.6}
-.wa-v11 .wa-coverage-warning b{color:#3b5c69}
-.wa-v11 .wa-warning-mark{display:grid;place-items:center;flex:0 0 23px;height:23px;border:1px solid #9eb3b9;border-radius:50%;font-family:Georgia,serif;color:#4d7684;font-weight:bold;font-size:13px}
-.wa-v11 .wa-console{display:grid;grid-template-columns:238px minmax(0,1fr);background:#f6f8f9;min-height:720px}
-.wa-v11 .wa-side{background:#f2f5f6;border-right:1px solid #dce5e8;display:flex;flex-direction:column;min-width:0}
-.wa-v11 .wa-region-selector{padding:24px 17px 20px;border-bottom:1px solid #dde6e8}
-.wa-v11 .wa-side-kicker,.wa-v11 .wa-nav-label,.wa-v11 .wa-sidebar-foot-title{font-size:9px;font-weight:840;letter-spacing:.11em;color:#899ca5}
-.wa-v11 .wa-region-selector label{display:block;margin:9px 0;font-size:12px;font-weight:750;color:#285261}
-.wa-v11 #wa-state{width:100%;height:44px;border:1px solid #c8d9dd;border-radius:4px;background:white;color:#21495a;font-size:12px;font-weight:750;padding:7px 11px}
-.wa-v11 .wa-select-context{font-size:9px;color:#859aa3;line-height:1.6;margin-top:9px}
-.wa-v11 .wa-views{display:flex;flex-direction:column;align-items:stretch;gap:0;background:transparent;border:0;overflow:visible;padding:10px 0 16px;margin:0}
-.wa-v11 .wa-nav-label{padding:18px 18px 7px}
-.wa-v11 .wa-tab{display:grid;grid-template-columns:23px minmax(0,1fr) 13px;align-items:center;gap:7px;text-align:left;white-space:normal;padding:11px 12px 11px 18px;margin:0;background:transparent;color:#506e7d;border:0;border-left:3px solid transparent;border-bottom:0;font-size:12px;font-weight:580;letter-spacing:0;line-height:1.3;min-height:45px;cursor:pointer}
-.wa-v11 .wa-tab:hover{background:#eaf1f2;color:#165968}
-.wa-v11 .wa-tab[aria-selected=true]{background:#e0eff1;color:#0f5b6a;border-left-color:#07818d;font-weight:800}
-.wa-v11 .wa-tab span{margin:0;font-weight:inherit}
-.wa-v11 .wa-tab .wa-tab-index{color:#9aabb1;font-size:10px}
-.wa-v11 .wa-tab[aria-selected=true] .wa-tab-index{color:#15808b}
-.wa-v11 .wa-tab .wa-tab-arrow{opacity:0;color:#2d7f8c}
-.wa-v11 .wa-tab:hover .wa-tab-arrow,.wa-v11 .wa-tab[aria-selected=true] .wa-tab-arrow{opacity:1}
-.wa-v11 .wa-sidebar-foot{margin-top:auto;padding:24px 17px;border-top:1px solid #dde6e8}
-.wa-v11 .wa-sidebar-foot-title{display:block;margin-bottom:15px}
-.wa-v11 .wa-sidebar-data{display:flex;justify-content:space-between;gap:5px;flex-wrap:wrap;margin:10px 0;font-size:9px;color:#7e9198}
-.wa-v11 .wa-sidebar-data span{display:flex;align-items:center;gap:6px}
-.wa-v11 .wa-sidebar-data b{color:#4f717c;font-weight:700}
-.wa-v11 .wa-sidebar-indicator{width:7px;height:7px;display:inline-block;border-radius:1px}
-.wa-v11 .wa-indicator-blue{background:#418996}.wa-v11 .wa-indicator-sand{background:#bda373}.wa-v11 .wa-indicator-slate{background:#a7b9c1}
-.wa-v11 .wa-sidebar-method{width:100%;margin-top:19px;padding:12px;text-align:left;background:#fff;border:1px solid #d9e3e6;border-radius:4px;color:#236978;font-size:10px;font-weight:780;cursor:pointer}
-.wa-v11 .wa-workspace-main{min-width:0;display:flex;flex-direction:column}
-.wa-v11 .wa-commandbar{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin:0;padding:20px 23px;background:#fff;border-bottom:1px solid #e0e7e9}
-.wa-v11 .wa-command-eyebrow{font-size:9px;font-weight:800;letter-spacing:.09em;color:#8699a1}
-.wa-v11 .wa-active-scope{display:flex;align-items:baseline;gap:8px;margin-top:8px;color:#214b5c;font-size:19px;font-weight:710;line-height:1.2}
-.wa-v11 .wa-active-scope small{font-size:10px;font-weight:450;color:#8a9ba3}
-.wa-v11 .wa-status-signal{width:6px;height:6px;align-self:center;background:#278f93}
-.wa-v11 .wa-command-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 0 auto}
-.wa-v11 :is(.wa-primary-button,.wa-secondary-button){font-size:10px;letter-spacing:0;border-radius:4px;padding:10px 12px;min-height:36px;font-weight:750}
-.wa-v11 .wa-secondary-button{background:#fff;color:#2b596a;border:1px solid #d5e0e2}
-.wa-v11 .wa-primary-button{color:#fff;background:#125465;border:1px solid #125465}
-.wa-v11 .wa-context-line{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fbfcfc;border-bottom:1px solid #e2e9ea;padding:12px 23px;font-size:10px;color:#768b94;line-height:1.5}
-.wa-v11 .wa-context-line b{font-size:9px;color:#8fa2aa;letter-spacing:.04em}
-.wa-v11 .wa-workspace-body{padding:23px 23px 28px;background:#f6f8f9;min-height:600px}
-.wa-v11 .wa-workspace-footer{margin:0;padding:18px 23px;background:white;border-top:1px solid #dde6e8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:9px;line-height:1.8;color:#899aa1}
-.wa-v11 .wa-workspace-footer a{color:#247487;text-underline-offset:3px}
-.wa-v11 .wa-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:0 0 17px;border:0}
-.wa-v11 .wa-kpi{min-height:126px;border:1px solid #e1e9ea!important;background:#fff;border-radius:5px;padding:20px 16px}
-.wa-v11 .wa-kpi:not(:first-child){border-left:1px solid #e1e9ea}
-.wa-v11 .wa-kpi span{font-size:10px;color:#718892;font-weight:760;letter-spacing:.025em;text-transform:none;line-height:1.5}
-.wa-v11 .wa-kpi strong{font-size:clamp(22px,2.35vw,30px);font-weight:680;color:#214757;letter-spacing:-.05em;margin:13px 0 7px}
-.wa-v11 .wa-kpi small{font-size:10px;line-height:1.5}
-.wa-v11 .wa-panels{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
-.wa-v11 .wa-card{border:1px solid #dde6e9;background:#fff;border-radius:5px;padding:23px;box-shadow:0 2px 7px #1b475408}
-.wa-v11 .wa-card::before{display:none}
-.wa-v11 .wa-card-head{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid #e8eef0}
-.wa-v11 .wa-card .wa-eyebrow{color:#74909a;font-size:9px;letter-spacing:.11em;font-weight:830}
-.wa-v11 .wa-card h2{color:#1f4757;font-size:clamp(16px,1.5vw,20px);font-weight:730;letter-spacing:-.035em}
-.wa-v11 .wa-card p{font-size:11.5px;color:#738993;line-height:1.85}
-.wa-v11 .wa-splithead{margin-bottom:20px;align-items:flex-end}
-.wa-v11 .wa-splithead h2{font:480 clamp(25px,2.9vw,36px)/1.15 var(--serif,Georgia,serif);color:#173e50;letter-spacing:-.04em;margin:9px 0}
-.wa-v11 .wa-splithead p{font-size:12px;color:#7a8e97}
-.wa-v11 .wa-provenance-chip{border-radius:35px;background:#eaf3f3;border:1px solid #d5e4e6;color:#316d7a;font-size:9px;padding:8px 10px}
-.wa-v11 .wa-note{border:1px solid #d1e3e6;border-left:3px solid #3c8a94;background:#eff6f6;color:#526d78;border-radius:3px;font-size:11px;line-height:1.8;margin:0 0 18px}
-.wa-v11 .wa-focus-band{background:white;border:1px solid #dce6e8;border-radius:5px;padding:13px 15px;margin-bottom:15px;gap:12px}
-.wa-v11 .wa-map-and-list{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(250px,1fr);gap:15px;align-items:start}
-.wa-v11 .wa-map-and-list>.wa-card{min-width:0;overflow:hidden}
-.wa-v11 .wa-map{height:540px;min-height:400px;border:1px solid #dae4e7;border-radius:4px;background:#e6eeee;isolation:isolate}
-.wa-v11 .wa-map .leaflet-tile-pane{filter:saturate(.72)}
-.wa-v11 .wa-map .leaflet-control-attribution{font-size:9px;background:#fffe}
-.wa-v11 .wa-scroll{max-height:375px;overflow:auto;border:1px solid #e4ebed;border-radius:4px}
-.wa-v11 .wa-map-row-btn{font-size:11px;line-height:1.3;border:0;border-bottom:1px solid #e6eef0;padding:13px 12px;text-align:left;color:#39596a;font-weight:730}
-.wa-v11 .wa-map-row-btn small{font-size:10px;color:#8a9da6;font-weight:450;margin-top:5px;line-height:1.6}
-.wa-v11 .wa-map-row-btn[aria-pressed=true]{background:#e8f3f4;border-left:3px solid #0f8893;padding-left:9px}
-.wa-v11 .wa-map-point{background:#f4f9fa;border:1px solid #dfe8ea;border-radius:4px;margin-top:12px;padding:15px}
-.wa-v11 .wa-table-wrap{border:1px solid #e1e9eb;border-radius:4px;overflow-x:auto}
-.wa-v11 .wa-table{width:100%;font-size:11px}
-.wa-v11 .wa-table thead{background:#edf3f5}
-.wa-v11 .wa-table th{letter-spacing:.025em;font-size:10px;font-weight:780;color:#577783;padding:13px 11px;text-transform:none}
-.wa-v11 .wa-table td{font-size:11px;padding:12px 11px;color:#395969}
-.wa-v11 .wa-table tbody tr:nth-child(even){background:#fafcfc}
-.wa-v11 .wa-table tbody tr:hover{background:#edf6f6}
-.wa-v11 .wa-chart{max-height:300px}
-.wa-v11 .wa-pill{border-radius:4px;padding:10px 13px}
-.wa-v11 .wa-pill[aria-pressed=true]{background:#155b69;color:#fff}
-.wa-v11 :is(input[type=search],.wa-toolset select,.wa-toolbar-inline select){border:1px solid #cbdde1;border-radius:4px;background:white;color:#2c5665;min-height:39px}
-.wa-v11 .wa-empty{border:1px dashed #d5e2e5;border-radius:4px;background:#f9fbfb;color:#77909a}
-.wa-v11 .wa-source{border:1px solid #e1e9eb;border-radius:4px;background:white;padding:20px;margin-bottom:10px}
-.wa-v11 .wa-map-utility{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0 12px}
-.wa-v11 .wa-map-utility label{display:flex;align-items:center;gap:8px;font-size:10px;color:#65818e;font-weight:780}
-.wa-v11 .wa-map-utility select{font-size:11px;padding:7px 8px;height:35px;border:1px solid #ccdde1;border-radius:4px;color:#285463;background:white}
-.wa-v11 .wa-map-utility button{background:white;border:1px solid #ccdde1;border-radius:4px;color:#236b7a;font-size:10px;padding:10px;cursor:pointer;font-weight:740}
-.wa-v11 .wa-map-utility button:hover{background:#f1f8f8}
-.wa-v11 .wa-loading{padding:35px 20px;background:#fff;border:1px solid #dde8e9;border-radius:5px;color:#738e9b}
-@media(max-width:1260px){.wa-v11 .wa-console{grid-template-columns:215px minmax(0,1fr)}.wa-v11 .wa-coverage-strip{grid-template-columns:repeat(4,minmax(0,1fr))}.wa-v11 .wa-coverage-warning{grid-column:1/-1;border-top:1px solid #e0e8ea}.wa-v11 .wa-map-and-list{grid-template-columns:minmax(0,1.3fr) minmax(225px,1fr)}.wa-v11 .wa-workspace-body{padding:19px}}
-@media(max-width:1060px){.wa-v11 .wa-head-metadata{display:none}.wa-v11 .wa-map-and-list,.wa-v11 .wa-panels,.wa-v11 .wa-compare-shell{grid-template-columns:1fr}.wa-v11 .wa-map{height:470px}.wa-v11 .wa-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wa-v11 .wa-kpi:not(:first-child){border-left:1px solid #e1e9ea}}
-@media(max-width:780px){.wa-v11 .wa-institution-bar{padding:10px 15px}.wa-v11 .wa-workspace-head{padding:28px 17px}.wa-v11 .wa-head-text h1{font-size:39px}.wa-v11 .wa-coverage-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.wa-v11 .wa-coverage-unit{padding:12px;min-height:70px}.wa-v11 .wa-console{display:block}.wa-v11 .wa-side{display:block;border-right:0;border-bottom:1px solid #dbe5e8}.wa-v11 .wa-region-selector{padding:13px 16px}.wa-v11 .wa-views{display:flex;flex-direction:row;overflow-x:auto;gap:5px;padding:10px}.wa-v11 .wa-nav-label{display:none}.wa-v11 .wa-tab{display:flex;white-space:nowrap;flex:0 0 auto;border:1px solid #d4e0e4;border-radius:4px;padding:10px;min-height:38px;background:white;font-size:11px}.wa-v11 .wa-tab[aria-selected=true]{border:1px solid #65a7ae}.wa-v11 .wa-tab .wa-tab-arrow{display:none}.wa-v11 .wa-sidebar-foot{display:none}.wa-v11 .wa-commandbar{padding:16px}.wa-v11 .wa-command-actions{width:100%;margin:0;justify-content:flex-start}.wa-v11 .wa-workspace-body{padding:16px}.wa-v11 .wa-context-line{padding:12px 16px}.wa-v11 .wa-context-line b{display:none}.wa-v11 .wa-workspace-footer{padding:16px}}
-@media(max-width:480px){.wa-v11 .wa-institution-identity{font-size:8px;gap:6px}.wa-v11 .wa-institution-identity strong{font-size:12px}.wa-v11 .wa-head-text h1{font-size:33px}.wa-v11 .wa-coverage-unit strong{font-size:21px}.wa-v11 .wa-coverage-unit span{font-size:9px}.wa-v11 .wa-kpi{padding:15px 11px;min-height:130px}.wa-v11 .wa-kpi strong{font-size:20px}.wa-v11 .wa-map{height:360px;min-height:330px}.wa-v11 .wa-card{padding:17px 14px}.wa-v11 .wa-command-actions button{padding:9px;font-size:9px}}
-@media print{body[data-view="agua"] .wa-v11 :is(.wa-institution-bar,.wa-side,.wa-command-actions,.wa-head-quick){display:none!important}body[data-view="agua"] .wa-v11 .wa-console{display:block!important}body[data-view="agua"] .wa-v11 .wa-workspace-body{padding:5mm;background:#fff}body[data-view="agua"] .wa-v11 .wa-workspace-head{padding:8mm}body[data-view="agua"] .wa-v11 .wa-card{break-inside:avoid}}
-
-  </style>
+</style>
 </head>
 <body>
 <a href="#main" class="skip-link">Saltar al contenido principal</a>
@@ -755,6 +779,7 @@
  const COLORS=['#197b88','#bc7f44','#577caa','#6a9a70','#8264a7'];
  const period='Corte de integración: octubre de 2026';
  let D,st='Sinaloa',view='presas',metric='riego',dam='',query='',map=null,baseLayer=null,baseStyle='claro';
+ let damSort='capacidad';
  let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023,aqFilter='todos';
  let selectedDam='',minCapacity=0;
  const damMarkers=new Map();
@@ -766,7 +791,7 @@
  const info=msg=>'<div class="wa-note">'+msg+'</div>';
  const empty=msg=>'<div class="wa-empty">'+safe(msg)+'</div>';
  const series=(rows,title,units='',axis='year')=>{
-  rows=rows.filter(x=>Number.isFinite(Number(x[1])));
+  rows=rows.filter(x=>x[1]!==null&&x[1]!==undefined&&x[1]!==''&&Number.isFinite(Number(x[1])));
   if(rows.length<2)return empty('No hay suficientes observaciones para construir una serie temporal.');
   rows.sort((a,b)=>a[0]-b[0]);const minY=Math.min(...rows.map(x=>x[1])),maxY=Math.max(...rows.map(x=>x[1]));
   const a=minY>=0?0:minY-(maxY-minY)*.08,b=maxY+(maxY-a)*.12||1;
@@ -803,53 +828,71 @@
  }
 
  function damDetails(row){
-  if(!row)return'<div class="wa-map-point"><div><h3>Seleccione una presa</h3><p>Haga clic en el mapa o en el inventario para consultar su ficha.</p></div></div>';
-  return'<div class="wa-map-point"><div><div class="wa-eyebrow">FICHA DE INFRAESTRUCTURA · '+safe(row[1])+'</div><h3>'+safe(row[2])+'</h3><p>'+safe(row[3])+' · '+safe(st)+'<br>Coordenadas '+f(row[4],4)+', '+f(row[5],4)+'</p></div><div style="text-align:right"><strong>'+f(row[6])+'</strong><span style="display:block;color:#81949d;font-size:10px">hm³ NAMO</span></div></div>'+
-  '<div class="wa-small-note">La cifra es capacidad nominal. No indica llenado actual ni agua disponible.</div>';
+  if(!row)return '<div class="wa12-detail-empty">Seleccione una presa para ver su expediente técnico.</div>';
+  return '<div class="wa12-detail-kicker">EXPEDIENTE DE INFRAESTRUCTURA <span>'+safe(row[1])+'</span></div>'+
+   '<h3 class="wa12-detail-title">'+safe(row[2])+'</h3>'+
+   '<div class="wa12-detail-place">'+safe(row[3])+' · '+safe(st)+'</div>'+
+   '<div class="wa12-detail-stats"><div><small>CAPACIDAD AL NAMO</small><strong>'+f(row[6])+'</strong><span>hm³ · nominal</span></div><div><small>UBICACIÓN GEOGRÁFICA</small><strong class="wa12-coord">'+f(row[4],3)+'°, '+f(row[5],3)+'°</strong><span>Coordenadas de catálogo</span></div></div>'+
+   '<p class="wa12-detail-caution">Esta es la capacidad nominal de diseño; no corresponde al volumen almacenado ni al nivel de llenado actual.</p>';
  }
  function selectDam(code,focus=true){
   const row=getDams().find(x=>x[1]===code);if(!row)return;
-  selectedDam=code;const detail=byId('wa-dam-detail');if(detail)detail.innerHTML=damDetails(row);
+  selectedDam=code;
+  const detail=byId('wa-dam-detail');if(detail)detail.innerHTML=damDetails(row);
   root.querySelectorAll('[data-wa-dam]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.waDam===code)));
   const pair=damMarkers.get(code);
-  if(map&&pair&&focus){map.panTo([row[4],row[5]]);pair.openPopup();}
-  for(const [key,marker] of damMarkers){marker.setStyle(key===code?{radius:10,weight:3,fillColor:'#0a5662',color:'#fff'}:{radius:Math.min(14,5+Math.sqrt(Math.max(0,getDams().find(x=>x[1]===key)?.[6]||0))/4),weight:1.3,fillColor:'#278897',color:'#fff'})}
+  if(map&&pair&&focus){map.panTo([row[4],row[5]]);pair.openPopup()}
+  for(const [key,marker] of damMarkers){
+   const capacity=getDams().find(x=>x[1]===key)?.[6]||0;
+   marker.setStyle(key===code?{radius:12,weight:3,fillColor:'#113d57',color:'#fff',fillOpacity:1}:{radius:Math.min(15,5+Math.sqrt(Math.max(0,capacity))/4),weight:1.3,fillColor:'#167f9c',color:'#fff',fillOpacity:.87});
+  }
  }
  function renderDams(){
-  const all=getDams(),term=normalize(query),p=all.filter(x=>(x[6]??0)>=minCapacity&&(!term||normalize(x[2]+' '+x[3]+' '+x[1]).includes(term)));
+  const all=getDams(),term=normalize(query);
+  const filteredDams=all.filter(x=>(x[6]??0)>=minCapacity&&(!term||normalize(x[2]+' '+x[3]+' '+x[1]).includes(term)));
+  const p=filteredDams.sort((x,y)=>damSort==='nombre'?x[2].localeCompare(y[2],'es'):damSort==='municipio'?x[3].localeCompare(y[3],'es'):((Number(y[6])||0)-(Number(x[6])||0)));
   if(!p.some(x=>x[1]===selectedDam))selectedDam=p[0]?.[1]||'';
-  const options=[[0,'Todas las capacidades'],[100,'NAMO ≥100 hm³'],[500,'NAMO ≥500 hm³'],[1000,'NAMO ≥1,000 hm³']].map(([value,label])=>'<option value="'+value+'" '+(minCapacity===value?'selected':'')+'>'+label+'</option>').join('');
-  const bar='<div class="wa-focus-band wa-toolbar-rail"><div class="wa-toolset"><label for="wa-search">BUSCAR</label><input type="search" id="wa-search" value="'+safe(query)+'" placeholder="Presa, clave o municipio" aria-label="Buscar presas"/><label for="wa-capacity">CAPACIDAD</label><select id="wa-capacity">'+options+'</select></div><span class="wa-timestamp">'+p.length+' de '+all.length+' presas visibles</span></div>';
-  const list=p.length?p.map(row=>'<button type="button" class="wa-map-row-btn" data-wa-dam="'+safe(row[1])+'" aria-pressed="'+(row[1]===selectedDam)+'">'+safe(row[2])+'<small>'+safe(row[3])+' · '+f(row[6],1)+' hm³ NAMO</small></button>').join(''):empty('No hay presas que cumplan los filtros.');
+  const caps=[[0,'Todas las capacidades'],[100,'Desde 100 hm³'],[500,'Desde 500 hm³'],[1000,'Desde 1,000 hm³']].map(([value,label])=>'<option value="'+value+'" '+(minCapacity===value?'selected':'')+'>'+label+'</option>').join('');
+  const sorts=[['capacidad','Mayor capacidad'],['nombre','Nombre A–Z'],['municipio','Municipio A–Z']].map(([value,label])=>'<option value="'+value+'" '+(damSort===value?'selected':'')+'>'+label+'</option>').join('');
+  const inventory=p.length?p.map(row=>'<button type="button" class="wa-map-row-btn wa12-inventory-row" data-wa-dam="'+safe(row[1])+'" aria-pressed="'+(row[1]===selectedDam)+'"><span class="wa12-list-main"><strong>'+safe(row[2])+'</strong><small>'+safe(row[3])+'</small></span><span class="wa12-list-measure">'+f(row[6],0)+'<small>hm³</small></span></button>').join(''):empty('Sin presas que cumplan los filtros. Pruebe otro término o reduzca el umbral de capacidad.');
+  const controls='<div class="wa12-filterbar"><div class="wa12-searchbox"><label for="wa-search">BUSCAR INFRAESTRUCTURA</label><input type="search" id="wa-search" value="'+safe(query)+'" placeholder="Presa, municipio o clave…" aria-label="Buscar presa o municipio"></div>'+
+    '<div class="wa12-filterselect"><label for="wa-capacity">CAPACIDAD NOMINAL</label><select id="wa-capacity">'+caps+'</select></div>'+
+    '<div class="wa12-filterselect"><label for="wa-dam-sort">ORDEN DEL CATÁLOGO</label><select id="wa-dam-sort">'+sorts+'</select></div>'+
+    '<div class="wa12-filter-results"><strong>'+p.length+'</strong><span>de '+all.length+' presas</span></div></div>';
+  const baseOptions=[['claro','Mapa de calles'],['topografico','Topográfico'],['satelite','Satélite']].map(([value,label])=>'<option value="'+value+'" '+(baseStyle===value?'selected':'')+'>'+label+'</option>').join('');
+  const mapPanel='<section class="wa12-mapframe" aria-label="Explorador geográfico">'+
+    '<header class="wa12-mapframe-head"><div><span>VISOR GEOGRÁFICO</span><h3>Infraestructura hidráulica · '+safe(st)+'</h3></div><label for="wa-basemap">CAPA BASE <select id="wa-basemap" aria-label="Cambiar cartografía base">'+baseOptions+'</select></label></header>'+
+    '<div class="wa12-mapspace"><div id="wa-map" class="wa-map" role="region" aria-label="Mapa interactivo de presas"></div>'+
+    '<div class="wa12-map-corner"><span class="wa12-map-dot"></span> '+p.length+' ubicaciones</div></div>'+
+    '<div class="wa12-map-bottom"><span><i class="wa12-legend-bubble"></i> Tamaño del punto = capacidad NAMO</span><span>© OpenStreetMap / Esri según capa</span><button type="button" id="wa-zoom-all">Ver todas las presas <span aria-hidden="true">↗</span></button></div></section>';
+  const catalog='<aside class="wa12-catalog" aria-label="Inventario de presas"><div class="wa12-catalog-head"><div><span>CONSULTA VINCULADA</span><h3>Inventario de presas</h3></div><div class="wa12-count">'+p.length+'</div></div>'+
+    '<div class="wa12-catalog-list" role="group" aria-label="Seleccionar presa">'+inventory+'</div>'+
+    '<div id="wa-dam-detail" class="wa12-dam-detail">'+damDetails(p.find(x=>x[1]===selectedDam))+'</div></aside>';
   let historical='';
   if(st==='Sinaloa'){
     const ss=D.sistemas.filter(x=>x[0]==='V-II_4_PRESAS').sort((a,b)=>a[1].localeCompare(b[1]));
-    historical=section('CORTES JUN–OCT 2026 · CUATRO PRESAS','Almacenamiento observado · sistema V-II',series(ss.map(x=>[Date.parse(x[1])/86400000,x[3]]),'Almacenamiento de cuatro presas de Sinaloa','hm³','date')+
-      '<div class="wa-stat-row"><div><strong>'+ss.length+' cortes</strong><span>Serie parcial, cuatro presas</span></div><div><strong>'+f(ss.at(-1)?.[3],1)+' hm³</strong><span>Última observación de este sistema</span></div></div>'+
-      '<p class="wa-small-note">Sanalona, Adolfo López Mateos, José López Portillo y Eustaquio Buelna. Los datos no representan todas las presas de Sinaloa.</p>','wa-wide');
-    historical+=section('PUNTOS AISLADOS · 2018 y 2026','Cortes individuales de presas',
-      table(['Fecha','Clave','Almacenamiento hm³','% NAMO'],D.sinaloa.map(x=>[x[1],x[0],f(x[2]),f(x[3])]).slice(0,30))+
-      '<p class="wa-small-note">No conectar puntos aislados como una serie diaria ni sumar presas de distintas fechas.</p>','wa-wide');
+    historical=section('ALMACENAMIENTO OBSERVADO / CORTE PARCIAL','Cuatro presas de Sinaloa',
+      series(ss.map(x=>[Date.parse(x[1])/86400000,x[3]]),'Almacenamiento documentado en cuatro presas','hm³','date')+
+      '<div class="wa-stat-row"><div><strong>'+ss.length+' cortes</strong><span>Fechas disponibles</span></div><div><strong>'+f(ss.at(-1)?.[3],1)+' hm³</strong><span>Último volumen del conjunto parcial</span></div></div>'+
+      '<p class="wa-small-note">Sistema limitado a Sanalona, Adolfo López Mateos, José López Portillo y Eustaquio Buelna. No representa todo Sinaloa ni una serie diaria completa.</p>','wa-wide');
+    historical+=section('REGISTROS NO CONTINUOS / 2018 Y 2026','Cortes individuales del inventario',
+     table(['Fecha','Clave','Volumen (hm³)','Porcentaje NAMO'],D.sinaloa.map(x=>[x[1],x[0],f(x[2]),f(x[3])]).slice(0,30))+
+     '<p class="wa-small-note">No se trazan líneas entre fechas aisladas ni se agregan presas medidas en diferentes días.</p>','wa-wide');
   } else if(st==='Jalisco'){
     const codes=[...new Set(D.jalisco.map(x=>x[0]))];if(!codes.includes(dam))dam=codes[0];
     const m=D.jalisco.filter(x=>x[0]===dam).sort((a,b)=>a[1].localeCompare(b[1]));
-    const options=codes.map(x=>'<option value="'+safe(x)+'" '+(x===dam?'selected':'')+'>'+safe(x)+'</option>').join('');
-    historical=section('SERIE MENSUAL · 1996–2024','Almacenamiento histórico · presa seleccionada',
-      '<div class="wa-toolbar-inline"><label for="wa-dam">Clave de presa</label><select id="wa-dam">'+options+'</select></div>'+
+    const opts=codes.map(x=>'<option value="'+safe(x)+'" '+(x===dam?'selected':'')+'>'+safe(x)+'</option>').join('');
+    historical=section('SERIE MENSUAL / 1996–2024','Almacenamiento registrado en Jalisco',
+      '<div class="wa-toolbar-inline"><label for="wa-dam">Presa</label><select id="wa-dam">'+opts+'</select></div>'+
       series(m.map(x=>[Number(x[1].slice(0,4))*12+Number(x[1].slice(5,7))-1,x[2]]),'Almacenamiento mensual de '+dam,'hm³','month')+
-      '<p class="wa-small-note">'+m.length+' meses incluidos en la vista web. No interpolar los meses sin registros; consultar completitud diaria antes de comparar.</p>','wa-wide');
-  }else historical=section('ESTADO DE LOS HISTÓRICOS','Almacenamiento por fecha',empty('La V9 conserva el inventario de presas de '+st+', pero todavía no tiene una serie validada de almacenamiento para este estado.'),'wa-wide');
-
-  return '<div class="wa-splithead"><div><div class="wa-eyebrow">GEOGRAFÍA E INFRAESTRUCTURA</div><h2>Explorador de presas.</h2><p>Puntos de ubicación, capacidad de diseño y almacenamiento histórico sólo donde hay mediciones.</p></div><span class="wa-provenance-chip">INVENTARIO · NO TIEMPO REAL</span></div>'+
-    bar+'<div class="wa-map-and-list">'+
-    section('MAPA DE INFRAESTRUCTURA','Puntos georreferenciados', '<div class="wa-map-utility"><label for="wa-basemap">MAPA BASE <select id="wa-basemap" aria-label="Seleccionar mapa base"><option value="claro" '+(baseStyle==='claro'?'selected':'')+'>Cartográfico claro</option><option value="calles" '+(baseStyle==='calles'?'selected':'')+'>Calles</option><option value="relieve" '+(baseStyle==='relieve'?'selected':'')+'>Relieve</option></select></label><button type="button" id="wa-zoom-all">Ajustar a presas visibles ↗</button></div>'+
-       '<div id="wa-map" class="wa-map" role="region" aria-label="Mapa de presas, seleccionar marcadores"></div>'+
-       '<div class="wa-focus-legend wa-small-note"><span><i class="wa-dot"></i> Capacidad NAMO (tamaño proporcional)</span><span><i class="wa-dot grey"></i> No implica volumen actual</span></div>')+
-    section('EXPLORACIÓN VINCULADA · '+st,'Catálogo y ficha individual','<div class="wa-scroll">'+list+'</div><div id="wa-dam-detail">'+damDetails(p.find(x=>x[1]===selectedDam))+'</div>')+'</div>'+
-    info('Las ubicaciones son puntos de un catálogo secundario con 75 presas en cinco estados. No se representa el área de embalse ni la disponibilidad actual.')+
-    '<div class="wa-panels">'+historical+'</div>';
+      '<p class="wa-small-note">'+m.length+' meses de este identificador incluidos en la edición web. No se completan huecos mediante interpolación.</p>','wa-wide');
+  } else historical=section('COBERTURA HISTÓRICA','Almacenamiento por fecha',empty('Hay presas inventariadas, pero no se han incorporado series validadas de almacenamiento para '+st+'.'),'wa-wide');
+  return '<div class="wa12-mapintro"><div><span class="wa12-eyebrow">INFRAESTRUCTURA / CARTOGRAFÍA</span><h2>Presas y embalses</h2><p>Localización y capacidad de diseño de los registros disponibles. Seleccione un punto o un elemento del inventario para consultar su expediente.</p></div><div class="wa12-inventory-tag"><span></span> INVENTARIO DOCUMENTAL · NO TIEMPO REAL</div></div>'+
+   controls+'<div class="wa12-mapgrid">'+mapPanel+catalog+'</div>'+
+   '<div class="wa12-mapnote"><strong>Cómo interpretar este mapa.</strong> Las ubicaciones corresponden a un catálogo secundario de 75 presas en cinco entidades. La capacidad NAMO no indica almacenamiento actual; la base no contiene polígonos validados de embalse.</div>'+
+   '<div class="wa12-historyhead"><div><span>DATOS OBSERVADOS</span><h2>Evolución y registros históricos</h2></div><p>Sólo se muestran series respaldadas por fechas disponibles, sin completar vacíos.</p></div>'+
+   '<div class="wa-panels wa12-historical-panels">'+historical+'</div>';
  }
-
  function renderCuencas(){
   const stations=D.cobertura.find(x=>stateName(x[0])===st&&x[1]==='estaciones_hidrometricas_catalogo')?.[2]||0;
   return'<div class="wa-splithead"><div><div class="wa-eyebrow">AGUA SUPERFICIAL / UNIDADES HIDROLÓGICAS</div><h2>Cuencas y observación fluvial.</h2><p>Inventarios nacionales y mediciones hidrométricas son capas distintas. Aquí se muestra el alcance verificable.</p></div><span class="wa-provenance-chip">CATÁLOGO · CORTE HISTÓRICO</span></div>'+
@@ -976,7 +1019,18 @@
   if(!D)return;
   syncHeader();
   byId('wa-state').value=st;
-  const label=byId('wa-scope-label');if(label)label.innerHTML=safe(st)+' <small>· '+getDams().length+' presas · '+getAquifers().length+' acuíferos</small>';
+  const aquifers=getAquifers(),dams=getDams(),latestIrrigation=riego().at(-1);
+  const negativeAquifers=aquifers.filter(x=>x[6]===1).length;
+  const totalNominalCapacity=dams.reduce((sum,x)=>sum+(Number(x[6])||0),0);
+  const metrics=[
+   ['PRESAS EN EL INVENTARIO',f(dams.length,0),'Ubicaciones georreferenciadas'],
+   ['CAPACIDAD NOMINAL (NAMO)',f(totalNominalCapacity,0)+' hm³','Suma del catálogo; no almacenamiento'],
+   ['ACUÍFEROS CON SALDO NEGATIVO',f(negativeAquifers,0)+' / '+f(aquifers.length,0),'Balance administrativo · corte único'],
+   ['AGUA DISTRIBUIDA EN RIEGO',latestIrrigation?f(latestIrrigation[2],0)+' hm³':'—',latestIrrigation?('Último ciclo '+latestIrrigation[1]+'/'+String(latestIrrigation[1]+1).slice(-2)):'Sin serie integrada']
+  ];
+  const metricHost=byId('wa-metrics');
+  if(metricHost)metricHost.innerHTML=metrics.map(x=>'<div class="wa12-metric"><small>'+safe(x[0])+'</small><strong>'+safe(x[1])+'</strong><span>'+safe(x[2])+'</span></div>').join('');
+  const label=byId('wa-scope-label');if(label)label.textContent=st+' · '+dams.length+' presas · '+aquifers.length+' acuíferos';
    const names={presas:'MAPA DE PRESAS',resumen:'PANORAMA EJECUTIVO',acuiferos:'AGUA SUBTERRÁNEA',cuencas:'CUENCAS Y CAUDALES',series:'SERIES HISTÓRICAS',comparar:'COMPARAR ESTADOS',calidad:'CALIDAD DEL AGUA',fuentes:'FUENTES Y MÉTODO'};
    const descriptions={presas:'Infraestructura georreferenciada, inventarios de capacidad nominal y fichas técnicas.',resumen:'Síntesis territorial, indicadores y cobertura de fuentes.',acuiferos:'Recarga y disponibilidad administrativa del recurso subterráneo.',cuencas:'Disponibilidad superficial y límites de los registros de caudales.',series:'Series longitudinales de riego, precipitación y evapotranspiración.',comparar:'Comparación de dos estados por indicador y año.',calidad:'Sitios identificados y límites de verificación temporal.',fuentes:'Procedencia, unidades, cobertura y límites de interpretación.'};
    if(byId('wa-active-view-title'))byId('wa-active-view-title').textContent=names[view];
@@ -1000,9 +1054,12 @@
    requestAnimationFrame(()=>{
     const container=byId('wa-map');if(!container||root.hidden)return;
     map=L.map(container,{scrollWheelZoom:false,zoomControl:true,preferCanvas:true});
-    const styles={claro:['https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','© OpenStreetMap · © CARTO'],calles:['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],relieve:['https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png','© OpenTopoMap contributors']};
+    const styles={claro:['https://tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],topografico:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}','© Esri, HERE, Garmin, USGS'],satelite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','© Esri, Maxar, Earthstar Geographics']};
     const cfg=styles[baseStyle]||styles.claro;
     baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);
+    let tileFailures=0;
+    baseLayer.on('tileerror',()=>{if(++tileFailures>=3&&baseStyle!=='claro'&&map){map.removeLayer(baseLayer);baseStyle='claro';const osm=styles.claro;baseLayer=L.tileLayer(osm[0],{attribution:osm[1],maxZoom:19}).addTo(map);baseLayer.bringToBack();const control=byId('wa-basemap');if(control)control.value='claro'}});
+
     L.control.scale({imperial:false,metric:true,position:'bottomleft'}).addTo(map);
     const pts=getDams().filter(x=>(x[6]??0)>=minCapacity&&(!query||normalize(x[2]+' '+x[3]+' '+x[1]).includes(normalize(query))));
     const bounds=[];
@@ -1053,11 +1110,15 @@
  root.addEventListener('change',e=>{
   if(e.target.id==='wa-basemap'&&map&&window.L){
     baseStyle=e.target.value;
-    const styles={claro:['https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','© OpenStreetMap · © CARTO'],calles:['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],relieve:['https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png','© OpenTopoMap contributors']};
+    const styles={claro:['https://tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors'],topografico:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}','© Esri, HERE, Garmin, USGS'],satelite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','© Esri, Maxar, Earthstar Geographics']};
     if(baseLayer)map.removeLayer(baseLayer);
     const cfg=styles[baseStyle]||styles.claro;
-    baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);baseLayer.bringToBack();return
+    baseLayer=L.tileLayer(cfg[0],{attribution:cfg[1],maxZoom:16}).addTo(map);baseLayer.bringToBack();
+    let tileErrors=0;
+    baseLayer.on('tileerror',()=>{if(++tileErrors>=3&&baseStyle!=='claro'&&map){map.removeLayer(baseLayer);baseStyle='claro';const osm=styles.claro;baseLayer=L.tileLayer(osm[0],{attribution:osm[1],maxZoom:19}).addTo(map);baseLayer.bringToBack();const control=byId('wa-basemap');if(control)control.value='claro'}});
+    return
    }
+   if(e.target.id==='wa-dam-sort'){damSort=e.target.value;render();return}
    if(e.target.id==='wa-cmp-a'){cmpA=e.target.value;render();return}
   if(e.target.id==='wa-cmp-b'){cmpB=e.target.value;render();return}
   if(e.target.id==='wa-cmp-metric'){cmpMetric=e.target.value;render();return}
@@ -1089,6 +1150,7 @@
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
  window.addEventListener('hashchange',()=>{if(location.hash==='#agua'&&window.GrowaNavigate)window.GrowaNavigate('agua')});
 })();
-  </script>
+
+</script>
 </body>
 </html>
