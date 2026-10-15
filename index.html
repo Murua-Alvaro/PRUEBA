@@ -261,6 +261,7 @@
   <script src="app.js" defer></script>
 
   <style id="wa-design-v12">
+
 /* GROWA | Observatorio del agua — Diseño cartográfico V12 (15 oct 2026)
    Referencias de patrones de interacción: USGS National Water Dashboard y datos abiertos CONAGUA.
    Diseño original; datos históricos, nunca telemetría en vivo. */
@@ -430,6 +431,127 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
  .wa-v12 .wa12-mapintro h2{font-size:27px;margin:5px 0 3px}
  .wa-v12 .wa12-filterbar{padding:12px 14px;margin-bottom:12px}
 }
+
+
+/* GROWA Agua V13 | Lectura pública de indicadores · Octubre 2026
+   Diseñado para explicar los resultados, no solo visualizar columnas. */
+.wa-v12{--wa13-ink:#153444;--wa13-soft:#f4f7f8;--wa13-turq:#186d7a;--wa13-border:#dce6e9;--wa13-muted:#607987}
+.wa-v12 .wa13-overview{color:#213d4c;font-size:14px;line-height:1.6}
+.wa-v12 .wa13-overview strong{font-weight:730}
+.wa13-heading{border-bottom:1px solid #dae4e8;padding:12px 0 24px;display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.wa13-label,.wa13-section-label{display:block;font-size:11px;letter-spacing:.085em;font-weight:850;color:#4c7f90;line-height:1.5}
+.wa13-heading h2{font-family:var(--serif,Georgia,serif);letter-spacing:-.043em;font-size:clamp(27px,2.85vw,41px);font-weight:570;line-height:1.19;color:#12364a;margin:0;max-width:940px}
+.wa13-heading p{max-width:920px;font-size:15px;color:#587484;line-height:1.75;margin:0}
+.wa13-main-findings{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(250px,.95fr);gap:16px;margin-bottom:20px}
+.wa13-main-finding{background:#153b50;color:#fff;border-radius:6px;padding:29px 31px 26px;min-width:0;display:flex;flex-direction:column}
+.wa-v12 .wa13-main-finding .wa13-section-label{color:#a9ced8}
+.wa13-main-finding h3{font-size:19px;font-weight:680;color:#f6fbfd;margin:10px 0 19px;line-height:1.4;letter-spacing:-.01em}
+.wa13-lead-measure{display:flex;align-items:baseline;flex-wrap:wrap;gap:18px;margin:0 0 19px}
+.wa13-lead-measure strong{color:#fff;font-size:clamp(42px,4.5vw,68px);line-height:1;font-weight:630;letter-spacing:-.065em;font-variant-numeric:tabular-nums}
+.wa13-lead-measure span{font-size:13px;line-height:1.55;color:#c6d9e1}
+.wa13-variation{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:14px 0;border-top:1px solid #456477;border-bottom:1px solid #456477}
+.wa13-variation strong{color:#f4f8fa;font-size:29px;font-weight:760;letter-spacing:-.035em}
+.wa13-variation span{font-size:13px;color:#c8dce3}
+.wa-v12 .wa13-main-finding p{font-size:13px;color:#e0ebef;line-height:1.8;max-width:720px;margin:16px 0 17px}
+.wa-v12 .wa13-main-finding .wa13-text-action{margin-top:auto;color:#fff;background:transparent;border:0;border-bottom:1px solid #8bbbc8;padding:7px 0 8px;width:max-content;max-width:100%;font-size:13px;font-weight:760}
+.wa13-text-action span{margin-left:5px}
+.wa13-side-explanation{padding:27px 26px;border:1px solid #dce6ea;border-radius:6px;background:#f5f8f9;min-width:0}
+.wa13-side-explanation h3{font-size:20px;color:#1c4353;line-height:1.32;letter-spacing:-.025em;margin:12px 0}
+.wa13-side-explanation p{font-size:13px;color:#5c7886;line-height:1.8;margin:0 0 13px}
+.wa13-mini-definition{display:flex;align-items:center;gap:13px;border-top:1px solid #d6e1e5;border-bottom:1px solid #d6e1e5;margin:17px 0;padding:15px 0}
+.wa13-mini-definition strong{font-size:27px;color:#1a5f72;font-weight:760;letter-spacing:-.05em;white-space:nowrap}
+.wa13-mini-definition span{color:#536f7e;font-size:12px;line-height:1.5}
+.wa13-three-findings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0 33px}
+.wa13-three-findings article{background:white;border:1px solid #dae5e9;border-radius:6px;padding:23px 21px;display:flex;flex-direction:column;min-width:0}
+.wa13-card-number{font-weight:740;font-size:clamp(28px,2.7vw,41px);color:#15506a;letter-spacing:-.05em;line-height:1.1;margin:19px 0 12px;font-variant-numeric:tabular-nums}
+.wa13-card-number small{font-size:16px;color:#8197a4;letter-spacing:0;font-weight:560}
+.wa13-three-findings h3{font-size:17px;font-weight:750;color:#24495a;line-height:1.4;margin:0 0 8px;min-height:47px}
+.wa13-three-findings p{font-size:12.5px;color:#5d7886;line-height:1.82;margin:0 0 20px;flex:1}
+.wa-v12 .wa13-three-findings button,.wa-v12 .wa13-ranked button{margin-top:auto;border:0;border-top:1px solid #e2ebee;padding:14px 0 0;text-align:left;background:transparent;color:#12667c;font-size:12px;font-weight:780;line-height:1.4}
+.wa-v12 .wa13-three-findings button:hover,.wa-v12 .wa13-ranked button:hover{color:#083e4e;text-decoration:underline;text-underline-offset:3px}
+.wa13-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:31px 0 15px;border-bottom:1px solid #dce5e9;padding:0 0 15px}
+.wa13-section-heading h2{font-family:var(--serif,Georgia,serif);font-weight:570;font-size:30px;letter-spacing:-.038em;color:#13394d;margin:8px 0 0;line-height:1.2}
+.wa13-section-heading p{font-size:12px;max-width:370px;line-height:1.6;color:#78909b;margin:0}
+.wa13-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:30px}
+.wa13-chart-card{border:1px solid #dce6ea;border-radius:6px;background:white;padding:22px;min-width:0}
+.wa13-chart-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.wa13-chart-card-head span{font-size:10px;font-weight:850;letter-spacing:.035em;color:#728d9b}
+.wa13-chart-card h3{font-size:19px;font-weight:750;line-height:1.35;color:#204558;margin:6px 0 0}
+.wa-v12 .wa13-chart-card-head button{flex:0 0 auto;border:1px solid #cedee4;background:#f7fafb;color:#2d6e83;padding:8px 10px;font-size:11px;font-weight:760;border-radius:4px}
+.wa13-chart-value{display:flex;align-items:baseline;flex-wrap:wrap;gap:11px;margin:14px 0 2px;padding:10px 0 9px;border-bottom:1px solid #e9eef0}
+.wa13-chart-value strong{font-weight:780;font-size:23px;letter-spacing:-.03em;color:#154b66}
+.wa13-chart-value span{font-size:11px;color:#80939e}
+.wa-v12 .wa13-chart-card .wa-chart{height:auto;min-height:150px;margin:12px 0;max-height:270px}
+.wa-v12 .wa13-chart-card .wa-chart text{font-size:13px}
+.wa-v12 .wa13-chart-card>p{font-size:12px;color:#6a8491;line-height:1.75;border-top:1px solid #ecf0f2;margin:10px 0 0;padding-top:12px}
+.wa13-rankgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0 0 31px}
+.wa13-ranked{border:1px solid #dbe5e9;background:#fff;border-radius:6px;padding:24px;min-width:0;display:flex;flex-direction:column}
+.wa13-ranked>div:first-child span{color:#658997;font-size:10px;font-weight:850;letter-spacing:.06em}
+.wa13-ranked h3{font-size:20px;line-height:1.35;color:#1d4457;margin:8px 0 4px}
+.wa13-ranked>div:first-child p{color:#6e8995;font-size:12px;line-height:1.7;margin:0 0 15px}
+.wa13-rank-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;padding:13px 0;border-top:1px solid #e5ecee}
+.wa13-rank-row span{color:#93a6af;font-weight:830;font-size:10px}
+.wa13-rank-row strong{color:#32586b;font-size:13px;line-height:1.4;font-weight:680;overflow-wrap:anywhere}
+.wa13-rank-row b{font-size:13px;color:#174a63;white-space:nowrap;font-variant-numeric:tabular-nums}
+.wa13-rankgrid .wa13-ranked button{margin-top:auto}
+.wa13-tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:28px}
+.wa-v12 .wa13-tables .wa-card{padding:21px!important}
+.wa13-tables .wa13-text-action{background:transparent;border:0;border-bottom:1px solid #9dbfc7;font-weight:760;color:#1b6980;padding:10px 0;margin-top:12px}
+.wa13-definitions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 25px;padding:21px 26px;background:#f2f6f8;border:1px solid #d9e4e9;border-radius:6px}
+.wa13-definition-title{grid-column:1/-1;padding-bottom:17px;margin-bottom:5px;border-bottom:1px solid #d7e2e7}
+.wa13-definition-title span{font-size:10px;font-weight:850;color:#568394;letter-spacing:.05em}
+.wa13-definition-title h3{font-size:20px;font-weight:770;letter-spacing:-.02em;color:#1b4457;margin:6px 0 0}
+.wa13-definitions>div:not(.wa13-definition-title){padding:13px 0;border-bottom:1px solid #dde6e9;display:grid;grid-template-columns:105px minmax(0,1fr);gap:12px}
+.wa13-definitions>div strong{font-size:13px;color:#1a596e}
+.wa13-definitions>div span{font-size:12px;color:#637f8d;line-height:1.6}
+.wa13-source-note{font-size:11px;line-height:1.8;color:#758e9a;margin:20px 0 10px}
+.wa-v12 .wa13-source-note button{border:0;background:transparent;color:#1c687e;font-size:11px;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px;font-weight:750}
+@media(max-width:1100px){
+ .wa13-main-findings{grid-template-columns:minmax(0,1.45fr) minmax(240px,1fr)}
+ .wa13-three-findings{gap:12px}.wa13-three-findings article{padding:19px}
+ .wa13-rank-row{grid-template-columns:21px minmax(0,1fr);gap:7px}
+ .wa13-rank-row b{grid-column:2;text-align:left}
+}
+@media(max-width:820px){
+ .wa13-main-findings,.wa13-charts,.wa13-tables,.wa13-rankgrid{grid-template-columns:1fr}
+ .wa13-three-findings{grid-template-columns:1fr}
+ .wa13-three-findings h3{min-height:0}.wa13-card-number{margin:11px 0}
+ .wa13-three-findings article{padding:23px}
+ .wa13-ranked{padding:20px}
+ .wa13-rank-row{grid-template-columns:24px minmax(0,1fr) auto}
+ .wa13-rank-row b{grid-column:auto;text-align:right}
+ .wa13-section-heading{display:block}
+ .wa13-section-heading p{margin-top:9px}
+}
+@media(max-width:530px){
+ .wa13-heading{padding-top:7px}
+ .wa13-heading h2{font-size:28px}
+ .wa13-heading p{font-size:13px}
+ .wa13-main-finding{padding:22px 18px}
+ .wa13-main-finding h3{font-size:17px}
+ .wa13-lead-measure strong{font-size:46px}
+ .wa13-lead-measure span{font-size:12px}
+ .wa13-side-explanation{padding:22px 18px}
+ .wa13-section-heading h2{font-size:27px}
+ .wa13-chart-card{padding:16px}
+ .wa13-ranked{padding:17px}
+ .wa13-rank-row{grid-template-columns:22px minmax(0,1fr)}
+ .wa13-rank-row b{grid-column:2;text-align:left}
+ .wa13-definitions{grid-template-columns:1fr;padding:17px}
+ .wa13-definitions>div:not(.wa13-definition-title){grid-template-columns:77px minmax(0,1fr)}
+}
+@media print{
+ .wa-v12 .wa13-main-finding{background:#fff!important;color:#163648!important;border:1px solid #c8d8dd!important}
+ .wa-v12 .wa13-main-finding *{color:#183d51!important}
+ .wa-v12 .wa13-main-findings,.wa-v12 .wa13-three-findings{break-inside:avoid}
+ .wa-v12 .wa13-chart-card,.wa-v12 .wa13-ranked{break-inside:avoid}
+}
+
+
+.wa-v12 .wa13-view-explanation{border:1px solid #d3e4e9;border-left:4px solid #2c8598;background:#f1f7f8;border-radius:4px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 19px;padding:14px 18px;margin:0 0 22px;color:#456776}
+.wa-v12 .wa13-view-explanation>span{font-size:10px;color:#337285;letter-spacing:.06em;font-weight:850;white-space:nowrap}
+.wa-v12 .wa13-view-explanation p{font-size:12.5px;line-height:1.65;color:#526f7e;margin:0;flex:1 1 400px}
+.wa-v12 .wa13-view-explanation button{border:0;border-bottom:1px solid #7ca8b6;padding:7px 0;background:transparent;color:#17637a;font-size:11px;font-weight:790;white-space:nowrap}
 
 </style>
 </head>
@@ -635,8 +757,8 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
   <div id="wa-metrics" class="wa12-metrics" aria-live="polite"><div class="wa12-metric"><small>COBERTURA DOCUMENTADA</small><strong>5 estados</strong><span>Conjuntos históricos e inventarios</span></div></div>
   <div class="wa12-nav-wrap">
     <nav class="wa-views wa12-nav" aria-label="Áreas de consulta hídrica">
-      <button type="button" class="wa-tab" data-wa-view="presas" aria-selected="true"><span class="wa12-nav-no">01</span> Mapa de presas</button>
-      <button type="button" class="wa-tab" data-wa-view="resumen" aria-selected="false"><span class="wa12-nav-no">02</span> Panorama</button>
+      <button type="button" class="wa-tab" data-wa-view="resumen" aria-selected="true"><span class="wa12-nav-no">01</span> Qué dicen los datos</button>
+      <button type="button" class="wa-tab" data-wa-view="presas" aria-selected="false"><span class="wa12-nav-no">02</span> Mapa de presas</button>
       <button type="button" class="wa-tab" data-wa-view="acuiferos" aria-selected="false"><span class="wa12-nav-no">03</span> Acuíferos</button>
       <button type="button" class="wa-tab" data-wa-view="cuencas" aria-selected="false"><span class="wa12-nav-no">04</span> Cuencas</button>
       <button type="button" class="wa-tab" data-wa-view="series" aria-selected="false"><span class="wa12-nav-no">05</span> Series históricas</button>
@@ -648,8 +770,8 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
   </div>
   <div class="wa12-toolbar">
     <div class="wa12-toolbar-context">
-      <div id="wa-active-view-title">MAPA DE PRESAS</div>
-      <p id="wa-view-description">Localización, capacidad nominal y expedientes de infraestructura.</p>
+      <div id="wa-active-view-title">DIAGNÓSTICO EXPLICADO</div>
+      <p id="wa-view-description">Resultados con significado, periodos comparables y acceso a cada registro.</p>
     </div>
     <div class="wa12-tools">
       <span id="wa-scope-label" class="wa12-scope">Sinaloa · seleccionando registros</span>
@@ -658,7 +780,7 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
       <button type="button" id="wa-export" class="wa-primary-button" title="Exportar los registros de esta vista">Descargar CSV ↓</button>
     </div>
   </div>
-  <main class="wa12-main"><div id="wa-content" aria-live="polite"><div class="wa-loading">Cargando las fuentes hídricas…</div></div></main>
+  <main class="wa12-main"><div id="wa-content" aria-live="polite"><div class="wa-loading">Preparando el diagnóstico de agua y las series históricas…</div></div></main>
   <footer class="wa12-foot"><div><strong>GROWA / AGUA</strong><span>Base documental y registros históricos. No representa mediciones en tiempo real.</span></div><button type="button" id="wa-method-shortcut">Ver fuentes y limitaciones <span aria-hidden="true">↗</span></button></footer>
 </section>
 
@@ -793,7 +915,7 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
  const stateName=s=>{const v=normalize(s);if(v.includes('SINALOA'))return'Sinaloa';if(v.includes('SONORA'))return'Sonora';if(v.includes('CHIHUAHUA'))return'Chihuahua';if(v.includes('JALISCO'))return'Jalisco';if(v.includes('MICHOAC'))return'Michoacán';return s};
  const COLORS=['#197b88','#bc7f44','#577caa','#6a9a70','#8264a7'];
  const period='Corte de integración: octubre de 2026';
- let D,st='Sinaloa',view='presas',metric='riego',dam='',query='',map=null,baseLayer=null,baseStyle='claro';
+ let D,st='Sinaloa',view='resumen',metric='riego',dam='',query='',map=null,baseLayer=null,baseStyle='claro';
  let damSort='capacidad';
  let cmpA='Sinaloa',cmpB='Sonora',cmpMetric='riego',cmpYear=2023,aqFilter='todos';
  let selectedDam='',minCapacity=0;
@@ -826,20 +948,82 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
  const coverage=(code)=>D.cobertura.find(x=>belonging(x[0])&&x[1]===code)?.[2]??null;
  const yearCheck=a=>a.length?String(a.at(-1)[1])+'/24':'Sin corte';
  function renderOverview(){
-  const a=getAquifers(),p=getDams(),r=riego(),c=clima(),last=r.at(-1),neg=a.filter(x=>x[6]===1);
-  return '<div class="wa-kpi-grid wa-grid">'+kpi('Acuíferos del catálogo',f(a.length,0),'Balance transversal, corte no certificado')+
-  kpi('Saldo contable negativo',f(neg.length,0),'Acuíferos con disponibilidad neta menor que cero')+
-  kpi('Presas inventariadas',f(p.length,0),'Capacidad nominal; no volumen almacenado')+
-  kpi('Agua distribuida · último ciclo',last?f(last[2],0)+' hm³':'Sin registro',last?last[1]+'/'+String(last[1]+1).slice(-2)+' · Distritos de riego':'Datos históricos')+'</div>'+
-  '<div class="wa-panels">'+section('SERIE ANUAL · 1997/98–2023/24','Volumen distribuido en distritos de riego',series(r.map(x=>[x[1],x[2]]),'Agua distribuida en '+st,'hm³')+
-  '<p>No equivale al consumo real de los cultivos, ni mide la disponibilidad por municipio.</p>')+
-  section('CLIMA MUNICIPAL AGREGADO · 2003–2025','Precipitación media municipal',series(c.map(x=>[x[1],x[2]]),'Precipitación en '+st,'mm')+
-  '<p>Promedio entre municipios del estado, no lluvia ponderada por superficie geográfica.</p>')+
-  section('ANÁLISIS TERRITORIAL','Infraestructura y reservas identificadas',
-  '<div class="wa-stat-row"><div><strong>'+f(p.reduce((s,x)=>s+(n(x[6])||0),0),0)+' hm³</strong><span>Capacidad NAMO agregada de presas catalogadas</span></div><div><strong>'+f(a.reduce((s,x)=>s+(n(x[5])||0),0),1)+' hm³/año</strong><span>Balance contable sumado de acuíferos identificados</span></div><div><strong>'+f(coverage('estaciones_hidrometricas_catalogo'),0)+'</strong><span>Estaciones hidrométricas del catálogo, sin caudales observados</span></div></div>'+
-  '<p class="wa-small-note">La suma de balances sirve para describir el inventario, no equivale a agua físicamente disponible a escala estatal.</p>')+
-  section('DISPONIBILIDAD DE FUENTES','Qué puede compararse en el tiempo',table(['Conjunto','Alcance'],[['Distritos de riego','Serie anual 1997/98–2023/24'],['Clima','Serie municipal 2003–2025'],['Acuíferos','Balance de corte único'],['Cuencas','757 registros nacionales, corte 2020'],['Calidad','Fechas de medición sin validar'],['Caudales','Sin registros históricos descargados']]))+
-  '</div>'+section('COMPARATIVO · CINCO ESTADOS','Indicadores del último ciclo y catálogos',table(['Estado','Agua distribuida 2023/24 · hm³','Presas catalogadas','Acuíferos','Acuíferos con saldo negativo'],D.estados.map(name=>{const rr=D.riego.filter(x=>stateName(x[0])===name&&x[1]===2023),aa=D.acuiferos.filter(x=>stateName(x[0])===name);return[name,rr.length?f(rr[0][2],1):'—',D.presas.filter(x=>stateName(x[0])===name).length,aa.length,aa.filter(x=>x[6]===1).length]})),'wa-wide')+info('<strong>Interpretación:</strong> este panel reúne capas con periodos distintos. Un cambio anual en lluvia o riego no implica automáticamente un cambio de disponibilidad subterránea.');
+  const a=getAquifers(),p=getDams(),r=riego(),c=clima(),last=r.at(-1),prior=r.at(-2),lastCl=c.at(-1),priorCl=c.at(-2);
+  const neg=a.filter(x=>x[6]===1), aquiferShare=a.length?neg.length/a.length*100:null;
+  const percent=(now,then)=>now==null||then==null||!Number.isFinite(then)||then===0?null:(now/then-1)*100;
+  const change=last&&prior?percent(last[2],prior[2]):null;
+  const rainChange=lastCl&&priorCl?lastCl[2]-priorCl[2]:null;
+  const changeText=change==null?'Sin comparación':(change<0?'−':'+')+f(Math.abs(change),1)+' %';
+  const rainText=rainChange==null?'Sin comparación':(rainChange<0?'−':'+')+f(Math.abs(rainChange),1)+' mm';
+  const cycle=last?last[1]+'/'+String(last[1]+1).slice(-2):'sin ciclo';
+  const priorCycle=prior?prior[1]+'/'+String(prior[1]+1).slice(-2):'sin ciclo anterior';
+  const topNeg=neg.slice().sort((x,y)=>x[5]-y[5]).slice(0,4);
+  const topDam=p.slice().sort((x,y)=>(Number(y[6])||0)-(Number(x[6])||0)).slice(0,4);
+  const sourceNote='<p class="wa13-source-note">Fuente: base integrada GROWA V9 (CONAGUA / NASA POWER y compilaciones identificadas). No se ha certificado de nuevo su vigencia contra los portales oficiales. <button type="button" data-wa-view="fuentes">Ver procedencia y alcance ↗</button></p>';
+  const differenceNarrative=change==null?'La serie no permite comparar el último ciclo con el anterior.':change<0?
+    'El registro de agua distribuida a los distritos de riego es menor que el del ciclo anterior. Esto NO permite concluir por sí solo que exista esa misma disminución en el agua total del estado, ni identificar la causa.':
+    'El registro de agua distribuida a los distritos de riego es mayor que el del ciclo anterior. No debe confundirse con un incremento equivalente del agua almacenada en las presas.';
+  const rainfallNarrative=rainChange==null?'No hay dos años comparables en esta tabla.':rainChange>=0?
+    'La precipitación media municipal fue mayor que el año previo. El dato es un promedio no ponderado de los municipios observados y no mide por sí mismo la recuperación de presas o acuíferos.':
+    'La precipitación media municipal fue menor que el año previo. La diferencia no demuestra por sí sola sequía hidrológica, menor recarga o escasez de abastecimiento.';
+  const part1='<div class="wa13-heading"><div class="wa13-label">INFORME DE SITUACIÓN / '+safe(st.toUpperCase())+'</div>'+
+    '<h2>¿Qué muestran los datos sobre el agua en '+safe(st)+'?</h2>'+
+    '<p>Una lectura de los últimos registros integrados. Separamos el agua <strong>distribuida en riego</strong>, la <strong>lluvia</strong>, los <strong>acuíferos</strong> y las <strong>presas</strong>, porque representan cosas distintas.</p></div>';
+  const lead='<div class="wa13-main-findings"><article class="wa13-main-finding">'+
+    '<span class="wa13-section-label">01 / EL DATO MÁS RECIENTE DE RIEGO</span>'+
+    '<h3>Agua entregada a distritos de riego</h3>'+
+    '<div class="wa13-lead-measure"><strong>'+ (last?f(last[2],1):'—') +'</strong><span>millones de m³ (hm³)<br>ciclo '+safe(cycle)+'</span></div>'+
+    '<div class="wa13-variation"><strong>'+safe(changeText)+'</strong><span>frente al ciclo '+safe(priorCycle)+' ('+(prior?f(prior[2],1):'—')+' hm³)</span></div>'+
+    '<p>'+safe(differenceNarrative)+'</p>'+
+    '<button type="button" class="wa13-text-action" data-wa-view="series">Examinar los 27 ciclos de riego <span>→</span></button>'+
+    '</article><aside class="wa13-side-explanation">'+
+    '<span class="wa13-section-label">CÓMO INTERPRETAR ESTE RESULTADO</span><h3>¿Qué significa «volumen distribuido»?</h3>'+
+    '<p>Es el agua que aparece registrada como distribuida en los distritos de riego del estado durante un ciclo agrícola. <strong>No es todo el agua de Sinaloa</strong>, ni el volumen actual de las presas.</p>'+
+    '<div class="wa13-mini-definition"><strong>1 hm³</strong><span>= un millón de metros cúbicos (m³).</span></div>'+
+    '<p>Para estudiar por qué cambió hace falta contrastar almacenamiento, aportaciones, superficie efectivamente regada y operación de cada distrito.</p>'+
+    '</aside></div>';
+  const three='<div class="wa13-three-findings">'+
+    '<article><span class="wa13-section-label">02 / AGUA SUBTERRÁNEA</span><div class="wa13-card-number">'+f(neg.length,0)+' <small>de '+f(a.length,0)+'</small></div><h3>Acuíferos con saldo administrativo negativo</h3>'+
+    '<p>'+ (a.length?'El '+f(aquiferShare,1)+' % de los acuíferos incluidos aparece con disponibilidad contable negativa en el corte integrado.':'No hay acuíferos identificados para este estado en la base.')+' <strong>Saldo negativo no significa que un acuífero esté vacío.</strong></p>'+
+    '<button data-wa-view="acuiferos" type="button">Consultar acuíferos →</button></article>'+
+    '<article><span class="wa13-section-label">03 / LLUVIA MUNICIPAL</span><div class="wa13-card-number">'+(lastCl?f(lastCl[2],1):'—')+' <small>mm</small></div><h3>Precipitación media, '+(lastCl?lastCl[1]:'sin año')+'</h3>'+
+    '<p>'+safe(rainfallNarrative)+' Cambio observado: <strong>'+safe(rainText)+'</strong> respecto de '+(priorCl?priorCl[1]:'otro año')+'.</p>'+
+    '<button data-wa-view="series" type="button">Ver evolución climática →</button></article>'+
+    '<article><span class="wa13-section-label">04 / INFRAESTRUCTURA</span><div class="wa13-card-number">'+f(p.length,0)+' <small>registros</small></div><h3>Presas y embalses del inventario</h3>'+
+    '<p>La base identifica instalaciones y su capacidad nominal (NAMO). <strong>No indica qué porcentaje están llenas hoy.</strong> El inventario es parcial y no representa todas las obras del estado.</p>'+
+    '<button data-wa-view="presas" type="button">Abrir mapa e inventario →</button></article></div>';
+  const figures='<div class="wa13-section-heading"><div><span class="wa13-section-label">LAS OBSERVACIONES QUE RESPALDAN EL DIAGNÓSTICO</span><h2>Evolución histórica</h2></div><p>Deslice o abra la tabla del indicador para revisar los registros de cada año.</p></div>'+
+    '<div class="wa13-charts">'+
+    '<section class="wa13-chart-card"><div class="wa13-chart-card-head"><div><span>1997/98–2023/24 · CICLOS AGRÍCOLAS</span><h3>¿Cómo cambió el agua distribuida?</h3></div><button type="button" data-wa-view="series">Ver datos →</button></div>'+
+    '<div class="wa13-chart-value"><strong>'+(last?f(last[2],1):'—')+' hm³</strong><span>último ciclo '+safe(cycle)+'</span></div>'+
+    series(r.map(x=>[x[1],x[2]]),'Volumen de riego de '+st,'hm³')+
+    '<p>Lectura: cada punto representa un ciclo agrícola completo. La línea describe el volumen registrado, no un caudal continuo ni almacenamiento.</p></section>'+
+    '<section class="wa13-chart-card"><div class="wa13-chart-card-head"><div><span>2003–2025 · AÑOS CALENDARIO</span><h3>¿Cómo varió la precipitación?</h3></div><button type="button" data-wa-view="series">Ver datos →</button></div>'+
+    '<div class="wa13-chart-value"><strong>'+(lastCl?f(lastCl[2],1):'—')+' mm</strong><span>promedio municipal de '+(lastCl?lastCl[1]:'año desconocido')+'</span></div>'+
+    series(c.map(x=>[x[1],x[2]]),'Precipitación municipal media de '+st,'mm')+
+    '<p>Lectura: promedio simple de los municipios observados. No es la lluvia medida en una presa ni una estimación de escurrimiento.</p></section>'+
+    '</div>';
+  const rankings='<div class="wa13-section-heading"><div><span class="wa13-section-label">EXPLORACIÓN TERRITORIAL</span><h2>¿Dónde conviene examinar con más detalle?</h2></div></div>'+
+   '<div class="wa13-rankgrid"><section class="wa13-ranked"><div><span>AGUA SUBTERRÁNEA</span><h3>Saldos administrativos más negativos</h3><p>Selección dentro de los acuíferos incluidos; no constituye un ranking oficial de riesgo actual.</p></div>'+
+   (topNeg.length?topNeg.map((x,i)=>'<div class="wa13-rank-row"><span>'+(i+1).toString().padStart(2,'0')+'</span><strong>'+safe(x[2])+'</strong><b>'+f(x[5],1)+' hm³/año</b></div>').join(''):empty('Sin saldos negativos registrados en el inventario de '+st+'.'))+
+   '<button type="button" data-wa-view="acuiferos">Ver detalle de recarga, VEAS y saldo →</button></section>'+
+   '<section class="wa13-ranked"><div><span>INFRAESTRUCTURA HIDRÁULICA</span><h3>Mayores capacidades nominales catalogadas</h3><p>Comparación por capacidad NAMO, no por volumen actual ni operación.</p></div>'+
+   (topDam.length?topDam.map((x,i)=>'<div class="wa13-rank-row"><span>'+(i+1).toString().padStart(2,'0')+'</span><strong>'+safe(x[2])+'</strong><b>'+f(x[6],1)+' hm³</b></div>').join(''):empty('Sin instalaciones identificadas en esta selección.'))+
+   '<button type="button" data-wa-view="presas">Localizar las instalaciones en el mapa →</button></section></div>';
+  const recentYears=[...r.slice(-4)].reverse(),recentCl=[...c.slice(-4)].reverse();
+  const detail='<div class="wa13-section-heading"><div><span class="wa13-section-label">TRAZABILIDAD / DATOS PARA COMPROBAR</span><h2>Últimos registros de las series</h2></div></div>'+
+   '<div class="wa13-tables">'+section('DISTRITOS DE RIEGO · hm³','Volumen por ciclo agrícola',
+    table(['Ciclo','Volumen distribuido (hm³)','Superficie regada (ha)'],recentYears.map(x=>[x[1]+'/'+String(x[1]+1).slice(-2),f(x[2],1),f(x[3],0)]))+
+    '<button type="button" class="wa13-text-action" data-wa-view="series">Consultar todos los ciclos →</button>')+
+   section('CLIMA · mm','Precipitación municipal media',
+    table(['Año','Lluvia (mm)','ET₀ (mm)','P−ET₀ (mm)'],recentCl.map(x=>[x[1],f(x[2],1),f(x[3],1),f(x[4],1)]))+
+    '<p class="wa-small-note">P−ET₀ es una diferencia climática. No representa disponibilidad ni balance hidrológico de cuenca.</p>')+'</div>';
+  const glossary='<div class="wa13-definitions"><div class="wa13-definition-title"><span>GLOSARIO ESENCIAL</span><h3>Cuatro conceptos para no confundir los datos</h3></div>'+
+   '<div><strong>hm³</strong><span>Un millón de metros cúbicos de agua.</span></div>'+
+   '<div><strong>NAMO</strong><span>Nivel de Aguas Máximas Ordinarias. Capacidad nominal de referencia de una presa; no su llenado actual.</span></div>'+
+   '<div><strong>Saldo de acuífero</strong><span>Resultado administrativo de recarga, descarga natural comprometida y volumen de extracción registrado.</span></div>'+
+   '<div><strong>ET₀</strong><span>Evapotranspiración de referencia: indicador de demanda atmosférica, no volumen extraído.</span></div></div>';
+  return '<div class="wa13-overview">'+part1+lead+three+figures+rankings+detail+glossary+sourceNote+'</div>';
  }
 
  function damDetails(row){
@@ -1034,19 +1218,20 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
   if(!D)return;
   syncHeader();
   byId('wa-state').value=st;
-  const aquifers=getAquifers(),dams=getDams(),latestIrrigation=riego().at(-1);
+  const aquifers=getAquifers(),dams=getDams(),ri=riego(),latestIrrigation=ri.at(-1),priorIrrigation=ri.at(-2);
   const negativeAquifers=aquifers.filter(x=>x[6]===1).length;
-  const totalNominalCapacity=dams.reduce((sum,x)=>sum+(Number(x[6])||0),0);
+  const irrigationChange=latestIrrigation&&priorIrrigation&&priorIrrigation[2]?100*(latestIrrigation[2]/priorIrrigation[2]-1):null;
+  const variation=irrigationChange==null?'—':(irrigationChange<0?'−':'+')+f(Math.abs(irrigationChange),1)+' %';
   const metrics=[
-   ['PRESAS EN EL INVENTARIO',f(dams.length,0),'Ubicaciones georreferenciadas'],
-   ['CAPACIDAD NOMINAL (NAMO)',f(totalNominalCapacity,0)+' hm³','Suma del catálogo; no almacenamiento'],
-   ['ACUÍFEROS CON SALDO NEGATIVO',f(negativeAquifers,0)+' / '+f(aquifers.length,0),'Balance administrativo · corte único'],
-   ['AGUA DISTRIBUIDA EN RIEGO',latestIrrigation?f(latestIrrigation[2],0)+' hm³':'—',latestIrrigation?('Último ciclo '+latestIrrigation[1]+'/'+String(latestIrrigation[1]+1).slice(-2)):'Sin serie integrada']
+   ['RIEGO · CICLO 2023/24',latestIrrigation?f(latestIrrigation[2],1)+' hm³':'Sin dato','Volumen distribuido registrado'],
+   ['CAMBIO ENTRE DOS CICLOS',variation,'Último ciclo frente al anterior'],
+   ['SALDO NEGATIVO DE ACUÍFEROS',f(negativeAquifers,0)+' de '+f(aquifers.length,0),'Balance contable; no están vacíos'],
+   ['PRESAS DEL INVENTARIO',f(dams.length,0),'Catálogo parcial; no mide llenado']
   ];
   const metricHost=byId('wa-metrics');
   if(metricHost)metricHost.innerHTML=metrics.map(x=>'<div class="wa12-metric"><small>'+safe(x[0])+'</small><strong>'+safe(x[1])+'</strong><span>'+safe(x[2])+'</span></div>').join('');
   const label=byId('wa-scope-label');if(label)label.textContent=st+' · '+dams.length+' presas · '+aquifers.length+' acuíferos';
-   const names={presas:'MAPA DE PRESAS',resumen:'PANORAMA EJECUTIVO',acuiferos:'AGUA SUBTERRÁNEA',cuencas:'CUENCAS Y CAUDALES',series:'SERIES HISTÓRICAS',comparar:'COMPARAR ESTADOS',calidad:'CALIDAD DEL AGUA',fuentes:'FUENTES Y MÉTODO'};
+   const names={presas:'MAPA DE PRESAS',resumen:'DIAGNÓSTICO EXPLICADO',acuiferos:'AGUA SUBTERRÁNEA',cuencas:'CUENCAS Y CAUDALES',series:'SERIES HISTÓRICAS',comparar:'COMPARAR ESTADOS',calidad:'CALIDAD DEL AGUA',fuentes:'FUENTES Y MÉTODO'};
    const descriptions={presas:'Infraestructura georreferenciada, inventarios de capacidad nominal y fichas técnicas.',resumen:'Síntesis territorial, indicadores y cobertura de fuentes.',acuiferos:'Recarga y disponibilidad administrativa del recurso subterráneo.',cuencas:'Disponibilidad superficial y límites de los registros de caudales.',series:'Series longitudinales de riego, precipitación y evapotranspiración.',comparar:'Comparación de dos estados por indicador y año.',calidad:'Sitios identificados y límites de verificación temporal.',fuentes:'Procedencia, unidades, cobertura y límites de interpretación.'};
    if(byId('wa-active-view-title'))byId('wa-active-view-title').textContent=names[view];
    if(byId('wa-view-description'))byId('wa-view-description').textContent=descriptions[view];
@@ -1063,6 +1248,20 @@ body[data-view="agua"] .page,body:has(#panel-agua:not([hidden])) .page{max-width
   if(view==='calidad')target.innerHTML=renderQuality();
   if(view==='comparar')target.innerHTML=renderComparison();
   if(view==='fuentes')target.innerHTML=renderSources();
+
+  if(view!=='resumen'){
+   const explanations={
+    presas:['QUÉ ESTÁ VIENDO','Cada círculo es la ubicación de una presa o embalse del inventario. El número «NAMO» es capacidad nominal; no es agua almacenada hoy. Seleccione un punto para leer el expediente.'],
+    acuiferos:['QUÉ SIGNIFICA EL SALDO','El saldo se calcula administrativamente a partir de recarga, descarga natural comprometida y volumen registrado de extracción. Un saldo negativo no significa un acuífero vacío ni mide riesgo actualizado.'],
+    cuencas:['ATENCIÓN A LA ESCALA','La tabla de 757 cuencas representa un corte nacional, no una distribución entre los cinco estados. Todavía no hay polígonos por cuenca o caudales continuos verificados para trazar el mapa.'],
+    series:['DOS RELOJES DISTINTOS','El riego se organiza por ciclos agrícolas (1997/98–2023/24). La lluvia y la evapotranspiración se organizan por año calendario (2003–2025). No deben mezclarse como si representaran la misma medición.'],
+    comparar:['CÓMO COMPARAR CORRECTAMENTE','Compare el mismo indicador y el mismo año entre estados. Estas medidas no controlan tamaño de población, superficie agrícola ni clima regional y no prueban causalidad.'],
+    calidad:['COBERTURA DE LA CALIDAD','La tabla recuperada de calidad corresponde únicamente a Sinaloa. Las fechas de muestreo no pudieron verificarse, de modo que no se reportan niveles actuales ni tendencias.'],
+    fuentes:['PROCEDENCIA Y RESPONSABILIDAD','Esta es una integración documental; cada conjunto tiene fechas, unidades y limitaciones distintas. Los datos deben cotejarse con las fuentes oficiales antes de usarse para decisiones regulatorias.']
+   };
+   const item=explanations[view];
+   if(item)target.innerHTML='<div class="wa13-view-explanation"><span>'+safe(item[0])+'</span><p>'+safe(item[1])+'</p><button type="button" data-wa-view="resumen">Volver al diagnóstico →</button></div>'+target.innerHTML;
+  }
   byId('wa-export').hidden=view==='fuentes';
   if(view==='presas'&&!window.L){const el=byId('wa-map');if(el)el.innerHTML='<div class="wa-empty">Mapa base temporalmente no disponible. El inventario y las fichas siguen accesibles a la derecha.</div>'}
    if(view==='presas'&&window.L&&getDams().length){
