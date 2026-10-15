@@ -33,7 +33,7 @@ check('Mapa utiliza capas sin API key y respalda fallos con coordenadas',()=>{
  assert.match(js,/function vectorFallback/);assert.match(js,/tileerror/);assert.doesNotMatch(js,/basemaps\.cartocdn\.com/);
 });
 check('Filtros, inspector y exportaciones están implementados',()=>{
- for(const token of ['function rowData','function renderFilters','function mountMap','function inspector','function renderCompare','function renderStorage','function exportCSV','function exportGeo','function share','function restore','function serialize','function chart'])assert.ok(js.includes(token),token);
+ for(const token of ['const rowData=','function renderFilters','function mountMap','function inspector','function renderCompare','function renderStorage','function exportCSV','function exportGeo','function share','function restore','function serialize','function chart'])assert.ok(js.includes(token),token);
  assert.match(js,/data-aw-pick/);assert.match(js,/data-aw-page/);assert.match(js,/aw-mobile-inspector/);
 });
 check('Unidades y restricciones metodológicas visibles',()=>{
