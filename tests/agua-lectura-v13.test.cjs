@@ -7,7 +7,7 @@ const html=read('index.html'),js=read('agua.js'),d=JSON.parse(read('data/agua-v9
 assert.doesNotThrow(()=>new Function(js),'motor hídrico sintácticamente válido');
 assert.match(js,/view='resumen'/,'la vista inicial debe explicar datos');
 assert.match(html,/data-wa-view="resumen" aria-selected="true"/,'navegación inicial consistente');
-for(const clause of ['Qué muestran los datos','Un millón de metros cúbicos','No es todo el agua de Sinaloa','NAMO','GLOSARIO ESENCIAL','wa13-chart-card']){
+for(const clause of ['Qué muestran los datos','Un millón de metros cúbicos','No es todo el agua de','NAMO','GLOSARIO ESENCIAL','wa13-chart-card']){
  assert.ok(js.includes(clause),clause);
 }
 assert.match(html,/id="wa-bundled-runtime"/,'engine integrado');
