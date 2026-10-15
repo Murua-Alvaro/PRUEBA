@@ -21,7 +21,7 @@ const sources=[
  ['Cuencas y caudales','757 cuencas nacionales, un corte de 2020','Sin asignación geográfica estatal validada ni series de caudal','https://sih.conagua.gob.mx/hidros.html'],
  ['Calidad del agua','223 sitios de Sinaloa','Fechas de medición sin validar; no establecer tendencias','https://www.gob.mx/conagua']
 ];
-const S={view:'presas',state:'Sinaloa',search:'',min:0,sort:'capacidad',saldo:'todos',metric:'lluvia',from:null,to:null,compare:'Sonora',compareMetric:'riego',storageCode:'',basemap:'calles',selected:'',page:1,limit:12,inspector:true,showTable:true,filterOpen:false};
+const S={view:'presas',state:'Sinaloa',search:'',min:0,sort:'capacidad',saldo:'todos',metric:'lluvia',from:null,to:null,compare:'Sonora',compareMetric:'riego',storageCode:'',basemap:'calles',selected:'',page:1,limit:12,inspector:true,showTable:true,filterOpen:false,showPoints:true};
 let D=null,map=null,mapTiles=null,tileErrors=0,mapMarks=new Map(),toastTimer=null,initialized=false;
 const belongs=x=>norm(x[0])===norm(S.state);
 const dams=()=>D.presas.filter(belongs);
@@ -61,6 +61,7 @@ function selector(label,id,opts,value,description=''){
 }
 function renderFilters(){
  $('aw-state').value=S.state;$('aw-search').value=S.search;
+ const searchGroup=$('aw-search-group');if(searchGroup)searchGroup.hidden=!['presas','acuiferos','calidad'].includes(S.view);
  let html='';
  if(S.view==='presas')html=selector('Capacidad NAMO mínima','aw-min',[[0,'Todas'],[100,'100 hm³ o más'],[500,'500 hm³ o más'],[1000,'1,000 hm³ o más']],S.min,'Capacidad nominal; no es el volumen almacenado.')+
  selector('Ordenar por','aw-sort',[['capacidad','Mayor capacidad'],['nombre','Nombre A–Z'],['municipio','Municipio A–Z']],S.sort);
@@ -123,7 +124,7 @@ function renderPresas(){
  const rows=rowData(),cap=rows.reduce((s,x)=>s+(n(x.raw[6])||0),0);
  $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">VISOR GEOESPACIAL · '+esc(S.state.toUpperCase())+'</span><h3>Localización de infraestructura</h3><p>Inventario filtrado · Las burbujas reflejan capacidad nominal NAMO</p></div><button type="button" class="aw-mini-button" data-aw-action="geojson">↓ GeoJSON</button></div>'+
  warning('<strong>Qué representa el mapa:</strong> ubicación de instalaciones y capacidad de diseño en hm³. No representa polígonos de embalse, disponibilidad diaria ni porcentaje de llenado.')+
- '<section class="aw-map-shell" id="aw-map-shell"><div class="aw-map-toolbar"><span><strong>'+fmt(rows.length,0)+'</strong> presas visibles · NAMO agregado '+fmt(cap,1)+' hm³</span><div class="aw-toolbar-controls"><label for="aw-basemap">Mapa base</label><select id="aw-basemap"><option value="calles" '+(S.basemap==='calles'?'selected':'')+'>Calles (OSM)</option><option value="topo" '+(S.basemap==='topo'?'selected':'')+'>Topográfico (Esri)</option><option value="sat" '+(S.basemap==='sat'?'selected':'')+'>Imágenes (Esri)</option></select><button class="aw-mini-button" data-aw-action="fit">Enfocar</button><button class="aw-mini-button" data-aw-action="fullscreen">Pantalla completa ⛶</button></div></div>'+
+ '<section class="aw-map-shell" id="aw-map-shell"><div class="aw-map-toolbar"><span><strong>'+fmt(rows.length,0)+'</strong> presas visibles · NAMO agregado '+fmt(cap,1)+' hm³</span><div class="aw-toolbar-controls"><label for="aw-basemap">Mapa base</label><select id="aw-basemap"><option value="calles" '+(S.basemap==='calles'?'selected':'')+'>Calles (OSM)</option><option value="topo" '+(S.basemap==='topo'?'selected':'')+'>Topográfico (Esri)</option><option value="sat" '+(S.basemap==='sat'?'selected':'')+'>Imágenes (Esri)</option></select><details class="aw-layer-dropdown"><summary>Capas ▾</summary><label><input type="checkbox" id="aw-layer-points" '+(S.showPoints?"checked":"")+'> Puntos de presas</label><small>Sin capas de cuencas inventadas</small></details><button class="aw-mini-button" data-aw-action="fit">Enfocar</button><button class="aw-mini-button" data-aw-action="fullscreen">Pantalla completa ⛶</button></div></div>'+
  '<div class="aw-map-stage"><div id="aw-map" aria-label="Mapa interactivo con puntos de presas"></div><div class="aw-map-overlay"><strong>'+fmt(rows.length,0)+'</strong><small><i></i>UBICACIONES DEL CATÁLOGO</small></div></div><div class="aw-map-legend"><span><i class="aw-legend-dot"></i> Capacidad NAMO (símbolo proporcional)</span><b>Coordenadas aproximadas de catálogo · corte histórico</b></div></section>'+
  drawer('Inventario de presas','Seleccione una fila para abrir su ficha',dataMeta('presas'),rows,{selectable:true})+
  sourceLine('75 presas en la edición V9, distribuidas en cinco entidades; cobertura parcial.');
@@ -186,7 +187,7 @@ function renderCompare(){
  const am=new Map(a),bm=new Map(b);
  const rows=combined.map(y=>{const x=am.get(y),z=bm.get(y);return [S.compareMetric==='riego'?y+'/'+String(y+1).slice(-2):y,fmt(x),fmt(z),x!=null&&z!=null?fmt(x-z):'—']});
  const lbl=S.compareMetric==='riego'?'Volumen distribuido en riego (hm³)':S.compareMetric==='et0'?'ET₀ media municipal (mm)':'Precipitación media municipal (mm)',unit=S.compareMetric==='riego'?'hm³':'mm';
- $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">COMPARACIÓN HOMOGÉNEA / '+esc(unit)+'</span><h3>'+esc(S.state)+' y '+esc(S.compare)+'</h3></div></div>'+
+ $('aw-main').innerHTML='<div class="aw-main-title"><div><span class="aw-overline">COMPARACIÓN HOMOGÉNEA / '+esc(unit)+'</span><h3>'+esc(S.state)+' y '+esc(S.compare)+'</h3></div><button type="button" class="aw-mini-button" data-aw-action="swap">Intercambiar estados ⇄</button></div>'+
  warning('<strong>Criterio de lectura:</strong> estas series permiten comparar el mismo indicador en dos estados. Los valores absolutos de riego dependen de la escala de sus distritos. No controlan superficie agrícola, estructura productiva ni diferencias climáticas.')+
  '<section class="aw-dataviz"><div class="aw-chart-title"><div><span class="aw-overline">DOS ENTIDADES / UN INDICADOR</span><h3>'+esc(lbl)+'</h3><p>Los puntos corresponden a años o ciclos coincidentes del conjunto integrado.</p></div></div>'+
  chart(a,S.state,unit,{data:b,label:S.compare})+'</section>'+
@@ -250,7 +251,7 @@ function vectorFallback(rows){
  const pts=rows.filter(x=>Number.isFinite(n(x.raw[4]))&&Number.isFinite(n(x.raw[5]))),minLat=Math.min(...pts.map(x=>x.raw[4]),22)-1,maxLat=Math.max(...pts.map(x=>x.raw[4]),26)+1,minLon=Math.min(...pts.map(x=>x.raw[5]),-112)-1,maxLon=Math.max(...pts.map(x=>x.raw[5]),-104)+1;
  const x=lon=>50+800*(lon-minLon)/(maxLon-minLon),y=lat=>380-310*(lat-minLat)/(maxLat-minLat);
  const grid=Array.from({length:6},(_,i)=>{const a=50+i*160,b=70+i*62;return '<line x1="'+a+'" y1="50" x2="'+a+'" y2="402" stroke="#d3e1e6"/><line x1="50" y1="'+b+'" x2="850" y2="'+b+'" stroke="#d3e1e6"/>'}).join('');
- node.innerHTML='<svg class="aw-vector" viewBox="0 0 900 450" role="img" aria-label="Diagrama alternativo de coordenadas, sin mapa base">'+grid+'<text x="49" y="29">CARTOGRAFÍA EXTERNA NO DISPONIBLE · VISTA POR COORDENADAS (NO MAPA OFICIAL)</text>'+pts.map(r=>'<circle data-aw-pick="'+esc(r.id)+'" cx="'+x(r.raw[5])+'" cy="'+y(r.raw[4])+'" r="'+Math.max(5,Math.min(16,4+Math.sqrt(r.raw[6])/4))+'" fill="'+(r.id===S.selected?'#123d56':'#197d9a')+'"><title>'+esc(r.raw[2]+' · '+fmt(r.raw[6])+' hm³')+'</title></circle>').join('')+'<text x="50" y="434">OESTE</text><text x="850" y="434" text-anchor="end">ESTE</text></svg>';
+ node.innerHTML='<svg class="aw-vector" viewBox="0 0 900 450" role="img" aria-label="Diagrama alternativo de coordenadas, sin mapa base">'+grid+'<text x="49" y="29">CARTOGRAFÍA EXTERNA NO DISPONIBLE · VISTA POR COORDENADAS (NO MAPA OFICIAL)</text>'+(S.showPoints?pts:[]).map(r=>'<circle data-aw-pick="'+esc(r.id)+'" cx="'+x(r.raw[5])+'" cy="'+y(r.raw[4])+'" r="'+Math.max(5,Math.min(16,4+Math.sqrt(r.raw[6])/4))+'" fill="'+(r.id===S.selected?'#123d56':'#197d9a')+'"><title>'+esc(r.raw[2]+' · '+fmt(r.raw[6])+' hm³')+'</title></circle>').join('')+'<text x="50" y="434">OESTE</text><text x="850" y="434" text-anchor="end">ESTE</text></svg>';
 }
 function mountMap(rows){
  clearMap();const node=$('aw-map');if(!node||S.view!=='presas'||root.hidden)return;
@@ -278,7 +279,7 @@ function mountMap(rows){
     mark.on('click',()=>pick(row.id,true));
     bounds.push([p[4],p[5]]);mapMarks.set(row.id,mark);
    }
-   map.fitBounds(bounds,{padding:[25,25],maxZoom:8});highlightMap();setTimeout(()=>map&&map.invalidateSize(false),150);
+   map.fitBounds(bounds,{padding:[25,25],maxZoom:8});if(!S.showPoints)for(const marker of mapMarks.values())map.removeLayer(marker);highlightMap();setTimeout(()=>map&&map.invalidateSize(false),150);
   }catch(err){console.warn('Mapa Leaflet no disponible:',err);vectorFallback(rows)}
  });
 }
@@ -344,6 +345,7 @@ function action(name){
  if(name==='geojson'){exportGeo();return}
  if(name==='reset'){resetFilters();return}
  if(name==='link'){share();return}
+ if(name==='swap'){const old=S.state;S.state=S.compare;S.compare=old;render();return}
  if(name==='fit'){if(map&&mapMarks.size)map.fitBounds(L.featureGroup([...mapMarks.values()]).getBounds(),{padding:[25,25],maxZoom:8});else if(S.view==='presas')mountMap(rowData());return}
  if(name==='fullscreen'){const el=$('aw-map-shell');if(!el)return;if(document.fullscreenElement)document.exitFullscreen();else el.requestFullscreen?.();return}
  if(name==='filters'){S.filterOpen=!S.filterOpen;root.classList.toggle('aw-filters-open',S.filterOpen);root.querySelector('[data-aw-action="filters"]')?.setAttribute('aria-expanded',String(S.filterOpen));return}
@@ -370,6 +372,7 @@ root.addEventListener('change',e=>{
  if(id==='aw-compare'){S.compare=v;render();return}
  if(id==='aw-comparemetric'){S.compareMetric=v;render();return}
  if(id==='aw-storage'){S.storageCode=v;S.page=1;render();return}
+ if(id==='aw-layer-points'){S.showPoints=e.target.checked;if(map){for(const marker of mapMarks.values()){if(S.showPoints)marker.addTo(map);else map.removeLayer(marker)}}else if(S.view==='presas')mountMap(rowData());return}
  if(id==='aw-basemap'){S.basemap=v;const rows=rowData();mountMap(rows);updateURL();return}
 });
 root.addEventListener('input',e=>{if(e.target.id==='aw-search'){S.search=e.target.value;S.page=1;clearMap();setStatus();const box=$('aw-visible-count');if(box)box.textContent=fmt(rowData().length,0);if(S.view==='presas')renderPresas();else if(S.view==='acuiferos')renderAcuiferos();else if(S.view==='calidad')renderQuality();inspector()}});
