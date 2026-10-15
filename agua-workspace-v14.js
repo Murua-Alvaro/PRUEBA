@@ -287,7 +287,7 @@ function highlightMap(){
 }
 function pick(id,move=false){
  S.selected=String(id);inspector();root.querySelectorAll('[data-aw-pick]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.awPick===id)));
- highlightMap();const marker=mapMarks.get(S.selected);if(marker&&map&&move){map.panTo(marker.getLatLng());marker.openTooltip()}
+ highlightMap();if(window.innerWidth<=1000){root.classList.add('aw-mobile-inspector')}const marker=mapMarks.get(S.selected);if(marker&&map&&move){map.panTo(marker.getLatLng());marker.openTooltip()}
 }
 function focusSelected(){if(map&&mapMarks.has(S.selected)){const marker=mapMarks.get(S.selected);map.setView(marker.getLatLng(),Math.max(map.getZoom(),8));marker.openTooltip()}else notice('Seleccione una presa en el catálogo.')}
 function render(){
@@ -304,9 +304,13 @@ function render(){
  if(S.view==='fuentes')renderSources();
  inspector();updateURL();
 }
-function updateURL(){if(root.hidden&&location.hash!=='#agua')return;const u=new URL(location.href);u.searchParams.set('wa',S.view);u.searchParams.set('ws',S.state);if(S.search)u.searchParams.set('wq',S.search);else u.searchParams.delete('wq');u.searchParams.set('wb',S.basemap);u.hash='agua';history.replaceState(null,'',u.pathname+u.search+u.hash)}
+function serialize(u){
+ const params={wa:S.view,ws:S.state,wq:S.search,wb:S.basemap,wmin:String(S.min),wsort:S.sort,wsaldo:S.saldo,wfrom:S.from==null?'':String(S.from),wto:S.to==null?'':String(S.to),wm:S.metric,wcomp:S.compare,wcm:S.compareMetric,wsc:S.storageCode};
+ for(const [k,v]of Object.entries(params)){if(v===''||v===null)u.searchParams.delete(k);else u.searchParams.set(k,v)}
+}
+function updateURL(){if(root.hidden&&location.hash!=='#agua')return;const u=new URL(location.href);serialize(u);u.hash='agua';history.replaceState(null,'',u.pathname+u.search+u.hash)}
 function download(name,blob,mime){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([blob],{type:mime}));a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);notice('Archivo preparado: '+name)}
-function csvCell(x){let s=String(x??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
+function csvCell(x){let s=String(x??'');if(/^[=+\-@\t\r]/.test(s)&&!/^[+-]?\d+(?:\.\d+)?$/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
 function exportCSV(){
  let hdr=[],rows=[];
  if(S.view==='presas'){hdr=['estado','clave','presa','municipio','latitud','longitud','capacidad_namo_hm3'];rows=rowData().map(x=>x.raw)}
@@ -331,7 +335,7 @@ function changeView(view){
  if(!names[view])return;S.view=view;S.search='';S.min=0;S.saldo='todos';S.from=null;S.to=null;S.page=1;S.selected='';S.sort=view==='presas'?'capacidad':view==='acuiferos'?'saldo':'nombre';S.filterOpen=false;render();
 }
 function changeState(state){if(!D.estados.includes(state))return;S.state=state;S.page=1;S.selected='';S.search='';S.from=null;S.to=null;S.storageCode='';if(S.compare===S.state)S.compare=D.estados.find(x=>x!==S.state)||S.state;render()}
-function share(){const u=new URL(location.href);u.searchParams.set('ws',S.state);u.searchParams.set('wa',S.view);if(S.search)u.searchParams.set('wq',S.search);u.searchParams.set('wb',S.basemap);u.hash='agua';const link=u.toString();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>notice('Enlace con la consulta copiado.')).catch(()=>fallbackCopy(link));else fallbackCopy(link)}
+function share(){const u=new URL(location.href);serialize(u);u.hash='agua';const link=u.toString();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>notice('Enlace con la consulta copiado.')).catch(()=>fallbackCopy(link));else fallbackCopy(link)}
 function fallbackCopy(text){const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.left='-100vw';document.body.append(field);field.select();try{document.execCommand('copy');notice('Enlace copiado.')}catch(e){notice('Copie el enlace desde la barra del navegador.')}field.remove()}
 function action(name){
  if(name==='help'){$('aw-guide').showModal();return}
@@ -343,8 +347,8 @@ function action(name){
  if(name==='fit'){if(map&&mapMarks.size)map.fitBounds(L.featureGroup([...mapMarks.values()]).getBounds(),{padding:[25,25],maxZoom:8});else if(S.view==='presas')mountMap(rowData());return}
  if(name==='fullscreen'){const el=$('aw-map-shell');if(!el)return;if(document.fullscreenElement)document.exitFullscreen();else el.requestFullscreen?.();return}
  if(name==='filters'){S.filterOpen=!S.filterOpen;root.classList.toggle('aw-filters-open',S.filterOpen);root.querySelector('[data-aw-action="filters"]')?.setAttribute('aria-expanded',String(S.filterOpen));return}
- if(name==='show-inspector'){S.inspector=true;root.classList.remove('aw-inspector-hidden');return}
- if(name==='hide-inspector'){S.inspector=!S.inspector;root.classList.toggle('aw-inspector-hidden',!S.inspector);return}
+ if(name==='show-inspector'){S.inspector=true;root.classList.remove('aw-inspector-hidden');root.classList.add('aw-mobile-inspector');return}
+ if(name==='hide-inspector'){S.inspector=false;root.classList.add('aw-inspector-hidden');root.classList.remove('aw-mobile-inspector');return}
  if(name==='focus-selected'){focusSelected();return}
  if(name==='copy-coords'){const r=dams().find(x=>String(x[1])===S.selected);if(r){const s=r[4]+', '+r[5];if(navigator.clipboard?.writeText)navigator.clipboard.writeText(s).then(()=>notice('Coordenadas copiadas.'));else fallbackCopy(s)}}
 }
@@ -373,10 +377,17 @@ document.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='/'&&![
 const observer=new MutationObserver(()=>{if(!root.hidden&&D&&S.view==='presas'&&!map){const node=$('aw-map');if(node&&!node.querySelector('svg.aw-vector'))mountMap(rowData())}});
 observer.observe(root,{attributes:true,attributeFilter:['hidden']});
 function restore(){
- const u=new URL(location.href),q=u.searchParams;
- const v=q.get('wa'),st=q.get('ws'),base=q.get('wb');
+ const q=new URL(location.href).searchParams,v=q.get('wa'),st=q.get('ws'),base=q.get('wb');
  if(names[v])S.view=v;if(D.estados.includes(st))S.state=st;if(base&&tiles[base])S.basemap=base;
  S.search=String(q.get('wq')||'').slice(0,90);
+ const min=Number(q.get('wmin'));if([0,100,500,1000].includes(min))S.min=min;
+ const sort=q.get('wsort');if(['capacidad','nombre','municipio','saldo','recarga','cantidad'].includes(sort))S.sort=sort;
+ const saldo=q.get('wsaldo');if(['todos','negativo','no-negativo'].includes(saldo))S.saldo=saldo;
+ for(const [param,key]of [['wfrom','from'],['wto','to']]){const v=q.get(param);if(v&&/^20\d{2}$|^19\d{2}$/.test(v))S[key]=Number(v)}
+ if(['lluvia','et0','balance'].includes(q.get('wm')))S.metric=q.get('wm');
+ if(D.estados.includes(q.get('wcomp')))S.compare=q.get('wcomp');
+ if(['riego','lluvia','et0'].includes(q.get('wcm')))S.compareMetric=q.get('wcm');
+ S.storageCode=String(q.get('wsc')||'').slice(0,40);
 }
 function init(){
  try{const el=$('wa-embedded-dataset');if(!el?.textContent)throw Error('Dataset V9 no empacado');
