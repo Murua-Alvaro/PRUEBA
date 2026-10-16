@@ -132,6 +132,7 @@ function mapToolbar(){
  '<button type="button" data-w17-action="measure-toggle" aria-pressed="'+S.measure+'">Medir</button>'+
  '<button type="button" data-w17-action="fit">Centrar</button>'+
  '<button type="button" data-w17-action="fullscreen">Expandir</button>'+
+ '<button type="button" data-w17-action="share">Compartir</button>'+
  '<button type="button" data-w17-action="geojson">GeoJSON ↓</button>'+
  '<div class="w21-layers-panel" '+(S.layerOpen?'':'hidden')+'><strong>Capas y simbología</strong>'+
  '<label><input type="checkbox" id="w21-show-points" '+(S.showPoints?'checked':'')+'> Presas catalogadas</label>'+
@@ -167,7 +168,7 @@ function summary(){
   '</section>'+
   '<section class="w20-table-dock" aria-label="Inventario de presas y acciones">'+
     '<div class="w20-dock-head"><div><span class="w20-eyebrow">RESULTADOS / '+esc(stateLabel.toUpperCase())+'</span><h3>Registros de infraestructura <span>'+f(records.length,0)+'</span></h3></div>'+
-      '<div class="w20-dock-actions"><button type="button" data-w17-action="export">Descargar CSV ↓</button><button type="button" data-w17-view="presas">Abrir catálogo nacional ↗</button></div>'+
+      '<div class="w20-dock-actions"><button type="button" data-w17-action="dock-toggle" aria-expanded="'+S.dockOpen+'">'+(S.dockOpen?'Contraer tabla':'Expandir tabla')+'</button><button type="button" data-w17-action="export">CSV ↓</button><button type="button" data-w17-view="presas">Catálogo nacional ↗</button></div>'+
     '</div>'+
     table(records)+
   '</section>'+
@@ -349,7 +350,7 @@ function drawRows(rows){
  '<span>'+f(rows.length,0)+' filas documentales · '+esc(S.state)+' · Valores sin imputación</span></div>'+
  addition+
  stats([['Registros seleccionados',f(rows.length,0),'Después de aplicar filtros'],['Ámbito',S.state,'Cobertura de la fuente'],['Media descriptiva',f(mean,2),'Unidad del indicador seleccionado'],['Con valor informado',f(vals.length,0),'Sin imputar faltantes']])+
- '<div class="w17-module-card">'+head('Datos de origen · '+f(rows.length,0)+' registros','','<div class="w17-geo-controls"><button type="button" data-w17-action="export">Exportar tabla ↓</button></div>')+table(rows)+'</div>'+
+ '<div class="w17-module-card">'+head('Datos de origen · '+f(rows.length,0)+' registros','','<div class="w17-geo-controls"><button type="button" data-w17-action="dock-toggle" aria-expanded="'+S.dockOpen+'">'+(S.dockOpen?'Contraer':'Expandir')+'</button><button type="button" data-w17-action="export">CSV ↓</button></div>')+table(rows)+'</div>'+
  warning(msgFor[S.view]||'Datos históricos; no telemetría actual.');
  detail(rows);
  if(geo&&S.mode==='map'){const sel=$('w17-basemap');if(sel)sel.value=S.basemap;renderMap(rows)}
@@ -445,6 +446,15 @@ function action(v){
  case 'advanced-toggle':S.advOpen=!S.advOpen;configureAdvanced();break;
  case 'advanced-reset':resetAdvanced();configureAdvanced();S.page=1;S.selected='';doRender();route();break;
  case 'mode-map':S.mode='map';doRender();break;case 'mode-table':S.mode='table';doRender();break;
+ case 'dock-toggle':S.dockOpen=!S.dockOpen;root.classList.toggle('w21-dock-closed',!S.dockOpen);{
+  const btn=root.querySelector('[data-w17-action="dock-toggle"]');if(btn)btn.setAttribute('aria-expanded',String(S.dockOpen));
+  doRender();
+ }break;
+ case 'share':{
+  route();const link=location.href;
+  if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>msg('Enlace con filtros copiado')).catch(()=>msg('Copia la URL desde el navegador'));
+  else msg('Copia la dirección del navegador');break;
+ }
  case 'layer-toggle':S.layerOpen=!S.layerOpen;{const panel=root.querySelector('.w21-layers-panel');if(panel)panel.hidden=!S.layerOpen;const btn=root.querySelector('[data-w17-action="layer-toggle"]');if(btn)btn.setAttribute('aria-expanded',String(S.layerOpen))}break;
  case 'measure-toggle':S.measure=!S.measure;renderMap(shown);{const btn=root.querySelector('[data-w17-action="measure-toggle"]');if(btn)btn.setAttribute('aria-pressed',String(S.measure))}msg(S.measure?'Medición habilitada: selecciona dos puntos del mapa.':'Medición finalizada.');break;
  case 'fullscreen':S.fullscreen=!S.fullscreen;root.classList.toggle('w21-fullscreen',S.fullscreen);setTimeout(()=>mp?.invalidateSize(),180);break;
@@ -483,6 +493,7 @@ function init(){
   S.filter=q.get('wf')||'all';S.period=q.get('wp')||'all';S.search=(q.get('wq')||'').slice(0,100);
   if(S.view==='quality')S.state='Sinaloa';if(S.view==='storage'&&S.state==='Todos')S.state='Jalisco';
   const inp=$('w17-search');const list=document.createElement('datalist');list.id='w17-suggested';inp.setAttribute('list','w17-suggested');inp.parentNode.append(list);
+  root.classList.toggle('w21-dock-closed',!S.dockOpen);
   draw();
   if(typeof MutationObserver!=='undefined'){
    const observer=new MutationObserver(()=>{
