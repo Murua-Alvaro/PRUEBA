@@ -90,7 +90,7 @@ function toolbar(){
  $('w17-filter').innerHTML=selectHtml(o.values,S.filter);$('w17-filter').disabled=o.values.length<2;
  $('w17-period').innerHTML=selectHtml(o.period,S.period);$('w17-period').disabled=o.period.length<2;
  $('w17-search').disabled=broad.includes(S.view);$('w17-search').value=S.search;
- const datalist=$('w17-suggested');if(datalist)datalist.innerHTML=['presas','regional'].includes(S.view)?o.values.slice(1).map(x=>'<option value="'+esc(x[1])+'"></option>').join(''):'';
+ const datalist=$('w17-suggested');if(datalist)datalist.innerHTML=['overview','presas','regional'].includes(S.view)?o.values.slice(1).map(x=>'<option value="'+esc(x[1])+'"></option>').join(''):'';
  $('w17-title').textContent=V[S.view][0];$('w17-subtitle').textContent=V[S.view][1];$('w17-crumb-view').textContent=V[S.view][0].toUpperCase();
  $('w17-scope').textContent=S.view==='quality'?'SIN FECHA DE MEDICIÓN VERIFICADA':'SERIES HISTÓRICAS · NO EN VIVO';
  root.querySelectorAll('[data-w17-view]').forEach(b=>b.setAttribute('aria-current',b.dataset.w17View===S.view?'page':'false'));
@@ -425,7 +425,7 @@ function action(v){
  }
  case 'record-download':{
   const record=shown.find(x=>x.id===S.selected);if(!record){msg('Selecciona un registro');break}
-  const escCsv=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
+  const escCsv=x=>{let val=String(x??'');if(/^[=+@\-]/.test(val)&&!/^[+-]?\d+(?:\.\d+)?$/.test(val))val="'"+val;return '"'+val.replace(/"/g,'""')+'"'};
   const keys=Object.keys(record.info),vals=keys.map(k=>record.info[k]);
   const csv='\uFEFF'+keys.map(escCsv).join(',')+'\r\n'+vals.map(escCsv).join(',');
   const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),link=document.createElement('a');
