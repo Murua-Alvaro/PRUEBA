@@ -1,0 +1,80 @@
+{
+  "version": "GROWA-AGUA-V16",
+  "published_on": "2026-10-15",
+  "temporal_scope": "1996–2026; fuente y escala variables",
+  "sources": [
+    {
+      "id": "presas_nacional",
+      "path": "/agua/presas-nacionales-v1.json",
+      "records": 210,
+      "columns": 19,
+      "unit": "hm³ (NAMO/NAME)",
+      "time": "inventario sin fecha normativa confirmada",
+      "kind": "catalog",
+      "quality": "fuente secundaria; faltan estados en algunos registros",
+      "source": "GROWA – 210 presas nacionales – catálogo alternativo"
+    },
+    {
+      "id": "quality_sinaloa",
+      "path": "/agua/calidad-sinaloa-observaciones-v1.json",
+      "records": 6095,
+      "columns": 11,
+      "sites": 223,
+      "time": "sin fecha de muestreo",
+      "kind": "observations",
+      "quality": "no apto para tendencia ni cumplimiento normativo",
+      "source": "GROWA Calidad observada Sinaloa (secundaria)"
+    },
+    {
+      "id": "jalisco_diario",
+      "paths": [
+        "/agua/jalisco-diario-1.json",
+        "/agua/jalisco-diario-2.json",
+        "/agua/jalisco-diario-3.json"
+      ],
+      "records": 30652,
+      "columns": 5,
+      "sites": 3,
+      "kind": "observations",
+      "time": "1996–2024",
+      "quality": "cortes diarios observados; no flujo ni pronóstico",
+      "source": "GROWA/Conagua/SIH, réplica histórica de tres presas"
+    },
+    {
+      "id": "jalisco_mensual",
+      "path": "/agua/jalisco-mensual-v1.json",
+      "records": 1018,
+      "columns": 7,
+      "sites": 3,
+      "kind": "observations",
+      "time": "1996–2024",
+      "quality": "resumen mensual con días observados, mínimo, máximo y proporción NAMO",
+      "source": "GROWA Jalisco mensual"
+    },
+    {
+      "id": "agua_v9_embedded",
+      "path": "index.html#wa-embedded-dataset",
+      "tables": {
+        "riego": 135,
+        "clima": 115,
+        "acuiferos": 216,
+        "presas": 75,
+        "sistemas": 99,
+        "sinaloa": 26,
+        "calidad": 223,
+        "tendencias": 32,
+        "cobertura": 43
+      },
+      "kind": "legacy",
+      "quality": "datos agregados o parciales, no confundir con microdatos"
+    }
+  ],
+  "rules": [
+    "No interpolar fechas faltantes ni valores censurados",
+    "Las capacidades de inventario no son almacenamiento actual",
+    "Un balance contable de acuíferos no demuestra vaciamiento",
+    "No unir categorías temporales heterogéneas",
+    "La biblioteca distingue registros materializados de metadatos declarados",
+    "Publicar exclusivamente variables verificables y fuentes indicadas"
+  ]
+}
