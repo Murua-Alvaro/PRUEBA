@@ -251,6 +251,21 @@ document.getElementById('panel-agua').addEventListener('input',e=>{
  if(!VIEWS.includes(S.view)||e.target.id!=='x-search')return;
  E[S.view].search=e.target.value;pg=1;selected=null;draw();
 },true);
+const menu=$('aw-full-menu');
+if(menu){
+ menu.addEventListener('toggle',()=>{
+  if(!menu.open)return;
+  const trigger=menu.querySelector('summary'),popup=menu.querySelector('div');
+  if(!trigger||!popup)return;
+  const rect=trigger.getBoundingClientRect();
+  popup.style.top=Math.round(rect.bottom+5)+'px';
+  popup.style.right='auto';
+  popup.style.left=Math.round(Math.max(8,Math.min(rect.left,window.innerWidth-300)))+'px';
+ });
+ document.getElementById('panel-agua').addEventListener('click',e=>{
+  if(e.target.closest('[data-aw-view]'))menu.open=false;
+ },true)
+}
 window.GrowaWaterExtra={views:VIEWS,render,filters:()=>{},inspector};
 if(VIEWS.includes(S.view))API.render();
 }
