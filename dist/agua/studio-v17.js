@@ -280,10 +280,15 @@ function action(v){
  case 'prev':S.page=Math.max(1,S.page-1);doRender();break;case 'nextpage':S.page++;doRender();break;
  case 'next':{const pos=shown.findIndex(x=>x.id===S.selected);if(!shown.length)break;S.selected=shown[(pos+1)%shown.length].id;detail(shown);if(window.innerWidth<=1190)$('w17-detail').classList.add('w17-detail-visible');break}
  case 'detail-toggle':{
-  const el=$('w17-detail'),collapsed=root.classList.toggle('w17-detail-collapsed');
-  el.classList.toggle('w17-detail-visible',!collapsed);
-  setTimeout(()=>mp?.invalidateSize(),130);
-  break;
+  const el=$('w17-detail');
+  if(window.innerWidth<=1190){
+    root.classList.remove('w17-detail-collapsed');
+    el.classList.toggle('w17-detail-visible');
+  }else{
+    const collapsed=root.classList.toggle('w17-detail-collapsed');
+    el.classList.toggle('w17-detail-visible',!collapsed);
+  }
+  setTimeout(()=>mp?.invalidateSize(),130);break;
  }
  case 'sidebar-toggle':{
   const collapsed=root.classList.toggle('w20-nav-collapsed');
@@ -320,7 +325,19 @@ function init(){
   if(S.view==='quality')S.state='Sinaloa';if(S.view==='storage'&&S.state==='Todos')S.state='Jalisco';
   const inp=$('w17-search');const list=document.createElement('datalist');list.id='w17-suggested';inp.setAttribute('list','w17-suggested');inp.parentNode.append(list);
   draw();
-  window.GrowaWaterStudio={navigate,snapshot:()=>({view:S.view,state:S.state,visible:shown.length,filter:S.filter,period:S.period}),download:()=>exportRows()};
+  if(typeof MutationObserver!=='undefined'){
+   const observer=new MutationObserver(()=>{
+    if(root.hidden)return;
+    setTimeout(()=>{
+      if(root.hidden)return;
+      if(S.mode==='map'&&['overview','presas','regional'].includes(S.view)){
+       if(mp)mp.invalidateSize(true);else draw();
+      }
+    },160);
+   });
+   observer.observe(root,{attributes:true,attributeFilter:['hidden']});
+  }
+  window.GrowaWaterStudio={navigate,snapshot:()=>({view:S.view,state:S.state,visible:shown.length,filter:S.filter,period:S.period,mode:S.mode}),download:()=>exportRows()};
  }catch(e){console.error('GROWA Agua Studio',e);$('w17-content').innerHTML='<div class="w17-empty"><strong>No pudo iniciarse el centro hídrico.</strong>'+esc(e.message)+'</div>'}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
