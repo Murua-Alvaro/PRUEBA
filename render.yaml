@@ -7,7 +7,7 @@ services:
     runtime: static
     repo: https://github.com/Murua-Alvaro/PRUEBA
     branch: main
-    buildCommand: mkdir -p dist/data && cp index.html styles.css app.js agua.css agua-pro.css agua.js dist/ && cp data/analysis-pack.b64 data/agua-v9.json dist/data/
+    buildCommand: mkdir -p dist/data dist/agua && cp index.html styles.css app.js agua.css agua-pro.css agua.js dist/ && cp agua/portal-v22.css agua/portal-v22.js dist/agua/ && cp data/analysis-pack.b64 data/agua-v9.json dist/data/
     staticPublishPath: dist
     autoDeployTrigger: off
     envVars:
