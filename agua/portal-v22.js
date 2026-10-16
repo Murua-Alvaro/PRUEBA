@@ -96,7 +96,7 @@ var toolbar='<div class="v22-map-toolbar" role="toolbar" aria-label="Herramienta
 '<div id="v22-layers-panel" class="v22-layers-panel" hidden><label><input type="checkbox" id="v22-layer-dams" checked> Ubicaciones de presas</label><small>Solo puntos con coordenadas en el inventario. No se muestran superficies ni polígonos de embalse.</small></div>';
 if(mapMode==='table')return toolbar+table();
 return toolbar+'<div class="v22-map-grid"><div class="v22-map-wrap"><div class="v22-map-top"><span>CARTOGRAFÍA · INVENTARIO DOCUMENTADO</span></div>'+
-'<div id="v22-map" class="v22-map" role="application" aria-label="Mapa de presas"></div>'+
+'<div class="v22-map-count"><small>PRESAS GEOREFERENCIADAS</small><strong>'+fmt(pts.length,0)+'</strong><em>'+esc(region==='all'?'Cinco entidades':region)+' · selección activa</em></div><div id="v22-map" class="v22-map" role="application" aria-label="Mapa de presas"></div>'+
 '<button id="v22-exit-map" type="button" class="v22-map-exit" data-v22-action="expand" hidden>Cerrar vista ampliada ×</button>'+
 '<div id="v22-map-status" class="v22-map-status" role="status" hidden></div>'+
 '<div id="v22-measure-readout" class="v22-measure-readout" role="status"'+(measureMode?'':' hidden')+'>Haga clic en dos puntos del mapa para medir distancia.</div></div>'+
@@ -176,7 +176,7 @@ satelite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/Ma
 };
 kind=definitions[kind]?kind:'claro';
 if(baseLayer){map.removeLayer(baseLayer);baseLayer=null}
-baseStyle=kind;var spec=definitions[kind],errors=0;
+baseStyle=kind;var mount=E('v22-map');if(mount)mount.dataset.basemap=kind;var spec=definitions[kind],errors=0;
 baseLayer=L.tileLayer(spec[0],{attribution:spec[1],maxZoom:spec[2],crossOrigin:true,updateWhenIdle:true}).addTo(map);
 baseLayer.bringToBack();
 var status=E('v22-map-status');if(status)status.hidden=true;
@@ -267,7 +267,7 @@ if(action==='share'){shareMap();return}
 if(action==='geojson'){downloadGeoJSON();return}
 }
 var group=ev.target.closest('[data-w21-group]');if(group){var open=group.getAttribute('aria-expanded')==='true';group.setAttribute('aria-expanded',open?'false':'true');var el=E('w21-group-'+group.dataset.w21Group);if(el)el.hidden=open;return;}
-var nav=ev.target.closest('[data-w17-view]');if(nav){view=nav.dataset.w17View;search='';mun='';period='all';geo='all';minCap='';maxCap='';E('w17-search').value='';E('w21-geo').value='all';E('w21-cap-min').value='';E('w21-cap-max').value='';repaint(true);return;}
+var nav=ev.target.closest('[data-w17-view]');if(nav){mapExpanded=false;measureMode=false;measurePoints=[];view=nav.dataset.w17View;search='';mun='';period='all';geo='all';minCap='';maxCap='';E('w17-search').value='';E('w21-geo').value='all';E('w21-cap-min').value='';E('w21-cap-max').value='';repaint(true);return;}
 var row=ev.target.closest('[data-v22-index]');if(row){selectRow(Number(row.dataset.v22Index));return;}
 var marker=ev.target.closest('[data-v22-marker]');if(marker){selectRow(Number(marker.dataset.v22Marker));return;}
 var pager=ev.target.closest('[data-v22-page]');if(pager){page=Math.max(0,Math.min(Math.ceil(filtered.length/18)-1,page+Number(pager.dataset.v22Page)));root.querySelectorAll('#v22-table-results').forEach(function(el){el.outerHTML=table()});return;}
