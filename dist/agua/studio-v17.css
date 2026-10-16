@@ -163,8 +163,8 @@ body[data-view="agua"] #panel-agua.w17-root{padding:0!important;margin:0!importa
 #panel-agua.w17-root .w17-ref-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
 #panel-agua.w17-root .w17-dialog-actions{border-top:1px solid #e2ebed;padding:16px 24px;display:flex;justify-content:flex-end}
 #panel-agua.w17-root .w17-mobile-open{display:none}
-#panel-agua.w17-root .w17-detail-collapsed .w17-workspace{grid-template-columns:233px minmax(0,1fr)}
-#panel-agua.w17-root .w17-detail-collapsed .w17-detail{display:none}
+#panel-agua.w17-root.w17-detail-collapsed .w17-workspace{grid-template-columns:233px minmax(0,1fr)}
+#panel-agua.w17-root.w17-detail-collapsed .w17-detail{display:none}
 @media(max-width:1450px){
  #panel-agua.w17-root .w17-workspace{grid-template-columns:220px minmax(0,1fr) 265px}
  #panel-agua.w17-root .w17-global-middle{display:none}
@@ -176,7 +176,7 @@ body[data-view="agua"] #panel-agua.w17-root{padding:0!important;margin:0!importa
  #panel-agua.w17-root .w17-detail{display:none}
  #panel-agua.w17-root .w17-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}
  #panel-agua.w17-root .w17-reset{justify-self:start}
- #panel-agua.w17-root .w17-detail-collapsed .w17-workspace{grid-template-columns:215px minmax(0,1fr)}
+ #panel-agua.w17-root.w17-detail-collapsed .w17-workspace{grid-template-columns:215px minmax(0,1fr)}
 }
 @media(max-width:740px){
  #panel-agua.w17-root .w17-global{padding:11px 13px;min-height:58px}
