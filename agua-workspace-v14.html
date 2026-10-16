@@ -3,7 +3,7 @@
     <header class="aw-heading">
       <div class="aw-heading-copy">
         <div class="aw-breadcrumb"><span class="aw-pulse" aria-hidden="true"></span> GROWA <span>/</span> INTELIGENCIA TERRITORIAL <span>/</span> AGUA</div>
-        <div class="aw-titleline"><h1>Explorador hídrico</h1><span class="aw-version">EDICIÓN 2026 · V15</span></div>
+        <div class="aw-titleline"><h1>Explorador hídrico</h1><span class="aw-version">EDICIÓN 2026 · V16</span></div>
         <p>Consulte infraestructura, agua subterránea y series históricas. Cada indicador muestra sus unidades, fuente y periodo.</p>
       </div>
       <div class="aw-heading-actions">
@@ -13,7 +13,7 @@
       </div>
     </header>
     <nav class="aw-tabs" aria-label="Conjuntos de datos hídricos">
-      <button type="button" data-aw-view="presas" aria-pressed="true"><span class="aw-tab-index">01</span> Presas y embalses</button>
+      <button type="button" data-aw-view="presas" aria-pressed="false"><span class="aw-tab-index">01</span> Presas y embalses</button>
       <button type="button" data-aw-view="acuiferos" aria-pressed="false"><span class="aw-tab-index">02</span> Acuíferos</button>
       <button type="button" data-aw-view="cuencas" aria-pressed="false"><span class="aw-tab-index">03</span> Cuencas y caudales</button>
       <button type="button" data-aw-view="riego" aria-pressed="false"><span class="aw-tab-index">04</span> Distritos de riego</button>
@@ -22,7 +22,12 @@
       <button type="button" data-aw-view="comparar" aria-pressed="false"><span class="aw-tab-index">07</span> Comparador</button>
       <button type="button" data-aw-view="calidad" aria-pressed="false"><span class="aw-tab-index">08</span> Calidad</button>
       <button type="button" data-aw-view="tendencias" aria-pressed="false"><span class="aw-tab-index">09</span> Tendencias</button>
-      <button type="button" data-aw-view="biblioteca" aria-pressed="false"><span class="aw-tab-index">10</span> Biblioteca de datos</button>
+      <button type="button" data-aw-view="biblioteca" aria-pressed="true"><span class="aw-tab-index">10</span> Biblioteca de datos</button>
+      <details class="aw-tab-menu" id="aw-full-menu"><summary>Datos completos ▾</summary><div>
+        <button type="button" data-aw-view="nacional" aria-pressed="false">Presas nacionales <span>210 instalaciones · 19 variables</span></button>
+        <button type="button" data-aw-view="observaciones" aria-pressed="false">Calidad: observaciones <span>6,095 mediciones · 223 sitios de Sinaloa</span></button>
+        <button type="button" data-aw-view="diario" aria-pressed="false">Almacenamiento de Jalisco <span>30,652 cortes diarios y 1,018 mensuales</span></button>
+      </div></details>
       <button type="button" data-aw-view="fuentes" aria-pressed="false"><span class="aw-tab-index">11</span> Fuentes</button>
     </nav>
     <div class="aw-commandline">
