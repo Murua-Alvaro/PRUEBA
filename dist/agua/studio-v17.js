@@ -201,7 +201,7 @@ async function draw(reset=true){
   const files=FILES[S.view];if(files.some(x=>!cache.has(x))){
    $('w17-content').innerHTML='<div class="w17-loading"><span class="w17-spinner"></span> Cargando observaciones originales…</div>';
    try{await Promise.all(files.map(getFile))}catch(err){if(seq!==token)return;$('w17-content').innerHTML='<div class="w17-empty"><strong>Error al consultar datos</strong>'+esc(err.message)+'<p><button data-w17-action="retry">Reintentar</button></p></div>';return}
-   if(seq!==token)return;if(reset)toolbar();
+   if(seq!==token)return;recordCache.clear();if(reset)toolbar();
   }
  }
  doRender();
