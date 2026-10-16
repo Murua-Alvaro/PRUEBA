@@ -8,7 +8,7 @@ overview:['Atlas hídrico','Infraestructura georreferenciada, capas y series del
 };
 const SOURCES=[['Presas nacionales','210 registros secundarios; 19 variables','https://docs.google.com/spreadsheets/d/1Rx0y0_N2sCsPzyfYeJGvnlv2wqtUF6cxHYQ_Kwz34t4/edit','presas'],['Calidad Sinaloa','6,095 observaciones sin fecha validada','https://docs.google.com/spreadsheets/d/1CHNtrXaFUjd1m1_F-83-J1iVoNtyCFZhxmPSaXctWtQ/edit','quality'],['Jalisco diario','30,652 registros de tres presas (1996–2024)','https://docs.google.com/spreadsheets/d/1q0dzyO6Iwy2ojObAFpOPcafaPL7P0oEKjM68umG1WnY/edit','storage'],['Jalisco mensual','1,018 agregados mensuales','https://docs.google.com/spreadsheets/d/15GjNsCaJUGWZg-jbSMs-b1eO8Xxi6w_6B4UmmPUJqKw/edit','storage'],['SIH CONAGUA','Sistema oficial de Información Hidrológica','https://sih.conagua.gob.mx/','sources'],['NASA POWER','Datos meteorológicos históricos','https://power.larc.nasa.gov/','clima'],['Acuíferos CONAGUA','Documentos de disponibilidad y acuerdos','https://sigagis.conagua.gob.mx/gas1/sections/acuerdos_dof.html','acuiferos'],['USGS National Water Dashboard','Referencia para mapa, filtros y fichas','https://dashboard.waterdata.usgs.gov/app/nwd/en/','sources']];
 const FILES={presas:['presas-nacionales-v1.json'],quality:['calidad-sinaloa-observaciones-v1.json'],storage:['jalisco-diario-1.json','jalisco-diario-2.json','jalisco-diario-3.json','jalisco-mensual-v1.json']};
-const S={view:'overview',state:'Sinaloa',filter:'all',period:'all',search:'',page:1,perPage:20,selected:'',sort:'',dir:1,mode:'map',basemap:'light',detailTab:'general',advOpen:false,region:'all',geo:'all',capMin:'',capMax:'',showPoints:true,measure:false,symbol:'capacity',fullscreen:false,dockOpen:true};
+const S={view:'overview',state:'Sinaloa',filter:'all',period:'all',search:'',page:1,perPage:20,selected:'',sort:'',dir:1,mode:'map',basemap:'light',detailTab:'general',advOpen:false,region:'all',geo:'all',capMin:'',capMax:'',showPoints:true,measure:false,symbol:'capacity',layerOpen:false,fullscreen:false,dockOpen:true};
 let D=null,cache=new Map(),waiting=new Map(),shown=[],mp=null,marks=[],measurePoints=[],measureLine=null,token=0,inputTimer=null,toaster=null;
 function msg(x){const el=$('w17-toast');el.textContent=x;el.hidden=false;clearTimeout(toaster);toaster=setTimeout(()=>el.hidden=true,3300)}
 function killMap(){if(mp){try{mp.remove()}catch(e){console.warn(e)}mp=null}marks=[];measurePoints=[];measureLine=null}
@@ -119,20 +119,33 @@ function filtered(){
 function stats(items){return '<div class="w17-kpis">'+items.map(([label,val,note])=>'<div class="w17-kpi"><span>'+esc(label)+'</span><strong>'+esc(val)+'</strong><small>'+esc(note)+'</small></div>').join('')+'</div>'}
 function head(name,note,tools=''){return '<div class="w17-card-head"><h2>'+esc(name)+'</h2>'+(tools||'<span>'+esc(note||'')+'</span>')+'</div>'}
 function warning(s){return '<div class="w17-warning"><strong>Alcance del dato:</strong> '+esc(s)+'</div>'}
+function mapToolbar(){
+ return '<div class="w21-map-tools" role="toolbar" aria-label="Herramientas cartográficas">'+
+ '<div class="w21-map-switch"><button type="button" data-w17-action="mode-map" aria-pressed="'+(S.mode==='map')+'">Mapa</button>'+
+ '<button type="button" data-w17-action="mode-table" aria-pressed="'+(S.mode==='table')+'">Tabla</button></div>'+
+ '<select id="w17-basemap" aria-label="Mapa base">'+
+ '<option value="light" '+(S.basemap==='light'?'selected':'')+'>Cartográfico claro</option>'+
+ '<option value="street" '+(S.basemap==='street'?'selected':'')+'>Calles</option>'+
+ '<option value="topo" '+(S.basemap==='topo'?'selected':'')+'>Relieve</option>'+
+ '<option value="sat" '+(S.basemap==='sat'?'selected':'')+'>Fotografía aérea</option></select>'+
+ '<button type="button" data-w17-action="layer-toggle" aria-expanded="'+S.layerOpen+'">Capas ⌄</button>'+
+ '<button type="button" data-w17-action="measure-toggle" aria-pressed="'+S.measure+'">Medir</button>'+
+ '<button type="button" data-w17-action="fit">Centrar</button>'+
+ '<button type="button" data-w17-action="fullscreen">Expandir</button>'+
+ '<button type="button" data-w17-action="geojson">GeoJSON ↓</button>'+
+ '<div class="w21-layers-panel" '+(S.layerOpen?'':'hidden')+'><strong>Capas y simbología</strong>'+
+ '<label><input type="checkbox" id="w21-show-points" '+(S.showPoints?'checked':'')+'> Presas catalogadas</label>'+
+ '<label>Simbología<select id="w21-symbol"><option value="capacity" '+(S.symbol==='capacity'?'selected':'')+'>Proporcional a NAMO</option>'+
+ '<option value="uniform" '+(S.symbol==='uniform'?'selected':'')+'>Punto uniforme</option></select></label>'+
+ '<p>Los embalses y cuencas requieren polígonos oficiales; esta base sólo georreferencia instalaciones.</p></div>'+
+ '</div>';
+}
 function summary(){
  const records=filtered();shown=records;
  if(!records.some(x=>x.id===S.selected))S.selected=records[0]?.id||'';
  const summed=records.reduce((sum,r)=>sum+(r.metric||0),0);
  const stateLabel=S.state==='Todos'?'Cinco estados':S.state;
- const mapTools=
-  '<div class="w20-map-tools" role="toolbar" aria-label="Controles del mapa">'+
-    '<button type="button" data-w17-action="mode-map" aria-pressed="'+(S.mode==='map')+'">Mapa</button>'+
-    '<button type="button" data-w17-action="mode-table" aria-pressed="'+(S.mode==='table')+'">Tabla</button>'+
-    '<span class="w20-tools-divider" aria-hidden="true"></span>'+
-    '<select id="w17-basemap" aria-label="Fondo cartográfico"><option value="topo">Relieve</option><option value="street">Calles</option><option value="sat">Satélite</option></select>'+
-    '<button type="button" data-w17-action="fit" title="Ajustar la extensión visible" aria-label="Ajustar mapa">Encuadrar</button>'+
-    '<button type="button" data-w17-action="geojson" title="Exportar registros georreferenciados">GeoJSON ↓</button>'+
-  '</div>';
+ const mapTools=mapToolbar();
  $('w17-content').innerHTML=
   '<section class="w20-primary-area" aria-label="Mapa e inventario territorial">'+
    '<div class="w20-map-titlebar">'+
@@ -289,8 +302,8 @@ function drawRows(rows){
  const geo=['presas','regional'].includes(S.view),withLine=['riego','clima','storage'].includes(S.view);
  let addition='';
  if(geo){
-  addition='<div class="w17-module-card">'+head('Mapa de infraestructura','', '<div class="w17-geo-controls"><button type="button" data-w17-action="mode-map" aria-pressed="'+(S.mode==='map')+'">Mapa</button><button type="button" data-w17-action="mode-table" aria-pressed="'+(S.mode==='table')+'">Tabla</button><select id="w17-basemap"><option value="topo">Topográfico</option><option value="street">Calles (OSM)</option><option value="sat">Satélite</option></select><button type="button" data-w17-action="fit">Encuadrar</button><button type="button" data-w17-action="geojson">GeoJSON ↓</button></div>')+
-  '<div class="w17-map" id="w17-map" '+(S.mode==='table'?'hidden':'')+'></div><div style="padding:10px 14px;color:#738b97;font-size:10px">● Tamaño aproximado por NAMO. Los puntos no representan polígonos de embalse.</div></div>';
+  addition='<div class="w17-module-card">'+head('Mapa de infraestructura','',mapToolbar())+
+  '<div class="w17-map" id="w17-map" '+(S.mode==='table'?'hidden':'')+'></div><div class="w21-map-footnote">Los símbolos identifican ubicaciones aproximadas; no delimitan embalses.</div></div>';
  }else if(withLine){
   let series;
   if(S.view==='storage'){
