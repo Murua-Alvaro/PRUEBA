@@ -7,7 +7,7 @@ var E=function(id){return document.getElementById(id)};
 var esc=function(x){return String(x===null||x===undefined?'—':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var norm=function(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()};
 var fmt=function(v,d){return typeof v==='number'&&Number.isFinite(v)?new Intl.NumberFormat('es-MX',{maximumFractionDigits:d===undefined?1:d}).format(v):String(v===undefined||v===null?'—':v)};
-var d,view='overview',region='Sinaloa',search='',mun='',period='all',geo='all',minCap='',maxCap='',inspectorTab='general',sel=0,page=0,records=[],filtered=[],columns=[],map=null;
+var d,view='overview',region='Sinaloa',search='',mun='',period='all',geo='all',minCap='',maxCap='',inspectorTab='general',sel=0,page=0,records=[],filtered=[],columns=[],map=null,baseLayer=null,baseStyle='claro',mapMarkers=new Map(),mapBounds=null,mapGroup=null,measureMode=false,measurePoints=[],measureLine=null,mapMode='map',mapExpanded=false;
 var LABELS={overview:['Atlas hídrico','Inventario territorial e indicadores documentados'],presas:['Presas y embalses','Inventario de obras con localización geográfica'],regional:['Inventario regional','Composición de infraestructura por entidad'],storage:['Almacenamiento','Cortes observados y series parciales documentadas'],acuiferos:['Acuíferos','Disponibilidad administrativa y claves oficiales'],riego:['Distritos de riego','Volúmenes y superficies en series agrícolas'],cuencas:['Cuencas y estaciones','Cobertura reportada y sus límites de interpretación'],quality:['Calidad del agua','Inventario de sitios de muestreo sin fechas verificadas'],clima:['Clima y balance','Precipitación, evapotranspiración y balance anual'],trend:['Tendencias de riego','Resultados descriptivos de las series disponibles'],catalog:['Catálogo de datos','Inventario de los archivos y su cobertura'],sources:['Metodología y fuentes','Alcances, cautelas y trazabilidad']};
 var COL={presa:[['nombre','Presa'],['municipio','Municipio'],['estado','Entidad'],['namo','NAMO · hm³'],['clave','Clave']],acuifero:[['nombre','Acuífero'],['clave','Clave'],['recarga','Recarga · hm³/año'],['extraccion','Extracción reportada · hm³/año'],['bandera','Indicador de déficit']],riego:[['year','Ciclo'],['estado','Entidad'],['agua','Volumen · hm³'],['superficie','Superficie registrada'],['complemento','Variable de origen']],clima:[['year','Año'],['estado','Entidad'],['lluvia','Precipitación · mm'],['et0','ET₀ · mm'],['balance','Balance · mm']],storage:[['fecha','Fecha'],['clave','Serie / presa'],['volumen','Volumen · hm³'],['dato','Dato complementario']],quality:[['nombre','Sitio'],['clave','Clave'],['estado','Entidad'],['muestras','Filas de origen'],['fechadas','Filas con fecha'],['ph','pH medio']],trend:[['nombre','Distrito'],['clave','Clave'],['observaciones','Observaciones'],['slope','Estimación'],['significance','Clasificación']],catalog:[['estado','Entidad'],['nombre','Conjunto'],['cantidad','Registros declarados'],['inicio','Inicio'],['fin','Fin'],['tipo','Tipo']],cuencas:[['estado','Entidad'],['nombre','Conjunto'],['cantidad','Registros declarados'],['inicio','Inicio'],['fin','Fin']]};
 function same(a,b){return norm(a)===norm(b)}
@@ -75,16 +75,34 @@ var m=allP.reduce(function(s,x){return s+(Number.isFinite(x.namo)?x.namo:0)},0);
 return '<div class="v22-metrics">'+metric('Presas localizadas',fmt(allP.length,0),'Del inventario V9 · no universo nacional')+metric('Capacidad NAMO agregada',fmt(m,1)+' hm³','Capacidad de diseño, no volumen actual')+metric('Acuíferos registrados',fmt(allA.length,0),'Cobertura de la edición integrada')+metric('Ciclos / años',fmt(allR.length,0)+' / '+fmt(allC.length,0),'Riego / clima con observaciones')+'</div>';
 }
 function table(){
-if(!filtered.length)return clean();
+if(!filtered.length)return '<div id="v22-table-results">'+clean()+'</div>';
 var start=page*18,end=Math.min(filtered.length,start+18);
 var rows=filtered.slice(start,end);
-return '<div class="v22-table-wrap"><table class="v22-table"><thead><tr>'+columns.map(function(c){return '<th scope="col">'+esc(c[1])+'</th>'}).join('')+'</tr></thead><tbody>'+rows.map(function(row,i){var index=start+i;return '<tr data-v22-index="'+index+'" class="'+(index===sel?'v22-selected':'')+'" tabindex="0" title="Abrir expediente">'+columns.map(function(c){var v=row[c[0]];return '<td>'+esc(typeof v==='number'?fmt(v,c[0]==='namo'||c[0]==='agua'?1:2):v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>'+
-'<div class="v22-pager"><span>'+fmt(start+1,0)+'–'+fmt(end,0)+' de '+fmt(filtered.length,0)+' registros · máximo 18 por página</span><div><button type="button" data-v22-page="-1" '+(page===0?'disabled':'')+'>← Anterior</button> <button type="button" data-v22-page="1" '+(end===filtered.length?'disabled':'')+'>Siguiente →</button></div></div>';
+return '<div id="v22-table-results"><div class="v22-table-wrap"><table class="v22-table"><thead><tr>'+columns.map(function(c){return '<th scope="col">'+esc(c[1])+'</th>'}).join('')+'</tr></thead><tbody>'+
+rows.map(function(row,i){var index=start+i;return '<tr data-v22-index="'+index+'" class="'+(index===sel?'v22-selected':'')+'" tabindex="0" title="Abrir expediente">'+columns.map(function(c){var v=row[c[0]];return '<td>'+esc(typeof v==='number'?fmt(v,c[0]==='namo'||c[0]==='agua'?1:2):v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>'+
+'<div class="v22-pager"><span>'+fmt(start+1,0)+'–'+fmt(end,0)+' de '+fmt(filtered.length,0)+' registros · máximo 18 por página</span><div><button type="button" data-v22-page="-1" '+(page===0?'disabled':'')+'>← Anterior</button> <button type="button" data-v22-page="1" '+(end===filtered.length?'disabled':'')+'>Siguiente →</button></div></div></div>';
 }
 function mapBlock(){
 var pts=filtered.filter(function(x){return Number.isFinite(x.lat)&&Number.isFinite(x.lon)});
-return '<div class="v22-map-grid"><div class="v22-map-wrap"><div class="v22-map-top"><span>GROWA · CARTOGRAFÍA</span><span>Inventario documentado</span></div><div id="v22-map" class="v22-map" role="application" aria-label="Mapa de presas"></div></div>'+
-'<aside class="v22-map-info"><h3>Selección territorial</h3><p>Los puntos representan coordenadas de presas, no polígonos de embalse. Seleccione un registro para consultar el expediente.</p><div class="v22-map-register">'+pts.slice(0,12).map(function(x){return '<button type="button" data-v22-marker="'+filtered.indexOf(x)+'">'+esc(x.nombre)+'<small>'+esc(x.municipio)+' · '+fmt(x.namo,1)+' hm³ NAMO</small></button>'}).join('')+'</div><p>'+fmt(pts.length,0)+' ubicaciones dentro de la selección. Cartografía © OpenStreetMap.</p></aside></div>';
+var toolbar='<div class="v22-map-toolbar" role="toolbar" aria-label="Herramientas cartográficas">'+
+'<div class="v22-map-mode"><button type="button" data-v22-mode="map" aria-pressed="'+(mapMode==='map')+'">Mapa</button><button type="button" data-v22-mode="table" aria-pressed="'+(mapMode==='table')+'">Tabla</button></div>'+
+'<div class="v22-map-actions"><label class="v22-map-select">Cartografía <select id="v22-basemap" aria-label="Cambiar mapa base"><option value="claro"'+(baseStyle==='claro'?' selected':'')+'>Calles</option><option value="topografico"'+(baseStyle==='topografico'?' selected':'')+'>Topográfico</option><option value="satelite"'+(baseStyle==='satelite'?' selected':'')+'>Satélite</option></select></label>'+
+'<button type="button" data-v22-action="layers" aria-expanded="false" aria-controls="v22-layers-panel">Capas ▾</button>'+
+'<button type="button" data-v22-action="measure" aria-pressed="'+measureMode+'">Medir</button>'+
+'<button type="button" data-v22-action="center">Centrar</button>'+
+'<button type="button" data-v22-action="expand" aria-pressed="'+mapExpanded+'">Expandir</button>'+
+'<button type="button" data-v22-action="share">Compartir</button>'+
+'<button type="button" data-v22-action="geojson">GeoJSON ↓</button></div></div>'+
+'<div id="v22-layers-panel" class="v22-layers-panel" hidden><label><input type="checkbox" id="v22-layer-dams" checked> Ubicaciones de presas</label><small>Solo puntos con coordenadas en el inventario. No se muestran superficies ni polígonos de embalse.</small></div>';
+if(mapMode==='table')return toolbar+table();
+return toolbar+'<div class="v22-map-grid"><div class="v22-map-wrap"><div class="v22-map-top"><span>CARTOGRAFÍA · INVENTARIO DOCUMENTADO</span></div>'+
+'<div id="v22-map" class="v22-map" role="application" aria-label="Mapa de presas"></div>'+
+'<button id="v22-exit-map" type="button" class="v22-map-exit" data-v22-action="expand" hidden>Cerrar vista ampliada ×</button>'+
+'<div id="v22-map-status" class="v22-map-status" role="status" hidden></div>'+
+'<div id="v22-measure-readout" class="v22-measure-readout" role="status"'+(measureMode?'':' hidden')+'>Haga clic en dos puntos del mapa para medir distancia.</div></div>'+
+'<aside class="v22-map-info"><h3>Selección territorial</h3><p>Ubicaciones georreferenciadas de presas. Seleccione un punto para consultar su expediente técnico.</p><div class="v22-map-register">'+
+pts.slice(0,12).map(function(x){var index=filtered.indexOf(x);return '<button type="button" data-v22-marker="'+index+'" class="'+(index===sel?'v22-selected':'')+'">'+esc(x.nombre)+'<small>'+esc(x.municipio)+' · '+fmt(x.namo,1)+' hm³ NAMO</small></button>'}).join('')+'</div>'+
+'<p><strong>'+fmt(pts.length,0)+'</strong> ubicaciones visibles de <strong>'+fmt(damRows().filter(function(x){return stateOK(x.estado)}).length,0)+'</strong> del estado elegido. NAMO no representa el almacenamiento actual.</p></aside></div>';
 }
 function bars(rows,key,label){
 var sorted=rows.filter(function(x){return typeof x[key]==='number'&&Number.isFinite(x[key])}).slice().sort(function(a,b){return Number(a.year||0)-Number(b.year||0)}).slice(-16);
@@ -117,13 +135,21 @@ if(view==='riego')h+=bars(filtered,'agua','Volumen distribuido por ciclo · hm³
 if(view==='clima')h+=bars(filtered,'lluvia','Precipitación anual · mm');
 if(view==='storage')h+='<div class="v22-kicker">FECHAS Y CORTES DE MEDICIÓN</div>';
 if(view==='sources')h+=narrative();
-else {h+='<div class="v22-data-band"><div><h3>'+esc(view==='overview'?'Registros de infraestructura':desc[0])+'</h3><span>Haga clic en cualquier fila para abrir su expediente técnico</span></div><button class="w17-btn" type="button" data-w17-action="export">↓ Descargar CSV</button></div>'+table()+narrative();}
+else {h+='<div class="v22-data-band"><div><h3>'+esc(view==='overview'?'Registros de infraestructura':desc[0])+'</h3><span>Haga clic en cualquier fila para abrir su expediente técnico</span></div><button class="w17-btn" type="button" data-w17-action="export">↓ Descargar CSV</button></div>'+(isMap&&mapMode==='table'?'':table())+narrative();}
 E('w17-content').innerHTML=h;
 updateInspector();
-if(isMap){if(!root.hidden)drawMap();}
-else if(map){map.remove();map=null}
+if(isMap&&mapMode==='map'){if(!root.hidden)drawMap();}
+else if(map){map.remove();map=null;baseLayer=null;mapMarkers.clear();}
 }
-function selectRow(index){if(index<0||index>=filtered.length)return;sel=index;page=Math.floor(index/18);renderContent()}
+function selectRow(index,fromMap){
+if(index<0||index>=filtered.length)return;
+var oldPage=page;sel=index;page=Math.floor(index/18);
+updateInspector();
+if(oldPage!==page){root.querySelectorAll('#v22-table-results').forEach(function(el){el.outerHTML=table()})}
+else{root.querySelectorAll('tr[data-v22-index]').forEach(function(el){el.classList.toggle('v22-selected',Number(el.dataset.v22Index)===sel)})}
+root.querySelectorAll('[data-v22-marker]').forEach(function(el){el.classList.toggle('v22-selected',Number(el.dataset.v22Marker)===sel)});
+highlightMarker(index,!fromMap);
+}
 function detailsValues(){
 var x=filtered[sel];if(!x){E('w17-detail-body').innerHTML='<p class="w17-detail-empty">Sin registro seleccionado. Modifique los filtros o seleccione una fila de la tabla.</p>';return;}
 var pairs=[],title=x.nombre||x.clave||x.estado||'Registro';
@@ -135,28 +161,89 @@ if(inspectorTab==='source')pairs=[['Fuente',x.fuente],['Versión de base',d.vers
 E('w17-detail-body').innerHTML='<h3 class="v22-detail-title">'+esc(title)+'</h3><div class="v22-detail-meta">'+esc(x.tipo.toUpperCase())+' · REGISTRO '+esc(sel+1)+' DE '+esc(filtered.length)+'</div><dl class="v22-dl">'+pairs.map(function(p){return '<div><dt>'+esc(p[0])+'</dt><dd>'+esc(typeof p[1]==='number'?fmt(p[1],4):p[1])+'</dd></div>'}).join('')+'</dl>';
 }
 function updateInspector(){root.querySelectorAll('[data-w21-tab]').forEach(function(b){b.setAttribute('aria-selected',b.dataset.w21Tab===inspectorTab?'true':'false')});detailsValues()}
+function highlightMarker(index,pan){
+mapMarkers.forEach(function(marker,i){
+marker.setStyle({fillColor:i===index?'#173d52':'#4b6978',color:i===index?'#101f2a':'#fff',weight:i===index?2.6:1.4,fillOpacity:i===index?1:.83});
+if(i===index){marker.bringToFront();if(pan&&map)map.panTo(marker.getLatLng(),{animate:true,duration:.3});}
+});
+}
+function basemap(kind){
+if(!map||!window.L)return;
+var definitions={
+claro:['https://tile.openstreetmap.org/{z}/{x}/{y}.png','© OpenStreetMap contributors',19],
+topografico:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}','Tiles © Esri, HERE, Garmin, USGS',18],
+satelite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','Imagery © Esri, Maxar, Earthstar Geographics',18]
+};
+kind=definitions[kind]?kind:'claro';
+if(baseLayer){map.removeLayer(baseLayer);baseLayer=null}
+baseStyle=kind;var spec=definitions[kind],errors=0;
+baseLayer=L.tileLayer(spec[0],{attribution:spec[1],maxZoom:spec[2],crossOrigin:true,updateWhenIdle:true}).addTo(map);
+baseLayer.bringToBack();
+var status=E('v22-map-status');if(status)status.hidden=true;
+var current=baseLayer;
+current.on('tileerror',function(){
+if(current!==baseLayer)return;
+errors++;
+if(errors<3)return;
+if(kind!=='claro'){toast('El mapa alternativo no respondió. Cambiando a OpenStreetMap.');basemap('claro');var sel=E('v22-basemap');if(sel)sel.value='claro'}
+else if(status){status.textContent='No se pudo cargar la cartografía externa. Los puntos están disponibles en la tabla y en GeoJSON.';status.hidden=false}
+});
+}
 function drawMap(){
 var mount=E('v22-map');if(!mount)return;
-if(map){map.remove();map=null}
-var pts=filtered.filter(function(x){return Number.isFinite(x.lat)&&Number.isFinite(x.lon)});
-if(!window.L){mount.innerHTML='<div class="v22-map-placeholder">No se pudo cargar la base cartográfica externa. Los registros siguen disponibles en la tabla y en las descargas.</div>';return;}
-if(!pts.length){mount.innerHTML='<div class="v22-map-placeholder">No hay coordenadas válidas para la selección actual. Seleccione otra entidad o retire filtros.</div>';return;}
+if(map){map.remove();map=null;baseLayer=null;mapMarkers.clear()}
+var pts=filtered.filter(function(x){return Number.isFinite(x.lat)&&Number.isFinite(x.lon)&&Math.abs(x.lat)<=90&&Math.abs(x.lon)<=180});
+if(!window.L){mount.innerHTML='<div class="v22-map-placeholder">No se pudo cargar la biblioteca cartográfica. Las fichas y los registros siguen disponibles en tabla y CSV.</div>';return}
+if(!pts.length){mount.innerHTML='<div class="v22-map-placeholder">No existen coordenadas válidas para esta selección. Retire filtros o elija otra entidad.</div>';return}
 try{
-map=L.map(mount,{zoomControl:false,attributionControl:true,scrollWheelZoom:false});
+map=L.map(mount,{zoomControl:false,attributionControl:true,scrollWheelZoom:false,preferCanvas:true});
 L.control.zoom({position:'bottomright'}).addTo(map);
-var tiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:18,attribution:'© OpenStreetMap · CARTO'}).addTo(map);
-tiles.on('tileerror',function(){mount.classList.add('v22-tiles-fallback')});
-var group=L.featureGroup();
+basemap(baseStyle);
+mapGroup=L.featureGroup();mapMarkers.clear();
 pts.forEach(function(x){
-var idx=filtered.indexOf(x),circle=L.circleMarker([x.lat,x.lon],{radius:Math.max(5,Math.min(14,5+Math.sqrt(Math.max(0,x.namo||0))/9)),color:'#fff',weight:1.4,fillColor:'#345c70',fillOpacity:.86});
+var idx=filtered.indexOf(x),circle=L.circleMarker([x.lat,x.lon],{radius:Math.max(5,Math.min(14,5+Math.sqrt(Math.max(0,x.namo||0))/9)),color:'#fff',weight:1.4,fillColor:'#4b6978',fillOpacity:.83,bubblingMouseEvents:false});
 circle.bindPopup('<strong>'+esc(x.nombre)+'</strong><br>'+esc(x.municipio)+' · '+esc(x.estado)+'<br>NAMO: '+esc(fmt(x.namo,1))+' hm³');
-circle.on('click',function(){selectRow(idx)});
-group.addLayer(circle);
+circle.on('click',function(){selectRow(idx,true)});
+mapMarkers.set(idx,circle);mapGroup.addLayer(circle);
 });
-group.addTo(map);map.fitBounds(group.getBounds().pad(.17),{maxZoom:9,padding:[20,20]});
+mapGroup.addTo(map);mapBounds=mapGroup.getBounds();
+map.fitBounds(mapBounds.pad(.17),{maxZoom:9,padding:[20,20]});
+highlightMarker(sel,false);
+map.on('click',function(ev){
+if(!measureMode)return;
+if(measurePoints.length>=2)measurePoints=[];
+measurePoints.push(ev.latlng);
+if(measureLine){map.removeLayer(measureLine);measureLine=null}
+if(measurePoints.length===2){
+measureLine=L.polyline(measurePoints,{color:'#8d5033',weight:3,dashArray:'7,5',interactive:false}).addTo(map);
+var km=measurePoints[0].distanceTo(measurePoints[1])/1000;
+E('v22-measure-readout').textContent='Distancia aproximada entre puntos: '+fmt(km,2)+' km · clic para medir otra vez';
+}else{E('v22-measure-readout').textContent='Origen fijado. Seleccione un segundo punto.'}
+});
 setTimeout(function(){if(map)map.invalidateSize()},120);
-}catch(err){mount.innerHTML='<div class="v22-map-placeholder">El mapa no pudo iniciarse. Consulte las ubicaciones verificadas en la tabla.</div>';console.error(err)}
+}catch(err){mount.innerHTML='<div class="v22-map-placeholder">No fue posible iniciar el mapa. Los registros continúan en la tabla.</div>';console.error('GROWA mapa:',err)}
 }
+function downloadData(name,mime,body){
+var u=URL.createObjectURL(new Blob([body],{type:mime})),a=document.createElement('a');
+a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+setTimeout(function(){URL.revokeObjectURL(u)},1500);
+}
+function downloadGeoJSON(){
+var pts=filtered.filter(function(x){return Number.isFinite(x.lat)&&Number.isFinite(x.lon)&&Math.abs(x.lat)<=90&&Math.abs(x.lon)<=180});
+if(!pts.length){toast('No hay coordenadas válidas en la selección');return}
+var geojson={type:'FeatureCollection',name:'GROWA Agua · Inventario de presas',properties:{corte:d.corte,version:d.version,advertencia:'Las ubicaciones representan puntos, no polígonos ni volumen actual.'},features:pts.map(function(x){return {type:'Feature',geometry:{type:'Point',coordinates:[x.lon,x.lat]},properties:{clave:x.clave,nombre:x.nombre,municipio:x.municipio,estado:x.estado,namo_hm3:Number.isFinite(x.namo)?x.namo:null,fuente:x.fuente}}})};
+downloadData('GROWA_presas_'+region+'.geojson','application/geo+json;charset=utf-8',JSON.stringify(geojson,null,2));
+toast('GeoJSON exportado: '+pts.length+' ubicaciones');
+}
+function shareMap(){
+var u=new URL(location.href);u.hash='agua';u.searchParams.set('aguaEstado',region);u.searchParams.set('aguaVista',view);
+if(search)u.searchParams.set('aguaQuery',search);else u.searchParams.delete('aguaQuery');
+if(mun)u.searchParams.set('aguaMunicipio',mun);else u.searchParams.delete('aguaMunicipio');
+if(period!=='all')u.searchParams.set('aguaPeriodo',period);else u.searchParams.delete('aguaPeriodo');
+if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u.href).then(function(){toast('Enlace de consulta copiado')}).catch(function(){window.prompt('Copie el enlace:',u.href)})}
+else window.prompt('Copie el enlace:',u.href);
+}
+
 function toast(s){var el=E('w17-toast');el.textContent=s;el.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(function(){el.hidden=true},3000)}
 function csv(){
 if(!filtered.length){toast('No hay datos que exportar');return}
@@ -167,11 +254,23 @@ toast('Descarga CSV generada con '+filtered.length+' registros');
 }
 function repaint(resetSelection){if(resetSelection){sel=0;page=0}filters();renderContent()}
 root.addEventListener('click',function(ev){
+var mode=ev.target.closest('[data-v22-mode]');
+if(mode){if(mapMode!==mode.dataset.v22Mode){mapMode=mode.dataset.v22Mode;renderContent()}return}
+var cart=ev.target.closest('[data-v22-action]');
+if(cart){
+var action=cart.dataset.v22Action;
+if(action==='layers'){var panel=E('v22-layers-panel');panel.hidden=!panel.hidden;cart.setAttribute('aria-expanded',panel.hidden?'false':'true');return}
+if(action==='measure'){measureMode=!measureMode;measurePoints=[];if(map&&measureLine){map.removeLayer(measureLine);measureLine=null}cart.setAttribute('aria-pressed',String(measureMode));var r=E('v22-measure-readout');if(r){r.hidden=!measureMode;r.textContent='Haga clic en dos puntos del mapa para medir distancia.'}toast(measureMode?'Medición activada: seleccione dos puntos':'Medición desactivada');return}
+if(action==='center'){if(map&&mapBounds)map.fitBounds(mapBounds.pad(.17),{maxZoom:9,padding:[20,20]});return}
+if(action==='expand'){mapExpanded=!mapExpanded;var wrap=E('v22-map')?.parentElement;if(wrap)wrap.classList.toggle('v22-map-expanded',mapExpanded);var exit=E('v22-exit-map');if(exit)exit.hidden=!mapExpanded;root.querySelectorAll('[data-v22-action="expand"]').forEach(function(b){b.setAttribute('aria-pressed',String(mapExpanded))});if(map)setTimeout(function(){map.invalidateSize()},120);return}
+if(action==='share'){shareMap();return}
+if(action==='geojson'){downloadGeoJSON();return}
+}
 var group=ev.target.closest('[data-w21-group]');if(group){var open=group.getAttribute('aria-expanded')==='true';group.setAttribute('aria-expanded',open?'false':'true');var el=E('w21-group-'+group.dataset.w21Group);if(el)el.hidden=open;return;}
 var nav=ev.target.closest('[data-w17-view]');if(nav){view=nav.dataset.w17View;search='';mun='';period='all';geo='all';minCap='';maxCap='';E('w17-search').value='';E('w21-geo').value='all';E('w21-cap-min').value='';E('w21-cap-max').value='';repaint(true);return;}
 var row=ev.target.closest('[data-v22-index]');if(row){selectRow(Number(row.dataset.v22Index));return;}
 var marker=ev.target.closest('[data-v22-marker]');if(marker){selectRow(Number(marker.dataset.v22Marker));return;}
-var pager=ev.target.closest('[data-v22-page]');if(pager){page=Math.max(0,Math.min(Math.ceil(filtered.length/18)-1,page+Number(pager.dataset.v22Page)));renderContent();return;}
+var pager=ev.target.closest('[data-v22-page]');if(pager){page=Math.max(0,Math.min(Math.ceil(filtered.length/18)-1,page+Number(pager.dataset.v22Page)));root.querySelectorAll('#v22-table-results').forEach(function(el){el.outerHTML=table()});return;}
 var tab=ev.target.closest('[data-w21-tab]');if(tab){inspectorTab=tab.dataset.w21Tab;updateInspector();return;}
 var action=ev.target.closest('[data-w17-action]');if(!action)return;
 switch(action.dataset.w17Action){
@@ -189,6 +288,8 @@ case 'next':if(filtered.length)selectRow((sel+1)%filtered.length);break;
 });
 root.addEventListener('keydown',function(ev){var tr=ev.target.closest('[data-v22-index]');if(tr&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();selectRow(Number(tr.dataset.v22Index))}});
 root.addEventListener('change',function(ev){
+if(ev.target.id==='v22-basemap'){basemap(ev.target.value);return}
+if(ev.target.id==='v22-layer-dams'&&map&&mapGroup){if(ev.target.checked)mapGroup.addTo(map);else map.removeLayer(mapGroup);return}
 if(ev.target.id==='w17-state'){region=ev.target.value;mun='';repaint(true)}
 if(ev.target.id==='w17-period'){period=ev.target.value;repaint(true)}
 if(ev.target.id==='w17-filter'){mun=ev.target.value;repaint(true)}
@@ -205,9 +306,16 @@ if(!d||!Array.isArray(d.presas)||!Array.isArray(d.acuiferos))throw Error('Base d
 var st=E('w17-state');st.innerHTML='<option value="all">Todas las entidades</option>'+d.estados.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');
 var p=new URLSearchParams(location.search),valid=d.estados.some(function(x){return x===p.get('aguaEstado')});region=valid?p.get('aguaEstado'):'Sinaloa';st.value=region;
 if(LABELS[p.get('aguaVista')])view=p.get('aguaVista');
+search=String(p.get('aguaQuery')||'').slice(0,100);mun=String(p.get('aguaMunicipio')||'').slice(0,100);
+period=/^(19|20)\d{2}$/.test(p.get('aguaPeriodo')||'')?p.get('aguaPeriodo'):'all';
+E('w17-search').value=search;
+var counts={presas:d.presas.length,quality:d.calidad.length,storage:new Set(d.sinaloa.concat(d.jalisco,d.sistemas).map(function(x){return x[0]})).size,catalog:Object.keys(d).filter(function(k){return Array.isArray(d[k])&&k!=='estados'}).length};
+Object.keys(counts).forEach(function(k){var n=root.querySelector('[data-w17-view="'+k+'"] small');if(n)n.textContent=new Intl.NumberFormat('es-MX').format(counts[k]);});
+var units=root.querySelector('[data-w17-view="quality"]');if(units)units.title='Sitios resumidos en la base integrada; no número de muestras';
 filters();renderContent();
 }catch(e){E('w17-content').innerHTML='<div class="v22-error">No fue posible leer la base integrada. '+esc(e.message)+'</div>';console.error('GROWA Agua V22',e)}
 }
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&mapExpanded){mapExpanded=false;var el=E('v22-map')?.parentElement;if(el)el.classList.remove('v22-map-expanded');var exit=E('v22-exit-map');if(exit)exit.hidden=true;if(map)setTimeout(function(){map.invalidateSize()},100)}});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 var mo=new MutationObserver(function(){if(!root.hidden&&E('v22-map')){if(!map)drawMap();else setTimeout(function(){if(map)map.invalidateSize()},80)}});mo.observe(root,{attributes:true,attributeFilter:['hidden']});
 })();
