@@ -1,0 +1,32 @@
+name: Auditoría de bases hídricas V16
+on:
+  push:
+    branches: [main]
+    paths:
+      - "dist/agua/**"
+      - "agua-workspace-v14.js"
+      - "agua-workspace-v14.html"
+      - "agua-workspace-v14.css"
+      - "index.html"
+      - "tests/agua*.cjs"
+      - ".github/workflows/auditoria-agua.yml"
+  pull_request:
+    paths:
+      - "dist/agua/**"
+      - "agua-workspace-v14.js"
+      - "agua-workspace-v14.html"
+      - "agua-workspace-v14.css"
+      - "index.html"
+      - "tests/agua*.cjs"
+jobs:
+  verify-water-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validación del módulo original y sus datos
+        run: node tests/agua-integracion.test.cjs
+      - name: Validación de datasets completos V16
+        run: node tests/agua-v16.test.cjs
