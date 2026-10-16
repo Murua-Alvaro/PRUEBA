@@ -25,7 +25,15 @@ assert.equal(moduleHtml.split('data-w17-view="').length-1,12);
 assert.ok(editorial.includes('background-image:none!important'));
 assert.ok(editorial.includes('.w17-table tbody tr[aria-selected="true"]'));
 assert.ok(editorial.includes('.w17-detail.w17-detail-visible'));
-assert.ok(script.includes('w18-directory-heading'));
+const atlas=read('dist/agua/atlas-v19.css');
+assert.ok(html.includes('/agua/atlas-v19.css?v=19.1'));
+assert.ok(script.includes('w19-work-area'));
+assert.ok(script.includes("S.view==='overview')return D.presas"));
+assert.ok(atlas.includes('.w19-overview-map'));
+assert.ok(atlas.includes('.w19-results-grid'));
+assert.ok(atlas.includes('.w19-map-wrap[hidden]'));
+assert.ok(moduleHtml.includes('w19-suite'));
+assert.ok(moduleHtml.includes('w19-nav-number'));
 assert.equal(dams.rows.length,210);
 assert.equal(quality.rows.length,6095);
 assert.equal(monthly.rows.length,1018);
@@ -71,6 +79,18 @@ async function run(){
   assert.ok(el('w17-content').innerHTML.length>500,'empty view '+view);
   assert.doesNotMatch(el('w17-content').innerHTML,/Error al consultar datos/,'failed data '+view);
  }
+ api.navigate('overview');await flush();
+ assert.equal(api.snapshot().visible,11,'Sinaloa regional atlas shows 11 catalogued dams');
+ assert.match(el('w17-content').innerHTML,/w19-work-area/);
+ assert.match(el('w17-content').innerHTML,/w19-overview-map/);
+ events.change({target:{id:'w17-state',value:'Todos'}});await flush();
+ assert.equal(api.snapshot().visible,75,'Five state regional catalog includes 75 dams');
+ events.change({target:{id:'w17-state',value:'Sinaloa'}});await flush();
+ assert.equal(api.snapshot().visible,11);
+ events.change({target:{id:'w17-filter',value:'El Fuerte'}});await flush();
+ assert.ok(api.snapshot().visible>0&&api.snapshot().visible<11);
+ events.click({target:{closest(sel){return sel==='[data-w17-action]'?{dataset:{w17Action:'reset'}}:null}},preventDefault(){}});
+ await flush();assert.equal(api.snapshot().visible,11);
  api.navigate('presas');await flush();assert.equal(api.snapshot().visible,210);
  api.navigate('quality');await flush();assert.equal(api.snapshot().visible,6095);
  api.navigate('storage');await flush();assert.equal(api.snapshot().visible,125,'Sinaloa has 99 system rows and 26 individual cuts');
@@ -80,6 +100,6 @@ async function run(){
  events.click({target:{closest(sel){return sel==='[data-w17-view]'?{dataset:{w17View:'acuiferos'}}:null}},preventDefault(){}});
  await flush();assert.equal(api.snapshot().view,'acuiferos');
  assert.ok(el('w17-detail-body').innerHTML.length>100);
- console.log('PASS GROWA Agua Studio V17: 12 views, 210 dams, 6095 quality, 30652 daily, 1018 monthly, filters, navigation and detail');
+ console.log('PASS GROWA Agua Atlas V19: 12 views, 210 dams, 6095 quality, 30652 daily, 1018 monthly, filters, navigation and detail');
 }
 run().catch(e=>{console.error(e);process.exitCode=1});
