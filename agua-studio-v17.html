@@ -1,13 +1,22 @@
 <section id="panel-agua" class="section-panel w17-root" hidden aria-label="GROWA · Centro de datos hídricos">
   <div class="w17-shell">
     <header class="w17-global">
-      <div class="w17-identity"><span class="w17-identity-rule" aria-hidden="true"></span><div><small>GROWA <span aria-hidden="true">/</span> OBSERVATORIO DE INTELIGENCIA TERRITORIAL</small><strong>Agua <em>Centro de datos hídricos</em></strong></div></div>
-      <div class="w17-global-middle"><span class="w17-status-light"></span> Archivo documental <span class="w17-global-sep">/</span> Edición 2026</div>
-      <div class="w17-actions"><button type="button" class="w17-btn w17-quiet" data-w17-action="source">Fuentes <span aria-hidden="true">↗</span></button><button type="button" class="w17-btn w17-quiet" data-w17-action="guide">Ayuda <span aria-hidden="true">ⓘ</span></button><button type="button" class="w17-btn w17-quiet" data-w17-action="detail-toggle" aria-label="Mostrar u ocultar inspector">Inspector <span aria-hidden="true">▤</span></button><button type="button" class="w17-btn w17-primary" data-w17-action="export">Exportar <span aria-hidden="true">↓</span></button></div>
+      <div class="w17-identity">
+        <span class="w19-suite">GROWA <span>/</span> AGUA</span>
+        <span class="w19-suite-separator"></span>
+        <span class="w19-suite-caption">Explorador territorial</span>
+      </div>
+      <div class="w17-global-middle"><span class="w19-meta-dash"></span> Centro de datos hídricos <span class="w17-global-sep">·</span> Archivo 1996–2026</div>
+      <div class="w17-actions">
+        <button type="button" class="w17-btn w17-quiet" data-w17-action="source">Metodología</button>
+        <button type="button" class="w17-btn w17-quiet" data-w17-action="guide">Ayuda</button>
+        <button type="button" class="w17-btn w17-quiet" data-w17-action="detail-toggle">Inspector</button>
+        <button type="button" class="w17-btn w17-primary" data-w17-action="export">Exportar datos <span aria-hidden="true">↗</span></button>
+      </div>
     </header>
     <div class="w17-workspace">
-      <aside class="w17-navigation" aria-label="Navegación hidrológica">
-        <div class="w17-nav-caption">EXPLORAR</div>
+      <aside class="w17-navigation" aria-label="Capas y bases hídricas">
+        <div class="w17-nav-caption"><span>Explorador</span><span class="w19-nav-number">12 bases y módulos</span></div>
         <nav class="w17-nav" aria-label="Conjuntos de datos">
           <button type="button" data-w17-view="overview" aria-current="page"><span class="w17-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span> Panorama</button>
           <span class="w17-group-label">INFRAESTRUCTURA</span>
@@ -26,12 +35,12 @@
           <button type="button" data-w17-view="catalog"><span class="w17-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round" stroke-linecap="round"><path d="M3 4h18v16H3z"/><path d="M3 10h18M10 4v16"/><path d="M14 14h4m-4 3h4"/></svg></span> Catálogo de datos <small>13 bases</small></button>
           <button type="button" data-w17-view="sources"><span class="w17-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/></svg></span> Metodología y fuentes</button>
         </nav>
-        <div class="w17-nav-foot"><span class="w17-status-light"></span><span>GROWA / EDICIÓN 2026<br><small>Cada dato conserva su procedencia.</small></span></div>
+        <div class="w17-nav-foot"><span class="w19-foot-label">GROWA / ARCHIVO ABIERTO</span><span>Edición 2026 · Datos históricos<br><small>Las bases no constituyen telemetría en vivo.</small></span></div>
       </aside>
       <main class="w17-main" id="w17-main">
         <div class="w17-head">
-          <div class="w17-crumb"><span>OBSERVATORIO</span><span>/</span><span>AGUA</span><span>/</span><strong id="w17-crumb-view">VISTA GENERAL</strong></div>
-          <div class="w17-title-row"><div><h1 id="w17-title">Inteligencia hídrica territorial</h1><p id="w17-subtitle">Inventarios, mediciones y series históricas disponibles en un solo lugar.</p></div><span class="w17-head-stamp" id="w17-scope">FUENTES SECUNDARIAS / SERIES DOCUMENTALES</span></div>
+          <div class="w17-crumb"><span>EXPLORADOR</span><span class="w19-crumb-div">/</span><strong id="w17-crumb-view">VISTA GENERAL</strong></div>
+          <div class="w17-title-row"><div><h1 id="w17-title">Inteligencia hídrica territorial</h1><p id="w17-subtitle">Inventarios, mediciones y series históricas disponibles en un solo lugar.</p></div><span class="w17-head-stamp" id="w17-scope">DATOS HISTÓRICOS</span></div>
         </div>
         <div class="w17-toolbar" id="w17-toolbar">
           <div class="w17-search-area"><label for="w17-search">Buscar en los registros</label><div class="w17-search-control"><span aria-hidden="true">⌕</span><input id="w17-search" type="search" placeholder="Clave, presa, municipio, estación o variable…" autocomplete="off" aria-label="Buscar registros"></div></div>
@@ -44,7 +53,7 @@
         <div class="w17-content" id="w17-content" aria-live="polite"><div class="w17-loading"><span class="w17-spinner"></span> Preparando las bases de datos…</div></div>
       </main>
       <aside class="w17-detail" aria-label="Ficha técnica del registro" id="w17-detail">
-        <div class="w17-detail-header"><div><span>REGISTRO SELECCIONADO</span><strong>Ficha técnica</strong></div><button type="button" data-w17-action="detail-toggle" aria-label="Ocultar o mostrar ficha" title="Ocultar / mostrar">×</button></div>
+        <div class="w17-detail-header"><div><span>CONSULTA / EXPEDIENTE</span><strong>Detalle del registro</strong></div><button type="button" data-w17-action="detail-toggle" aria-label="Ocultar o mostrar ficha" title="Ocultar / mostrar">×</button></div>
         <div id="w17-detail-body"><p class="w17-detail-empty">Seleccione una fila, punto del mapa o registro para consultar las variables originales.</p></div>
         <div class="w17-detail-footer"><span>Las cifras corresponden a la fuente y al periodo de cada conjunto.</span><button type="button" data-w17-action="next">Siguiente registro →</button></div>
       </aside>
