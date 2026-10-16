@@ -8,10 +8,10 @@ overview:['Atlas hídrico','Infraestructura georreferenciada, capas y series del
 };
 const SOURCES=[['Presas nacionales','210 registros secundarios; 19 variables','https://docs.google.com/spreadsheets/d/1Rx0y0_N2sCsPzyfYeJGvnlv2wqtUF6cxHYQ_Kwz34t4/edit','presas'],['Calidad Sinaloa','6,095 observaciones sin fecha validada','https://docs.google.com/spreadsheets/d/1CHNtrXaFUjd1m1_F-83-J1iVoNtyCFZhxmPSaXctWtQ/edit','quality'],['Jalisco diario','30,652 registros de tres presas (1996–2024)','https://docs.google.com/spreadsheets/d/1q0dzyO6Iwy2ojObAFpOPcafaPL7P0oEKjM68umG1WnY/edit','storage'],['Jalisco mensual','1,018 agregados mensuales','https://docs.google.com/spreadsheets/d/15GjNsCaJUGWZg-jbSMs-b1eO8Xxi6w_6B4UmmPUJqKw/edit','storage'],['SIH CONAGUA','Sistema oficial de Información Hidrológica','https://sih.conagua.gob.mx/','sources'],['NASA POWER','Datos meteorológicos históricos','https://power.larc.nasa.gov/','clima'],['Acuíferos CONAGUA','Documentos de disponibilidad y acuerdos','https://sigagis.conagua.gob.mx/gas1/sections/acuerdos_dof.html','acuiferos'],['USGS National Water Dashboard','Referencia para mapa, filtros y fichas','https://dashboard.waterdata.usgs.gov/app/nwd/en/','sources']];
 const FILES={presas:['presas-nacionales-v1.json'],quality:['calidad-sinaloa-observaciones-v1.json'],storage:['jalisco-diario-1.json','jalisco-diario-2.json','jalisco-diario-3.json','jalisco-mensual-v1.json']};
-const S={view:'overview',state:'Sinaloa',filter:'all',period:'all',search:'',page:1,perPage:20,selected:'',sort:'',dir:1,mode:'map',basemap:'topo'};
-let D=null,cache=new Map(),waiting=new Map(),shown=[],mp=null,marks=[],token=0,inputTimer=null,toaster=null;
+const S={view:'overview',state:'Sinaloa',filter:'all',period:'all',search:'',page:1,perPage:20,selected:'',sort:'',dir:1,mode:'map',basemap:'light',detailTab:'general',advOpen:false,region:'all',geo:'all',capMin:'',capMax:'',showPoints:true,measure:false,symbol:'capacity',fullscreen:false,dockOpen:true};
+let D=null,cache=new Map(),waiting=new Map(),shown=[],mp=null,marks=[],measurePoints=[],measureLine=null,token=0,inputTimer=null,toaster=null;
 function msg(x){const el=$('w17-toast');el.textContent=x;el.hidden=false;clearTimeout(toaster);toaster=setTimeout(()=>el.hidden=true,3300)}
-function killMap(){if(mp){try{mp.remove()}catch(e){console.warn(e)}mp=null}marks=[]}
+function killMap(){if(mp){try{mp.remove()}catch(e){console.warn(e)}mp=null}marks=[];measurePoints=[];measureLine=null}
 async function getFile(name){
  if(cache.has(name))return cache.get(name);if(waiting.has(name))return waiting.get(name);
  const task=(async()=>{const r=await fetch('/agua/'+name,{cache:'force-cache'});if(!r.ok)throw Error(name+' · HTTP '+r.status);const j=await r.json();if(!Array.isArray(j.rows))throw Error(name+' carece de filas');cache.set(name,j);return j})();
@@ -61,6 +61,25 @@ function opts(){
  return {values,period};
 }
 function selectHtml(opts,current){return opts.map(([v,t])=>'<option value="'+esc(v)+'" '+(String(v)===String(current)?'selected':'')+'>'+esc(t)+'</option>').join('')}
+function configureAdvanced(){
+ const active=['overview','presas','regional'].includes(S.view);
+ const region=$('w21-region'),geo=$('w21-geo'),min=$('w21-cap-min'),max=$('w21-cap-max');
+ const rows=active?available().filter(hasState):[];
+ const names=S.view==='presas'?[...new Set(rows.map(x=>x.info.regioncna).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'es')):[];
+ const vals=[['all','Todas las regiones identificadas'],...names.map(x=>[x,x])];
+ if(region){region.innerHTML=selectHtml(vals,S.region);region.disabled=!names.length;if(!vals.some(x=>String(x[0])===String(S.region)))S.region='all';region.value=S.region;}
+ if(geo){geo.disabled=!active;geo.value=S.geo}
+ if(min){min.disabled=!active;min.value=S.capMin}
+ if(max){max.disabled=!active;max.value=S.capMax}
+ const hint=$('w21-advanced-hint');
+ if(hint)hint.textContent=active
+   ?S.view==='presas'?'Región CONAGUA, coordenadas y NAMO de las 210 fichas nacionales. Los campos vacíos no se imputan.':'Filtra coordenadas y capacidad del catálogo territorial. Región CONAGUA sólo está en el catálogo nacional.'
+   :'Los filtros de capacidad y georreferencia no corresponden a esta base. Selecciona Presas o Inventario regional para utilizarlos.';
+ const panel=$('w21-advanced');if(panel)panel.hidden=!S.advOpen;
+ const trigger=root.querySelector('[data-w17-action="advanced-toggle"]');
+ if(trigger){trigger.setAttribute('aria-expanded',String(S.advOpen));trigger.classList.toggle('w21-active',S.advOpen||active&&(S.geo!=='all'||S.region!=='all'||S.capMin!==''||S.capMax!==''));}
+}
+function resetAdvanced(){S.region='all';S.geo='all';S.capMin='';S.capMax=''}
 function toolbar(){
  const broad=['catalog','sources','cuencas'],allStates=['overview','presas','regional','acuiferos','riego','clima','trend','catalog','sources','cuencas'].includes(S.view);
  const st=$('w17-state');st.innerHTML=selectHtml([...(allStates?[['Todos','Todos los estados']]:[]),...Object.keys({Sinaloa:1,Sonora:1,Chihuahua:1,Jalisco:1,Michoacán:1}).map(x=>[x,x])],S.state);
@@ -75,6 +94,7 @@ function toolbar(){
  $('w17-title').textContent=V[S.view][0];$('w17-subtitle').textContent=V[S.view][1];$('w17-crumb-view').textContent=V[S.view][0].toUpperCase();
  $('w17-scope').textContent=S.view==='quality'?'SIN FECHA DE MEDICIÓN VERIFICADA':'SERIES HISTÓRICAS · NO EN VIVO';
  root.querySelectorAll('[data-w17-view]').forEach(b=>b.setAttribute('aria-current',b.dataset.w17View===S.view?'page':'false'));
+ configureAdvanced();
 }
 function filtered(){
  let r=available().filter(x=>hasState(x)&&(!S.search||norm(x.query+' '+x.name).includes(norm(S.search))));
@@ -85,6 +105,14 @@ function filtered(){
  if(['riego','clima'].includes(v))r=r.filter(x=>sel==='all'||String(x.year)===sel);
  if(v==='acuiferos')r=r.filter(x=>period==='all'||period==='neg'&&x.metric<0||period==='pos'&&x.metric>=0);
  if(v==='trend')r=r.filter(x=>period==='all'||period==='sig'&&x.info.FDR!=='NO_SIGNIFICATIVA'||period==='ns'&&x.info.FDR==='NO_SIGNIFICATIVA');
+ if(['overview','presas','regional'].includes(v))r=r.filter(x=>{
+   if(S.geo==='geo'&&(x.lat===null||x.lon===null))return false;
+   if(S.geo==='nogeo'&&(x.lat!==null&&x.lon!==null))return false;
+   if(S.capMin!==''&&(x.metric===null||x.metric<Number(S.capMin)))return false;
+   if(S.capMax!==''&&(x.metric===null||x.metric>Number(S.capMax)))return false;
+   if(S.region!=='all'&&norm(x.info.regioncna)!==norm(S.region))return false;
+   return true
+ });
  if(S.sort)r.sort((a,b)=>{const x=a.info[S.sort],y=b.info[S.sort];return num(x)!==null&&num(y)!==null?(num(x)-num(y))*S.dir:String(x??'').localeCompare(String(y??''),'es',{numeric:true})*S.dir});
  return r;
 }
@@ -254,7 +282,7 @@ function route(){
  history.replaceState(null,'',url.pathname+url.search+url.hash);
 }
 function navigate(v){
- if(!V[v])return;if(v==='overview')S.mode='map';S.view=v;S.search='';S.filter='all';S.period='all';S.selected='';S.sort='';S.page=1;
+ if(!V[v])return;if(v==='overview')S.mode='map';S.view=v;S.search='';S.filter='all';S.period='all';S.selected='';S.detailTab='general';resetAdvanced();S.sort='';S.page=1;
  if(v==='presas')S.state='Todos';if(v==='quality')S.state='Sinaloa';if(v==='storage'&&S.state==='Todos')S.state='Jalisco';
  route();draw();if(window.innerWidth<=740)window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -275,7 +303,7 @@ function exportRows(geo=false){
 function action(v){
  switch(v){
  case 'guide':$('w17-guide').showModal();break;case 'guide-close':$('w17-guide').close();break;case 'source':navigate('sources');break;
- case 'reset':S.filter='all';S.period='all';S.search='';S.page=1;S.selected='';S.sort='';draw();route();msg('Filtros restablecidos');break;
+ case 'reset':S.filter='all';S.period='all';S.search='';S.page=1;S.selected='';S.sort='';resetAdvanced();draw();route();msg('Filtros restablecidos');break;
  case 'export':exportRows();break;case 'geojson':exportRows(true);break;
  case 'prev':S.page=Math.max(1,S.page-1);doRender();break;case 'nextpage':S.page++;doRender();break;
  case 'next':{const pos=shown.findIndex(x=>x.id===S.selected);if(!shown.length)break;S.selected=shown[(pos+1)%shown.length].id;detail(shown);if(window.innerWidth<=1190)$('w17-detail').classList.add('w17-detail-visible');break}
@@ -297,12 +325,19 @@ function action(v){
   setTimeout(()=>mp?.invalidateSize(),130);
   break;
  }
+ case 'advanced-toggle':S.advOpen=!S.advOpen;configureAdvanced();break;
+ case 'advanced-reset':resetAdvanced();configureAdvanced();S.page=1;S.selected='';doRender();route();break;
  case 'mode-map':S.mode='map';doRender();break;case 'mode-table':S.mode='table';doRender();break;
  case 'fit':if(mp&&marks.length)mp.fitBounds(marks.map(m=>m.getLatLng()),{padding:[25,25]});break;
  case 'retry':for(const x of FILES[S.view]||[])cache.delete(x);recordCache.clear();draw();break;
  }
 }
 root.addEventListener('click',e=>{
+ const grp=e.target.closest('[data-w21-group]');if(grp){
+   e.preventDefault();const panel=$('w21-group-'+grp.dataset.w21Group),now=grp.getAttribute('aria-expanded')!=='true';
+   grp.setAttribute('aria-expanded',String(now));if(panel)panel.hidden=!now;return;
+ }
+ const tab=e.target.closest('[data-w21-tab]');if(tab){e.preventDefault();S.detailTab=tab.dataset.w21Tab;detail(shown);return}
  const nav=e.target.closest('[data-w17-view]');if(nav){e.preventDefault();navigate(nav.dataset.w17View);return}
  const cmd=e.target.closest('[data-w17-action]');if(cmd){e.preventDefault();action(cmd.dataset.w17Action);return}
  const sort=e.target.closest('[data-w17-sort]');if(sort){S.dir=S.sort===sort.dataset.w17Sort?-S.dir:1;S.sort=sort.dataset.w17Sort;S.page=1;doRender();return}
@@ -314,8 +349,10 @@ root.addEventListener('change',e=>{
  if(e.target.id==='w17-filter'){S.filter=e.target.value;S.page=1;S.selected='';doRender();route()}
  if(e.target.id==='w17-period'){S.period=e.target.value;S.page=1;S.selected='';draw();route()}
  if(e.target.id==='w17-basemap'){S.basemap=e.target.value;renderMap(shown)}
+ if(e.target.id==='w21-region'){S.region=e.target.value;S.page=1;S.selected='';doRender();route()}
+ if(e.target.id==='w21-geo'){S.geo=e.target.value;S.page=1;S.selected='';doRender();route()}
 });
-root.addEventListener('input',e=>{if(e.target.id==='w17-search'){S.search=e.target.value;S.page=1;S.selected='';clearTimeout(inputTimer);inputTimer=setTimeout(()=>{doRender();route()},130)}});
+root.addEventListener('input',e=>{if(['w21-cap-min','w21-cap-max'].includes(e.target.id)){const val=e.target.value;if(e.target.id==='w21-cap-min')S.capMin=val;else S.capMax=val;clearTimeout(inputTimer);inputTimer=setTimeout(()=>{S.page=1;S.selected='';doRender();route()},220);return}if(e.target.id==='w17-search'){S.search=e.target.value;S.page=1;S.selected='';clearTimeout(inputTimer);inputTimer=setTimeout(()=>{doRender();route()},130)}});
 function init(){
  try{
   D=JSON.parse($('wa-embedded-dataset').textContent);if(D.presas.length!==75||D.acuiferos.length!==216)throw Error('Dataset hídrico incompleto');
