@@ -20,7 +20,8 @@ async function getFile(name){
 function getRows(name){return cache.get(name)?.rows||[]}
 function row(id,fields,x,extra={}){const info={};fields.forEach((k,i)=>info[k]=x[i]??null);return {id,info,...extra,name:extra.name||x[1]||x[0],query:x.join(' ')}}
 function hasState(r){return S.state==='Todos'||norm(r.state)===norm(S.state)}
-function available(){
+const recordCache=new Map();
+function generateAvailable(){
  if(S.view==='presas'){const d=cache.get('presas-nacionales-v1.json');return getRows('presas-nacionales-v1.json').map((x,i)=>row('p'+i,d?.campos||[],x,{name:x[1],state:x[3]||'',city:x[4]||'',lat:num(x[6]),lon:num(x[7]),metric:num(x[17]),unit:'hm³ NAMO'}))}
  if(S.view==='regional')return D.presas.map((x,i)=>row('r'+i,['Estado','Clave','Presa','Municipio','Latitud','Longitud','NAMO hm³'],x,{name:x[2],state:x[0],city:x[3],lat:num(x[4]),lon:num(x[5]),metric:num(x[6]),unit:'hm³ NAMO'}));
  if(S.view==='acuiferos')return D.acuiferos.map((x,i)=>row('a'+i,['Estado','Clave','Acuífero','Recarga hm³/año','VEAS hm³/año','Saldo hm³/año','Saldo negativo'],x,{name:x[2],state:x[0],metric:num(x[5]),unit:'hm³/año'}));
@@ -39,6 +40,11 @@ function available(){
   }
  }
  return[];
+}
+function available(){
+ const key=S.view+'|'+(S.view==='storage'?S.state+'|'+S.period:'');
+ if(recordCache.has(key))return recordCache.get(key);
+ const rows=generateAvailable();recordCache.set(key,rows);return rows;
 }
 function opts(){
  const values=[['all','Todos los registros']],period=[['all','Todos los periodos / variables']];
@@ -235,7 +241,7 @@ function action(v){
  case 'detail-toggle':$('w17-detail').classList.toggle('w17-detail-visible');root.classList.toggle('w17-detail-collapsed');break;
  case 'mode-map':S.mode='map';doRender();break;case 'mode-table':S.mode='table';doRender();break;
  case 'fit':if(mp&&marks.length)mp.fitBounds(marks.map(m=>m.getLatLng()),{padding:[25,25]});break;
- case 'retry':for(const x of FILES[S.view]||[])cache.delete(x);draw();break;
+ case 'retry':for(const x of FILES[S.view]||[])cache.delete(x);recordCache.clear();draw();break;
  }
 }
 root.addEventListener('click',e=>{
