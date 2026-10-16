@@ -173,7 +173,7 @@ function drawRows(rows){
    const code=S.filter==='all'?rows[0]?.code:S.filter;
    const group=new Map();for(const r of rows.filter(x=>x.code===code)){const period=String(r.date||'').slice(0,7);if(!period||r.metric===null)continue;const a=group.get(period)||{sum:0,n:0};a.sum+=r.metric;a.n++;group.set(period,a)}series=[...group].map(([k,x])=>[k,x.sum/x.n]);
   }else series=rows.filter(r=>S.state==='Todos'?r.state===rows[0]?.state:true).map(r=>[r.year,r.metric]);
-  addition='<div class="w17-module-card">'+head('Evolución histórica','Serie del conjunto seleccionado')+'<div class="w17-plot">'+chart(series)+'</div></div>';
+  addition='<div class="w17-module-card">'+head('Evolución histórica'+(S.state==='Todos'&&S.view!=='storage'?' · '+(series.length?rows[0]?.state:'') :''),'Serie del conjunto seleccionado')+'<div class="w17-plot">'+chart(series)+'</div></div>';
  }else if(S.view==='quality')addition='<div class="w17-module-card">'+head('Distribución de observaciones','Sin fechas verificadas')+'<div class="w17-plot">'+hist(rows)+'</div></div>';
  const msgFor={presas:'Capacidad nominal NAMO, no volumen actual. Algunas fichas nacionales no tienen estado identificado.',regional:'Inventario territorial parcial; sin registro no significa ausencia de presas.',storage:'Jalisco contiene tres presas (1996–2024); Sinaloa contiene cortes parciales, sin telemetría actual.',quality:'Las mediciones de calidad no tienen fecha verificada: no indican cumplimiento sanitario ni tendencia.',acuiferos:'El saldo de un acuífero es un balance administrativo, no volumen físico de agua.',riego:'Los totales de riego por estado no identifican la utilización de cada cultivo.',clima:'P−ET₀ no equivale a disponibilidad hídrica de una cuenca.',trend:'Pendientes y p ajustados son resultados precalculados; la unidad de pendiente está pendiente de auditoría.'};
  $('w17-content').innerHTML=warning(msgFor[S.view]||'Datos históricos; no telemetría actual.')+
@@ -185,6 +185,7 @@ function drawRows(rows){
 }
 function doRender(){
  killMap();
+ if(['overview','catalog','sources','cuencas'].includes(S.view)){shown=[];S.selected=''}
  if(S.view==='overview')summary();else if(S.view==='catalog')catalog();else if(S.view==='sources')sources();else if(S.view==='cuencas')basin();else drawRows(filtered());
 }
 async function draw(reset=true){
