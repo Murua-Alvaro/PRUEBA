@@ -1,6 +1,7 @@
 /* GROWA Water V16 | full observational data explorer, lazy-loaded first-party datasets */
 (()=>{'use strict';
-const API=window.GrowaWaterInternal;if(!API)return;
+function setup(){
+const API=window.GrowaWaterInternal;if(!API){console.warn('Water Extra: core not initialized');return;}
 const {S,$,esc,fmt,notice}=API;
 const VIEWS=['nacional','observaciones','diario'];
 const cache=new Map(),loading=new Map();
@@ -251,4 +252,6 @@ document.getElementById('panel-agua').addEventListener('input',e=>{
  E[S.view].search=e.target.value;pg=1;selected=null;draw();
 },true);
 window.GrowaWaterExtra={views:VIEWS,render,filters:()=>{},inspector};
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 })();
