@@ -503,3 +503,11 @@ body[data-view="agua"] .rail .navigation .nav-link{min-height:65px!important}
  #panel-agua.w17-root .w20-map-tools{gap:3px}
  #panel-agua.w17-root .w20-map-tools button,#panel-agua.w17-root .w20-map-tools select{font-size:9.5px;padding:6px}
 }
+
+@media(max-width:740px){
+ #panel-agua.w17-root .w20-head-actions [data-w17-action="detail-toggle"]{
+  display:inline-flex!important;font-size:10px!important;
+  padding-inline:9px!important;min-height:34px!important;
+  border:1px solid #d2e2e7!important
+ }
+}
