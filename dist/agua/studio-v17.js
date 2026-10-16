@@ -161,7 +161,7 @@ function renderMap(rows){
  try{
   mp=L.map(el,{scrollWheelZoom:false,preferCanvas:true});L.tileLayer(bases[S.basemap]||bases.topo,{attribution:'© Esri / OpenStreetMap',maxZoom:17}).addTo(mp);
   marks=points.map(r=>{const rad=Math.min(16,Math.max(5,4+Math.sqrt(Math.max(0,r.metric||0))/4)),m=L.circleMarker([r.lat,r.lon],{radius:rad,weight:1.6,color:'#fff',fillColor:'#147c99',fillOpacity:.9}).addTo(mp);
-   m.bindTooltip(esc(r.name)+' · '+f(r.metric)+' hm³');m.on('click',()=>{S.selected=r.id;detail(rows);root.querySelectorAll('[data-w17-id]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.w17Id===r.id)));if(window.innerWidth<=740)$('w17-detail').classList.add('w17-detail-visible')});return m});
+   m.bindTooltip(esc(r.name)+' · '+f(r.metric)+' hm³');m.on('click',()=>{S.selected=r.id;detail(rows);root.querySelectorAll('[data-w17-id]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.w17Id===r.id)));if(window.innerWidth<=1190)$('w17-detail').classList.add('w17-detail-visible')});return m});
   mp.fitBounds(points.map(x=>[x.lat,x.lon]),{padding:[25,25],maxZoom:8});setTimeout(()=>mp?.invalidateSize(),150);
  }catch(e){console.warn('GROWA map',e);el.innerHTML='<div class="w17-empty">No se pudo iniciar el mapa. Use el inventario tabular.</div>'}
 }
@@ -238,7 +238,7 @@ function action(v){
  case 'reset':S.filter='all';S.period='all';S.search='';S.page=1;S.selected='';S.sort='';draw();route();msg('Filtros restablecidos');break;
  case 'export':exportRows();break;case 'geojson':exportRows(true);break;
  case 'prev':S.page=Math.max(1,S.page-1);doRender();break;case 'nextpage':S.page++;doRender();break;
- case 'next':{const pos=shown.findIndex(x=>x.id===S.selected);if(!shown.length)break;S.selected=shown[(pos+1)%shown.length].id;detail(shown);break}
+ case 'next':{const pos=shown.findIndex(x=>x.id===S.selected);if(!shown.length)break;S.selected=shown[(pos+1)%shown.length].id;detail(shown);if(window.innerWidth<=1190)$('w17-detail').classList.add('w17-detail-visible');break}
  case 'detail-toggle':$('w17-detail').classList.toggle('w17-detail-visible');root.classList.toggle('w17-detail-collapsed');break;
  case 'mode-map':S.mode='map';doRender();break;case 'mode-table':S.mode='table';doRender();break;
  case 'fit':if(mp&&marks.length)mp.fitBounds(marks.map(m=>m.getLatLng()),{padding:[25,25]});break;
@@ -249,7 +249,7 @@ root.addEventListener('click',e=>{
  const nav=e.target.closest('[data-w17-view]');if(nav){e.preventDefault();navigate(nav.dataset.w17View);return}
  const cmd=e.target.closest('[data-w17-action]');if(cmd){e.preventDefault();action(cmd.dataset.w17Action);return}
  const sort=e.target.closest('[data-w17-sort]');if(sort){S.dir=S.sort===sort.dataset.w17Sort?-S.dir:1;S.sort=sort.dataset.w17Sort;S.page=1;doRender();return}
- const rec=e.target.closest('[data-w17-id]');if(rec){S.selected=rec.dataset.w17Id;detail(shown);root.querySelectorAll('[data-w17-id]').forEach(tr=>tr.setAttribute('aria-selected',String(tr===rec)));if(window.innerWidth<=740)$('w17-detail').classList.add('w17-detail-visible')}
+ const rec=e.target.closest('[data-w17-id]');if(rec){S.selected=rec.dataset.w17Id;detail(shown);root.querySelectorAll('[data-w17-id]').forEach(tr=>tr.setAttribute('aria-selected',String(tr===rec)));if(window.innerWidth<=1190)$('w17-detail').classList.add('w17-detail-visible')}
 });
 root.addEventListener('keydown',e=>{const row=e.target.closest('[data-w17-id]');if(row&&['Enter',' '].includes(e.key)){e.preventDefault();row.click()}if(e.key==='Escape')$('w17-detail').classList.remove('w17-detail-visible')});
 root.addEventListener('change',e=>{
