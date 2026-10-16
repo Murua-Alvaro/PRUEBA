@@ -387,3 +387,16 @@
  #panel-agua.w17-root .w19-map-actions button{flex:1}
  #panel-agua.w17-root .w19-atlas-heading h2{font-size:21px}
 }
+
+#panel-agua.w17-root .w19-map-wrap[hidden]{display:none!important}
+#panel-agua.w17-root .w19-dataset-meta{
+ display:flex;justify-content:space-between;align-items:center;gap:14px;
+ min-height:48px;border-bottom:1px solid #dfe6df;background:#fbfcfa;
+ padding:12px 22px;color:#899889;font-size:10.5px
+}
+#panel-agua.w17-root .w19-dataset-meta .w19-kicker{color:#537368}
+#panel-agua.w17-root .w17-module-card .w17-map{height:clamp(460px,55vh,750px)!important}
+#panel-agua.w17-root .w17-module-card .w17-map[hidden]{display:none!important}
+#panel-agua.w17-root .w17-module-card .w17-plot{padding:24px 23px!important}
+#panel-agua.w17-root .w17-module-card .w17-card-head+.w17-map{border-top:0!important}
+@media(max-width:740px){#panel-agua.w17-root .w19-dataset-meta{display:block;padding:12px 15px}#panel-agua.w17-root .w19-dataset-meta>span{display:block;margin-top:6px}}
