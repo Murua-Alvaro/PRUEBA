@@ -1,12 +1,12 @@
-name: Auditoría de bases hídricas V16
+name: Auditoría de bases hídricas V17
 on:
   push:
     branches: [main]
     paths:
       - "dist/agua/**"
-      - "agua-workspace-v14.js"
-      - "agua-workspace-v14.html"
-      - "agua-workspace-v14.css"
+      - "agua-studio-v17.html"
+      - "dist/agua/studio-v17.js"
+      - "dist/agua/studio-v17.css"
       - "index.html"
       - "tests/agua*.cjs"
       - ".github/workflows/auditoria-agua.yml"
@@ -26,7 +26,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Validación del módulo original y sus datos
-        run: node tests/agua-integracion.test.cjs
-      - name: Validación de datasets completos V16
-        run: node tests/agua-v16.test.cjs
+      - name: Validación de datos, navegación y filtros V17
+        run: node tests/agua-studio-v17.test.cjs
