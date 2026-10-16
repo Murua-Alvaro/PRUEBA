@@ -22,6 +22,7 @@ function row(id,fields,x,extra={}){const info={};fields.forEach((k,i)=>info[k]=x
 function hasState(r){return S.state==='Todos'||norm(r.state)===norm(S.state)}
 const recordCache=new Map();
 function generateAvailable(){
+ if(S.view==='overview')return D.presas.map((x,i)=>row('o'+i,['Estado','Clave','Presa','Municipio','Latitud','Longitud','NAMO hm³'],x,{name:x[2],state:x[0],city:x[3],lat:num(x[4]),lon:num(x[5]),metric:num(x[6]),unit:'hm³ NAMO'}));
  if(S.view==='presas'){const d=cache.get('presas-nacionales-v1.json');return getRows('presas-nacionales-v1.json').map((x,i)=>row('p'+i,d?.campos||[],x,{name:x[1],state:x[3]||'',city:x[4]||'',lat:num(x[6]),lon:num(x[7]),metric:num(x[17]),unit:'hm³ NAMO'}))}
  if(S.view==='regional')return D.presas.map((x,i)=>row('r'+i,['Estado','Clave','Presa','Municipio','Latitud','Longitud','NAMO hm³'],x,{name:x[2],state:x[0],city:x[3],lat:num(x[4]),lon:num(x[5]),metric:num(x[6]),unit:'hm³ NAMO'}));
  if(S.view==='acuiferos')return D.acuiferos.map((x,i)=>row('a'+i,['Estado','Clave','Acuífero','Recarga hm³/año','VEAS hm³/año','Saldo hm³/año','Saldo negativo'],x,{name:x[2],state:x[0],metric:num(x[5]),unit:'hm³/año'}));
@@ -49,7 +50,7 @@ function available(){
 function opts(){
  const values=[['all','Todos los registros']],period=[['all','Todos los periodos / variables']];
  const view=S.view;
- if(['presas','regional'].includes(view)){
+ if(['overview','presas','regional'].includes(view)){
   const x=available().filter(hasState);const muni=[...new Set(x.map(r=>r.city).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));values.push(...muni.map(x=>[x,x]));period.push(...[['100','NAMO ≥ 100 hm³'],['500','NAMO ≥ 500 hm³'],['1000','NAMO ≥ 1,000 hm³']])
  }
  if(view==='quality'){values.push(...[...new Set(getRows('calidad-sinaloa-observaciones-v1.json').map(x=>x[1]))].sort().map(x=>[x,x]));period.push(...[['ph','pH'],['conduct','Conductividad'],['temp','Temperatura'],['oxygen','Oxígeno disuelto'],['sst','SST'],['nitrogen','N total'],['phosphorus','P total']])}
@@ -61,7 +62,7 @@ function opts(){
 }
 function selectHtml(opts,current){return opts.map(([v,t])=>'<option value="'+esc(v)+'" '+(String(v)===String(current)?'selected':'')+'>'+esc(t)+'</option>').join('')}
 function toolbar(){
- const broad=['overview','catalog','sources','cuencas'],allStates=['overview','presas','regional','acuiferos','riego','clima','trend','catalog','sources','cuencas'].includes(S.view);
+ const broad=['catalog','sources','cuencas'],allStates=['overview','presas','regional','acuiferos','riego','clima','trend','catalog','sources','cuencas'].includes(S.view);
  const st=$('w17-state');st.innerHTML=selectHtml([...(allStates?[['Todos','Todos los estados']]:[]),...Object.keys({Sinaloa:1,Sonora:1,Chihuahua:1,Jalisco:1,Michoacán:1}).map(x=>[x,x])],S.state);
  if(![...st.options].some(x=>x.value===S.state))S.state='Sinaloa';
  if(S.view==='quality')S.state='Sinaloa';
@@ -78,7 +79,7 @@ function toolbar(){
 function filtered(){
  let r=available().filter(x=>hasState(x)&&(!S.search||norm(x.query+' '+x.name).includes(norm(S.search))));
  const v=S.view,sel=S.filter,period=S.period;
- if(['presas','regional'].includes(v))r=r.filter(x=>(sel==='all'||norm(x.city)===norm(sel))&&(period==='all'||x.metric>=Number(period)));
+ if(['overview','presas','regional'].includes(v))r=r.filter(x=>(sel==='all'||norm(x.city)===norm(sel))&&(period==='all'||x.metric>=Number(period)));
  if(v==='quality'){r=r.filter(x=>sel==='all'||x.info['Clave sitio']===sel);const column={ph:'pH',conduct:'Conductividad',temp:'Temperatura',oxygen:'Oxígeno %',sst:'SST',nitrogen:'N total',phosphorus:'P total'}[period];if(column)r=r.map(x=>({...x,metric:num(x.info[column]),unit:column}))}
  if(v==='storage')r=r.filter(x=>sel==='all'||x.code===sel);
  if(['riego','clima'].includes(v))r=r.filter(x=>sel==='all'||String(x.year)===sel);
@@ -91,13 +92,57 @@ function stats(items){return '<div class="w17-kpis">'+items.map(([label,val,note
 function head(name,note,tools=''){return '<div class="w17-card-head"><h2>'+esc(name)+'</h2>'+(tools||'<span>'+esc(note||'')+'</span>')+'</div>'}
 function warning(s){return '<div class="w17-warning"><strong>Alcance del dato:</strong> '+esc(s)+'</div>'}
 function summary(){
- const modules=[['Presas nacionales','210','Catálogo · 19 variables','presas','01'],['Calidad del agua · Sinaloa','6,095','223 sitios · 11 variables','quality','02'],['Almacenamiento · Jalisco','30,652','Tres presas · 1996–2024','storage','03'],['Acuíferos','216','Balance administrativo','acuiferos','04'],['Distritos de riego','135','Cinco estados · 27 ciclos','riego','05'],['Clima y agua','115','Cinco estados · 23 años','clima','06'],['Tendencias distritales','32','Resultados con corrección FDR','trend','07'],['Cuencas nacionales','757','Corte único · sin polígonos locales','cuencas','08']];
- $('w17-content').innerHTML='<div class="w17-intro"><div class="w17-hero"><div><span class="w17-overline">OBSERVATORIO DE RECURSOS HÍDRICOS</span><h2>El agua, en datos.<br>Infraestructura y series históricas.</h2></div><p>Un archivo de información hídrica organizado para comparar infraestructura, almacenamiento, acuíferos, calidad y uso agrícola.</p></div><div class="w17-quick"><span class="w17-overline">NAVEGACIÓN / CONSULTA</span><h3>Acceso a la información</h3>'+[['presas','Inventario nacional de presas'],['quality','Mediciones de calidad'],['storage','Histórico de almacenamiento'],['catalog','Biblioteca íntegra']].map(([v,t])=>'<button type="button" data-w17-view="'+v+'">'+t+' <span>↗</span></button>').join('')+'</div></div>'+
- stats([['Presas catalogadas','210','Cobertura nacional parcial'],['Observaciones de calidad','6,095','Sin fecha validada'],['Datos diarios','30,652','Tres presas de Jalisco'],['Acuíferos','216','Balance administrativo']])+
- warning('Cobertura documental: cada tabla tiene su propia unidad, periodicidad y origen. Los registros de diferentes conjuntos no son sumables. No se muestran niveles de agua en tiempo real.')+
- '<div class="w18-directory-heading"><div><span>01 / ARCHIVO DE DATOS</span><h3>Fuentes y conjuntos disponibles</h3></div><p>Seleccione una colección para consultar registros, variables y procedencia.</p></div>'+
- '<div class="w17-catalog">'+modules.map(([t,n,d,v,ic])=>'<div class="w17-dataset"><span class="w17-dataset-icon">'+ic+'</span><div><strong>'+t+'</strong><span>'+n+' registros o referencias</span><p>'+d+'</p><button type="button" data-w17-view="'+v+'">Abrir conjunto →</button></div></div>').join('')+'</div>';
- $('w17-filters-note').textContent='Resumen de cobertura. Elija una base para consultar registros y variables originales.';detail([]);
+ const records=filtered();
+ shown=records;
+ if(!records.some(x=>x.id===S.selected))S.selected=records[0]?.id||'';
+ const total=records.reduce((acc,r)=>acc+(r.metric||0),0);
+ const opts=' <div class="w17-geo-controls w19-map-actions">'+
+ '<button type="button" data-w17-action="mode-map" aria-pressed="'+(S.mode==='map')+'">Mapa</button>'+
+ '<button type="button" data-w17-action="mode-table" aria-pressed="'+(S.mode==='table')+'">Sólo tabla</button>'+
+ '<select id="w17-basemap" aria-label="Capa cartográfica"><option value="topo">Topográfico</option><option value="street">Calles</option><option value="sat">Satélite</option></select>'+
+ '<button type="button" data-w17-action="fit" title="Encuadrar todos los puntos">Encuadrar</button>'+
+ '<button type="button" data-w17-action="geojson" title="Descargar puntos filtrados">GeoJSON ↓</button>'+
+ '</div>';
+ const nav=[['Presas nacionales','210 instalaciones · catálogo de 19 variables','presas'],
+  ['Almacenamiento','Series operativas y cortes observados','storage'],
+  ['Acuíferos','Balance administrativo y recarga','acuiferos'],
+  ['Calidad del agua','6,095 observaciones en Sinaloa','quality'],
+  ['Distritos de riego','Superficie y agua por ciclo','riego'],
+  ['Catálogo de datos','Cobertura, procedencia y descargas','catalog']];
+ $('w17-content').innerHTML=
+ '<section class="w19-work-area" aria-label="Atlas territorial de infraestructura">'+
+ '<header class="w19-atlas-heading">'+
+  '<div class="w19-atlas-heading-main"><span class="w19-kicker">01 &nbsp; / &nbsp; CARTOGRAFÍA DE INFRAESTRUCTURA</span>'+
+  '<h2>Presas e infraestructura hídrica</h2>'+
+  '<p>Inventario territorial georreferenciado · catálogo parcial de cinco entidades federativas</p></div>'+
+  opts+'</header>'+
+ '<div class="w19-map-wrap">'+
+  '<div id="w17-map" class="w17-map w19-overview-map" '+(S.mode==='table'?'hidden':'')+'></div>'+
+  '<div class="w19-map-counter"><span>UBICACIONES FILTRADAS</span><strong>'+f(records.length,0)+'</strong><small>'+esc(S.state==='Todos'?'Cinco entidades':S.state)+'</small></div>'+
+  '<div class="w19-legend"><span class="w19-legend-dot"></span><span>Presa catalogada &nbsp; · &nbsp; Tamaño por NAMO</span></div>'+
+ '</div>'+
+ '<div class="w19-measure-strip">'+
+  '<div><small>Presas identificadas</small><strong>'+f(records.length,0)+'</strong></div>'+
+  '<div><small>Capacidad NAMO total</small><strong>'+f(total,1)+' <span>hm³</span></strong></div>'+
+  '<div><small>Entidades del catálogo</small><strong>'+f(new Set(records.map(r=>r.state)).size,0)+'</strong></div>'+
+  '<div class="w19-measure-source"><span>Cobertura</span><strong>Inventario de referencia</strong><small>Capacidad nominal, no almacenamiento actual.</small></div>'+
+ '</div></section>'+
+ '<section class="w19-results-grid">'+
+  '<div class="w19-results-table">'+
+   '<div class="w19-block-heading"><div><span class="w19-kicker">02 &nbsp; / &nbsp; CONSULTA DE REGISTROS</span><h3>Inventario georreferenciado</h3></div>'+
+   '<button type="button" class="w19-text-action" data-w17-action="export">Exportar selección ↗</button></div>'+
+   table(records)+'</div>'+
+  '<aside class="w19-database-index"><span class="w19-kicker">03 &nbsp; / &nbsp; EXPLORAR BASES</span><h3>Conjuntos disponibles</h3>'+
+    nav.map(([name,sub,view],i)=>'<button type="button" data-w17-view="'+view+'">'+
+      '<span class="w19-index-number">0'+(i+1)+'</span>'+
+      '<span class="w19-index-desc"><strong>'+esc(name)+'</strong><small>'+esc(sub)+'</small></span>'+
+      '<span class="w19-index-arrow">↗</span></button>').join('')+
+    '<p class="w19-index-note">Cada conjunto mantiene su escala, fecha, variables originales y procedencia.</p>'+
+  '</aside></section>'+
+ '<div class="w19-method-note"><strong>Nota metodológica.</strong> Las ubicaciones son puntos de catálogo secundario. La capacidad NAMO no describe el llenado observado ni el área de embalse. La ausencia de puntos no prueba ausencia de infraestructura.</div>';
+ detail(records);
+ if(S.mode==='map'){const sel=$('w17-basemap');if(sel)sel.value=S.basemap;renderMap(records)}
+ $('w17-filters-note').textContent=f(records.length,0)+' presas registradas · '+(S.state==='Todos'?'Cinco estados':S.state)+' · Seleccione una presa para abrir su ficha.';
 }
 function catalog(){
  const sets=[['Presas nacionales',210,'19 campos','Sin fecha normativa verificada','presas'],['Presas regionales',75,'7 campos','Corte único','regional'],['Acuíferos',216,'7 campos','Transversal','acuiferos'],['Riego',135,'6 campos','1997–2023','riego'],['Clima',115,'6 campos','2003–2025','clima'],['Tendencias',32,'7 campos','27 ciclos por distrito como máximo','trend'],['Calidad observada',6095,'11 campos','Sin fechas de muestreo','quality'],['Jalisco diario',30652,'5 campos','1996–2024','storage'],['Jalisco mensual',1018,'7 campos','1996–2024','storage'],['Sinaloa sistemas',99,'5 campos','2018–2026','storage'],['Sinaloa individual',26,'5 campos','2018–2026','storage']];
@@ -121,7 +166,7 @@ function basin(){
  $('w17-filters-note').textContent='La cobertura nacional y los metadatos por estado no tienen la misma escala espacial.';detail([]);
 }
 function getCols(){
- const sets={presas:[['Presa','nombreoficial'],['Clave','clavesih'],['Estado','estado'],['Municipio','nommunicipio'],['Región','regioncna'],['NAMO hm³','namoalmac']],regional:[['Presa','Presa'],['Clave','Clave'],['Municipio','Municipio'],['Estado','Estado'],['NAMO hm³','NAMO hm³']],acuiferos:[['Acuífero','Acuífero'],['Clave','Clave'],['Estado','Estado'],['Recarga','Recarga hm³/año'],['VEAS','VEAS hm³/año'],['Saldo','Saldo hm³/año']],riego:[['Estado','Estado'],['Ciclo','Ciclo inicial'],['Volumen hm³','Volumen hm³'],['Superficie ha','Superficie ha'],['m³/ha','m³/ha']],clima:[['Estado','Estado'],['Año','Año'],['Precip. mm','Precipitación mm'],['ET₀ mm','ET₀ mm'],['P−ET₀','P−ET₀ mm']],trend:[['Distrito','Distrito'],['Clave','Clave'],['Estado','Estado'],['Pendiente','Pendiente'],['p ajustado','p ajustado'],['FDR','FDR']],quality:[['Sitio','Sitio'],['Clave','Clave sitio'],['Folio','Folio'],['pH','pH'],['Conductividad','Conductividad'],['Temp','Temperatura'],['Oxígeno %','Oxígeno %'],['SST','SST'],['N total','N total'],['P total','P total']]};
+ const sets={overview:[['Presa','Presa'],['Municipio','Municipio'],['Estado','Estado'],['Capacidad NAMO','NAMO hm³']],presas:[['Presa','nombreoficial'],['Clave','clavesih'],['Estado','estado'],['Municipio','nommunicipio'],['Región','regioncna'],['NAMO hm³','namoalmac']],regional:[['Presa','Presa'],['Clave','Clave'],['Municipio','Municipio'],['Estado','Estado'],['NAMO hm³','NAMO hm³']],acuiferos:[['Acuífero','Acuífero'],['Clave','Clave'],['Estado','Estado'],['Recarga','Recarga hm³/año'],['VEAS','VEAS hm³/año'],['Saldo','Saldo hm³/año']],riego:[['Estado','Estado'],['Ciclo','Ciclo inicial'],['Volumen hm³','Volumen hm³'],['Superficie ha','Superficie ha'],['m³/ha','m³/ha']],clima:[['Estado','Estado'],['Año','Año'],['Precip. mm','Precipitación mm'],['ET₀ mm','ET₀ mm'],['P−ET₀','P−ET₀ mm']],trend:[['Distrito','Distrito'],['Clave','Clave'],['Estado','Estado'],['Pendiente','Pendiente'],['p ajustado','p ajustado'],['FDR','FDR']],quality:[['Sitio','Sitio'],['Clave','Clave sitio'],['Folio','Folio'],['pH','pH'],['Conductividad','Conductividad'],['Temp','Temperatura'],['Oxígeno %','Oxígeno %'],['SST','SST'],['N total','N total'],['P total','P total']]};
  if(S.view==='storage'){if(S.state==='Jalisco')return S.period==='monthly'?[['Presa','Clave SIH'],['Mes','Mes'],['Días','Días'],['Media','Media hm³'],['Mínimo','Mínimo hm³'],['Máximo','Máximo hm³']]:[['Fecha','Fecha'],['Presa','Clave SIH'],['Volumen','Almacenamiento hm³'],['Elevación','Elevación m'],['Fracción NAMO','Fracción NAMO']];return [['Sistema o presa','Sistema'],['Fecha','Fecha'],['Volumen','Volumen hm³'],['NAMO %','NAMO %']]}
  return sets[S.view]||[];
 }
@@ -139,7 +184,7 @@ function detail(rows){
  $('w17-detail-body').innerHTML='<span class="w17-detail-pill">'+esc(V[S.view][0])+'</span><h3 class="w17-detail-title">'+esc(r.name)+'</h3><p class="w17-detail-sub">'+esc(r.state||'Estado no indicado')+(r.city?' · '+esc(r.city):'')+'</p>'+
  '<div class="w17-detail-highlight"><span>'+esc(r.unit||'Indicador')+'</span><strong>'+f(r.metric,2)+'</strong></div>'+
  Object.entries(r.info).map(([k,v])=>'<div class="w17-detail-fact"><span>'+esc(k)+'</span><strong>'+esc(v??'Sin dato')+'</strong></div>').join('')+
- '<p class="w17-detail-note">'+esc(S.view==='quality'?'Las observaciones carecen de fecha de muestreo verificada. No prueban cumplimiento sanitario ni potabilidad.':S.view==='acuiferos'?'El saldo es administrativo, no volumen de agua existente.':S.view==='presas'||S.view==='regional'?'NAMO es capacidad nominal; no es nivel actual.':'Medición o resultado histórico, no telemetría actual ni demostración causal.')+'</p>';
+ '<p class="w17-detail-note">'+esc(S.view==='quality'?'Las observaciones carecen de fecha de muestreo verificada. No prueban cumplimiento sanitario ni potabilidad.':S.view==='acuiferos'?'El saldo es administrativo, no volumen de agua existente.':S.view==='overview'||S.view==='presas'||S.view==='regional'?'NAMO es capacidad nominal; no es nivel actual.':'Medición o resultado histórico, no telemetría actual ni demostración causal.')+'</p>';
 }
 function chart(series){
  const rows=series.filter(x=>num(x[1])!==null).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));if(rows.length<2)return '<div class="w17-empty"><strong>Sin datos suficientes para graficar.</strong></div>';
@@ -192,7 +237,7 @@ function drawRows(rows){
 }
 function doRender(){
  killMap();
- if(['overview','catalog','sources','cuencas'].includes(S.view)){shown=[];S.selected=''}
+ if(['catalog','sources','cuencas'].includes(S.view)){shown=[];S.selected=''}
  if(S.view==='overview')summary();else if(S.view==='catalog')catalog();else if(S.view==='sources')sources();else if(S.view==='cuencas')basin();else drawRows(filtered());
 }
 async function draw(reset=true){
