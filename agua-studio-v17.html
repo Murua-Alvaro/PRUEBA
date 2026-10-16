@@ -1,0 +1,64 @@
+<section id="panel-agua" class="section-panel w17-root" hidden aria-label="GROWA · Centro de datos hídricos">
+  <div class="w17-shell">
+    <header class="w17-global">
+      <div class="w17-identity"><span class="w17-mark">G<span>.</span></span><div><strong>GROWA <em>/ AGUA</em></strong><small>OBSERVATORIO DE INTELIGENCIA HÍDRICA</small></div></div>
+      <div class="w17-global-middle"><span class="w17-status-light"></span> DATOS HISTÓRICOS · INTEGRACIÓN 2026 <span class="w17-global-sep">/</span> COBERTURA DOCUMENTAL, NO TELEMETRÍA</div>
+      <div class="w17-actions"><button type="button" class="w17-btn w17-quiet" data-w17-action="source">Fuentes y cobertura <span aria-hidden="true">↗</span></button><button type="button" class="w17-btn w17-quiet" data-w17-action="guide">Guía <span aria-hidden="true">ⓘ</span></button><button type="button" class="w17-btn w17-primary" data-w17-action="export">Descargar <span aria-hidden="true">↓</span></button></div>
+    </header>
+    <div class="w17-workspace">
+      <aside class="w17-navigation" aria-label="Navegación hidrológica">
+        <div class="w17-nav-caption">CENTRO DE DATOS</div>
+        <nav class="w17-nav" aria-label="Conjuntos de datos">
+          <button type="button" data-w17-view="overview" aria-current="page"><span class="w17-nav-icon">◈</span> Vista general</button>
+          <span class="w17-group-label">INFRAESTRUCTURA</span>
+          <button type="button" data-w17-view="presas"><span class="w17-nav-icon">◎</span> Presas · 210 <small>Nacional</small></button>
+          <button type="button" data-w17-view="regional"><span class="w17-nav-icon">◉</span> Inventario regional</button>
+          <button type="button" data-w17-view="storage"><span class="w17-nav-icon">▤</span> Almacenamiento <small>Diario / mensual</small></button>
+          <span class="w17-group-label">RECURSOS Y USOS</span>
+          <button type="button" data-w17-view="acuiferos"><span class="w17-nav-icon">◌</span> Acuíferos</button>
+          <button type="button" data-w17-view="riego"><span class="w17-nav-icon">≋</span> Distritos de riego</button>
+          <button type="button" data-w17-view="cuencas"><span class="w17-nav-icon">⌁</span> Cuencas / estaciones</button>
+          <span class="w17-group-label">MONITOREO Y ANÁLISIS</span>
+          <button type="button" data-w17-view="quality"><span class="w17-nav-icon">◍</span> Calidad del agua <small>6,095</small></button>
+          <button type="button" data-w17-view="clima"><span class="w17-nav-icon">☼</span> Clima y balance</button>
+          <button type="button" data-w17-view="trend"><span class="w17-nav-icon">↗</span> Tendencias de riego</button>
+          <span class="w17-group-label">CATÁLOGO</span>
+          <button type="button" data-w17-view="catalog"><span class="w17-nav-icon">▦</span> Todas las bases <small>Inventario</small></button>
+          <button type="button" data-w17-view="sources"><span class="w17-nav-icon">ⓘ</span> Fuentes / método</button>
+        </nav>
+        <div class="w17-nav-foot"><span class="w17-status-light"></span><span>GROWA / EDICIÓN 2026<br><small>Cada dato conserva su procedencia.</small></span></div>
+      </aside>
+      <main class="w17-main" id="w17-main">
+        <div class="w17-head">
+          <div class="w17-crumb"><span>OBSERVATORIO</span><span>/</span><span>AGUA</span><span>/</span><strong id="w17-crumb-view">VISTA GENERAL</strong></div>
+          <div class="w17-title-row"><div><h1 id="w17-title">Inteligencia hídrica territorial</h1><p id="w17-subtitle">Inventarios, mediciones y series históricas disponibles en un solo lugar.</p></div><span class="w17-head-stamp" id="w17-scope">FUENTES SECUNDARIAS / SERIES DOCUMENTALES</span></div>
+        </div>
+        <div class="w17-toolbar" id="w17-toolbar">
+          <div class="w17-search-area"><label for="w17-search">BUSCAR EN EL CONJUNTO</label><div class="w17-search-control"><span aria-hidden="true">⌕</span><input id="w17-search" type="search" placeholder="Clave, presa, municipio, estación o variable…" autocomplete="off" aria-label="Buscar registros"></div></div>
+          <div class="w17-control"><label for="w17-state">ENTIDAD</label><select id="w17-state"><option value="Sinaloa">Sinaloa</option><option value="Sonora">Sonora</option><option value="Chihuahua">Chihuahua</option><option value="Jalisco">Jalisco</option><option value="Michoacán">Michoacán</option></select></div>
+          <div class="w17-control"><label for="w17-filter">CRITERIO</label><select id="w17-filter" aria-label="Filtro específico de la base"><option value="all">Todos los registros</option></select></div>
+          <div class="w17-control"><label for="w17-period">PERIODO / VARIABLE</label><select id="w17-period" aria-label="Seleccionar periodo o variable"><option value="all">Toda la serie</option></select></div>
+          <button class="w17-btn w17-reset" type="button" data-w17-action="reset" title="Restablecer filtros">↺ <span>Limpiar</span></button>
+        </div>
+        <div class="w17-filters-note" id="w17-filters-note" aria-live="polite"></div>
+        <div class="w17-content" id="w17-content" aria-live="polite"><div class="w17-loading"><span class="w17-spinner"></span> Preparando las bases de datos…</div></div>
+      </main>
+      <aside class="w17-detail" aria-label="Ficha técnica del registro" id="w17-detail">
+        <div class="w17-detail-header"><div><span>INSPECTOR DE DATOS</span><strong>Ficha del registro</strong></div><button type="button" data-w17-action="detail-toggle" aria-label="Ocultar o mostrar ficha" title="Ocultar / mostrar">×</button></div>
+        <div id="w17-detail-body"><p class="w17-detail-empty">Seleccione una fila, punto del mapa o registro para consultar las variables originales.</p></div>
+        <div class="w17-detail-footer"><span>Las cifras son documentales. La fecha y el origen se indican en cada conjunto.</span><button type="button" data-w17-action="next">Siguiente registro →</button></div>
+      </aside>
+    </div>
+    <div class="w17-toast" id="w17-toast" role="status" hidden></div>
+    <dialog class="w17-dialog" id="w17-guide" aria-labelledby="w17-guide-heading">
+      <div class="w17-dialog-heading"><div><span>MANUAL DEL EXPLORADOR</span><h2 id="w17-guide-heading">Uso de GROWA Agua</h2></div><button type="button" data-w17-action="guide-close" aria-label="Cerrar">×</button></div>
+      <div class="w17-dialog-body">
+        <p>Seleccione un conjunto en la navegación izquierda. Use la búsqueda, el estado, el criterio específico y el periodo para filtrar las filas; abra cualquier fila para ver la ficha completa. En los mapas, también puede seleccionar los puntos.</p>
+        <p><strong>Capas y escalas:</strong> las coordenadas de presas son ubicaciones, no polígonos de embalse. NAMO y NAME describen características de diseño; no el volumen almacenado hoy. El balance de acuíferos es administrativo.</p>
+        <p><strong>Series:</strong> las mediciones diarias y mensuales de Jalisco no representan todas las presas del estado. Los datos de calidad de Sinaloa carecen de fecha verificada; no sirven para demostrar una tendencia ni potabilidad.</p>
+        <p><strong>Descargas:</strong> la descarga CSV respeta la selección activa; GeoJSON se habilita cuando el conjunto seleccionado contiene coordenadas verificables. Los datos administrativos no liberados no están en el visor público.</p>
+        <div class="w17-ref-links"><a target="_blank" rel="noopener noreferrer" href="https://dashboard.waterdata.usgs.gov/">USGS Water Dashboard ↗</a><a target="_blank" rel="noopener noreferrer" href="https://sih.conagua.gob.mx/">SIH CONAGUA ↗</a></div>
+      </div><div class="w17-dialog-actions"><button type="button" data-w17-action="guide-close" class="w17-btn w17-primary">Entendido</button></div>
+    </dialog>
+  </div>
+</section>
