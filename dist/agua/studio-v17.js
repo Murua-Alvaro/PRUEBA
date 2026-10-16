@@ -199,11 +199,64 @@ function table(rows){
 }
 function detail(rows){
  const r=rows.find(x=>x.id===S.selected)||rows[0];if(r&&!S.selected)S.selected=r.id;
- if(!r){$('w17-detail-body').innerHTML='<p class="w17-detail-empty">Seleccione una fila o punto cartográfico para abrir las variables originales.</p>';return}
- $('w17-detail-body').innerHTML='<span class="w17-detail-pill">'+esc(V[S.view][0])+'</span><h3 class="w17-detail-title">'+esc(r.name)+'</h3><p class="w17-detail-sub">'+esc(r.state||'Estado no indicado')+(r.city?' · '+esc(r.city):'')+'</p>'+
- '<div class="w17-detail-highlight"><span>'+esc(r.unit||'Indicador')+'</span><strong>'+f(r.metric,2)+'</strong></div>'+
- Object.entries(r.info).map(([k,v])=>'<div class="w17-detail-fact"><span>'+esc(k)+'</span><strong>'+esc(v??'Sin dato')+'</strong></div>').join('')+
- '<p class="w17-detail-note">'+esc(S.view==='quality'?'Las observaciones carecen de fecha de muestreo verificada. No prueban cumplimiento sanitario ni potabilidad.':S.view==='acuiferos'?'El saldo es administrativo, no volumen de agua existente.':S.view==='overview'||S.view==='presas'||S.view==='regional'?'NAMO es capacidad nominal; no es nivel actual.':'Medición o resultado histórico, no telemetría actual ni demostración causal.')+'</p>';
+ const tab=S.detailTab||'general';
+ root.querySelectorAll('[data-w21-tab]').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.w21Tab===tab));b.tabIndex=b.dataset.w21Tab===tab?0:-1});
+ const box=$('w17-detail-body');
+ if(!r){box.innerHTML='<div class="w21-no-selection">No hay un registro seleccionado para esta consulta. Modifique los filtros o seleccione una ubicación.</div>';return}
+ const pairs=Object.entries(r.info);
+ const field=(label,value)=>'<div class="w21-info-row"><span>'+esc(label)+'</span><strong>'+esc(value??'No informado')+'</strong></div>';
+ const meta={
+ overview:['Inventario geográfico regional / GROWA V9','Catálogo secundario de cinco entidades, sin fecha de verificación actual','https://sih.conagua.gob.mx/'],
+ regional:['Inventario geográfico regional / GROWA V9','Catálogo secundario de cinco entidades, sin fecha de verificación actual','https://sih.conagua.gob.mx/'],
+ presas:['Inventario nacional de presas · 210 registros','Catálogo nacional alternativo, con 19 campos originales','https://docs.google.com/spreadsheets/d/1Rx0y0_N2sCsPzyfYeJGvnlv2wqtUF6cxHYQ_Kwz34t4/edit'],
+ quality:['Calidad del agua, Sinaloa · 6,095 filas','Compilación secundaria sin fechas de muestreo verificadas','https://docs.google.com/spreadsheets/d/1CHNtrXaFUjd1m1_F-83-J1iVoNtyCFZhxmPSaXctWtQ/edit'],
+ storage:['Almacenamiento histórico de Jalisco / Sinaloa','Tres presas en Jalisco, cortes regionales parciales en Sinaloa','https://sih.conagua.gob.mx/'],
+ acuiferos:['Disponibilidad administrativa de acuíferos','Recarga, VEAS y disponibilidad administrativa por acuífero','https://sigagis.conagua.gob.mx/gas1/sections/acuerdos_dof.html'],
+ riego:['Compilación de distritos de riego','Agregados por entidad y ciclo, no parcela o cultivo','https://www.gob.mx/conagua'],
+ clima:['NASA POWER / compilación GROWA','Series agregadas, no indicadores de escurrimiento por cuenca','https://power.larc.nasa.gov/'],
+ trend:['Resultados derivados / GROWA','Significancias y pendientes ya precalculadas','https://www.gob.mx/conagua']
+ }[S.view]||['GROWA / archivo documental','Consulte el catálogo de fuentes','https://sih.conagua.gob.mx/'];
+ const hasXY=r.lat!==null&&r.lon!==null&&Number.isFinite(r.lat)&&Number.isFinite(r.lon);
+ const note=S.view==='quality'?'Sin fecha verificada: no permite afirmar potabilidad o evolución de la calidad.':S.view==='acuiferos'?'Saldo administrativo, no volumen físico de agua disponible.':['overview','presas','regional'].includes(S.view)?'NAMO es la capacidad nominal de diseño; no representa llenado actual.':'Registro de archivo, no medición en vivo.';
+ let html='';
+ if(tab==='general'){
+  html='<div class="w21-record-type">'+esc(V[S.view][0])+'</div><h3 class="w21-record-title">'+esc(r.name)+'</h3>'+
+  '<div class="w21-record-locality">'+esc(r.city||r.state||'Cobertura documental')+(r.city&&r.state?' · '+esc(r.state):'')+'</div>'+
+  '<div class="w21-value-hero"><span>'+esc(r.unit||'Valor original')+'</span><strong>'+f(r.metric,2)+'</strong><small>'+esc(['overview','presas','regional'].includes(S.view)?'Capacidad nominal NAMO':'Indicador del conjunto seleccionado')+'</small></div>'+
+  '<div class="w21-section-title">Identificación</div>'+
+  field('Clave',r.info.clavesih??r.info.Clave??r.info['Clave SIH']??r.info.Folio??'No informada')+
+  field('Estado',r.state||'No informado')+
+  (r.city?field('Municipio',r.city):'')+
+  (hasXY?field('Latitud / longitud',r.lat.toFixed(5)+', '+r.lon.toFixed(5)):'')+
+  '<div class="w21-record-notice">'+esc(note)+'</div>';
+ }else if(tab==='variables'){
+  html='<div class="w21-section-title">Variables originales <small>'+pairs.length+' campos</small></div>'+
+    '<div class="w21-detailed-facts">'+pairs.map(([name,value])=>field(name,value??'No informado')).join('')+'</div>'+
+    '<button type="button" class="w21-record-action" data-w17-action="record-download">Descargar este registro (CSV) ↓</button>';
+ }else if(tab==='location'){
+  html=hasXY?
+   '<div class="w21-section-title">Ubicación geográfica</div><div class="w21-coordinate-box">'+
+   field('Latitud',r.lat.toFixed(6))+field('Longitud',r.lon.toFixed(6))+'</div>'+
+   '<div class="w21-record-tools"><button type="button" data-w17-action="center-record">Centrar en mapa</button>'+
+   '<button type="button" data-w17-action="copy-coords">Copiar coordenadas</button></div>'+
+   '<p class="w21-geonote">Coordenadas del catálogo secundario. No delimitan área de embalse ni superficie de inundación.</p>':
+   '<div class="w21-unavailable"><strong>Sin georreferencia verificable</strong><p>Este conjunto no contiene coordenadas para este registro. No se representa un punto estimado.</p></div>';
+ }else if(tab==='history'){
+  const comparable=shown.filter(x=>(r.code&&x.code===r.code)||(r.state&&['riego','clima'].includes(S.view)&&x.state===r.state)).slice(-12);
+  html=['riego','clima','storage'].includes(S.view)&&comparable.length>1?
+   '<div class="w21-section-title">Observaciones relacionadas <small>'+comparable.length+' últimas en consulta</small></div>'+
+   '<div class="w21-history-list">'+comparable.map(x=>'<div><span>'+esc(x.date||x.year||x.name)+'</span><strong>'+f(x.metric,2)+' '+esc(x.unit||'')+'</strong></div>').join('')+'</div>'+
+   '<p class="w21-geonote">Los registros comparten la clave o entidad indicada; no es una reconstrucción de mediciones faltantes.</p>':
+   '<div class="w21-unavailable"><strong>Sin serie temporal individual validada</strong><p>La ficha procede de un inventario o de observaciones sin cronología demostrable.</p>'+
+   '<button type="button" data-w17-view="storage">Consultar series de almacenamiento →</button></div>';
+ }else if(tab==='source'){
+  html='<div class="w21-section-title">Procedencia del registro</div>'+field('Conjunto',meta[0])+field('Cobertura',meta[1])+
+  field('Tipo de dato','Archivo documental / fuente secundaria')+
+  '<p class="w21-geonote">'+esc(note)+'</p>'+
+  '<a class="w21-external" href="'+esc(meta[2])+'" target="_blank" rel="noopener noreferrer">Abrir fuente / referencia ↗</a>'+
+  '<button type="button" class="w21-record-action" data-w17-view="sources">Metodología completa →</button>';
+ }
+ box.innerHTML=html;
 }
 function chart(series){
  const rows=series.filter(x=>num(x[1])!==null).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));if(rows.length<2)return '<div class="w17-empty"><strong>Sin datos suficientes para graficar.</strong></div>';
@@ -324,6 +377,26 @@ function action(v){
   if(trigger)trigger.setAttribute('aria-expanded',String(!collapsed));
   setTimeout(()=>mp?.invalidateSize(),130);
   break;
+ }
+ case 'record-download':{
+  const record=shown.find(x=>x.id===S.selected);if(!record){msg('Selecciona un registro');break}
+  const escCsv=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
+  const keys=Object.keys(record.info),vals=keys.map(k=>record.info[k]);
+  const csv='\uFEFF'+keys.map(escCsv).join(',')+'\r\n'+vals.map(escCsv).join(',');
+  const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),link=document.createElement('a');
+  link.href=u;link.download='growa-agua-registro-'+record.id+'.csv';document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),2000);msg('Ficha CSV generada');break
+ }
+ case 'copy-coords':{
+  const r=shown.find(x=>x.id===S.selected);if(!r||r.lat===null||r.lon===null)break;
+  const coords=r.lat.toFixed(6)+', '+r.lon.toFixed(6);
+  if(navigator.clipboard?.writeText)navigator.clipboard.writeText(coords).then(()=>msg('Coordenadas copiadas')).catch(()=>msg(coords));
+  else msg(coords);break
+ }
+ case 'center-record':{
+  const r=shown.find(x=>x.id===S.selected);if(!r||r.lat===null||r.lon===null){msg('Sin coordenadas para centrar');break}
+  if(mp){mp.setView([r.lat,r.lon],Math.max(mp.getZoom(),10),{animate:true});msg('Ubicación centrada');}
+  else{S.mode='map';doRender();setTimeout(()=>mp?.setView([r.lat,r.lon],10),220);}break
  }
  case 'advanced-toggle':S.advOpen=!S.advOpen;configureAdvanced();break;
  case 'advanced-reset':resetAdvanced();configureAdvanced();S.page=1;S.selected='';doRender();route();break;
