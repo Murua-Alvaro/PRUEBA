@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+'use strict';
+/* GROWA Agua V16: complete public datasets and routing regression */
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8'),data=p=>JSON.parse(read('dist/agua/'+p));
+const html=read('index.html'),core=read('agua-workspace-v14.js'),plugin=read('dist/agua/explorer-v16.js'),css=read('dist/agua/explorer-v16.css');
+const d210=data('presas-nacionales-v1.json'),q=data('calidad-sinaloa-observaciones-v1.json'),month=data('jalisco-mensual-v1.json');
+const chunks=['jalisco-diario-1.json','jalisco-diario-2.json','jalisco-diario-3.json'].map(data);
+const mf=data('manifest-v16.json');
+new Function(core);new Function(plugin);
+assert.match(html,/id="panel-agua"/);
+assert.match(html,/agua\/explorer-v16\.js/);
+assert.match(html,/agua\/explorer-v16\.css/);
+assert.match(html,/data-aw-view="nacional"/);
+assert.match(html,/data-aw-view="observaciones"/);
+assert.match(html,/data-aw-view="diario"/);
+assert.match(core,/view='biblioteca'/);
+assert.match(plugin,/if\(VIEWS.includes\(S.view\)\)API.render\(\)/);
+assert.equal(d210.rows.length,210);
+assert.equal(d210.campos.length,19);
+assert.ok(d210.rows.every(r=>typeof r[0]==='string'&&r.length>=7));
+assert.equal(new Set(d210.rows.map(x=>x[0])).size,210,'claves nacionales únicas');
+assert.equal(q.rows.length,6095);
+assert.equal(q.campos.length,11);
+assert.equal(new Set(q.rows.map(x=>x[1])).size,223);
+assert.ok(q.rows.every(x=>x.length===11));
+assert.match(q.campoFecha,/sin_fecha/);
+assert.equal(chunks.reduce((x,s)=>x+s.rows.length,0),30652);
+assert.ok(chunks.every(x=>x.campos.length===5));
+assert.equal(month.rows.length,1018);
+assert.ok(month.rows.every(r=>r.length===7));
+assert.equal(mf.sources.find(x=>x.id==='presas_nacional').records,210);
+assert.equal(mf.sources.find(x=>x.id==='quality_sinaloa').records,6095);
+assert.equal(mf.sources.find(x=>x.id==='jalisco_diario').records,30652);
+assert.ok(plugin.includes('function getData')&&plugin.includes('function visible')&&plugin.includes('function daily'));
+assert.ok(plugin.includes('function national')&&plugin.includes('function quality')&&plugin.includes('function csv'));
+assert.ok(!html.includes('basemaps.cartocdn.com'));
+console.log('PASS GROWA AGUA V16 | 210 presas | 6,095 calidad | 30,652 diarios | 1,018 mensuales | rutas y carga diferida');
