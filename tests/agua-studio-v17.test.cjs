@@ -64,7 +64,7 @@ async function run(){
  }
  api.navigate('presas');await flush();assert.equal(api.snapshot().visible,210);
  api.navigate('quality');await flush();assert.equal(api.snapshot().visible,6095);
- api.navigate('storage');await flush();assert.equal(api.snapshot().visible,30652);
+ api.navigate('storage');await flush();assert.equal(api.snapshot().visible,125,'Sinaloa has 99 system rows and 26 individual cuts');
  events.change({target:{id:'w17-state',value:'Jalisco'}});await flush();assert.equal(api.snapshot().visible,30652);
  events.change({target:{id:'w17-period',value:'monthly'}});await flush();assert.equal(api.snapshot().visible,1018);
  events.change({target:{id:'w17-filter',value:'REDJL'}});await flush();assert.ok(api.snapshot().visible>0&&api.snapshot().visible<1018);
