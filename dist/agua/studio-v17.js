@@ -297,7 +297,16 @@ function renderMap(rows){
  try{
   mp=L.map(el,{scrollWheelZoom:false,preferCanvas:true});
   const [url,attr]=bases[S.basemap]||bases.light;
-  L.tileLayer(url,{attribution:attr,maxZoom:17,subdomains:S.basemap==='light'?'abcd':'abc'}).addTo(mp);
+  const primary=L.tileLayer(url,{attribution:attr,maxZoom:17,subdomains:S.basemap==='light'?'abcd':'abc'}).addTo(mp);
+  if(S.basemap==='light'){
+   let tileErrors=0;
+   primary.on('tileerror',()=>{
+    if(++tileErrors!==7||!mp)return;
+    mp.removeLayer(primary);
+    L.tileLayer(bases.street[0],{attribution:bases.street[1],maxZoom:17}).addTo(mp);
+    msg('Mapa alternativo cargado. Se mantiene la escala de grises.');
+   });
+  }
   if(S.showPoints)marks=points.map(r=>{
    const radius=S.symbol==='uniform'?5.5:Math.min(13,Math.max(5,3.8+Math.sqrt(Math.max(0,r.metric||0))/4.5));
    const m=L.circleMarker([r.lat,r.lon],{radius,weight:1.3,color:'#fff',fillColor:'#171c1e',fillOpacity:.94}).addTo(mp);
