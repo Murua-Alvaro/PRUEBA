@@ -252,6 +252,7 @@ document.getElementById('panel-agua').addEventListener('input',e=>{
  E[S.view].search=e.target.value;pg=1;selected=null;draw();
 },true);
 window.GrowaWaterExtra={views:VIEWS,render,filters:()=>{},inspector};
+if(VIEWS.includes(S.view))API.render();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 })();
