@@ -712,7 +712,7 @@ if(view==='sources')h+=narrative();
 else {h+='<div class="v22-data-band"><div><h3>'+esc(view==='overview'?'Registros de infraestructura':desc[0])+'</h3><span>Haga clic en cualquier fila para abrir su expediente técnico</span></div><button class="w17-btn" type="button" data-w17-action="export">↓ Descargar CSV</button></div>'+table()+narrative();}
 E('w17-content').innerHTML=h;
 updateInspector();
-if(isMap)drawMap();
+if(isMap){if(!root.hidden)drawMap();}
 else if(map){map.remove();map=null}
 }
 function selectRow(index){if(index<0||index>=filtered.length)return;sel=index;page=Math.floor(index/18);renderContent()}
@@ -801,7 +801,7 @@ filters();renderContent();
 }catch(e){E('w17-content').innerHTML='<div class="v22-error">No fue posible leer la base integrada. '+esc(e.message)+'</div>';console.error('GROWA Agua V22',e)}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-var mo=new MutationObserver(function(){if(!root.hidden&&map)setTimeout(function(){if(map)map.invalidateSize()},80)});mo.observe(root,{attributes:true,attributeFilter:['hidden']});
+var mo=new MutationObserver(function(){if(!root.hidden&&E('v22-map')){if(!map)drawMap();else setTimeout(function(){if(map)map.invalidateSize()},80)}});mo.observe(root,{attributes:true,attributeFilter:['hidden']});
 })();
 </script>
 </body>
