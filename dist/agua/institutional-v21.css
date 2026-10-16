@@ -488,3 +488,15 @@ body[data-view="agua"] .rail .navigation .nav-link{min-height:65px}
  #panel-agua.w17-root .w21-map-tools>select{max-width:160px}
  #panel-agua.w17-root .w20-observation-bar strong{font-size:16px}
 }
+
+/* Keep every secondary analytics surface neutral and monochrome. */
+#panel-agua.w17-root .w17-chart path[stroke]{stroke:#242829!important}
+#panel-agua.w17-root .w17-chart text{fill:#707575!important}
+#panel-agua.w17-root .w17-chart circle{fill:#242829!important}
+#panel-agua.w17-root .w17-map .leaflet-interactive{outline-offset:2px}
+#panel-agua.w17-root .w17-source a,#panel-agua.w17-root .w17-ref-links a{color:#212527!important}
+#panel-agua.w17-root .w17-overline,#panel-agua.w17-root .w19-kicker{color:#60696a!important}
+#panel-agua.w17-root .w17-dataset{border:1px solid #ddd;background:#fff;border-radius:0}
+#panel-agua.w17-root .w17-dataset-icon{background:#f1f1f1!important;color:#232627!important}
+#panel-agua.w17-root .w17-dataset button{color:#252729!important}
+#panel-agua.w17-root .w17-pagination button:hover,#panel-agua.w17-root .w20-dock-actions button:hover{background:#eee!important}
