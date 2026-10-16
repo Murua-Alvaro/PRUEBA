@@ -4,7 +4,7 @@ const root=document.getElementById('panel-agua');if(!root)return;
 const $=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),norm=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),num=x=>x==null||x===''||!Number.isFinite(+x)?null:+x;
 const f=(x,n=1)=>num(x)===null?'—':new Intl.NumberFormat('es-MX',{maximumFractionDigits:n}).format(+x);
 const V={
-overview:['Vista general','Conjuntos originales y series históricas del observatorio.'],presas:['Presas nacionales','210 presas y 19 variables de infraestructura.'],regional:['Presas por entidad','Inventario georreferenciado regional, cobertura parcial.'],storage:['Almacenamiento histórico','Cortes observados de Sinaloa y tres presas de Jalisco.'],acuiferos:['Acuíferos','Recarga, VEAS y disponibilidad administrativa.'],riego:['Distritos de riego','Volumen y superficie por ciclo agrícola.'],cuencas:['Cuencas y estaciones','Cobertura nacional y límites de los metadatos regionales.'],quality:['Calidad del agua','6,095 observaciones sin fecha validada en 223 sitios de Sinaloa.'],clima:['Clima y agua','Precipitación y evapotranspiración de referencia 2003–2025.'],trend:['Tendencias distritales','32 resultados de pendientes y significancia FDR.'],catalog:['Biblioteca de datos','Materialización real, variables y periodos de origen.'],sources:['Fuentes y metodología','Procedencia verificable y restricciones del análisis.']
+overview:['Atlas hídrico','Infraestructura georreferenciada, capas y series del archivo hídrico.'],presas:['Presas nacionales','210 presas y 19 variables de infraestructura.'],regional:['Presas por entidad','Inventario georreferenciado regional, cobertura parcial.'],storage:['Almacenamiento histórico','Cortes observados de Sinaloa y tres presas de Jalisco.'],acuiferos:['Acuíferos','Recarga, VEAS y disponibilidad administrativa.'],riego:['Distritos de riego','Volumen y superficie por ciclo agrícola.'],cuencas:['Cuencas y estaciones','Cobertura nacional y límites de los metadatos regionales.'],quality:['Calidad del agua','6,095 observaciones sin fecha validada en 223 sitios de Sinaloa.'],clima:['Clima y agua','Precipitación y evapotranspiración de referencia 2003–2025.'],trend:['Tendencias distritales','32 resultados de pendientes y significancia FDR.'],catalog:['Biblioteca de datos','Materialización real, variables y periodos de origen.'],sources:['Fuentes y metodología','Procedencia verificable y restricciones del análisis.']
 };
 const SOURCES=[['Presas nacionales','210 registros secundarios; 19 variables','https://docs.google.com/spreadsheets/d/1Rx0y0_N2sCsPzyfYeJGvnlv2wqtUF6cxHYQ_Kwz34t4/edit','presas'],['Calidad Sinaloa','6,095 observaciones sin fecha validada','https://docs.google.com/spreadsheets/d/1CHNtrXaFUjd1m1_F-83-J1iVoNtyCFZhxmPSaXctWtQ/edit','quality'],['Jalisco diario','30,652 registros de tres presas (1996–2024)','https://docs.google.com/spreadsheets/d/1q0dzyO6Iwy2ojObAFpOPcafaPL7P0oEKjM68umG1WnY/edit','storage'],['Jalisco mensual','1,018 agregados mensuales','https://docs.google.com/spreadsheets/d/15GjNsCaJUGWZg-jbSMs-b1eO8Xxi6w_6B4UmmPUJqKw/edit','storage'],['SIH CONAGUA','Sistema oficial de Información Hidrológica','https://sih.conagua.gob.mx/','sources'],['NASA POWER','Datos meteorológicos históricos','https://power.larc.nasa.gov/','clima'],['Acuíferos CONAGUA','Documentos de disponibilidad y acuerdos','https://sigagis.conagua.gob.mx/gas1/sections/acuerdos_dof.html','acuiferos'],['USGS National Water Dashboard','Referencia para mapa, filtros y fichas','https://dashboard.waterdata.usgs.gov/app/nwd/en/','sources']];
 const FILES={presas:['presas-nacionales-v1.json'],quality:['calidad-sinaloa-observaciones-v1.json'],storage:['jalisco-diario-1.json','jalisco-diario-2.json','jalisco-diario-3.json','jalisco-mensual-v1.json']};
@@ -92,57 +92,48 @@ function stats(items){return '<div class="w17-kpis">'+items.map(([label,val,note
 function head(name,note,tools=''){return '<div class="w17-card-head"><h2>'+esc(name)+'</h2>'+(tools||'<span>'+esc(note||'')+'</span>')+'</div>'}
 function warning(s){return '<div class="w17-warning"><strong>Alcance del dato:</strong> '+esc(s)+'</div>'}
 function summary(){
- const records=filtered();
- shown=records;
+ const records=filtered();shown=records;
  if(!records.some(x=>x.id===S.selected))S.selected=records[0]?.id||'';
- const total=records.reduce((acc,r)=>acc+(r.metric||0),0);
- const opts=' <div class="w17-geo-controls w19-map-actions">'+
- '<button type="button" data-w17-action="mode-map" aria-pressed="'+(S.mode==='map')+'">Mapa</button>'+
- '<button type="button" data-w17-action="mode-table" aria-pressed="'+(S.mode==='table')+'">Sólo tabla</button>'+
- '<select id="w17-basemap" aria-label="Capa cartográfica"><option value="topo">Topográfico</option><option value="street">Calles</option><option value="sat">Satélite</option></select>'+
- '<button type="button" data-w17-action="fit" title="Encuadrar todos los puntos">Encuadrar</button>'+
- '<button type="button" data-w17-action="geojson" title="Descargar puntos filtrados">GeoJSON ↓</button>'+
- '</div>';
- const nav=[['Presas nacionales','210 instalaciones · catálogo de 19 variables','presas'],
-  ['Almacenamiento','Series operativas y cortes observados','storage'],
-  ['Acuíferos','Balance administrativo y recarga','acuiferos'],
-  ['Calidad del agua','6,095 observaciones en Sinaloa','quality'],
-  ['Distritos de riego','Superficie y agua por ciclo','riego'],
-  ['Catálogo de datos','Cobertura, procedencia y descargas','catalog']];
+ const summed=records.reduce((sum,r)=>sum+(r.metric||0),0);
+ const stateLabel=S.state==='Todos'?'Cinco estados':S.state;
+ const mapTools=
+  '<div class="w20-map-tools" role="toolbar" aria-label="Controles del mapa">'+
+    '<button type="button" data-w17-action="mode-map" aria-pressed="'+(S.mode==='map')+'">Mapa</button>'+
+    '<button type="button" data-w17-action="mode-table" aria-pressed="'+(S.mode==='table')+'">Tabla</button>'+
+    '<span class="w20-tools-divider" aria-hidden="true"></span>'+
+    '<select id="w17-basemap" aria-label="Fondo cartográfico"><option value="topo">Relieve</option><option value="street">Calles</option><option value="sat">Satélite</option></select>'+
+    '<button type="button" data-w17-action="fit" title="Ajustar la extensión visible" aria-label="Ajustar mapa">Encuadrar</button>'+
+    '<button type="button" data-w17-action="geojson" title="Exportar registros georreferenciados">GeoJSON ↓</button>'+
+  '</div>';
  $('w17-content').innerHTML=
- '<section class="w19-work-area" aria-label="Atlas territorial de infraestructura">'+
- '<header class="w19-atlas-heading">'+
-  '<div class="w19-atlas-heading-main"><span class="w19-kicker">01 &nbsp; / &nbsp; CARTOGRAFÍA DE INFRAESTRUCTURA</span>'+
-  '<h2>Presas e infraestructura hídrica</h2>'+
-  '<p>Inventario territorial georreferenciado · catálogo parcial de cinco entidades federativas</p></div>'+
-  opts+'</header>'+
- '<div class="w19-map-wrap" '+(S.mode==='table'?'hidden':'')+'>'+
-  '<div id="w17-map" class="w17-map w19-overview-map" '+(S.mode==='table'?'hidden':'')+'></div>'+
-  '<div class="w19-map-counter"><span>UBICACIONES FILTRADAS</span><strong>'+f(records.length,0)+'</strong><small>'+esc(S.state==='Todos'?'Cinco entidades':S.state)+'</small></div>'+
-  '<div class="w19-legend"><span class="w19-legend-dot"></span><span>Presa catalogada &nbsp; · &nbsp; Tamaño por NAMO</span></div>'+
- '</div>'+
- '<div class="w19-measure-strip">'+
-  '<div><small>Presas identificadas</small><strong>'+f(records.length,0)+'</strong></div>'+
-  '<div><small>Capacidad NAMO total</small><strong>'+f(total,1)+' <span>hm³</span></strong></div>'+
-  '<div><small>Entidades del catálogo</small><strong>'+f(new Set(records.map(r=>r.state)).size,0)+'</strong></div>'+
-  '<div class="w19-measure-source"><span>Cobertura</span><strong>Inventario de referencia</strong><small>Capacidad nominal, no almacenamiento actual.</small></div>'+
- '</div></section>'+
- '<section class="w19-results-grid">'+
-  '<div class="w19-results-table">'+
-   '<div class="w19-block-heading"><div><span class="w19-kicker">02 &nbsp; / &nbsp; CONSULTA DE REGISTROS</span><h3>Inventario georreferenciado</h3></div>'+
-   '<button type="button" class="w19-text-action" data-w17-action="export">Exportar selección ↗</button></div>'+
-   table(records)+'</div>'+
-  '<aside class="w19-database-index"><span class="w19-kicker">03 &nbsp; / &nbsp; EXPLORAR BASES</span><h3>Conjuntos disponibles</h3>'+
-    nav.map(([name,sub,view],i)=>'<button type="button" data-w17-view="'+view+'">'+
-      '<span class="w19-index-number">0'+(i+1)+'</span>'+
-      '<span class="w19-index-desc"><strong>'+esc(name)+'</strong><small>'+esc(sub)+'</small></span>'+
-      '<span class="w19-index-arrow">↗</span></button>').join('')+
-    '<p class="w19-index-note">Cada conjunto mantiene su escala, fecha, variables originales y procedencia.</p>'+
-  '</aside></section>'+
- '<div class="w19-method-note"><strong>Nota metodológica.</strong> Las ubicaciones son puntos de catálogo secundario. La capacidad NAMO no describe el llenado observado ni el área de embalse. La ausencia de puntos no prueba ausencia de infraestructura.</div>';
+  '<section class="w20-primary-area" aria-label="Mapa e inventario territorial">'+
+   '<div class="w20-map-titlebar">'+
+     '<div><span class="w20-eyebrow">INFRAESTRUCTURA SUPERFICIAL / INVENTARIO GEORREFERENCIADO</span>'+
+      '<h2>Localización de presas</h2></div>'+
+     mapTools+
+   '</div>'+
+   '<div class="w20-map-canvas" '+(S.mode==='table'?'hidden':'')+'>'+
+      '<div id="w17-map" class="w17-map w20-atlas-map"></div>'+
+      '<div class="w20-map-overlay w20-map-count"><small>PUNTOS CATALOGADOS</small><strong>'+f(records.length,0)+'</strong><span>'+esc(stateLabel)+'</span></div>'+
+      '<div class="w20-map-overlay w20-map-legend"><span class="w20-legend-mark"></span>Capacidad nominal NAMO · puntos de ubicación</div>'+
+   '</div>'+
+   '<div class="w20-observation-bar">'+
+     '<div><small>Presas en la selección</small><strong>'+f(records.length,0)+'</strong></div>'+
+     '<div><small>Capacidad NAMO agregada</small><strong>'+f(summed,1)+' <i>hm³</i></strong></div>'+
+     '<div><small>Entidades identificadas</small><strong>'+f(new Set(records.map(r=>r.state)).size,0)+'</strong></div>'+
+     '<p><b>Lectura correcta</b> · Capacidad de diseño, no almacenamiento actual. El inventario tiene cobertura parcial.</p>'+
+   '</div>'+
+  '</section>'+
+  '<section class="w20-table-dock" aria-label="Inventario de presas y acciones">'+
+    '<div class="w20-dock-head"><div><span class="w20-eyebrow">RESULTADOS / '+esc(stateLabel.toUpperCase())+'</span><h3>Registros de infraestructura <span>'+f(records.length,0)+'</span></h3></div>'+
+      '<div class="w20-dock-actions"><button type="button" data-w17-action="export">Descargar CSV ↓</button><button type="button" data-w17-view="presas">Abrir catálogo nacional ↗</button></div>'+
+    '</div>'+
+    table(records)+
+  '</section>'+
+  '<footer class="w20-map-disclaimer">Fuente: catálogo georreferenciado secundario V9 · Coordenadas aproximadas. Los puntos no representan superficie de embalse ni disponibilidad de agua. Consulte la ficha técnica para variables individuales.</footer>';
  detail(records);
  if(S.mode==='map'){const sel=$('w17-basemap');if(sel)sel.value=S.basemap;renderMap(records)}
- $('w17-filters-note').textContent=f(records.length,0)+' presas registradas · '+(S.state==='Todos'?'Cinco estados':S.state)+' · Seleccione una presa para abrir su ficha.';
+ $('w17-filters-note').textContent=f(records.length,0)+' presas visibles / '+stateLabel+' · Selecciona un punto o registro para abrir su ficha.';
 }
 function catalog(){
  const sets=[['Presas nacionales',210,'19 campos','Sin fecha normativa verificada','presas'],['Presas regionales',75,'7 campos','Corte único','regional'],['Acuíferos',216,'7 campos','Transversal','acuiferos'],['Riego',135,'6 campos','1997–2023','riego'],['Clima',115,'6 campos','2003–2025','clima'],['Tendencias',32,'7 campos','27 ciclos por distrito como máximo','trend'],['Calidad observada',6095,'11 campos','Sin fechas de muestreo','quality'],['Jalisco diario',30652,'5 campos','1996–2024','storage'],['Jalisco mensual',1018,'7 campos','1996–2024','storage'],['Sinaloa sistemas',99,'5 campos','2018–2026','storage'],['Sinaloa individual',26,'5 campos','2018–2026','storage']];
@@ -206,7 +197,7 @@ function renderMap(rows){
  try{
   mp=L.map(el,{scrollWheelZoom:false,preferCanvas:true});L.tileLayer(bases[S.basemap]||bases.topo,{attribution:'© Esri / OpenStreetMap',maxZoom:17}).addTo(mp);
   marks=points.map(r=>{const rad=Math.min(16,Math.max(5,4+Math.sqrt(Math.max(0,r.metric||0))/4)),m=L.circleMarker([r.lat,r.lon],{radius:rad,weight:1.6,color:'#fff',fillColor:'#147c99',fillOpacity:.9}).addTo(mp);
-   m.bindTooltip(esc(r.name)+' · '+f(r.metric)+' hm³');m.on('click',()=>{S.selected=r.id;detail(rows);root.querySelectorAll('[data-w17-id]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.w17Id===r.id)));if(window.innerWidth<=1190)$('w17-detail').classList.add('w17-detail-visible')});return m});
+   m.bindTooltip(esc(r.name)+' · '+f(r.metric)+' hm³');m.on('click',()=>{S.selected=r.id;detail(rows);root.querySelectorAll('[data-w17-id]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.w17Id===r.id)));if(window.innerWidth<=1190){root.classList.remove('w17-detail-collapsed');$('w17-detail').classList.add('w17-detail-visible')}});return m});
   mp.fitBounds(points.map(x=>[x.lat,x.lon]),{padding:[25,25],maxZoom:8});setTimeout(()=>mp?.invalidateSize(),150);
  }catch(e){console.warn('GROWA map',e);el.innerHTML='<div class="w17-empty">No se pudo iniciar el mapa. Use el inventario tabular.</div>'}
 }
@@ -263,7 +254,7 @@ function route(){
  history.replaceState(null,'',url.pathname+url.search+url.hash);
 }
 function navigate(v){
- if(!V[v])return;S.view=v;S.search='';S.filter='all';S.period='all';S.selected='';S.sort='';S.page=1;
+ if(!V[v])return;if(v==='overview')S.mode='map';S.view=v;S.search='';S.filter='all';S.period='all';S.selected='';S.sort='';S.page=1;
  if(v==='presas')S.state='Todos';if(v==='quality')S.state='Sinaloa';if(v==='storage'&&S.state==='Todos')S.state='Jalisco';
  route();draw();if(window.innerWidth<=740)window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -288,7 +279,19 @@ function action(v){
  case 'export':exportRows();break;case 'geojson':exportRows(true);break;
  case 'prev':S.page=Math.max(1,S.page-1);doRender();break;case 'nextpage':S.page++;doRender();break;
  case 'next':{const pos=shown.findIndex(x=>x.id===S.selected);if(!shown.length)break;S.selected=shown[(pos+1)%shown.length].id;detail(shown);if(window.innerWidth<=1190)$('w17-detail').classList.add('w17-detail-visible');break}
- case 'detail-toggle':$('w17-detail').classList.toggle('w17-detail-visible');root.classList.toggle('w17-detail-collapsed');break;
+ case 'detail-toggle':{
+  const el=$('w17-detail'),collapsed=root.classList.toggle('w17-detail-collapsed');
+  el.classList.toggle('w17-detail-visible',!collapsed);
+  setTimeout(()=>mp?.invalidateSize(),130);
+  break;
+ }
+ case 'sidebar-toggle':{
+  const collapsed=root.classList.toggle('w20-nav-collapsed');
+  const trigger=root.querySelector('[data-w17-action="sidebar-toggle"]');
+  if(trigger)trigger.setAttribute('aria-expanded',String(!collapsed));
+  setTimeout(()=>mp?.invalidateSize(),130);
+  break;
+ }
  case 'mode-map':S.mode='map';doRender();break;case 'mode-table':S.mode='table';doRender();break;
  case 'fit':if(mp&&marks.length)mp.fitBounds(marks.map(m=>m.getLatLng()),{padding:[25,25]});break;
  case 'retry':for(const x of FILES[S.view]||[])cache.delete(x);recordCache.clear();draw();break;
