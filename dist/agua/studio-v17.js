@@ -116,7 +116,7 @@ function summary(){
   '<h2>Presas e infraestructura hídrica</h2>'+
   '<p>Inventario territorial georreferenciado · catálogo parcial de cinco entidades federativas</p></div>'+
   opts+'</header>'+
- '<div class="w19-map-wrap">'+
+ '<div class="w19-map-wrap" '+(S.mode==='table'?'hidden':'')+'>'+
   '<div id="w17-map" class="w17-map w19-overview-map" '+(S.mode==='table'?'hidden':'')+'></div>'+
   '<div class="w19-map-counter"><span>UBICACIONES FILTRADAS</span><strong>'+f(records.length,0)+'</strong><small>'+esc(S.state==='Todos'?'Cinco entidades':S.state)+'</small></div>'+
   '<div class="w19-legend"><span class="w19-legend-dot"></span><span>Presa catalogada &nbsp; · &nbsp; Tamaño por NAMO</span></div>'+
@@ -228,9 +228,13 @@ function drawRows(rows){
   addition='<div class="w17-module-card">'+head('Evolución histórica'+(S.state==='Todos'&&S.view!=='storage'?' · '+(series.length?rows[0]?.state:'') :''),'Serie del conjunto seleccionado')+'<div class="w17-plot">'+chart(series)+'</div></div>';
  }else if(S.view==='quality')addition='<div class="w17-module-card">'+head('Distribución de observaciones','Sin fechas verificadas')+'<div class="w17-plot">'+hist(rows)+'</div></div>';
  const msgFor={presas:'Capacidad nominal NAMO, no volumen actual. Algunas fichas nacionales no tienen estado identificado.',regional:'Inventario territorial parcial; sin registro no significa ausencia de presas.',storage:'Jalisco contiene tres presas (1996–2024); Sinaloa contiene cortes parciales, sin telemetría actual.',quality:'Las mediciones de calidad no tienen fecha verificada: no indican cumplimiento sanitario ni tendencia.',acuiferos:'El saldo de un acuífero es un balance administrativo, no volumen físico de agua.',riego:'Los totales de riego por estado no identifican la utilización de cada cultivo.',clima:'P−ET₀ no equivale a disponibilidad hídrica de una cuenca.',trend:'Pendientes y p ajustados son resultados precalculados; la unidad de pendiente está pendiente de auditoría.'};
- $('w17-content').innerHTML=warning(msgFor[S.view]||'Datos históricos; no telemetría actual.')+
- stats([['Filas filtradas',f(rows.length,0),'Consulta activa'],['Ámbito',S.state,'Según catálogo'],['Media de indicador',f(mean,2),'No es una estimación causal'],['Valores no nulos',f(vals.length,0),'No se imputan faltantes']])+addition+
- '<div class="w17-module-card">'+head('Registros y variables · '+f(rows.length,0),'','<div class="w17-geo-controls"><button type="button" data-w17-action="export">↓ CSV filtrado</button></div>')+table(rows)+'</div>';
+ $('w17-content').innerHTML=
+ '<div class="w19-dataset-meta"><span class="w19-kicker">CONJUNTO ACTIVO &nbsp; / &nbsp; '+esc(V[S.view][0].toUpperCase())+'</span>'+
+ '<span>'+f(rows.length,0)+' filas documentales · '+esc(S.state)+' · Valores sin imputación</span></div>'+
+ addition+
+ stats([['Registros seleccionados',f(rows.length,0),'Después de aplicar filtros'],['Ámbito',S.state,'Cobertura de la fuente'],['Media descriptiva',f(mean,2),'Unidad del indicador seleccionado'],['Con valor informado',f(vals.length,0),'Sin imputar faltantes']])+
+ '<div class="w17-module-card">'+head('Datos de origen · '+f(rows.length,0)+' registros','','<div class="w17-geo-controls"><button type="button" data-w17-action="export">Exportar tabla ↓</button></div>')+table(rows)+'</div>'+
+ warning(msgFor[S.view]||'Datos históricos; no telemetría actual.');
  detail(rows);
  if(geo&&S.mode==='map'){const sel=$('w17-basemap');if(sel)sel.value=S.basemap;renderMap(rows)}
  $('w17-filters-note').textContent=f(rows.length,0)+' registros · '+S.state+(S.search?' · Búsqueda: '+S.search:'')+' · Seleccione una fila para abrir sus variables.';
