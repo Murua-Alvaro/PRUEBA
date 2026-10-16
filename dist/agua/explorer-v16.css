@@ -1,0 +1,41 @@
+/* GROWA Agua V16 / Full dataset explorer */
+#panel-agua .x-source{margin:14px 0 8px;padding:13px 15px;background:#f4f8fa;border-left:3px solid #468b9e;color:#6a8492;font-size:11px;line-height:1.65}
+#panel-agua .x-source button{border:0;background:none;color:#17667e;text-decoration:underline;font-weight:750;font-size:11px}
+#panel-agua .x-table-wrap{max-height:515px;scrollbar-width:thin}
+#panel-agua .x-table-wrap .aw-data-table td{white-space:nowrap}
+#panel-agua .x-table-wrap .aw-data-table td.aw-text-cell{white-space:normal;min-width:200px;max-width:340px;line-height:1.5}
+#panel-agua .x-histogram{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:7px;align-items:end;height:190px;padding:18px 12px 0;border-bottom:1px solid #d5e3e9;margin-top:8px}
+#panel-agua .x-histogram>div{height:100%;display:flex;align-items:end;background:#f0f5f8}
+#panel-agua .x-histogram>div>span{display:block;background:linear-gradient(0deg,#125a73,#2696ac);width:100%;min-height:2px;border-radius:2px 2px 0 0}
+#panel-agua .x-hist-endpoints{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px;font-weight:760;color:#627f8c;margin:10px 0 8px}
+#panel-agua .x-switch{display:flex;align-items:center;flex-wrap:wrap;gap:10px 20px;font-size:11px;color:#708a98;margin:14px 0 10px}
+#panel-agua .x-national-map{height:355px;background:#e1ecef;border:1px solid #d0e2e8;border-radius:5px;isolation:isolate;overflow:hidden;margin-bottom:14px}
+#panel-agua .x-national-map[hidden]{display:none!important}
+#panel-agua .x-record-list{display:flex;flex-direction:column;margin:16px 0}
+#panel-agua .x-record-list>div{display:flex;gap:11px;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e2ebee;font-size:11px;line-height:1.6}
+#panel-agua .x-record-list span{color:#6f8995;font-weight:650;flex:0 0 44%;overflow-wrap:anywhere}
+#panel-agua .x-record-list b{color:#245669;font-weight:740;flex:1;text-align:right;overflow-wrap:anywhere}
+#panel-agua .aw-tab-menu{position:relative;align-self:stretch;flex:0 0 auto}
+#panel-agua .aw-tab-menu>summary{height:100%;display:flex;align-items:center;gap:9px;font-size:12px;font-weight:800;color:#225b72;padding:12px 17px;cursor:pointer;list-style:none;border-bottom:3px solid transparent}
+#panel-agua .aw-tab-menu>summary::-webkit-details-marker{display:none}
+#panel-agua .aw-tab-menu[open]>summary{background:#eaf3f6;color:#165874;border-bottom-color:#13839b}
+#panel-agua .aw-tab-menu>div{position:fixed;z-index:9500;min-width:275px;max-width:340px;right:14%;top:112px;display:flex;flex-direction:column;padding:7px;background:#fff;border:1px solid #cbdde5;box-shadow:0 12px 35px #193b5050;border-radius:5px}
+#panel-agua .aw-tab-menu>div button{display:flex;flex-direction:column;align-items:flex-start;background:#fff;text-align:left;border:0;border-left:3px solid transparent;border-radius:2px;padding:13px 14px;color:#2b5366;font-size:12px;font-weight:770;white-space:normal}
+#panel-agua .aw-tab-menu>div button span{display:block;font-size:10px;font-weight:500;color:#7896a4;margin-top:5px}
+#panel-agua .aw-tab-menu>div button:hover{background:#ebf5f8;border-left-color:#17839c}
+#panel-agua .aw-tab-menu>div button[aria-pressed=true]{background:#e3f0f4;border-left-color:#0f7890}
+#panel-agua .aw-dataset-badges{margin:0 0 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11px}
+#panel-agua .aw-dataset-badges span{background:#eef6f8;border:1px solid #d3e6e9;border-radius:4px;padding:7px 9px;color:#3c7184;font-weight:700}
+#panel-agua .aw-data-table tr[data-x-index]{cursor:pointer}
+#panel-agua .aw-data-table tr[data-x-index]:hover{background:#eaf5f7}
+#panel-agua .aw-data-table tr[data-x-index]:focus-visible{outline:2px solid #1685a1;outline-offset:-2px}
+@media(max-width:900px){
+ #panel-agua .aw-tab-menu>div{position:absolute;right:0;top:100%;min-width:240px;max-width:300px}
+ #panel-agua .x-national-map{height:300px}
+}
+@media(max-width:600px){
+ #panel-agua .aw-tab-menu>summary{padding:10px 12px;font-size:11px}
+ #panel-agua .aw-tab-menu>div{left:auto;right:0;max-width:min(300px,85vw)}
+ #panel-agua .x-histogram{gap:3px}
+ #panel-agua .x-record-list span{flex-basis:47%}
+}
