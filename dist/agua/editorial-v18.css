@@ -481,3 +481,47 @@ body[data-view="agua"] #panel-agua.w17-root .w17-shell{background:var(--e-paper)
  #panel-agua.w17-root .w17-kpi strong{font-size:26px}
  #panel-agua.w17-root .w17-btn{font-size:11px;padding-inline:9px}
 }
+
+/* Research index above the data inventory. */
+#panel-agua.w17-root .w18-directory-heading{
+ display:flex;align-items:flex-end;justify-content:space-between;gap:26px;
+ padding:12px 0 19px;margin-top:2px
+}
+#panel-agua.w17-root .w18-directory-heading span{
+ display:block;font-size:10px;font-weight:710;letter-spacing:.105em;color:#68877d;margin-bottom:7px
+}
+#panel-agua.w17-root .w18-directory-heading h3{
+ margin:0;font-family:Georgia,"Times New Roman",serif;
+ font-weight:540;letter-spacing:-.025em;font-size:25px;color:#193a41
+}
+#panel-agua.w17-root .w18-directory-heading p{
+ margin:0 0 1px;max-width:250px;font-size:11.5px;line-height:1.7;
+ color:#7a8c83;text-align:right
+}
+#panel-agua.w17-root .w17-dataset-icon{
+ font:650 11px/1 "Segoe UI",Arial,sans-serif;
+ color:#6c8a81;background:#f4f7f3;border-color:#e2e9e2
+}
+#panel-agua.w17-root .w17-nav [data-w17-view="overview"]{
+ margin-bottom:8px;border-bottom:1px solid #dce5dc
+}
+#panel-agua.w17-root .w17-card-head button:focus-visible,
+#panel-agua.w17-root .w17-nav button:focus-visible{
+ outline:2px solid #3e8e88!important;outline-offset:0!important
+}
+@media (min-width:741px) and (max-width:1190px){
+ #panel-agua.w17-root .w17-detail.w17-detail-visible,
+ #panel-agua.w17-root.w17-detail-collapsed .w17-detail.w17-detail-visible{
+  display:flex!important;position:fixed!important;top:0;right:0;bottom:0;
+  width:min(365px,89vw);max-height:100vh;z-index:20000;
+  box-shadow:-24px 0 58px #254a3e26
+ }
+}
+@media(max-width:740px){
+ #panel-agua.w17-root .w17-actions [data-w17-action="detail-toggle"]{
+  display:inline-flex!important;border-color:#d4e0d8;font-size:11px
+ }
+ #panel-agua.w17-root .w18-directory-heading{display:block;padding:14px 1px 18px}
+ #panel-agua.w17-root .w18-directory-heading h3{font-size:23px}
+ #panel-agua.w17-root .w18-directory-heading p{max-width:none;text-align:left;margin-top:9px}
+}
