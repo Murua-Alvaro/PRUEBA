@@ -232,3 +232,13 @@ body[data-view="agua"] #panel-agua{padding:0!important;width:100%;margin:0;max-w
  .v22-map-status{left:6px;right:6px;bottom:55px}
  .v22-map-register{max-height:160px}
 }
+/* V22.2.1 — Mapas en escala documental y contador sobre el territorio */
+.v22-map-count{position:absolute;z-index:515;top:49px;left:13px;background:#fff;border:1px solid #d1dce0;padding:14px 16px;box-shadow:0 3px 8px #0000000d;min-width:155px;pointer-events:none}
+.v22-map-count small{display:block;color:#5c6d75;font-size:9px;letter-spacing:.09em;font-weight:800}
+.v22-map-count strong{display:block;font-size:29px;color:#1c3443;line-height:1.15;letter-spacing:-.045em;margin-top:5px}
+.v22-map-count em{font-style:normal;color:#788891;font-size:10px;display:block;margin-top:3px}
+#v22-map[data-basemap="claro"] .leaflet-tile-pane{filter:grayscale(1) contrast(.91) brightness(1.06)}
+#v22-map[data-basemap="topografico"] .leaflet-tile-pane{filter:grayscale(.75) contrast(.94)}
+#v22-map[data-basemap="satelite"] .leaflet-tile-pane{filter:none}
+.v22-map-wrap.v22-map-expanded .v22-map-count{top:54px}
+@media(max-width:760px){.v22-map-count{top:45px;left:8px;min-width:125px;padding:10px 12px}.v22-map-count strong{font-size:23px}}
