@@ -513,10 +513,15 @@ body[data-view="agua"] #panel-agua{padding:0!important;width:100%;margin:0;max-w
   <div class="gx-open-lab"><span>¿Necesitas comparar varios municipios, años y cultivos simultáneamente?</span><button id="lab-from-state" type="button">Analizar en Laboratorio <span aria-hidden="true">↗</span></button></div>
 
 <div class="pro-atlas" data-pro-atlas="territorio"></div>
-  <div class="gx-workspace">
+  <details class="agx-atlas-details">
+    <summary><span><small>CONSULTA DOCUMENTAL / MUNICIPIOS Y ESTADOS</small><strong>Abrir expediente territorial ampliado</strong></span><span aria-hidden="true">+</span></summary>
+    <div class="agx-atlas-details-inner">
+      <div class="gx-workspace">
     <aside class="gx-sidebar" aria-label="Entidades disponibles"><div class="gx-sidebar-top"><span class="gx-eyebrow">SELECCIÓN TERRITORIAL</span><h3>Entidades</h3><label class="gx-search-label"><span class="gx-visually-hidden">Buscar entidad</span><input id="gx-state-search" type="search" placeholder="Buscar entidad..." autocomplete="off"></label><p>Diez entidades con perfiles del informe nacional; Sinaloa incluye además el expediente municipal completo.</p></div><div id="gx-state-list" class="gx-choice-list" role="group" aria-label="Entidades con perfil"></div><div class="gx-sidebar-foot"><strong>Origen del análisis</strong><p>Detalle histórico: Sinaloa. Otras entidades: perfiles seleccionados del informe nacional de 115 páginas.</p></div></aside>
     <div class="gx-main"><div id="gx-state-view" class="gx-result" aria-live="polite"></div><div id="gx-state-deep" class="gx-deep"></div></div>
-  </div>
+      </div>
+    </div>
+  </details>
 </section>
 
 <section id="panel-explorar-cultivos" class="section-panel gx-page" hidden aria-label="Explorar cultivos y variedades">
@@ -524,10 +529,15 @@ body[data-view="agua"] #panel-agua{padding:0!important;width:100%;margin:0;max-w
   <div class="gx-open-lab"><span>¿Quieres cruzar periodos, municipios, cultivos e indicadores económicos?</span><button id="lab-from-crop" type="button">Analizar en Laboratorio <span aria-hidden="true">↗</span></button></div>
 
 <div class="pro-atlas" data-pro-atlas="cultivos"></div>
-  <div class="gx-workspace">
+  <details class="agx-atlas-details">
+    <summary><span><small>CONSULTA DOCUMENTAL / CULTIVOS Y VARIEDADES</small><strong>Abrir catálogo analítico completo</strong></span><span aria-hidden="true">+</span></summary>
+    <div class="agx-atlas-details-inner">
+      <div class="gx-workspace">
     <aside class="gx-sidebar" aria-label="Catálogo de cultivos"><div class="gx-sidebar-top"><span class="gx-eyebrow">COBERTURA GEOGRÁFICA</span><div class="gx-scope-switch" role="group" aria-label="Cobertura del catálogo"><button id="gx-crop-sinaloa" class="active" type="button" aria-pressed="true">Sinaloa</button><button id="gx-crop-mexico" type="button" aria-pressed="false">México¹</button></div><label class="gx-search-label"><span class="gx-visually-hidden">Buscar cultivo</span><input id="gx-crop-search" type="search" placeholder="Buscar cultivo..." autocomplete="off"></label><p id="gx-crop-count">Cargando catálogo...</p></div><div id="gx-crop-list" class="gx-choice-list" role="group" aria-label="Cultivos disponibles"></div><div class="gx-sidebar-foot"><strong>¹ Alcance nacional</strong><p>Diez cultivos destacados del informe; no representa el catálogo nacional completo.</p></div></aside>
     <div class="gx-main"><div id="gx-crop-view" class="gx-result" aria-live="polite"></div><div id="gx-crop-deep" class="gx-deep"></div></div>
-  </div>
+      </div>
+    </div>
+  </details>
 </section>
 
 
