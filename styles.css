@@ -1726,3 +1726,460 @@ body{background:#eff4f6;color:var(--ink);font-family:var(--sans);font-size:14px;
 .ap-compare-svg{width:100%;height:auto;display:block;margin:10px 0}
 .ap-compare-svg text{fill:#859289;font-size:10px}
 .ap-compare-foot{color:#819189;font-size:10px;line-height:1.6}
+
+/* GROWA AGRICULTURA | EDICIÓN INSTITUCIONAL OCT 2026 V3 */
+/*
+   Capa editorial del observatorio agrícola.
+   Sin tocar las reglas del visor hídrico: Agua mantiene su sistema cartográfico.
+   Principios: lectura, jerarquía, contraste WCAG y máxima superficie de datos.
+*/
+body:not([data-view="agua"]){
+  --black:#202e29;--ink:#23332e;--strong:#293d35;
+  --middle:#54655c;--muted:#64736b;--quiet:#829087;
+  --line:#d8ded7;--line-soft:#e8ece7;
+  --surface:#fff;--canvas:#f6f7f4;--raised:#f6f8f4;--rail:#fff;
+  --navy:#1d3930;--navy-dark:#172d25;--teal:#2a604e;
+  --teal-dark:#214d40;--gold:#9b794d;
+  --ag-ink:#202c26;--ag-green:#285849;--ag-paper:#f6f7f3;--ag-rule:#dce2da;
+  --sans:Arial,Helvetica,system-ui,sans-serif;--serif:Georgia,'Times New Roman',serif;
+  background:var(--ag-paper);color:var(--ag-ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+body:not([data-view="agua"]) .shell{display:flex;flex-direction:column;min-height:100vh;background:var(--ag-paper)}
+body:not([data-view="agua"]) .page{
+  width:100%;max-width:1660px;margin:0 auto;flex:1;
+  padding:0 clamp(22px,3.3vw,56px) 35px;background:#fff;box-shadow:none
+}
+body:not([data-view="agua"]) .rail{
+  position:sticky;top:0;z-index:1000;display:flex;flex-direction:row;
+  align-items:center;justify-content:space-between;gap:22px;
+  width:100%;min-height:74px;height:74px;padding:0 clamp(22px,3.3vw,56px);
+  background:#fff;border:0;border-bottom:1px solid #d8ddd7;box-shadow:none;color:var(--ag-ink)
+}
+body:not([data-view="agua"]) .brand{
+  display:flex;min-height:74px;min-width:204px;flex:0 0 auto;
+  gap:12px;align-items:center;margin:0;padding:0;text-decoration:none
+}
+body:not([data-view="agua"]) .brand-symbol,
+body:not([data-view="agua"]) .brand-point{
+  font:600 43px/.88 Georgia,serif;color:#1d493d;letter-spacing:-.10em
+}
+body:not([data-view="agua"]) .brand-word{
+  font:800 16px/1 Arial,Helvetica,sans-serif;color:#1b3229;letter-spacing:.18em
+}
+body:not([data-view="agua"]) .brand-word small{
+  display:block;font:650 7px/1.5 Arial,Helvetica,sans-serif;
+  color:#738079;letter-spacing:.095em;margin-top:7px;white-space:nowrap
+}
+body:not([data-view="agua"]) .navigation{
+  display:flex;flex:1 1 auto;flex-direction:row;align-items:stretch;justify-content:center;
+  align-self:stretch;height:auto;min-width:0;gap:2px;overflow:visible
+}
+body:not([data-view="agua"]) .nav-link{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  width:auto;min-width:0;min-height:74px;padding:0 clamp(8px,1.15vw,19px);
+  border:0;border-bottom:3px solid transparent;background:transparent;
+  color:#58665e;font:700 11px/1.35 Arial,Helvetica,sans-serif;
+  letter-spacing:.005em;white-space:nowrap
+}
+body:not([data-view="agua"]) .nav-link:hover{
+  background:#f1f4ef;color:#173f31;border-bottom-color:#aab9ac
+}
+body:not([data-view="agua"]) .nav-link.active{
+  background:#f3f6f1;color:#1c4e3f;border-bottom-color:#285849
+}
+body:not([data-view="agua"]) .lab-nav-link span{color:inherit;font-size:10px}
+body:not([data-view="agua"]) .rail-meta{
+  min-width:170px;display:flex;justify-content:flex-end;align-items:center;
+  gap:8px;color:#344f41;font:750 9px/1.5 Arial,Helvetica,sans-serif;
+  letter-spacing:.075em;white-space:nowrap
+}
+body:not([data-view="agua"]) .rail-meta-line{
+  display:inline-block;width:16px;height:2px;background:#2c6550
+}
+body:not([data-view="agua"]) .rail-meta-year{color:#738178}
+body:not([data-view="agua"]) .ag-nav-toggle{display:none}
+body:not([data-view="agua"]) .topline{
+  min-height:47px;border-bottom:1px solid #e3e8e1;gap:18px;
+  color:#64766a;font:700 9px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.09em
+}
+body:not([data-view="agua"]) .topline .breadcrumb span{color:#b2bdb3}
+body:not([data-view="agua"]) .top-actions{gap:7px}
+body:not([data-view="agua"]) .quick-search,
+body:not([data-view="agua"]) .ux-header-btn{
+  background:#fff;border:1px solid #dde3dc;border-radius:0;color:#315646;
+  min-height:30px;font-size:10px;box-shadow:none
+}
+body:not([data-view="agua"]) .quick-search:hover,
+body:not([data-view="agua"]) .ux-header-btn:hover{
+  background:#f1f5ee;border-color:#a8baac;color:#244b3b
+}
+body:not([data-view="agua"]) .status{font:700 10px/1.5 Arial,Helvetica,sans-serif;color:#2a5c49}
+body:not([data-view="agua"]) .status:before{background:#3e735d}
+body:not([data-view="agua"]) .ag-data-strip{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  flex-wrap:wrap;padding:13px 2px 14px;border-bottom:1px solid #dce2da
+}
+body:not([data-view="agua"]) .ag-data-source{
+  display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+  color:#616f63;font-size:11px;line-height:1.5
+}
+body:not([data-view="agua"]) .ag-data-source strong{
+  font-size:10px;letter-spacing:.105em;color:#234b3b;font-weight:800
+}
+body:not([data-view="agua"]) .ag-data-source i{
+  width:4px;height:4px;background:#aebbad;border-radius:50%;display:inline-block
+}
+body:not([data-view="agua"]) .ag-data-ready{
+  display:inline-flex;align-items:center;gap:8px;color:#4f6656;
+  font-size:10px;font-weight:700;font-variant-numeric:tabular-nums
+}
+body:not([data-view="agua"]) .ag-data-ready:before{
+  content:'';width:7px;height:7px;display:inline-block;
+  border-radius:50%;background:#a8ada3;flex:none
+}
+body:not([data-view="agua"]) .ag-data-ready[data-ready="true"]:before{background:#337457}
+body:not([data-view="agua"]) .ag-data-ready[data-ready="error"]:before{background:#aa614d}
+body:not([data-view="agua"]) .ux-workbench{
+  border-color:#e1e6df;min-height:58px;background:#fff
+}
+body:not([data-view="agua"]) .ux-location strong{color:#1f4435}
+body:not([data-view="agua"]) .ux-action,
+body:not([data-view="agua"]) .ux-menu-anchor .ux-action{
+  background:#fff;border-color:#d8dfd7;color:#344d3c;border-radius:0
+}
+body:not([data-view="agua"]) .ux-action:hover{background:#f2f5ef;color:#1b4d39}
+body:not([data-view="agua"]) .ux-action[aria-pressed=true]{
+  background:#244f3e;border-color:#244f3e;color:#fff
+}
+body:not([data-view="agua"]) .masthead{
+  position:relative;margin:23px 0 37px;padding:0;
+  border:1px solid #dde3d9;border-top:3px solid #275744;
+  background:#f4f6f1;color:#23372b;box-shadow:none;overflow:hidden
+}
+body:not([data-view="agua"]) .masthead:before{content:none}
+body:not([data-view="agua"]) .masthead-content{
+  display:grid;grid-template-columns:minmax(0,1.65fr) minmax(270px,.74fr);
+  min-height:405px
+}
+body:not([data-view="agua"]) .masthead-copy{
+  padding:clamp(35px,4.3vw,70px) clamp(32px,5vw,82px) 41px;
+  background:#f4f6f1;align-items:flex-start
+}
+body:not([data-view="agua"]) .masthead-kicker{
+  color:#477260;font:800 10px/1.45 Arial,Helvetica,sans-serif;
+  letter-spacing:.105em;margin-bottom:22px
+}
+body:not([data-view="agua"]) .editorial-rule{background:#35644b;width:24px;height:2px}
+body:not([data-view="agua"]) .masthead h1{
+  color:#1c3329;font:400 clamp(44px,4.6vw,70px)/1.04 Georgia,serif;
+  letter-spacing:-.058em;max-width:830px;margin:0 0 20px
+}
+body:not([data-view="agua"]) .masthead h1 em{
+  font-style:italic;font-weight:400;color:#41654e
+}
+body:not([data-view="agua"]) .masthead-copy>p{
+  color:#58695d;font-size:13px;line-height:1.85;max-width:620px;margin-bottom:26px
+}
+body:not([data-view="agua"]) .hero-actions{gap:9px;margin-top:auto}
+body:not([data-view="agua"]) .hero-actions button{
+  min-height:42px;border-radius:0;font-size:11px;font-weight:750;box-shadow:none
+}
+body:not([data-view="agua"]) .hero-primary{
+  background:#25543e;border:1px solid #25543e;color:white
+}
+body:not([data-view="agua"]) .hero-primary:hover{
+  background:#163b2b;border-color:#163b2b
+}
+body:not([data-view="agua"]) .hero-secondary{
+  background:transparent;border:1px solid #a7b8a7;color:#254c3c
+}
+body:not([data-view="agua"]) .hero-secondary:hover{
+  background:#e5ede4;border-color:#78967c;color:#183f2e
+}
+body:not([data-view="agua"]) .masthead-aside{
+  padding:26px clamp(22px,2.6vw,40px);
+  background:#233c30;color:#fff;border:0;border-left:1px solid #cbd6cd
+}
+body:not([data-view="agua"]) .masthead-aside-head{color:#c2d1c5;font-size:9px}
+body:not([data-view="agua"]) .masthead-aside-title{
+  color:#f6faf3;font:400 clamp(39px,3.5vw,55px)/1.12 Georgia,serif;
+  letter-spacing:-.045em;margin:39px 0 26px
+}
+body:not([data-view="agua"]) .masthead-aside-title span{
+  color:#b7d0bd;font:400 .68em/1.1 Georgia,serif
+}
+body:not([data-view="agua"]) .masthead-aside-facts{border-top:1px solid #5c7562}
+body:not([data-view="agua"]) .masthead-aside-facts>div{border-color:#486252;padding:11px 0}
+body:not([data-view="agua"]) .masthead-aside-facts span{color:#a9c0ac}
+body:not([data-view="agua"]) .masthead-aside-facts strong{color:#f1f4ed}
+body:not([data-view="agua"]) .masthead-aside-bottom{color:#b4c6b6}
+body:not([data-view="agua"]) .section-panel{padding-bottom:55px}
+body:not([data-view="agua"]) .section-heading{
+  margin:20px 0 24px;padding-bottom:12px;border-bottom:1px solid #dce3dc
+}
+body:not([data-view="agua"]) .section-heading h2,
+body:not([data-view="agua"]) .research-head h3,
+body:not([data-view="agua"]) .story-heading h3{
+  color:#233e30;letter-spacing:-.04em
+}
+body:not([data-view="agua"]) .section-counter,
+body:not([data-view="agua"]) .eyebrow,
+body:not([data-view="agua"]) .small-caption,
+body:not([data-view="agua"]) .period-label{
+  color:#52725d;font-size:9px;letter-spacing:.11em
+}
+body:not([data-view="agua"]) .gx-entry-actions{
+  grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:23px
+}
+body:not([data-view="agua"]) .gx-entry-actions button{
+  background:#fff;border:1px solid #d8e0d7;border-left:3px solid #c2d5c5;
+  box-shadow:none;border-radius:0;color:#2a4b39;
+  font-size:11px;min-height:57px;padding:14px 15px
+}
+body:not([data-view="agua"]) .gx-entry-actions button:hover{
+  background:#eaf1e9;border-color:#aac2ae;color:#204534
+}
+body:not([data-view="agua"]) .gx-entry-actions .lab-entry-cta{
+  background:#244c3c!important;border-color:#244c3c!important;
+  color:#fff!important
+}
+body:not([data-view="agua"]) .gx-entry-actions .lab-entry-cta:hover{
+  background:#193b2d!important
+}
+body:not([data-view="agua"]) .stat-row{
+  border-top:2px solid #2a503c;border-bottom:1px solid #dce2da
+}
+body:not([data-view="agua"]) .stat{padding:23px 19px 22px 2px}
+body:not([data-view="agua"]) .stat:not(:first-child){border-left:1px solid #e2e8e0;padding-left:19px}
+body:not([data-view="agua"]) .stat-label{color:#58705e;font-size:9px}
+body:not([data-view="agua"]) .stat-value{
+  color:#213d30;font-variant-numeric:tabular-nums;
+  font-size:clamp(24px,2.3vw,35px);font-weight:640
+}
+body:not([data-view="agua"]) .stat-foot{color:#6e796e}
+body:not([data-view="agua"]) .executive-brief{
+  background:#f6f7f3;border:1px solid #dfe5dc;border-radius:0;
+  box-shadow:none;margin-bottom:23px
+}
+body:not([data-view="agua"]) .brief-heading h3,
+body:not([data-view="agua"]) .brief-item>strong{color:#1e4333}
+body:not([data-view="agua"]) .brief-tag{color:#597463}
+body:not([data-view="agua"]) .brief-item{border-color:#e0e6dd}
+body:not([data-view="agua"]) .editorial-panel{
+  background:#fff;border:1px solid #dce2db;border-radius:0;
+  box-shadow:none;padding:clamp(18px,2vw,30px)
+}
+body:not([data-view="agua"]) .section-card-heading h3{
+  color:#284435;font:650 clamp(20px,1.8vw,27px)/1.25 Arial,Helvetica,sans-serif
+}
+body:not([data-view="agua"]) .rank-name,
+body:not([data-view="agua"]) .rank-value{color:#2b4837}
+body:not([data-view="agua"]) .rank-bar{background:#e7ede6;height:5px}
+body:not([data-view="agua"]) .rank-fill{background:#386d52;height:5px}
+body:not([data-view="agua"]) .utility-btn,
+body:not([data-view="agua"]) .mx-export{
+  background:#fff;border:1px solid #c8d5ca;color:#315b41;
+  box-shadow:none;border-radius:0;min-height:36px
+}
+body:not([data-view="agua"]) .utility-btn:hover,
+body:not([data-view="agua"]) .mx-export:hover{
+  background:#254c38;border-color:#254c38;color:#fff
+}
+body:not([data-view="agua"]) .gx-home-advanced{
+  border-color:#d4ded4;background:#fff
+}
+body:not([data-view="agua"]) .gx-home-advanced>summary:hover{background:#f4f7f2}
+body:not([data-view="agua"]) .gx-home-advanced>summary strong{color:#254b36}
+body:not([data-view="agua"]) .feature-intro{
+  background:#233f32;border-color:#233f32;border-radius:0
+}
+body:not([data-view="agua"]) .feature-intro h3,
+body:not([data-view="agua"]) .feature-number strong{color:#fff}
+body:not([data-view="agua"]) .gx-page-intro{
+  border-color:#dfe5df;padding:26px 0 21px
+}
+body:not([data-view="agua"]) .gx-page-intro h2{
+  font:400 clamp(35px,3.2vw,50px)/1.15 Georgia,serif;color:#203e30
+}
+body:not([data-view="agua"]) .gx-eyebrow{color:#53705b}
+body:not([data-view="agua"]) .gx-open-lab{
+  margin:12px 0 19px;background:#233e32;
+  background-image:none;border-radius:0;color:#e6ede7;box-shadow:none
+}
+body:not([data-view="agua"]) .gx-open-lab button{border-radius:0}
+body:not([data-view="agua"]) .gx-workspace{
+  border-radius:0;border-color:#d9e2d9;box-shadow:none
+}
+body:not([data-view="agua"]) .gx-sidebar{background:#f7f9f6}
+body:not([data-view="agua"]) .gx-choice.active{
+  background:#244d3b;border-color:#336a50
+}
+body:not([data-view="agua"]) .gx-filters{
+  border-radius:0;background:#f6f8f4;border-color:#dce3da
+}
+body:not([data-view="agua"]) .gx-field select,
+body:not([data-view="agua"]) .lab-choice-field select,
+body:not([data-view="agua"]) .lab-two-selects select{
+  border-radius:0;background:#fff;border-color:#cbd7ca;color:#294c38
+}
+body:not([data-view="agua"]) .gx-kpi strong{color:#254a38}
+body:not([data-view="agua"]) .gx-modebar button.active,
+body:not([data-view="agua"]) .lab-worktabs button.active{
+  border-bottom-color:#315c44;color:#244a34
+}
+body:not([data-view="agua"]) .lab-intro h2{
+  font:400 clamp(34px,3.4vw,52px)/1.15 Georgia,serif;color:#244737
+}
+body:not([data-view="agua"]) .lab-policy,
+body:not([data-view="agua"]) .lab-layout,
+body:not([data-view="agua"]) .lab-report-sheet{
+  border-radius:0;box-shadow:none;border-color:#d9e2d9
+}
+body:not([data-view="agua"]) .lab-policy-grid button{
+  background:#fff;border:0;min-height:139px
+}
+body:not([data-view="agua"]) .lab-policy-grid button:hover{background:#edf3ec}
+body:not([data-view="agua"]) .lab-policy-grid button[aria-pressed=true]{
+  background:#eaf2e7;box-shadow:inset 0 3px #2e5c46
+}
+body:not([data-view="agua"]) .lab-policy-grid button strong,
+body:not([data-view="agua"]) .lab-subtoolbar h3{color:#234832}
+body:not([data-view="agua"]) .lab-filters{background:#f7f9f6}
+body:not([data-view="agua"]) .lab-toolbar-actions button,
+body:not([data-view="agua"]) .lab-report-button{border-radius:0}
+body:not([data-view="agua"]) .lab-toolbar-actions .lab-action-main{
+  background:#244d3a;border-color:#244d3a;color:#fff
+}
+body:not([data-view="agua"]) .lab-toolbar-actions .lab-action-main:hover{
+  background:#153a2a;border-color:#153a2a
+}
+body:not([data-view="agua"]) .lab-table thead th{
+  background:#f1f5ee;color:#38543d
+}
+body:not([data-view="agua"]) .lab-shapley-result{background:#234332}
+body:not([data-view="agua"]) .lab-contrib-track span{background:#33684b}
+body:not([data-view="agua"]) .lab-contrib-track span.negative{background:#a47b48}
+body:not([data-view="agua"]) .institutional-footer{
+  border-top:2px solid #28553e;background:#f4f6f2;color:#536853
+}
+body:not([data-view="agua"]) .institutional-footer strong{color:#264934}
+body:not([data-view="agua"]) .pro-atlas{
+  --ap-ink:#21372b;--ap-deep:#244c39;--ap-green:#32654b;
+  --ap-muted:#66796b;--ap-rule:#dae4da;
+  margin-top:13px;margin-bottom:26px;
+  border:1px solid #d6dfd5;background:#fff;box-shadow:none
+}
+body:not([data-view="agua"]) .ap-map-frame{min-height:530px;background:#edf1e9}
+body:not([data-view="agua"]) .ap-map-top,
+body:not([data-view="agua"]) .ap-legend{background:#fff}
+body:not([data-view="agua"]) .ap-map-top strong{color:#2b4d39}
+body:not([data-view="agua"]) .ap-side{background:#fff;border-color:#dfe5db}
+body:not([data-view="agua"]) .ap-side-tabs button.is-active{
+  border-bottom-color:#2d5e43;color:#244e35;background:#fff
+}
+body:not([data-view="agua"]) .ap-side-bottom>button{
+  border-color:#bbcfbd;color:#2e5d42;border-radius:0
+}
+body:not([data-view="agua"]) :is(button,select,input,summary):focus-visible{
+  outline:2px solid #285d47;outline-offset:2px
+}
+body:not([data-view="agua"]) :is(button,select,input){font-family:Arial,Helvetica,sans-serif}
+body:not([data-view="agua"]) :is(.ap-panel-value strong,.stat-value,.lab-summary-cell strong,.ap-panel-facts strong){font-variant-numeric:tabular-nums}
+@media(max-width:1360px){
+  body:not([data-view="agua"]) .rail{gap:12px;padding:0 24px}
+  body:not([data-view="agua"]) .brand{min-width:175px}
+  body:not([data-view="agua"]) .brand-word{font-size:14px}
+  body:not([data-view="agua"]) .brand-word small{font-size:6.5px}
+  body:not([data-view="agua"]) .nav-link{font-size:10.5px;padding:0 10px}
+  body:not([data-view="agua"]) .rail-meta{display:none}
+}
+@media(max-width:1060px){
+  body:not([data-view="agua"]) .rail{
+    position:sticky;min-height:66px;height:66px;display:flex;flex-direction:row;gap:16px;
+    padding:0 22px;flex-wrap:nowrap
+  }
+  body:not([data-view="agua"]) .brand{min-height:66px;min-width:0;margin:0}
+  body:not([data-view="agua"]) .ag-nav-toggle{
+    display:flex;margin-left:auto;align-items:center;justify-content:center;gap:8px;
+    border:1px solid #cbd8cb;background:#fff;color:#2a4c37;padding:10px 13px;
+    min-height:38px;font:750 11px/1 Arial,Helvetica,sans-serif
+  }
+  body:not([data-view="agua"]) .ag-nav-toggle svg{width:17px;height:17px;display:block}
+  body:not([data-view="agua"]) .navigation{
+    display:none;position:absolute;top:65px;left:0;right:0;z-index:1500;height:auto;
+    max-height:calc(100vh - 70px);overflow:auto;flex-direction:column;justify-content:flex-start;
+    align-items:stretch;gap:0;padding:8px 18px 18px;background:#fff;
+    border-bottom:1px solid #c9d7c9;box-shadow:0 18px 25px #172d2618
+  }
+  body:not([data-view="agua"]).ag-nav-open .navigation{display:flex}
+  body:not([data-view="agua"]) .nav-link{
+    min-height:48px;justify-content:flex-start;display:flex;width:100%;padding:0 14px;
+    font-size:12px;border:0;border-left:3px solid transparent;
+    border-bottom:1px solid #eef1eb;background:#fff
+  }
+  body:not([data-view="agua"]) .nav-link.active{
+    border-left-color:#2a5d43;border-bottom-color:#e9eee8;background:#f4f7f1
+  }
+  body:not([data-view="agua"]) .rail-meta{display:none}
+  body:not([data-view="agua"]) .masthead-content{grid-template-columns:minmax(0,1.4fr) minmax(220px,.8fr)}
+  body:not([data-view="agua"]) .masthead h1{font-size:clamp(40px,5vw,55px)}
+}
+@media(max-width:760px){
+  body:not([data-view="agua"]) .page{padding:0 17px 22px}
+  body:not([data-view="agua"]) .rail{padding:0 17px}
+  body:not([data-view="agua"]) .brand-word{font-size:13px}
+  body:not([data-view="agua"]) .brand-word small{white-space:normal;font-size:6.3px;max-width:176px}
+  body:not([data-view="agua"]) .topline{min-height:44px;gap:7px;padding:7px 0}
+  body:not([data-view="agua"]) .topline .breadcrumb{display:none}
+  body:not([data-view="agua"]) .top-actions{width:100%;justify-content:flex-end}
+  body:not([data-view="agua"]) .ag-data-strip{gap:7px;padding:12px 0}
+  body:not([data-view="agua"]) .ag-data-source{font-size:10px;gap:7px}
+  body:not([data-view="agua"]) .ag-data-ready{font-size:10px}
+  body:not([data-view="agua"]) .ux-workbench{padding:12px 0;gap:10px}
+  body:not([data-view="agua"]) .masthead{margin:17px 0 28px}
+  body:not([data-view="agua"]) .masthead-content{grid-template-columns:1fr}
+  body:not([data-view="agua"]) .masthead-copy{padding:30px 25px 31px}
+  body:not([data-view="agua"]) .masthead h1{font-size:clamp(38px,8vw,53px)}
+  body:not([data-view="agua"]) .masthead-copy>p{font-size:12.5px;line-height:1.65}
+  body:not([data-view="agua"]) .masthead-aside{
+    padding:19px 24px 21px;border:0;border-top:1px solid #708775
+  }
+  body:not([data-view="agua"]) .masthead-aside-title{margin:13px 0 16px;font-size:30px}
+  body:not([data-view="agua"]) .masthead-aside-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  body:not([data-view="agua"]) .masthead-aside-facts>div{border:0;border-right:1px solid #506958;padding:7px 9px 7px 0}
+  body:not([data-view="agua"]) .masthead-aside-facts>div:last-child{border:0}
+  body:not([data-view="agua"]) .masthead-aside-facts strong{font-size:11px;line-height:1.3}
+  body:not([data-view="agua"]) .masthead-aside-bottom{margin-top:12px}
+  body:not([data-view="agua"]) .gx-entry-actions{grid-template-columns:1fr;gap:6px}
+  body:not([data-view="agua"]) .gx-entry-actions button{min-height:46px}
+  body:not([data-view="agua"]) .stat-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  body:not([data-view="agua"]) .stat{padding:14px 10px 18px 0!important}
+  body:not([data-view="agua"]) .stat:nth-child(odd){border-left:0}
+  body:not([data-view="agua"]) .stat:nth-child(n+3){border-top:1px solid #e1e7dd}
+  body:not([data-view="agua"]) .stat-value{font-size:clamp(19px,5vw,26px);white-space:normal}
+  body:not([data-view="agua"]) .two-pane{grid-template-columns:1fr}
+  body:not([data-view="agua"]) .editorial-panel{padding:20px 17px}
+  body:not([data-view="agua"]) .section-card-heading{flex-wrap:wrap}
+  body:not([data-view="agua"]) .gx-page-intro{padding:23px 0 18px}
+  body:not([data-view="agua"]) .gx-page-intro h2{font-size:36px}
+  body:not([data-view="agua"]) .gx-open-lab{flex-wrap:wrap;gap:10px}
+  body:not([data-view="agua"]) .lab-policy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body:not([data-view="agua"]) .lab-policy-grid button{min-height:160px}
+  body:not([data-view="agua"]) .ap-map-frame{min-height:410px}
+  body:not([data-view="agua"]) .institutional-footer{flex-wrap:wrap}
+}
+@media(max-width:420px){
+  body:not([data-view="agua"]) .masthead h1{font-size:36px}
+  body:not([data-view="agua"]) .masthead-aside-facts{grid-template-columns:1fr}
+  body:not([data-view="agua"]) .masthead-aside-facts>div{border-right:0;border-bottom:1px solid #4d6654}
+  body:not([data-view="agua"]) .lab-policy-grid{grid-template-columns:1fr}
+  body:not([data-view="agua"]) .status{font-size:9px}
+}
+@media print{
+  body:not([data-view="agua"]) .rail,
+  body:not([data-view="agua"]) .ag-data-strip,
+  body:not([data-view="agua"]) .ag-nav-toggle{display:none!important}
+  body:not([data-view="agua"]) .page{max-width:100%;box-shadow:none}
+  body:not([data-view="agua"]) .masthead{break-inside:avoid}
+}
