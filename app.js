@@ -2091,3 +2091,90 @@ function init(){
 window.addEventListener("growa:data-ready",init);
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
+
+
+/* GROWA AGRICULTURA | NAVEGACION Y ESTADO V3 */
+(function(){
+  'use strict';
+  function start(){
+    var body=document.body;
+    var button=document.querySelector('.ag-nav-toggle');
+    var navigation=document.getElementById('ag-main-nav');
+    var indicator=document.getElementById('ag-data-ready');
+    if(!button||!navigation||!indicator)return;
+    var mobileOpen=false;
+    function closeMenu(){
+      mobileOpen=false;
+      body.classList.remove('ag-nav-open');
+      button.setAttribute('aria-expanded','false');
+      button.setAttribute('aria-label','Abrir menú de navegación');
+      button.querySelector('span').textContent='Menú';
+    }
+    button.addEventListener('click',function(){
+      mobileOpen=!mobileOpen;
+      body.classList.toggle('ag-nav-open',mobileOpen);
+      button.setAttribute('aria-expanded',mobileOpen?'true':'false');
+      button.setAttribute('aria-label',mobileOpen?'Cerrar menú de navegación':'Abrir menú de navegación');
+      button.querySelector('span').textContent=mobileOpen?'Cerrar':'Menú';
+    });
+    navigation.addEventListener('click',function(event){
+      if(event.target.closest('[data-tab]'))closeMenu();
+    });
+    document.addEventListener('click',function(event){
+      if(mobileOpen&&!navigation.contains(event.target)&&!button.contains(event.target))closeMenu();
+    });
+    document.addEventListener('keydown',function(event){
+      if(event.key==='Escape'&&mobileOpen){closeMenu();button.focus();}
+    });
+    window.addEventListener('resize',function(){
+      if(window.innerWidth>1060&&mobileOpen)closeMenu();
+    },{passive:true});
+    var currentView='';
+    function syncNavigation(){
+      var view=body.dataset.view||'panorama';
+      if(currentView!==view){
+        currentView=view;
+        closeMenu();
+        navigation.querySelectorAll('[data-tab]').forEach(function(node){
+          if(node.dataset.tab===view)node.setAttribute('aria-current','page');
+          else node.removeAttribute('aria-current');
+        });
+      }
+    }
+    var viewWatcher=new MutationObserver(syncNavigation);
+    viewWatcher.observe(body,{attributes:true,attributeFilter:['data-view']});
+    syncNavigation();
+    function syncDataStatus(){
+      var holder=window.GrowaSinaloaData;
+      if(!holder||!holder.D)return false;
+      var data=holder.D;
+      if(!Array.isArray(data.state)||!Array.isArray(data.municipal2025))return false;
+      var years=data.state.length;
+      var municipalities=data.municipal2025.length;
+      indicator.textContent='Base verificada: '+municipalities+' municipios · '+years+' cierres';
+      indicator.dataset.ready='true';
+      indicator.title='Integridad inicial del paquete validada al cargar el observatorio. No implica consulta en tiempo real al servidor de DGSIAP.';
+      return true;
+    }
+    var ready=syncDataStatus();
+    if(!ready){
+      window.addEventListener('growa:data-ready',syncDataStatus,{once:true});
+      var status=document.getElementById('status');
+      if(status){
+        var statusWatcher=new MutationObserver(function(){
+          if(syncDataStatus()){statusWatcher.disconnect();return;}
+          var message=status.textContent||'';
+          if(/error|no se pudo|no coincide|no disponible|incompatible/i.test(message)){
+            indicator.textContent='No se pudo verificar la base de datos';
+            indicator.dataset.ready='error';
+            statusWatcher.disconnect();
+          }
+        });
+        statusWatcher.observe(status,{childList:true,characterData:true,subtree:true});
+      }
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
+  else start();
+})();
+
