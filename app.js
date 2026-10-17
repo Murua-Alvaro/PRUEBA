@@ -2178,3 +2178,266 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   else start();
 })();
 
+
+/* GROWA AGRICULTURA | DATA CONSOLE V4 */
+(function(){
+  'use strict';
+  const root=document.getElementById('agx-console');
+  if(!root)return;
+  const el=id=>document.getElementById(id);
+  const num=new Intl.NumberFormat('es-MX',{maximumFractionDigits:1,minimumFractionDigits:0});
+  const integer=new Intl.NumberFormat('es-MX',{maximumFractionDigits:0});
+  const compact=new Intl.NumberFormat('es-MX',{notation:'compact',maximumFractionDigits:1});
+  const pct=new Intl.NumberFormat('es-MX',{maximumFractionDigits:1,minimumFractionDigits:1});
+  const escapeText=v=>String(v===null||v===undefined?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const metricInfo={
+    value:{title:'Valor bruto de producción',unit:'millones de pesos nominales',short:'MDP',decimals:1},
+    planted:{title:'Superficie sembrada',unit:'hectáreas acumuladas por cultivo y ciclo',short:'ha',decimals:0},
+    harvest:{title:'Superficie cosechada',unit:'hectáreas acumuladas por cultivo y ciclo',short:'ha',decimals:0},
+    loss:{title:'Superficie siniestrada',unit:'hectáreas acumuladas por cultivo y ciclo',short:'ha',decimals:0}
+  };
+  const all='__all__';
+  const filter={muni:all,crop:all,metric:'value',year:2025,view:'chart',rank:'municipio'};
+  let data=null,years=[],byYear=new Map(),lastRanking=[],lastSeries=[],initialized=false;
+  const sum=(arr,key)=>arr.reduce((v,x)=>v+(Number(x[key])||0),0);
+  const fmt=(v,metric=filter.metric)=>metric==='value'?num.format(v):integer.format(v);
+  const size=v=>compact.format(v);
+  const label=(v,metric=filter.metric)=>fmt(v,metric)+' '+metricInfo[metric].short;
+  const isSelected=v=>v!==all;
+  const selectedName=v=>isSelected(v)?v:'Todos';
+  function listOptions(select,items,first){
+    select.textContent='';
+    const defaultOpt=document.createElement('option');
+    defaultOpt.value=all;defaultOpt.textContent=first;select.append(defaultOpt);
+    for(const name of items){
+      const option=document.createElement('option');
+      option.value=name;option.textContent=name;select.append(option);
+    }
+  }
+  function loadPref(){
+    const params=new URLSearchParams(location.search);
+    const muni=params.get('agM'),crop=params.get('agC'),metric=params.get('agI'),year=Number(params.get('agY'));
+    if(muni&&data.muniNames.includes(muni))filter.muni=muni;
+    if(crop&&data.cropNames.includes(crop))filter.crop=crop;
+    if(metric&&metricInfo[metric])filter.metric=metric;
+    if(years.includes(year))filter.year=year;
+    if(filter.muni!==all)filter.rank='cultivo';
+  }
+  function setUrl(){
+    const u=new URL(location.href);
+    [['agM',filter.muni],['agC',filter.crop],['agI',filter.metric],['agY',String(filter.year)]].forEach(([key,value])=>{
+      if(value===all||key==='agI'&&value==='value'||key==='agY'&&value==='2025')u.searchParams.delete(key);
+      else u.searchParams.set(key,value);
+    });
+    history.replaceState(null,'',u.pathname+(u.search||'')+(u.hash||''));
+  }
+  function filteredRows(year){
+    const rows=byYear.get(year)||[];
+    return rows.filter(r=>(filter.muni===all||r.municipio===filter.muni)&&(filter.crop===all||r.name===filter.crop));
+  }
+  function series(){
+    return years.map(year=>{
+      const rows=filteredRows(year);
+      return {year,value:rows.length?sum(rows,filter.metric):null,records:rows.length};
+    });
+  }
+  function activeRows(){return filteredRows(filter.year);}
+  function growth(seriesRows){
+    const i=seriesRows.findIndex(row=>row.year===filter.year);
+    if(i<=0)return null;
+    const a=seriesRows[i],b=seriesRows[i-1];
+    return a.value!==null&&b.value!==null&&b.value!==0?100*(a.value/b.value-1):null;
+  }
+  function selectYear(year){
+    if(!years.includes(year))return;
+    filter.year=year;el('agx-year').value=String(year);setUrl();render();
+  }
+  function graph(seriesRows){
+    const target=el('agx-plot');
+    const valid=seriesRows.filter(p=>p.value!==null);
+    if(!valid.length){
+      target.innerHTML='<p class="agx-rank-empty">No existen observaciones en el periodo para esta combinación. La ausencia de registros no equivale a producción cero.</p>';
+      return;
+    }
+    const box={left:63,right:869,top:31,bottom:279},w=box.right-box.left,h=box.bottom-box.top;
+    const ymax=Math.max(1,...valid.map(x=>x.value))*1.13;
+    const x=yr=>box.left+((yr-years[0])/(years[years.length-1]-years[0]))*w;
+    const y=v=>box.bottom-(v/ymax)*h;
+    const ticks=Array.from({length:5},(_,i)=>(ymax/4)*i);
+    const axis=ticks.map(v=>'<line x1="'+box.left+'" y1="'+y(v).toFixed(1)+'" x2="'+box.right+'" y2="'+y(v).toFixed(1)+'" stroke="#e3e9e1" stroke-dasharray="'+(v===0?'0':'3 5')+'"/><text x="'+(box.left-13)+'" y="'+(y(v)+4).toFixed(1)+'" text-anchor="end" font-size="10" fill="#7b887a">'+escapeText(size(v))+'</text>').join('');
+    let d='',lastExists=false;
+    for(const row of seriesRows){
+      if(row.value===null){lastExists=false;continue;}
+      d+=(lastExists?' L':' M')+x(row.year).toFixed(2)+' '+y(row.value).toFixed(2);
+      lastExists=true;
+    }
+    const active=seriesRows.find(row=>row.year===filter.year);
+    const selX=x(filter.year);
+    const yearTicks=years.filter((v,i)=>i===0||i===years.length-1||(v-2003)%4===0).map(yr=>'<text x="'+x(yr).toFixed(2)+'" y="314" text-anchor="middle" font-size="10.5" fill="#6d8171">'+yr+'</text>').join('');
+    const hit=seriesRows.filter(r=>r.value!==null).map(r=>{
+      const chosen=r.year===filter.year;
+      return '<g data-agx-year="'+r.year+'" tabindex="0" role="button" aria-label="'+r.year+': '+escapeText(label(r.value))+'"><title>'+r.year+' · '+escapeText(label(r.value))+'</title><rect x="'+(x(r.year)-16).toFixed(2)+'" y="14" width="32" height="285" fill="transparent"/><circle cx="'+x(r.year).toFixed(2)+'" cy="'+y(r.value).toFixed(2)+'" r="'+(chosen?'6.5':'3.2')+'" stroke="'+(chosen?'#fff':'#337156')+'" stroke-width="'+(chosen?2:1)+'" fill="'+(chosen?'#284f38':'#337156')+'"/></g>';
+    }).join('');
+    const bubble=(active&&active.value!==null)?'<g><rect x="'+(selX>635?selX-152:selX+11).toFixed(2)+'" y="5" rx="0" width="141" height="39" fill="#274835"/><text x="'+(selX>635?selX-141:selX+22).toFixed(2)+'" y="22" font-size="10" fill="#d6e6d7">'+filter.year+'</text><text x="'+(selX>635?selX-141:selX+22).toFixed(2)+'" y="36" font-size="13" font-weight="700" fill="#fff">'+escapeText(label(active.value))+'</text></g>':'';
+    target.innerHTML='<svg viewBox="0 0 900 337" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Serie histórica interactiva por año, 2003 a 2025"><text x="'+box.left+'" y="12" font-size="9" font-weight="700" fill="#67816b" letter-spacing="1.0">'+escapeText(metricInfo[filter.metric].short)+' / SERIE ANUAL</text>'+axis+'<line x1="'+selX.toFixed(2)+'" y1="'+box.top+'" x2="'+selX.toFixed(2)+'" y2="'+box.bottom+'" stroke="#8bb599" stroke-width="1.5" stroke-dasharray="4 5"/><path d="'+d+'" fill="none" stroke="#2f6748" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+hit+yearTicks+bubble+'</svg>';
+  }
+  function table(seriesRows){
+    el('agx-series-table').innerHTML='<table aria-label="Serie histórica de la consulta"><thead><tr><th>Año</th><th>Registros</th><th>Variable seleccionada</th></tr></thead><tbody>'+seriesRows.map(row=>{
+      const current=row.year===filter.year;
+      return '<tr data-agx-row="'+row.year+'" tabindex="0" aria-selected="'+current+'"><td>'+row.year+'</td><td>'+integer.format(row.records)+'</td><td>'+(row.value===null?'Sin registro':escapeText(label(row.value)))+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  function groups(rows){
+    const index=new Map(),key=filter.rank==='municipio'?'municipio':'name';
+    for(const row of rows){
+      const name=row[key],a=index.get(name)||{name,value:0,records:0};
+      a.value+=Number(row[filter.metric])||0;a.records++;index.set(name,a);
+    }
+    return [...index.values()].sort((a,b)=>b.value-a.value||a.name.localeCompare(b.name,'es'));
+  }
+  function ranking(rows){
+    const ranked=groups(rows);
+    lastRanking=ranked;
+    const total=sum(ranked,'value');
+    const max=Math.max(0,...ranked.map(r=>r.value));
+    const area=el('agx-rank');
+    if(!ranked.length){
+      area.innerHTML='<p class="agx-rank-empty">No se encontraron datos para este corte. Modifique el municipio, cultivo o año.</p>';
+    }else{
+      area.innerHTML=ranked.map((r,i)=>{
+        const weight=total>0?(100*r.value/total):0;
+        const intensity=max>0?100*r.value/max:0;
+        const filterName=filter.rank==='municipio'?'data-agx-municipio':'data-agx-cultivo';
+        return '<button type="button" class="agx-rank-row" '+filterName+'="'+escapeText(r.name)+'" title="Filtrar por '+escapeText(r.name)+'"><span class="agx-rank-line"><span class="agx-rank-position">'+String(i+1).padStart(2,'0')+'</span><span class="agx-rank-name">'+escapeText(r.name)+'</span><strong class="agx-rank-value">'+escapeText(fmt(r.value))+'</strong></span><span class="agx-rank-track"><i style="width:'+Math.max(0,Math.min(100,intensity)).toFixed(2)+'%"></i></span><span class="agx-rank-sub">'+pct.format(weight)+' % de la selección</span></button>';
+      }).join('');
+    }
+    el('agx-rank-count').textContent=integer.format(ranked.length)+' '+(filter.rank==='municipio'?'municipios':'cultivos');
+    el('agx-rank-subtitle').textContent=filter.rank==='municipio'?'Contribución municipal · '+filter.year:'Composición por cultivo · '+filter.year;
+    root.querySelectorAll('[data-agx-rank]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.agxRank===filter.rank)));
+  }
+  function insight(rows,current,ranked){
+    const year=filter.year,place=filter.muni===all?'Sinaloa':filter.muni,what=filter.crop===all?'el conjunto de cultivos':filter.crop;
+    if(!rows.length){
+      el('agx-observation').textContent='No hay observaciones para '+what+' en '+place+' durante '+year+'. Un año sin registro no puede interpretarse como producción nula; ajuste el ámbito o el periodo.';
+      return;
+    }
+    const val=current.value,metric=metricInfo[filter.metric];
+    const top=ranked.slice(0,3),share=val>0?sum(top,'value')/val*100:null;
+    const first=top[0];
+    let txt='En '+year+', '+place+' registró '+label(val)+' de '+metric.title.toLowerCase()+' para '+what+'. ';
+    if(first&&share!==null){
+      txt+='En el desglose por '+(filter.rank==='municipio'?'municipio':'cultivo')+', '+first.name+' tuvo la mayor contribución; los tres primeros concentran '+pct.format(share)+' % del valor de esta variable. ';
+    }
+    txt+='Se trata de una lectura descriptiva; para comparar valor entre años en términos reales se requiere deflactar.';
+    el('agx-observation').textContent=txt;
+  }
+  function render(){
+    if(!data)return;
+    const rows=activeRows();
+    const s=series();
+    lastSeries=s;
+    const current=s.find(r=>r.year===filter.year);
+    const inc=growth(s);
+    const m=metricInfo[filter.metric];
+    el('agx-query-label').textContent=(filter.muni===all?'Sinaloa':filter.muni)+' · '+(filter.crop===all?'Todos los cultivos':filter.crop)+' · '+filter.year;
+    el('agx-query-meta').textContent=m.title+' · '+m.short;
+    el('agx-total').textContent=current.value===null?'s/d':label(current.value);
+    el('agx-total-foot').textContent=rows.length?integer.format(rows.length)+' registros municipio–cultivo en '+filter.year:'Sin registros en el corte';
+    el('agx-growth').textContent=inc===null?'s/d':(inc>0?'+':'')+pct.format(inc)+' %';
+    el('agx-growth-foot').textContent=inc===null?'Comparación anual no disponible':'Cambio frente al año inmediato anterior';
+    el('agx-crops-count').textContent=integer.format(new Set(rows.map(row=>row.name)).size);
+    el('agx-munis-count').textContent=integer.format(new Set(rows.map(row=>row.municipio)).size);
+    el('agx-series-subtitle').textContent=metricInfo[filter.metric].title+' · 2003—2025';
+    el('agx-chart-note').textContent=filter.metric==='value'?'Los valores nominales no están ajustados por inflación.':'La superficie es la suma de registros por cultivo y ciclo, no superficie física única.';
+    el('agx-plot').hidden=filter.view!=='chart';
+    el('agx-series-table').hidden=filter.view!=='table';
+    root.querySelectorAll('[data-agx-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.agxView===filter.view)));
+    graph(s);table(s);ranking(rows);insight(rows,current,lastRanking);
+  }
+  function makeCSV(filename,rows){
+    if(!rows.length)return;
+    const columns=Object.keys(rows[0]);
+    const protect=v=>{
+      const text=String(v===null||v===undefined?'':v);
+      const safe=/^[=+\-@\t\r]/.test(text)?"'"+text:text;
+      return '"'+safe.replace(/"/g,'""')+'"';
+    };
+    const lines=['\ufeff'+columns.map(protect).join(','),...rows.map(row=>columns.map(k=>protect(row[k])).join(','))];
+    const url=URL.createObjectURL(new Blob([lines.join('\r\n')],{type:'text/csv;charset=utf-8'}));
+    const link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
+  function exportSeries(){
+    makeCSV('GROWA_agricultura_serie_'+filter.year+'.csv',lastSeries.map(row=>({anio:row.year,municipio:selectedName(filter.muni),cultivo:selectedName(filter.crop),variable:metricInfo[filter.metric].title,valor:row.value===null?'':row.value,unidad:metricInfo[filter.metric].short,registros:row.records,fuente:'DGSIAP'})));
+  }
+  function exportRanking(){
+    makeCSV('GROWA_agricultura_composicion_'+filter.year+'.csv',lastRanking.map((row,i)=>({posicion:i+1,dimension:filter.rank,territorio_o_cultivo:row.name,valor:row.value,unidad:metricInfo[filter.metric].short,anio:filter.year,registros:row.records,fuente:'DGSIAP'})));
+  }
+  function act(action){
+    if(action==='reset'){
+      Object.assign(filter,{muni:all,crop:all,metric:'value',year:2025,rank:'municipio',view:'chart'});
+      el('agx-municipio').value=all;el('agx-cultivo').value=all;el('agx-metric').value='value';el('agx-year').value='2025';
+      setUrl();render();return;
+    }
+    if(action==='export-series'){exportSeries();return;}
+    if(action==='export-ranking'){exportRanking();return;}
+    if(action==='share'){
+      setUrl();
+      const url=location.href;
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(()=>{
+          const btn=root.querySelector('[data-agx-action="share"]');
+          if(btn){btn.textContent='✓ Enlace copiado';setTimeout(()=>btn.textContent='↗ Compartir consulta',1800);}
+        }).catch(()=>window.prompt('Copie el enlace de la consulta:',url));
+      }else window.prompt('Copie el enlace de la consulta:',url);
+    }
+  }
+  function init(){
+    if(initialized)return;
+    const provider=window.GrowaSinaloaData;
+    if(!provider||!provider.D||!Array.isArray(provider.D.crops))return;
+    data=provider.D;initialized=true;
+    years=data.state.map(x=>x.year).sort((a,b)=>a-b);
+    for(const year of years)byYear.set(year,[]);
+    for(const row of data.crops)if(byYear.has(row.year))byYear.get(row.year).push(row);
+    listOptions(el('agx-municipio'),data.muniNames,'Sinaloa · todos los municipios');
+    listOptions(el('agx-cultivo'),data.cropNames,'Todos los cultivos');
+    el('agx-year').innerHTML=years.slice().reverse().map(year=>'<option value="'+year+'">'+year+'</option>').join('');
+    loadPref();
+    el('agx-municipio').value=filter.muni;el('agx-cultivo').value=filter.crop;
+    el('agx-metric').value=filter.metric;el('agx-year').value=String(filter.year);
+    root.addEventListener('change',event=>{
+      const t=event.target;
+      if(t.id==='agx-municipio'){filter.muni=t.value;if(filter.muni!==all)filter.rank='cultivo';else if(filter.crop===all)filter.rank='municipio';}
+      else if(t.id==='agx-cultivo'){filter.crop=t.value;if(filter.crop!==all)filter.rank='municipio';}
+      else if(t.id==='agx-metric')filter.metric=t.value;
+      else if(t.id==='agx-year')filter.year=Number(t.value);
+      else return;
+      setUrl();render();
+    });
+    root.addEventListener('click',event=>{
+      const y=event.target.closest('[data-agx-year],[data-agx-row]');
+      if(y){selectYear(Number(y.dataset.agxYear||y.dataset.agxRow));return;}
+      const action=event.target.closest('[data-agx-action]');
+      if(action){act(action.dataset.agxAction);return;}
+      const view=event.target.closest('[data-agx-view]');
+      if(view){filter.view=view.dataset.agxView;render();return;}
+      const rank=event.target.closest('[data-agx-rank]');
+      if(rank){filter.rank=rank.dataset.agxRank;render();return;}
+      const muni=event.target.closest('[data-agx-municipio]');
+      if(muni){filter.muni=muni.dataset.agxMunicipio;filter.rank='cultivo';el('agx-municipio').value=filter.muni;setUrl();render();return;}
+      const crop=event.target.closest('[data-agx-cultivo]');
+      if(crop){filter.crop=crop.dataset.agxCultivo;filter.rank='municipio';el('agx-cultivo').value=filter.crop;setUrl();render();return;}
+    });
+    root.addEventListener('keydown',event=>{
+      if(event.key!=='Enter'&&event.key!==' ')return;
+      const target=event.target.closest('[data-agx-year],[data-agx-row]');
+      if(target){event.preventDefault();selectYear(Number(target.dataset.agxYear||target.dataset.agxRow));}
+    });
+    render();
+  }
+  window.addEventListener('growa:data-ready',init);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+
