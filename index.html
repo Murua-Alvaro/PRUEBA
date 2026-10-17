@@ -275,12 +275,12 @@ body[data-view="agua"] #panel-agua{padding:0!important;width:100%;margin:0;max-w
     </a>
     <button class="ag-nav-toggle" type="button" aria-expanded="false" aria-controls="ag-main-nav" aria-label="Abrir menú de navegación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menú</span></button>
     <nav class="navigation" id="ag-main-nav" aria-label="Explorar información agrícola">
-      <button class="nav-link active" data-tab="panorama" type="button">Inicio</button>
-      <button class="nav-link" data-tab="explorar-estados" type="button">Explorar estados</button>
-      <button class="nav-link" data-tab="explorar-cultivos" type="button">Explorar cultivos</button>
+      <button class="nav-link active" data-tab="panorama" type="button">Panorama</button>
+      <button class="nav-link" data-tab="explorar-estados" type="button">Territorio</button>
+      <button class="nav-link" data-tab="explorar-cultivos" type="button">Cultivos</button>
       <button class="nav-link" data-tab="agua" type="button">Agua</button>
       <button class="nav-link lab-nav-link" data-tab="laboratorio" type="button">Laboratorio <span aria-hidden="true">↗</span></button>
-      <button class="nav-link" data-tab="metodologia" type="button">Fuentes y metodología</button>
+      <button class="nav-link" data-tab="metodologia" type="button">Metodología</button>
     </nav>
     <div class="rail-meta"><span class="rail-meta-line" aria-hidden="true"></span>AGRICULTURA <span class="rail-meta-year">/ DATOS 2003–2025</span></div>
   </header>
@@ -337,74 +337,117 @@ body[data-view="agua"] #panel-agua{padding:0!important;width:100%;margin:0;max-w
 
     <section id="panel-panorama" class="section-panel" aria-label="Panorama estatal">
 
-      <section class="agx-console" id="agx-console" aria-label="Consola de información agrícola">
-        <header class="agx-intro">
-          <div class="agx-docket"><span>GROWA / OBSERVATORIO AGRÍCOLA</span><span class="agx-docket-divider" aria-hidden="true"></span><span>CONSULTA TERRITORIAL  /  01</span><span class="agx-edition">SERIE HISTÓRICA · DGSIAP</span></div>
-          <div class="agx-intro-row">
-            <div class="agx-intro-copy">
-              <p class="agx-ordinal">SISTEMA DE DATOS AGRÍCOLAS <span>/</span> SINALOA</p>
-              <h1>La estructura productiva, <em>en datos.</em></h1>
-              <p>Examine 23 cierres agrícolas, la distribución municipal de los cultivos y su transformación a lo largo del tiempo. Todas las cifras del tablero proceden de los registros disponibles.</p>
+
+      <section class="agx-console" id="agx-console" aria-label="Sistema de información agrícola">
+        <div class="ag5-shell">
+          <aside class="ag5-filters" aria-label="Parámetros de consulta">
+            <div class="ag5-filter-header">
+              <span class="ag5-overline">EXPLORACIÓN DE DATOS</span>
+              <h2>Parámetros</h2>
+              <p>Defina el ámbito y la variable para consultar las series oficiales.</p>
             </div>
-            <div class="agx-intro-side">
-              <span>EDICIÓN ESTADÍSTICA</span>
-              <strong>2003<span>—</span>2025</strong>
-              <small>18 municipios históricos · Series municipales DGSIAP</small>
-              <div class="agx-intro-actions"><button type="button" data-agx-action="export-series">↓ Descargar serie</button><button type="button" data-agx-action="share">↗ Compartir consulta</button></div>
+            <div class="ag5-fields">
+              <label for="agx-municipio"><span>01. Territorio</span><select id="agx-municipio" aria-label="Seleccionar municipio"></select></label>
+              <label for="agx-cultivo"><span>02. Cultivo</span><select id="agx-cultivo" aria-label="Seleccionar cultivo"></select></label>
+              <label for="agx-metric"><span>03. Indicador</span><select id="agx-metric" aria-label="Seleccionar indicador">
+                <option value="value">Valor de producción</option>
+                <option value="planted">Superficie sembrada</option>
+                <option value="harvest">Superficie cosechada</option>
+                <option value="loss">Superficie siniestrada</option>
+              </select></label>
+              <label for="agx-year"><span>04. Año de referencia</span><select id="agx-year" aria-label="Seleccionar año"></select></label>
             </div>
-          </div>
-        </header>
-        <section class="agx-workspace" aria-label="Constructor de consulta">
-          <div class="agx-workspace-heading">
-            <span>01 — DEFINIR CONSULTA</span>
-            <button type="button" data-agx-action="reset">Restablecer filtros <span aria-hidden="true">↺</span></button>
-          </div>
-          <div class="agx-query-bar">
-            <label for="agx-municipio"><span>ÁMBITO GEOGRÁFICO</span><select id="agx-municipio" aria-label="Municipio"></select></label>
-            <label for="agx-cultivo"><span>CULTIVO</span><select id="agx-cultivo" aria-label="Cultivo"></select></label>
-            <label for="agx-metric"><span>VARIABLE DE ANÁLISIS</span><select id="agx-metric" aria-label="Variable de análisis"><option value="value">Valor de producción</option><option value="planted">Superficie sembrada</option><option value="harvest">Superficie cosechada</option><option value="loss">Superficie siniestrada</option></select></label>
-            <label for="agx-year"><span>AÑO DEL CORTE</span><select id="agx-year" aria-label="Año del corte"></select></label>
-          </div>
-          <div class="agx-context"><div><span class="agx-dot" aria-hidden="true"></span><strong id="agx-query-label">Preparando consulta…</strong><span id="agx-query-meta">La información se recalcula al modificar los filtros.</span></div><span class="agx-context-id">GROWA / CONSULTA 001</span></div>
-        </section>
-        <section class="agx-metrics" aria-label="Indicadores del corte" aria-live="polite">
-          <div class="agx-metric agx-metric-main"><span>INDICADOR SELECCIONADO</span><strong id="agx-total">—</strong><small id="agx-total-foot">Esperando base de datos</small></div>
-          <div class="agx-metric"><span>VARIACIÓN ANUAL</span><strong id="agx-growth">—</strong><small id="agx-growth-foot">Respecto del cierre anterior</small></div>
-          <div class="agx-metric"><span>CULTIVOS REGISTRADOS</span><strong id="agx-crops-count">—</strong><small>En el ámbito y año seleccionados</small></div>
-          <div class="agx-metric"><span>MUNICIPIOS CON REGISTRO</span><strong id="agx-munis-count">—</strong><small>De los 18 municipios históricos</small></div>
-        </section>
-        <section class="agx-inspection" aria-label="Visualización estadística">
-          <div class="agx-analysis">
-            <div class="agx-panel-top">
-              <div><p class="agx-section-code">02 / COMPORTAMIENTO HISTÓRICO</p><h2>Evolución de la variable</h2><span id="agx-series-subtitle">Serie anual 2003–2025 · cifras reportadas</span></div>
-              <div class="agx-view-switch" role="group" aria-label="Presentación de la serie"><button type="button" data-agx-view="chart" aria-pressed="true">Gráfica</button><button type="button" data-agx-view="table" aria-pressed="false">Tabla</button></div>
+            <div class="ag5-filter-controls">
+              <button data-agx-action="reset" type="button">Limpiar filtros <span aria-hidden="true">↺</span></button>
+              <button data-agx-action="share" type="button">Copiar enlace <span aria-hidden="true">↗</span></button>
             </div>
-            <div class="agx-graph-wrap"><div class="agx-plot" id="agx-plot" role="group" aria-label="Gráfica de evolución histórica"><p class="agx-loading">Procesando serie histórica…</p></div><div class="agx-series-table" id="agx-series-table" hidden></div></div>
-            <footer class="agx-chart-foot"><span id="agx-chart-note">El valor bruto se expresa en millones de pesos nominales.</span><span>FUENTE: DGSIAP / CIERRES MUNICIPALES</span></footer>
-          </div>
-          <aside class="agx-ranking" aria-label="Distribución productiva">
-            <div class="agx-panel-top agx-ranking-head">
-              <div><p class="agx-section-code">03 / COMPOSICIÓN DEL CORTE</p><h2>Distribución</h2><span id="agx-rank-subtitle">Participación por territorio o cultivo</span></div>
+            <div class="ag5-source-note"><strong>FICHA TÉCNICA</strong><span>Fuente: DGSIAP</span><span>Serie: 2003–2025</span><span>18 municipios históricos</span><span id="ag5-source-state">Integridad: comprobando datos…</span></div>
+            <div class="ag5-sidebar-links">
+              <span>HERRAMIENTAS</span>
+              <button data-tab="explorar-estados" type="button">Atlas territorial <span>↗</span></button>
+              <button data-tab="explorar-cultivos" type="button">Atlas de cultivos <span>↗</span></button>
+              <button data-tab="laboratorio" type="button">Laboratorio <span>↗</span></button>
+              <button data-tab="agua" type="button">Recursos hídricos <span>↗</span></button>
             </div>
-            <div class="agx-ranking-toggle" role="group" aria-label="Dimensión para ordenar"><button type="button" data-agx-rank="municipio" aria-pressed="true">Municipios</button><button type="button" data-agx-rank="cultivo" aria-pressed="false">Cultivos</button></div>
-            <div id="agx-rank" class="agx-rank-list"><p class="agx-loading">Calculando distribución…</p></div>
-            <footer class="agx-ranking-foot"><span id="agx-rank-count">— resultados</span><button type="button" data-agx-action="export-ranking">↓ CSV del corte</button></footer>
           </aside>
-        </section>
-        <section class="agx-insight" aria-label="Resumen técnico de la consulta">
-          <div class="agx-insight-index">04 / LECTURA DE DATOS</div>
-          <div class="agx-insight-body"><h2>Interpretación del corte</h2><p id="agx-observation">Los indicadores y cambios se actualizarán con la selección.</p></div>
-          <div class="agx-insight-meta"><span>ALCANCE METODOLÓGICO</span><p>Valor en pesos corrientes; superficies acumuladas por cultivo y ciclo. Las diferencias descriptivas no prueban causalidad.</p></div>
-        </section>
-        <section class="agx-route-section" aria-label="Otras herramientas del observatorio">
-          <div class="agx-route-header"><span>05 / MÓDULOS DE CONSULTA</span><h2>Continuar el análisis</h2></div>
-          <div class="agx-routes">
-            <button type="button" data-tab="explorar-estados"><span>01 / GEOGRAFÍA</span><strong>Atlas territorial</strong><small>Localice municipios, compare indicadores y examine la distribución espacial.</small><i aria-hidden="true">↗</i></button>
-            <button type="button" data-tab="explorar-cultivos"><span>02 / ESTRUCTURA</span><strong>Catálogo de cultivos</strong><small>Consulte cultivos, variedades, modalidades y evolución de la producción.</small><i aria-hidden="true">↗</i></button>
-            <button type="button" data-tab="laboratorio"><span>03 / INVESTIGACIÓN</span><strong>Laboratorio estadístico</strong><small>Construya comparaciones, tablas y análisis entre años y municipios.</small><i aria-hidden="true">↗</i></button>
-            <button type="button" data-tab="agua"><span>04 / RECURSOS</span><strong>Información hídrica</strong><small>Explore presas, distritos, acuíferos y registros de disponibilidad.</small><i aria-hidden="true">↗</i></button>
+          <div class="ag5-main">
+            <header class="ag5-heading">
+              <div><div class="ag5-crumb">OBSERVATORIO AGRÍCOLA <span>/</span> SINALOA <span>/</span> ESTADÍSTICA MUNICIPAL</div>
+                <h1>Producción agrícola</h1>
+                <p>Consulta territorial de producción, superficie y especialización de cultivos.</p>
+              </div>
+              <div class="ag5-heading-tools">
+                <span class="ag5-cut">CORTE HISTÓRICO <strong>2025</strong></span>
+                <button data-agx-action="export-series" type="button">Exportar serie CSV <span aria-hidden="true">↓</span></button>
+              </div>
+            </header>
+            <div class="ag5-query-line" role="status"><span class="ag5-live-dot" aria-hidden="true"></span><strong id="agx-query-label">Preparando selección…</strong><span id="agx-query-meta">Serie DGSIAP</span></div>
+            <section class="ag5-kpis" aria-label="Indicadores del corte" aria-live="polite">
+              <div class="ag5-kpi"><span>VALOR DE LA SELECCIÓN</span><strong id="agx-total">—</strong><small id="agx-total-foot">Procesando registros</small></div>
+              <div class="ag5-kpi"><span>VARIACIÓN INTERANUAL</span><strong id="agx-growth">—</strong><small id="agx-growth-foot">Comparación con el año anterior</small></div>
+              <div class="ag5-kpi"><span>CULTIVOS REGISTRADOS</span><strong id="agx-crops-count">—</strong><small>En el corte seleccionado</small></div>
+              <div class="ag5-kpi"><span>MUNICIPIOS CON REGISTRO</span><strong id="agx-munis-count">—</strong><small>Dentro del universo histórico</small></div>
+            </section>
+            <section class="ag5-analyzer" aria-label="Análisis histórico y desagregación">
+              <div class="ag5-timeline">
+                <div class="ag5-panel-title">
+                  <div><span class="ag5-section-id">01 / SERIE TEMPORAL</span><h2>Evolución histórica</h2><p id="agx-series-subtitle">Años 2003–2025</p></div>
+                  <div class="agx-view-switch" role="group" aria-label="Visualización de la serie">
+                    <button type="button" data-agx-view="chart" aria-pressed="true">Gráfica</button>
+                    <button type="button" data-agx-view="table" aria-pressed="false">Tabla</button>
+                  </div>
+                </div>
+                <div class="ag5-plot-wrap"><div id="agx-plot" class="agx-plot" role="group" aria-label="Evolución temporal"><p class="agx-loading">Cargando serie estadística…</p></div><div id="agx-series-table" class="agx-series-table" hidden></div></div>
+                <div class="ag5-plot-note"><span id="agx-chart-note">Indicadores en unidades originales</span><span>DGSIAP · 2003—2025</span></div>
+              </div>
+              <aside class="ag5-ranking" aria-label="Distribución del indicador">
+                <div class="ag5-panel-title"><div><span class="ag5-section-id">02 / PARTICIPACIÓN</span><h2>Composición</h2><p id="agx-rank-subtitle">Distribución del corte</p></div></div>
+                <div class="agx-ranking-toggle" role="group" aria-label="Clasificar datos">
+                  <button type="button" data-agx-rank="municipio" aria-pressed="true">Por municipio</button>
+                  <button type="button" data-agx-rank="cultivo" aria-pressed="false">Por cultivo</button>
+                </div>
+                <div id="agx-rank" class="agx-rank-list" aria-live="polite"><p class="agx-loading">Calculando distribución…</p></div>
+                <div class="ag5-rank-footer"><span id="agx-rank-count">— resultados</span><button data-agx-action="export-ranking" type="button">Exportar CSV ↓</button></div>
+              </aside>
+            </section>
+            <section class="ag5-register" aria-label="Consulta tabular">
+              <div class="ag5-register-header">
+                <div><span class="ag5-section-id">03 / MATRIZ DE DATOS</span><h2>Registros de producción</h2><p>Observaciones municipio–cultivo–año. Consulte las variables y exporte los registros de su selección.</p></div>
+                <div class="ag5-register-actions">
+                  <button id="ag5-export" type="button">Descargar registros ↓</button>
+                </div>
+              </div>
+              <div class="ag5-table-controls">
+                <label for="ag5-search"><span>BUSCAR EN LOS RESULTADOS</span><input type="search" id="ag5-search" placeholder="Municipio o cultivo" autocomplete="off"/></label>
+                <label for="ag5-sort"><span>ORDENAR POR</span><select id="ag5-sort">
+                  <option value="value">Mayor valor</option>
+                  <option value="harvest">Mayor superficie cosechada</option>
+                  <option value="planted">Mayor superficie sembrada</option>
+                  <option value="loss">Mayor superficie siniestrada</option>
+                  <option value="municipio">Municipio A–Z</option>
+                  <option value="name">Cultivo A–Z</option>
+                </select></label>
+                <div class="ag5-table-counter" id="ag5-table-counter">— registros</div>
+              </div>
+              <div class="ag5-table-frame" role="region" aria-label="Datos municipales por cultivo" tabindex="0">
+                <table id="ag5-records">
+                  <thead><tr><th>Municipio</th><th>Cultivo</th><th class="ag5-num">Valor (MDP)</th><th class="ag5-num">Sembrada (ha)</th><th class="ag5-num">Cosechada (ha)</th><th class="ag5-num">Siniestrada (ha)</th><th class="ag5-num">Volumen</th><th>Unidad</th></tr></thead>
+                  <tbody id="ag5-records-body"><tr><td colspan="8">Leyendo base histórica…</td></tr></tbody>
+                </table>
+              </div>
+              <div class="ag5-pagination"><span id="ag5-page-label">—</span><div><button id="ag5-prev" type="button">← Anterior</button><button id="ag5-next" type="button">Siguiente →</button></div></div>
+            </section>
+            <section class="ag5-interpretation" aria-label="Interpretación estadística">
+              <div><span class="ag5-section-id">04 / NOTA ANALÍTICA</span><h2>Lectura del corte</h2></div>
+              <p id="agx-observation">La interpretación descriptiva se genera a partir de los resultados del filtro.</p>
+              <p class="ag5-method-note">**Nota metodológica.** El valor se presenta en pesos corrientes; la superficie corresponde a registros por cultivo y ciclo. No representa superficie física única ni permite inferencia causal.</p>
+            </section>
+            <footer class="ag5-footer">
+              <span>GROWA / ESTUDIOS ECONÓMICOS TERRITORIALES</span>
+              <div><button data-tab="metodologia" type="button">Fuentes y metodología ↗</button><button data-tab="laboratorio" type="button">Abrir laboratorio ↗</button></div>
+            </footer>
           </div>
-        </section>
+        </div>
       </section>
       <details class="agx-historic" id="agx-historic">
         <summary><span><small>ANÁLISIS DOCUMENTAL</small><strong>Consultar el panorama estatal ampliado y los comparadores originales</strong></span><span aria-hidden="true">+</span></summary>
