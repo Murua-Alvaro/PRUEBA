@@ -2183,3 +2183,8 @@ body:not([data-view="agua"]) :is(.ap-panel-value strong,.stat-value,.lab-summary
   body:not([data-view="agua"]) .page{max-width:100%;box-shadow:none}
   body:not([data-view="agua"]) .masthead{break-inside:avoid}
 }
+
+/* GROWA AGRICULTURA | CORRECCION VISIBILIDAD V3 */
+.ag-nav-toggle{display:none}
+body[data-view="agua"] .ag-data-strip,
+body[data-view="agua"] .ag-nav-toggle{display:none!important}
