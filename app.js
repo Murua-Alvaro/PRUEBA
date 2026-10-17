@@ -2441,3 +2441,101 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   else init();
 })();
 
+
+/* GROWA AGRICULTURA | REGISTRO TABULAR V5 */
+(function(){
+ 'use strict';
+ const scope=document.getElementById('agx-console');
+ if(!scope)return;
+ const byId=id=>document.getElementById(id);
+ const fmt=new Intl.NumberFormat('es-MX',{maximumFractionDigits:1,minimumFractionDigits:0});
+ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es-MX');
+ const esc=s=>String(s===null||s===undefined?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let data=null,allRows=[],rows=[],sortKey='value',page=0,search='',lastKey='',ready=false;
+ const pageSize=25;
+ const safeNumber=v=>Number.isFinite(Number(v))?Number(v):0;
+ function key(){
+   return [byId('agx-municipio').value,byId('agx-cultivo').value,byId('agx-year').value,search,sortKey].join('|');
+ }
+ function sourceRows(){
+   const mun=byId('agx-municipio').value,crop=byId('agx-cultivo').value,year=Number(byId('agx-year').value);
+   return allRows.filter(r=>r.year===year&&(mun==='__all__'||r.municipio===mun)&&(crop==='__all__'||r.name===crop)&&(!search||norm(r.municipio+' '+r.name).includes(norm(search))));
+ }
+ function refresh(reset){
+   if(!ready)return;
+   const now=key();
+   if(!reset&&now===lastKey)return;
+   if(reset)page=0;
+   lastKey=now;
+   rows=sourceRows();
+   const numeric=['value','planted','harvest','loss','volume'];
+   if(numeric.includes(sortKey))rows.sort((a,b)=>safeNumber(b[sortKey])-safeNumber(a[sortKey])||a.municipio.localeCompare(b.municipio,'es'));
+   else rows.sort((a,b)=>String(a[sortKey]||'').localeCompare(String(b[sortKey]||''),'es')||b.value-a.value);
+   paint();
+ }
+ function paint(){
+   const count=rows.length,pages=Math.max(1,Math.ceil(count/pageSize));page=Math.min(page,pages-1);
+   byId('ag5-table-counter').textContent=fmt.format(count)+' registros';
+   const from=page*pageSize,subset=rows.slice(from,from+pageSize);
+   byId('ag5-records-body').innerHTML=subset.length?subset.map(r=>(
+     '<tr><td title="'+esc(r.municipio)+'">'+esc(r.municipio)+'</td>'+
+     '<td title="'+esc(r.name)+'">'+esc(r.name)+'</td>'+
+     '<td class="ag5-num">'+fmt.format(safeNumber(r.value))+'</td>'+
+     '<td class="ag5-num">'+fmt.format(safeNumber(r.planted))+'</td>'+
+     '<td class="ag5-num">'+fmt.format(safeNumber(r.harvest))+'</td>'+
+     '<td class="ag5-num">'+fmt.format(safeNumber(r.loss))+'</td>'+
+     '<td class="ag5-num">'+fmt.format(safeNumber(r.volume))+'</td>'+
+     '<td>'+esc(r.unit||'No especificada')+'</td></tr>'
+   )).join(''):'<tr><td colspan="8" class="ag5-no-data">No hay registros para esta selección. Cambie el filtro o la búsqueda. La ausencia de observaciones no indica valor cero.</td></tr>';
+   byId('ag5-page-label').textContent=count?fmt.format(from+1)+'–'+fmt.format(Math.min(from+pageSize,count))+' de '+fmt.format(count):'0 resultados';
+   byId('ag5-prev').disabled=page===0;
+   byId('ag5-next').disabled=page>=pages-1;
+ }
+ function download(){
+   if(!rows.length)return;
+   const columns=[
+    ['Año','year'],['Municipio','municipio'],['Cultivo','name'],
+    ['Valor de producción (MDP nominales)','value'],
+    ['Superficie sembrada (ha)','planted'],['Superficie cosechada (ha)','harvest'],
+    ['Superficie siniestrada (ha)','loss'],['Volumen de producción','volume'],['Unidad del volumen','unit']
+   ];
+   function cell(value){
+     let v=String(value===null||value===undefined?'':value);
+     if(/^[=+\-@\t\r]/.test(v))v="'"+v;
+     return '"'+v.replace(/"/g,'""')+'"';
+   }
+   const content='\ufeff'+columns.map(c=>cell(c[0])).join(',')+'\r\n'+rows.map(r=>columns.map(([h,k])=>cell(r[k])).join(',')).join('\r\n');
+   const u=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
+   const a=document.createElement('a');a.href=u;a.download='GROWA_agricultura_registros_'+byId('agx-year').value+'.csv';
+   document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);
+ }
+ function start(){
+   if(ready)return;
+   const source=window.GrowaSinaloaData?.D;
+   if(!source||!Array.isArray(source.crops))return;
+   data=source;allRows=source.crops;ready=true;
+   byId('ag5-source-state').textContent='Integridad: '+fmt.format(allRows.length)+' registros históricos';
+   let debounce;
+   byId('ag5-search').addEventListener('input',e=>{
+     search=e.target.value.trim();clearTimeout(debounce);debounce=setTimeout(()=>refresh(true),140);
+   });
+   byId('ag5-sort').addEventListener('change',e=>{sortKey=e.target.value;refresh(true);});
+   byId('ag5-prev').addEventListener('click',()=>{if(page>0){page--;paint();}});
+   byId('ag5-next').addEventListener('click',()=>{if((page+1)*pageSize<rows.length){page++;paint();}});
+   byId('ag5-export').addEventListener('click',download);
+   ['agx-municipio','agx-cultivo','agx-year'].forEach(id=>byId(id).addEventListener('change',()=>refresh(true)));
+   // Los botones de clasificación y los puntos de la gráfica actualizan los selectores.
+   // Observamos sus valores, sin reproducir ni duplicar los cálculos del módulo principal.
+   const observer=new MutationObserver(()=>refresh(true));
+   observer.observe(byId('agx-query-label'),{childList:true,characterData:true,subtree:true});
+   // Observar cambios programáticos a los filtros por municipio/cultivo que se aplican desde el ranking.
+   scope.addEventListener('click',ev=>{
+     if(ev.target.closest('[data-agx-municipio],[data-agx-cultivo],[data-agx-year],[data-agx-row],[data-agx-action="reset"]'))
+       queueMicrotask(()=>refresh(true));
+   });
+   refresh(true);
+ }
+ window.addEventListener('growa:data-ready',start);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+
