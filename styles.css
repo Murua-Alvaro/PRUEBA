@@ -2484,3 +2484,43 @@ body[data-view="panorama"] #panel-panorama .agx-console{
   .agx-inspection{break-inside:avoid}
 }
 
+/* GROWA ATLAS | EXPEDIENTE DE CONSULTA V4 */
+body:not([data-view="agua"]) .gx-page-intro{padding-top:32px;padding-bottom:20px}
+body:not([data-view="agua"]) .gx-page-intro h2{font:400 clamp(34px,3.5vw,50px)/1.14 Georgia,serif;letter-spacing:-.046em;color:#254331}
+body:not([data-view="agua"]) .gx-page-intro p{max-width:760px;color:#637667;line-height:1.65}
+body:not([data-view="agua"]) .gx-intro-mark{color:#97a696;font-size:11px}
+body:not([data-view="agua"]) .gx-open-lab{background:#f3f7f1;color:#536e58;border:1px solid #dce5d9;margin:6px 0 18px}
+body:not([data-view="agua"]) .gx-open-lab span{font-size:11px}
+body:not([data-view="agua"]) .gx-open-lab button{border:1px solid #c2d6c2;color:#2c6443;background:#fff}
+body:not([data-view="agua"]) .gx-open-lab button:hover{color:#fff;background:#2c6043}
+body:not([data-view="agua"]) .pro-atlas{margin-top:0;border-color:#d1dacf}
+body:not([data-view="agua"]) .ap-header,
+body:not([data-view="agua"]) .ap-top,
+body:not([data-view="agua"]) .ap-map-top{background:#fafbf8;border-color:#e1e8df}
+body:not([data-view="agua"]) .ap-map-top{padding-left:19px;padding-right:19px}
+body:not([data-view="agua"]) .ap-frame{border-color:#dce4da}
+body:not([data-view="agua"]) .ap-map-frame{min-height:555px}
+body:not([data-view="agua"]) .ap-side{border-color:#e1e8df}
+body:not([data-view="agua"]) .ap-side-tabs button{background:#f8faf6}
+body:not([data-view="agua"]) .ap-side-tabs button.is-active{background:#fff;color:#245239;border-bottom-color:#2d6748}
+body:not([data-view="agua"]) .ap-panel-head h4{color:#254d36}
+body:not([data-view="agua"]) .ap-panel-value>strong{color:#23593d}
+body:not([data-view="agua"]) .ap-legend{background:#fcfdfb}
+body:not([data-view="agua"]) .agx-atlas-details{border:1px solid #dce3db;margin:23px 0 46px;background:#fff}
+body:not([data-view="agua"]) .agx-atlas-details>summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;background:#f7f9f5;list-style:none;cursor:pointer}
+body:not([data-view="agua"]) .agx-atlas-details>summary::-webkit-details-marker{display:none}
+body:not([data-view="agua"]) .agx-atlas-details>summary:hover{background:#eff4ed}
+body:not([data-view="agua"]) .agx-atlas-details>summary>span:first-child{display:flex;flex-direction:column;gap:5px}
+body:not([data-view="agua"]) .agx-atlas-details>summary small{font-size:9px;letter-spacing:.1em;font-weight:800;color:#5c7763}
+body:not([data-view="agua"]) .agx-atlas-details>summary strong{color:#2f4c38;font-size:13px;font-weight:750}
+body:not([data-view="agua"]) .agx-atlas-details>summary>span:last-child{font-size:22px;color:#3f6b4c}
+body:not([data-view="agua"]) .agx-atlas-details[open]>summary>span:last-child{transform:rotate(45deg)}
+body:not([data-view="agua"]) .agx-atlas-details-inner{padding:20px}
+body:not([data-view="agua"]) .agx-atlas-details .gx-workspace{margin:0}
+@media(max-width:760px){
+ body:not([data-view="agua"]) .agx-atlas-details>summary{padding:16px 14px}
+ body:not([data-view="agua"]) .agx-atlas-details>summary strong{font-size:11.5px}
+ body:not([data-view="agua"]) .agx-atlas-details-inner{padding:9px}
+ body:not([data-view="agua"]) .ap-map-frame{min-height:395px}
+}
+
