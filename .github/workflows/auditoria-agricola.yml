@@ -5,11 +5,17 @@ on:
     paths:
       - "pipeline/**"
       - "tests/**"
+      - "index.html"
+      - "styles.css"
+      - "app.js"
       - ".github/workflows/auditoria-agricola.yml"
   pull_request:
     paths:
       - "pipeline/**"
       - "tests/**"
+      - "index.html"
+      - "styles.css"
+      - "app.js"
       - ".github/workflows/auditoria-agricola.yml"
 jobs:
   regression:
