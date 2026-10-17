@@ -273,7 +273,8 @@ body[data-view="agua"] #panel-agua{padding:0!important;width:100%;margin:0;max-w
       <span class="brand-symbol" aria-hidden="true">G<span class="brand-point">.</span></span>
       <span class="brand-word">GROWA<small>OBSERVATORIO DE INTELIGENCIA TERRITORIAL</small></span>
     </a>
-    <nav class="navigation" aria-label="Explorar información agrícola">
+    <button class="ag-nav-toggle" type="button" aria-expanded="false" aria-controls="ag-main-nav" aria-label="Abrir menú de navegación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menú</span></button>
+    <nav class="navigation" id="ag-main-nav" aria-label="Explorar información agrícola">
       <button class="nav-link active" data-tab="panorama" type="button">Inicio</button>
       <button class="nav-link" data-tab="explorar-estados" type="button">Explorar estados</button>
       <button class="nav-link" data-tab="explorar-cultivos" type="button">Explorar cultivos</button>
@@ -287,6 +288,10 @@ body[data-view="agua"] #panel-agua{padding:0!important;width:100%;margin:0;max-w
     <div class="topline">
       <span class="breadcrumb">GROWA <span>/</span> OBSERVATORIO AGRÍCOLA <span>/</span> SINALOA</span>
       <div class="top-actions"><button class="ux-header-btn" id="ux-open-panel" type="button" aria-haspopup="dialog" aria-controls="ux-dialog">Herramientas <span aria-hidden="true">☷</span></button><button class="quick-search" id="open-search" type="button" aria-haspopup="dialog" aria-controls="search-dialog"><span class="search-glyph" aria-hidden="true">⌕</span> Buscar en Sinaloa o México <kbd>Ctrl K</kbd></button><span id="status" class="status" aria-live="polite">Preparando información…</span></div>
+    </div>
+    <div class="ag-data-strip" aria-label="Metadatos de la fuente agrícola">
+      <div class="ag-data-source"><strong>SISTEMA DE INFORMACIÓN AGRÍCOLA</strong><i aria-hidden="true"></i><span>DGSIAP · Cierres municipales 2003–2025</span><i aria-hidden="true"></i><span>Cifras nominales</span></div>
+      <span class="ag-data-ready" id="ag-data-ready" data-ready="loading" role="status" aria-live="polite">Preparando serie histórica…</span>
     </div>
     <div id="ux-workbench" class="ux-workbench" role="region" aria-label="Herramientas de consulta">
       <div class="ux-location"><span class="ux-overline">EXPLORADOR</span><strong id="ux-view-title">Panorama estatal</strong></div>
