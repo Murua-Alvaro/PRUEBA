@@ -68,14 +68,18 @@ class ConsoleTests(unittest.TestCase):
         self.assertIn("window.GrowaSinaloaData", self.app)
         self.assertIn("for(const row of data.crops)", self.app)
         self.assertIn("growa:data-ready", self.app)
+        self.assertIn("GROWA AGRICULTURA | REGISTRO TABULAR V5", self.app)
+        self.assertIn("allRows=source.crops", self.app)
+        for element in ("ag5-records", "ag5-records-body", "ag5-sort", "ag5-search", "ag5-next", "ag5-prev"):
+            self.assertIn(element, self.document.ids)
         for action in ("export-series", "export-ranking", "reset", "share"):
             self.assertIn('data-agx-action="' + action + '"', self.html)
         self.assertIn("valor:row.value===null?'':row.value", self.app)
 
     def test_css_scoped_and_responsive(self):
-        self.assertIn("GROWA DATA DESK / AGRICULTURA V4", self.styles)
+        self.assertIn("GROWA AGRICULTURA — SISTEMA DE CONSULTA V5", self.styles)
         self.assertIn('body[data-view="panorama"] .masthead', self.styles)
-        self.assertIn("@media(max-width:690px)", self.styles)
+        self.assertIn("@media(max-width:790px)", self.styles)
         self.assertIn('body[data-view="agua"] .ag-nav-toggle', self.styles)
 
     @unittest.skipUnless(shutil.which("node"), "Node.js no disponible")
