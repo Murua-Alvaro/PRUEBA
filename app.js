@@ -2264,7 +2264,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     const x=yr=>box.left+((yr-years[0])/(years[years.length-1]-years[0]))*w;
     const y=v=>box.bottom-(v/ymax)*h;
     const ticks=Array.from({length:5},(_,i)=>(ymax/4)*i);
-    const axis=ticks.map(v=>'<line x1="'+box.left+'" y1="'+y(v).toFixed(1)+'" x2="'+box.right+'" y2="'+y(v).toFixed(1)+'" stroke="#e3e9e1" stroke-dasharray="'+(v===0?'0':'3 5')+'"/><text x="'+(box.left-13)+'" y="'+(y(v)+4).toFixed(1)+'" text-anchor="end" font-size="10" fill="#7b887a">'+escapeText(size(v))+'</text>').join('');
+    const axis=ticks.map(v=>'<line x1="'+box.left+'" y1="'+y(v).toFixed(1)+'" x2="'+box.right+'" y2="'+y(v).toFixed(1)+'" stroke="#e1e8ed" stroke-dasharray="'+(v===0?'0':'3 5')+'"/><text x="'+(box.left-13)+'" y="'+(y(v)+4).toFixed(1)+'" text-anchor="end" font-size="10" fill="#7e8f9b">'+escapeText(size(v))+'</text>').join('');
     let d='',lastExists=false;
     for(const row of seriesRows){
       if(row.value===null){lastExists=false;continue;}
@@ -2273,13 +2273,13 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     }
     const active=seriesRows.find(row=>row.year===filter.year);
     const selX=x(filter.year);
-    const yearTicks=years.filter((v,i)=>i===0||i===years.length-1||(v-2003)%4===0).map(yr=>'<text x="'+x(yr).toFixed(2)+'" y="314" text-anchor="middle" font-size="10.5" fill="#6d8171">'+yr+'</text>').join('');
+    const yearTicks=years.filter((v,i)=>i===0||i===years.length-1||(v-2003)%4===0).map(yr=>'<text x="'+x(yr).toFixed(2)+'" y="314" text-anchor="middle" font-size="10.5" fill="#687f8e">'+yr+'</text>').join('');
     const hit=seriesRows.filter(r=>r.value!==null).map(r=>{
       const chosen=r.year===filter.year;
-      return '<g data-agx-year="'+r.year+'" tabindex="0" role="button" aria-label="'+r.year+': '+escapeText(label(r.value))+'"><title>'+r.year+' · '+escapeText(label(r.value))+'</title><rect x="'+(x(r.year)-16).toFixed(2)+'" y="14" width="32" height="285" fill="transparent"/><circle cx="'+x(r.year).toFixed(2)+'" cy="'+y(r.value).toFixed(2)+'" r="'+(chosen?'6.5':'3.2')+'" stroke="'+(chosen?'#fff':'#337156')+'" stroke-width="'+(chosen?2:1)+'" fill="'+(chosen?'#284f38':'#337156')+'"/></g>';
+      return '<g data-agx-year="'+r.year+'" tabindex="0" role="button" aria-label="'+r.year+': '+escapeText(label(r.value))+'"><title>'+r.year+' · '+escapeText(label(r.value))+'</title><rect x="'+(x(r.year)-16).toFixed(2)+'" y="14" width="32" height="285" fill="transparent"/><circle cx="'+x(r.year).toFixed(2)+'" cy="'+y(r.value).toFixed(2)+'" r="'+(chosen?'6.5':'3.2')+'" stroke="'+(chosen?'#fff':'#30769d')+'" stroke-width="'+(chosen?2:1)+'" fill="'+(chosen?'#235a7c':'#30769d')+'"/></g>';
     }).join('');
-    const bubble=(active&&active.value!==null)?'<g><rect x="'+(selX>635?selX-152:selX+11).toFixed(2)+'" y="5" rx="0" width="141" height="39" fill="#274835"/><text x="'+(selX>635?selX-141:selX+22).toFixed(2)+'" y="22" font-size="10" fill="#d6e6d7">'+filter.year+'</text><text x="'+(selX>635?selX-141:selX+22).toFixed(2)+'" y="36" font-size="13" font-weight="700" fill="#fff">'+escapeText(label(active.value))+'</text></g>':'';
-    target.innerHTML='<svg viewBox="0 0 900 337" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Serie histórica interactiva por año, 2003 a 2025"><text x="'+box.left+'" y="12" font-size="9" font-weight="700" fill="#67816b" letter-spacing="1.0">'+escapeText(metricInfo[filter.metric].short)+' / SERIE ANUAL</text>'+axis+'<line x1="'+selX.toFixed(2)+'" y1="'+box.top+'" x2="'+selX.toFixed(2)+'" y2="'+box.bottom+'" stroke="#8bb599" stroke-width="1.5" stroke-dasharray="4 5"/><path d="'+d+'" fill="none" stroke="#2f6748" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+hit+yearTicks+bubble+'</svg>';
+    const bubble=(active&&active.value!==null)?'<g><rect x="'+(selX>635?selX-152:selX+11).toFixed(2)+'" y="5" rx="0" width="141" height="39" fill="#1e465f"/><text x="'+(selX>635?selX-141:selX+22).toFixed(2)+'" y="22" font-size="10" fill="#d6eaf5">'+filter.year+'</text><text x="'+(selX>635?selX-141:selX+22).toFixed(2)+'" y="36" font-size="13" font-weight="700" fill="#fff">'+escapeText(label(active.value))+'</text></g>':'';
+    target.innerHTML='<svg viewBox="0 0 900 337" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Serie histórica interactiva por año, 2003 a 2025"><text x="'+box.left+'" y="12" font-size="9" font-weight="700" fill="#607a8b" letter-spacing="1.0">'+escapeText(metricInfo[filter.metric].short)+' / SERIE ANUAL</text>'+axis+'<line x1="'+selX.toFixed(2)+'" y1="'+box.top+'" x2="'+selX.toFixed(2)+'" y2="'+box.bottom+'" stroke="#95b8cb" stroke-width="1.5" stroke-dasharray="4 5"/><path d="'+d+'" fill="none" stroke="#276b94" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+hit+yearTicks+bubble+'</svg>';
   }
   function table(seriesRows){
     el('agx-series-table').innerHTML='<table aria-label="Serie histórica de la consulta"><thead><tr><th>Año</th><th>Registros</th><th>Variable seleccionada</th></tr></thead><tbody>'+seriesRows.map(row=>{
@@ -2343,6 +2343,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     el('agx-query-meta').textContent=m.title+' · '+m.short;
     el('agx-total').textContent=current.value===null?'s/d':label(current.value);
     el('agx-total-foot').textContent=rows.length?integer.format(rows.length)+' registros municipio–cultivo en '+filter.year:'Sin registros en el corte';
+    const headline=root.querySelector('.ag5-kpi>span');if(headline)headline.textContent=m.title.toUpperCase();
+    const cutoff=root.querySelector('.ag5-cut strong');if(cutoff)cutoff.textContent=String(filter.year);
     el('agx-growth').textContent=inc===null?'s/d':(inc>0?'+':'')+pct.format(inc)+' %';
     el('agx-growth-foot').textContent=inc===null?'Comparación anual no disponible':'Cambio frente al año inmediato anterior';
     el('agx-crops-count').textContent=integer.format(new Set(rows.map(row=>row.name)).size);
