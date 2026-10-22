@@ -24,7 +24,7 @@ Common parameters: dataset, state, entity, q, from, to, metric and bbox (west,so
 
 ## Frontend
 
-`dist/agua/index.html`, `platform.css` and `platform.js` form the standalone application. `config.js` selects the API origin for the static host; when served directly by the Python server it points to the same origin. The old portal's Agua entry embeds the new application and forwards shared-query parameters. Existing agricultural modules remain independent.
+`dist/agua/index.html`, `platform.css` and `platform.js` form the standalone application. `config.js` selects the API origin for the static host; when served directly by the Python server it points to the same origin. The old portal's Agua entry opens the new application at /agua/ and forwards shared-query parameters. Existing agricultural modules remain independent.
 
 Features: source navigation, connected territory/variable/date/text filters, paginated and sortable records, spatial extent filtering, basemap switching and full-screen map, source record inspector, individual and comparative time series, source catalog, complete CSV and filtered GeoJSON export, shareable queries and locally saved views. Empty, loading and failed-connection states are explicit. Unsupported geographical or time-series views explain what is missing and offer a valid alternative.
 
@@ -35,3 +35,7 @@ National dam inventory uses secondary-source provenance. Existing exact-key terr
 ## Validation
 
 `python3 -m unittest discover -s tests -p test_water_api.py -v` executes HTTP integration tests covering real counts, pagination and ordering, dates, per-unit comparisons, spatial filters, gzip, exports and rejected parameters. Frontend interaction and live deployment verification are performed separately in the browser.
+
+## Published verification
+
+On 2026-10-22, both the static frontend and Python API reached live deployment state. The public application connected to the API, loaded the Sinaloa dam inventory, rendered the monthly reservoir comparison with independent series and source statistics, and showed no horizontal document overflow at the inspected desktop viewport. Nine HTTP integration tests passed with the actual files. Public health, catalog and filtered export requests were checked separately. Mobile layouts have responsive rules but have not been visually tested on a mobile device. The service uses a free Render instance and can cold-start after inactivity.
