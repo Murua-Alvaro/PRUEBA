@@ -1,0 +1,1 @@
+{"name":"growa-water-platform","private":true,"scripts":{"dev":"python3 water-platform/server.py"}}
