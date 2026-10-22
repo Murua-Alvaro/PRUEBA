@@ -129,7 +129,7 @@ if(view==='regional')return '<div class="v22-help">Inventario de fuente secundar
 return '<div class="v22-help">Consulta de archivo con trazabilidad. Los datos históricos no son monitoreo en tiempo real. NAMO identifica capacidad de diseño, no almacenamiento disponible hoy.</div>';
 }
 function renderContent(){
-var desc=LABELS[view];E('w17-title').textContent=desc[0];E('w17-subtitle').textContent=desc[1];E('w17-crumb-view').textContent=desc[0].toUpperCase();E('w17-scope').textContent='ARCHIVO / '+d.corte;
+root.dataset.waterView=view;var desc=LABELS[view];E('w17-title').textContent=desc[0];E('w17-subtitle').textContent=desc[1];E('w17-crumb-view').textContent=desc[0].toUpperCase();E('w17-scope').textContent='ARCHIVO / '+d.corte;
 root.querySelectorAll('[data-w17-view]').forEach(function(btn){btn.setAttribute('aria-current',btn.dataset.w17View===view?'page':'false')});
 apply();
 E('w17-filters-note').textContent=fmt(filtered.length,0)+' filas consultables · '+(region==='all'?'todas las entidades disponibles':region)+' · '+(period==='all'?'todos los periodos':period);
@@ -144,7 +144,9 @@ if(view==='quality')h+='<div class="w23-coverage"><strong>'+fmt(filtered.length,
 if(loadErrors.length)h+='<div class="v22-help" role="status">Algunos archivos no respondieron: '+esc(loadErrors.join(', '))+'. Se conservan las bases resumidas disponibles.</div>';
 if(view==='sources')h+=narrative();
 else {h+='<div class="v22-data-band"><div><h3>'+esc(view==='overview'?'Registros de infraestructura':desc[0])+'</h3><span>Haga clic en cualquier fila para abrir su expediente técnico</span></div><button class="w17-btn" type="button" data-w17-action="export">↓ Descargar CSV</button></div>'+(isMap&&mapMode==='table'?'':table())+narrative();}
+var previousIntro=root.querySelector('.w23-intro');if(previousIntro)previousIntro.remove();
 E('w17-content').innerHTML=h;
+if(view==='overview'){var introNode=root.querySelector('.w23-intro');if(introNode)E('w17-toolbar').before(introNode);}
 updateInspector();
 if(isMap&&mapMode==='map'){if(!root.hidden)drawMap();}
 else if(map){map.remove();map=null;baseLayer=null;mapMarkers.clear();}
@@ -172,7 +174,7 @@ E('w17-detail-body').innerHTML='<h3 class="v22-detail-title">'+esc(title)+'</h3>
 function updateInspector(){root.querySelectorAll('[data-w21-tab]').forEach(function(b){b.setAttribute('aria-selected',b.dataset.w21Tab===inspectorTab?'true':'false');b.tabIndex=b.dataset.w21Tab===inspectorTab?0:-1});detailsValues()}
 function highlightMarker(index,pan){
 mapMarkers.forEach(function(marker,i){
-marker.setStyle({fillColor:i===index?'#173d52':'#4b6978',color:i===index?'#101f2a':'#fff',weight:i===index?2.6:1.4,fillOpacity:i===index?1:.83});
+marker.setStyle({fillColor:i===index?'#a84d2e':'#65724c',color:i===index?'#101f2a':'#fff',weight:i===index?2.6:1.4,fillOpacity:i===index?1:.83});
 if(i===index){marker.bringToFront();if(pan&&map)map.panTo(marker.getLatLng(),{animate:true,duration:.3});}
 });
 }
@@ -210,7 +212,7 @@ L.control.zoom({position:'bottomright'}).addTo(map);
 basemap(baseStyle);
 mapGroup=L.featureGroup();mapMarkers.clear();
 pts.forEach(function(x){
-var idx=filtered.indexOf(x),circle=L.circleMarker([x.lat,x.lon],{radius:Math.max(5,Math.min(14,5+Math.sqrt(Math.max(0,x.namo||0))/9)),color:'#fff',weight:1.4,fillColor:'#4b6978',fillOpacity:.83,bubblingMouseEvents:false});
+var idx=filtered.indexOf(x),circle=L.circleMarker([x.lat,x.lon],{radius:Math.max(5,Math.min(14,5+Math.sqrt(Math.max(0,x.namo||0))/9)),color:'#fff',weight:1.4,fillColor:'#65724c',fillOpacity:.83,bubblingMouseEvents:false});
 circle.bindPopup('<strong>'+esc(x.nombre)+'</strong><br>'+esc(x.municipio)+' · '+esc(x.estado)+'<br>NAMO: '+esc(fmt(x.namo,1))+' hm³');
 circle.on('click',function(){selectRow(idx,true)});
 mapMarkers.set(idx,circle);mapGroup.addLayer(circle);
