@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#173f58">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="Growa Agricultura. Plataforma independiente de inteligencia territorial para diagnósticos de política pública, análisis municipal, cultivos e indicadores económicos DGSIAP, 2003–2025.">
   <title>Growa Agricultura | Inteligencia territorial para la gestión pública</title>
   <link rel="stylesheet" href="styles.css">
@@ -23,9 +23,7 @@
 
 
 
-<style id="water-platform-integration">
-body[data-view="agua"] .shell{display:block}body[data-view="agua"] .page{padding:0!important;margin:0!important;max-width:none!important}body[data-view="agua"] :is(.topline,.ux-workbench,.gx-site-footer,.ag-site-footer){display:none!important}body[data-view="agua"] #panel-agua{padding:0!important;margin:0!important;max-width:none!important;width:100%}body[data-view="agua"] .rail{min-height:60px;height:60px}body[data-view="agua"] .water-application iframe{height:calc(100dvh - 60px)!important}
-</style>
+
 </head>
 <body>
 <a href="#main" class="skip-link">Saltar al contenido principal</a>
@@ -346,9 +344,8 @@ body[data-view="agua"] .shell{display:block}body[data-view="agua"] .page{padding
 </section>
 
 
-<section id="panel-agua" class="section-panel water-application" hidden aria-label="Plataforma GROWA Agua">
-<p style="padding:35px">Abriendo la plataforma de análisis hídrico… <a href="agua/">Entrar a GROWA Agua</a></p>
-<noscript><a href="https://growa-agua-api.onrender.com/">Abrir plataforma GROWA Agua</a></noscript>
+<section id="panel-agua" class="section-panel water-application" hidden aria-label="Agua · GROWA Agricultura">
+<iframe id="water-platform-frame" title="Datos y análisis de agua" src="about:blank" allow="clipboard-write"></iframe>
 </section>
 <section id="panel-laboratorio" class="section-panel lab-page" hidden aria-label="Laboratorio de análisis agrícola">
   <header class="lab-intro">
@@ -469,7 +466,7 @@ body[data-view="agua"] .shell{display:block}body[data-view="agua"] .page{padding
   
 
 <script id="water-platform-loader">
-(()=>{const root=document.getElementById('panel-agua');if(!root)return;let opening=false;function open(){if(root.hidden||opening)return;opening=true;const q=new URLSearchParams(location.search).get('water')||'';location.replace('agua/'+(q?'?'+q:''));}new MutationObserver(open).observe(root,{attributes:true,attributeFilter:['hidden']});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',open);else open();})();
+(()=>{const root=document.getElementById('panel-agua'),frame=document.getElementById('water-platform-frame');if(!root||!frame)return;function open(){if(root.hidden||frame.dataset.loaded)return;frame.dataset.loaded='true';const q=new URLSearchParams(location.search).get('water')||'';frame.src='agua/?embedded=1'+(q?'&'+q:'');}new MutationObserver(open).observe(root,{attributes:true,attributeFilter:['hidden']});document.addEventListener('DOMContentLoaded',open);document.querySelector('.navigation')?.addEventListener('click',e=>{if(e.target.closest('[data-tab]'))requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}))});window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=='growa-water-height')return;const h=Number(e.data.height);if(Number.isFinite(h))frame.style.height=Math.max(900,Math.min(6000,h))+'px'});open();})();
 </script>
 </body>
 </html>

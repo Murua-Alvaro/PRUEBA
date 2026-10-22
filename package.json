@@ -1,1 +1,7 @@
-{"name":"growa-water-platform","private":true,"scripts":{"dev":"python3 water-platform/server.py"}}
+{
+  "name": "growa-water-platform",
+  "private": true,
+  "scripts": {
+    "dev": "python3 scripts/preview.py"
+  }
+}

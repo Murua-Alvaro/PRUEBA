@@ -1795,8 +1795,8 @@ const sign=n=>n>0?"+":"";
 const encode=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const SLUG=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 const YEARS=Array.from({length:23},(_,i)=>2025-i);
-const PALETTE=["#edf3f0","#c8ded5","#8cb8a7","#477f70","#164b44"];
-const DIVERGE=["#a34f56","#d6a1a2","#ecedef","#8ebbac","#277461"];
+const PALETTE=["#f3f3f3","#d6d6d6","#adadad","#747474","#222222"];
+const DIVERGE=["#bbbbbb","#dddddd","#f5f5f5","#777777","#222222"];
 const region=[[-110.3,22.1],[-105.1,27.9]];
 const state=Object.fromEntries(["territorio","cultivos"].map(kind=>[kind,{kind,year:2025,crop:kind==="cultivos"?"Maíz grano":"",metric:"value",layer:"municipal",focus:"",side:"focus",compA:"Culiacán",compB:"Guasave",showBorders:true,map:null,geo:null,selected:null,rows:[],byName:new Map(),max:0,initialized:false,tiles:null,base:null}]));
 let D, GEO, initialized=false;
@@ -1879,15 +1879,15 @@ function bind(s){
  $$(root,"[data-ap-reset]").addEventListener("click",()=>{if(s.map&&s.geo)s.map.fitBounds(s.geo.getBounds().pad(.055),{padding:[25,25],animate:true});});
  $$(root,"[data-ap-borders]").addEventListener("click",e=>{s.showBorders=!s.showBorders;e.currentTarget.textContent="Límites: "+(s.showBorders?"sí":"no");e.currentTarget.setAttribute("aria-pressed",String(s.showBorders));styleFeatures(s);});
  $$(root,"[data-ap-export]").addEventListener("click",()=>download(s));
- $(root,"[data-ap-ranking]").addEventListener("click",e=>{
+ $$(root,"[data-ap-ranking]").addEventListener("click",e=>{
   const b=e.target.closest("[data-ap-select]");if(b)select(s,b.dataset.apSelect,true);
  });
- $(root,"[data-ap-compare-panel]").addEventListener("change",e=>{
+ $$(root,"[data-ap-compare-panel]").addEventListener("change",e=>{
   if(e.target.dataset.apComparison==="a")s.compA=e.target.value;
   if(e.target.dataset.apComparison==="b")s.compB=e.target.value;
   paintSide(s);
  });
- $(root,"[data-ap-compare-panel]").addEventListener("click",e=>{
+ $$(root,"[data-ap-compare-panel]").addEventListener("click",e=>{
   if(e.target.closest("[data-ap-switch]")){const tmp=s.compA;s.compA=s.compB;s.compB=tmp;paintSide(s);}
  });
  $$(root,"[data-ap-details]").addEventListener("click",()=>openDetail(s));
@@ -1921,7 +1921,7 @@ function makeMap(s){
  if(!window.L){$$(s.root,"[data-ap-map]").textContent="El motor cartográfico Leaflet no está disponible.";return;}
  s.map=L.map($$(s.root,"[data-ap-map]"),{zoomControl:false,preferCanvas:true,scrollWheelZoom:false,attributionControl:true,minZoom:6,maxZoom:15});
  L.control.zoom({position:"bottomleft"}).addTo(s.map);
- s.base=L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:"© OpenStreetMap contributors · © CARTO"}).addTo(s.map);
+ s.base=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{subdomains:"abcd",maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(s.map);
  s.map.fitBounds([[22.35,-110.18],[27.18,-105.35]],{padding:[8,8]});
  s.map.createPane("apCover");s.map.getPane("apCover").style.zIndex="380";s.map.getPane("apCover").style.pointerEvents="none";
  s.cover=L.tileLayer.wms("https://mapproxy.terrascope.be/mapproxy/service",{
@@ -2015,7 +2015,7 @@ function comparisonSVG(s,a,b){
  '<text x="18" y="120">2003</text><text x="290" y="120" text-anchor="end">2025</text></svg>';
 }
 function paintComparison(s){
- const panel=$(s.root,"[data-ap-compare-panel]");
+ const panel=$$(s.root,"[data-ap-compare-panel]");
  const names=D.muniNames;
  if(!names.includes(s.compA))s.compA=names[0];
  if(!names.includes(s.compB))s.compB=names[1];
@@ -2032,7 +2032,7 @@ function paintComparison(s){
  '<p class="ap-compare-foot">Comparación descriptiva. Los pesos son nominales y las superficies corresponden a registros por cultivo y ciclo; una divergencia no implica causalidad.</p>';
 }
 function paintSide(s){
- const focus=$(s.root,"[data-ap-focus]"),rank=$(s.root,"[data-ap-ranking]"),compare=$(s.root,"[data-ap-compare-panel]");
+ const focus=$$(s.root,"[data-ap-focus]"),rank=$$(s.root,"[data-ap-ranking]"),compare=$$(s.root,"[data-ap-compare-panel]");
  const n=s.focus||s.rows[0]?.[0]||"";
  const val=s.byName.get(n),sum=s.metric==="growth"?null:[...s.byName.values()].reduce((t,v)=>t+v,0);
  const share=val!==undefined&&sum>0?100*val/sum:null;
