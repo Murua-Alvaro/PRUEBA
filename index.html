@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Growa Agricultura. Plataforma independiente de inteligencia territorial para diagnósticos de política pública, análisis municipal, cultivos e indicadores económicos DGSIAP, 2003–2025.">
+  <meta name="theme-color" content="#073b67">
+  <meta name="description" content="Growa Agricultura: observatorio independiente de datos abiertos e inteligencia territorial para Sinaloa. Series DGSIAP 2003–2025, atlas de cultivos, municipios, agua y laboratorio de análisis.">
   <title>Growa Agricultura | Inteligencia territorial para la gestión pública</title>
   <link rel="stylesheet" href="styles.css">
   <!-- Módulo hídrico integrado en la edición estática de Render: su build original publica solo index.html, styles.css y app.js. -->
@@ -28,10 +28,11 @@
 <body>
 <a href="#main" class="skip-link">Saltar al contenido principal</a>
 <div class="shell">
+<div class="global-utility" aria-label="Información del observatorio"><span class="global-utility-left"><span class="global-utility-dot" aria-hidden="true"></span><strong>GROWA · CENTRO DE INFORMACIÓN TERRITORIAL</strong><span class="global-utility-divider" aria-hidden="true"></span><span>Investigación y evidencia para la gestión pública</span></span><span class="global-utility-right">PLATAFORMA INDEPENDIENTE · MÉXICO</span></div>
   <header class="rail" aria-label="Cabecera Growa">
     <a class="brand" href="#panorama" aria-label="Growa — inicio del observatorio">
       <span class="brand-symbol" aria-hidden="true">G<span class="brand-point">.</span></span>
-      <span class="brand-word">GROWA<small>OBSERVATORIO DE INTELIGENCIA TERRITORIAL</small></span>
+      <span class="brand-word">GROWA<small>OBSERVATORIO AGRÍCOLA Y TERRITORIAL</small></span>
     </a>
     <button class="ag-nav-toggle" type="button" aria-expanded="false" aria-controls="ag-main-nav" aria-label="Abrir menú de navegación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menú</span></button>
     <nav class="navigation" id="ag-main-nav" aria-label="Explorar información agrícola">
@@ -72,9 +73,9 @@
     <header class="masthead">
       <div class="masthead-content">
         <div class="masthead-copy">
-          <div class="masthead-kicker"><span class="editorial-rule"></span> GROWA AGRICULTURA / SISTEMA DE INFORMACIÓN TERRITORIAL</div>
-          <h1>Información agrícola<br><em>para mejores decisiones.</em></h1>
-          <p>Consulte la evolución productiva, compare municipios y evalúe la estructura de cultivos con indicadores trazables. Un espacio de análisis independiente para planeación pública, investigación y desarrollo territorial.</p>
+          <div class="masthead-kicker"><span class="editorial-rule"></span> AGRICULTURA · INTELIGENCIA PÚBLICA · MÉXICO</div>
+          <h1>La evidencia transforma<br><em>el territorio.</em></h1>
+          <p>Datos abiertos, análisis territorial y herramientas para comprender la producción agrícola de Sinaloa. Explore 23 cierres históricos, compare municipios y construya evidencia para decisiones públicas, académicas y productivas.</p>
           <div class="hero-actions">
             <button class="hero-primary" data-tab="explorar-estados" type="button">Explorar municipios <span aria-hidden="true">↗</span></button>
             <button class="hero-secondary" data-tab="explorar-cultivos" type="button">Consultar cultivos <span aria-hidden="true">→</span></button>
@@ -92,6 +93,14 @@
         </aside>
       </div>
     </header>
+<section class="institutional-access" aria-label="Rutas principales de exploración">
+  <div class="institutional-access-lead"><span class="institutional-access-label">EXPLORAR EL OBSERVATORIO</span><h2>Una plataforma. Múltiples perspectivas.</h2><p>Acceda directamente a las herramientas de información y análisis.</p></div>
+  <div class="institutional-access-grid">
+    <button type="button" class="institutional-access-card" data-tab="explorar-estados"><span class="access-number">01 / TERRITORIO</span><span class="access-mark" aria-hidden="true">⌁</span><strong>Atlas territorial</strong><small>Indicadores municipales, mapas y comparaciones geográficas.</small><span class="access-cta">Explorar territorios <span aria-hidden="true">↗</span></span></button>
+    <button type="button" class="institutional-access-card" data-tab="explorar-cultivos"><span class="access-number">02 / PRODUCCIÓN</span><span class="access-mark" aria-hidden="true">◫</span><strong>Atlas de cultivos</strong><small>Superficies, producción, cambios y especialización agrícola.</small><span class="access-cta">Consultar cultivos <span aria-hidden="true">↗</span></span></button>
+    <button type="button" class="institutional-access-card" data-tab="laboratorio"><span class="access-number">03 / INVESTIGACIÓN</span><span class="access-mark" aria-hidden="true">⟐</span><strong>Laboratorio de datos</strong><small>Series, matrices, descomposición y exportaciones reproducibles.</small><span class="access-cta">Iniciar análisis <span aria-hidden="true">↗</span></span></button>
+  </div>
+</section>
 
     <div id="alert" class="alert" role="status" hidden></div>
 
