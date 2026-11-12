@@ -49,3 +49,11 @@
 @media(max-width:925px){.eo-climate-hud{top:161px;left:16px;width:290px;min-width:0}.eo-climate-panel{padding:14px}}
 @media(max-width:650px){.eo-climate-hud{top:124px;left:12px;right:auto;min-width:0;width:235px;padding:10px 11px;gap:7px}.eo-climate-hud .eoc-kicker{font-size:8px}.eo-climate-hud .eoc-state{font-size:7px}.eo-climate-hud .eoc-title strong{font-size:14px}.eo-climate-hud .eoc-grid{gap:6px;padding-top:7px}.eo-climate-hud .eoc-cell strong{font-size:18px}.eo-climate-hud .eoc-cell small{font-size:8px}.eo-climate-hud .eoc-foot{padding-top:7px}.eo-climate-hud .eoc-foot span{font-size:8px}.eo-climate-panel{grid-column:1;margin:0;padding:12px}.eo-climate-panel-grid{gap:5px}.eo-climate-panel-stat{padding:9px 7px}.eo-climate-panel-stat strong{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.eo-climate-point-marker .eoc-core:after{animation:none}}
+
+/* Variable selection and audited agronomic indicators */
+.eo-climate-hud .eoc-variablebar,.eoc-variablebar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0 8px;border-top:1px solid #bddfc22b}
+.eoc-variablebar label{display:flex;flex-direction:column;gap:5px;color:#a3d5b9;font:600 8px "IBM Plex Mono",Consolas,monospace;min-width:0;flex:1}
+.eoc-variablebar select{width:100%;max-width:210px;background:#153e31;color:#dbfce7;border:1px solid #7fb49375;border-radius:4px;padding:7px 8px;font:600 10px "DM Sans",sans-serif}
+.eoc-variablebar>span{font:600 7px/1.4 "IBM Plex Mono",monospace;color:#a7cbb4;text-align:right;max-width:110px}
+.eo-extra-climate{margin-top:8px}
+@media(max-width:650px){.eoc-variablebar{padding:6px 0}.eoc-variablebar>span{display:none}.eoc-variablebar select{max-width:none;font-size:9px}.eo-extra-climate{margin-top:5px}}
