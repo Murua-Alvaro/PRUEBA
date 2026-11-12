@@ -78,6 +78,7 @@ body[data-view="panorama"] .studio-intro h1 span{font-weight:430!important;color
 .studio-label b{font-weight:600;color:#a4b1a4}
 .studio-left-head h2{font-size:24px;letter-spacing:-.05em;line-height:1.25;margin:14px 0 5px;font-weight:610;color:#203c2c}
 .studio-left-head p{font-size:11px;line-height:1.65;color:#8a978d;margin:0}
+.studio-mobile-place{display:none!important}
 .studio-fields{padding:0 22px 19px;display:flex;flex-direction:column;gap:15px;border-bottom:1px solid #e7ece5}
 .studio-field{display:flex;flex-direction:column;gap:7px;font-size:9px;letter-spacing:.10em;color:#768575;font-weight:730}
 .studio-select-wrap{position:relative}
@@ -233,6 +234,7 @@ body .section-panel .section-heading h2{color:#1d4030}
  .studio-left-head{padding:17px 17px 8px}
  .studio-left-head h2,.studio-left-head p,.studio-municipal-heading,.studio-municipal-list,.studio-left-source{display:none}
  .studio-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px 17px 15px;border:0}
+ .studio-mobile-place{display:flex!important;grid-column:1/-1}
  .studio-field{font-size:8px}
  .studio-field select{padding:9px 21px 9px 9px;font-size:10px}
  .studio-map-section{order:2;min-height:470px}
@@ -322,6 +324,7 @@ body .section-panel .section-heading h2{color:#1d4030}
           <option value="harvest">Superficie cosechada</option>
           <option value="planted">Superficie sembrada</option>
         </select></div></label>
+        <label class="studio-field studio-mobile-place"><span>MUNICIPIO</span><div class="studio-select-wrap"><select id="studio-municipality-select" aria-label="Seleccionar municipio"><option value="">Todo Sinaloa</option></select></div></label>
       </div>
       <div class="studio-municipal-heading"><strong>TERRITORIO</strong><span>18 MUNICIPIOS</span></div>
       <div class="studio-municipal-list" id="studio-municipal-list" aria-label="Seleccionar municipio"><p class="studio-loading">Preparando datos territoriales…</p></div>
@@ -853,7 +856,7 @@ function render(){
  renderList();renderFocus();updateMap();
 }
 function setMunicipio(name){
- S.municipio=name||"";render();
+ S.municipio=name||"";var mobile=$("studio-municipality-select");if(mobile)mobile.value=S.municipio;render();
  if(map&&mapReady&&S.municipio){
   var f=geo()&&geo().features.find(function(f){return normalize(f.properties.name)===normalize(S.municipio)});
   if(f){var minX=180,minY=90,maxX=-180,maxY=-90;function walk(a){if(typeof a[0]==="number"){minX=Math.min(minX,a[0]);maxX=Math.max(maxX,a[0]);minY=Math.min(minY,a[1]);maxY=Math.max(maxY,a[1])}else a.forEach(walk)}walk(f.geometry.coordinates);if(maxX>minX&&maxY>minY)map.fitBounds([[minX,minY],[maxX,maxY]],{padding:65,maxZoom:9,duration:750})}
@@ -901,6 +904,7 @@ function boot(){
  if(!$("studio-workspace"))return;
  var crop=$("studio-crop"),metric=$("studio-metric"),year=$("studio-year");
  crop.addEventListener("change",function(){S.crop=crop.value;render()});
+ var placeSelect=$("studio-municipality-select");placeSelect.innerHTML='<option value="">Todo Sinaloa</option>'+names.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");placeSelect.addEventListener("change",function(){setMunicipio(this.value)});
  metric.addEventListener("change",function(){S.metric=metric.value;render()});
  year.addEventListener("input",function(){S.year=Number(year.value);render()});
  $("studio-municipal-list").addEventListener("click",function(e){var b=e.target.closest("[data-place]");if(b)setMunicipio(b.dataset.place)});
