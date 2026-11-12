@@ -738,9 +738,9 @@ function snap(year,place){
  const result={year,place,have,harvest,area,value,volume,yield:good?volume/harvest:null};
  dataCache.set(k,result);return result;
 }
-function metricValue(snapshot,metric){return metric==="yield"?snapshot.yield:metric==="value"?snapshot.value:snapshot.harvest}
-function metricUnit(metric){return metric==="yield"?(physicalUnit?physicalUnit+"/ha":"unidad/ha"):metric==="value"?"MDP":"ha"}
-function metricLabel(metric){return metric==="yield"?"Rendimiento":metric==="value"?"Valor de producción":"Superficie cosechada"}
+function metricValue(snapshot,metric){return metric==="climate"?null:metric==="yield"?snapshot.yield:metric==="value"?snapshot.value:snapshot.harvest}
+function metricUnit(metric){return metric==="climate"?"NASA POWER":metric==="yield"?(physicalUnit?physicalUnit+"/ha":"unidad/ha"):metric==="value"?"MDP":"ha"}
+function metricLabel(metric){return metric==="climate"?"Clima puntual":metric==="yield"?"Rendimiento":metric==="value"?"Valor de producción":"Superficie cosechada"}
 function metricColor(v,max){
  if(v===null||!Number.isFinite(v))return "#7c8e84";
  const t=Math.sqrt(Math.max(0,v)/Math.max(1,max));
@@ -751,7 +751,7 @@ function geoData(){
  const values=cities.map(city=>metricValue(snap(S.year,city),S.layer));
  const valid=values.filter(v=>v!==null&&Number.isFinite(v));
  const max=Math.max(1,...valid);
- text("eo-scale-max",fmtShort(max)+" "+metricUnit(S.layer));text("eo-layer-unit",metricUnit(S.layer));
+ text("eo-scale-max",S.layer==="climate"?"PUNTO":fmtShort(max)+" "+metricUnit(S.layer));text("eo-layer-unit",metricUnit(S.layer));
  return {type:"FeatureCollection",features:geo.features.map(f=>{
   const name=String(f.properties?.name||""),v=metricValue(snap(S.year,name),S.layer);
   return {type:"Feature",geometry:f.geometry,properties:{name,value:v===null?-1:v,valid:v!==null&&Number.isFinite(v),fill:metricColor(v,max)}};
@@ -772,20 +772,21 @@ function renderSummary(){
  text("eo-visible-layer",metricLabel(S.layer).toUpperCase());
 }
 function renderRanking(){
- const values=cities.map(name=>({name,value:metricValue(snap(S.year,name),S.layer)})).filter(x=>x.value!==null&&Number.isFinite(x.value)).sort((a,b)=>b.value-a.value);
+ const rankMetric=S.layer==="climate"?"yield":S.layer;
+ const values=cities.map(name=>({name,value:metricValue(snap(S.year,name),rankMetric)})).filter(x=>x.value!==null&&Number.isFinite(x.value)).sort((a,b)=>b.value-a.value);
  const max=Math.max(1,...values.map(x=>x.value));
  $("eo-municipality-ranking").innerHTML=values.length?values.map(x=>
-  '<button class="eo-rank'+(S.city===x.name?' active':'')+'" data-eo-city="'+esc(x.name)+'" type="button"><span>'+esc(x.name)+'</span><em>'+fmtShort(x.value)+' '+esc(metricUnit(S.layer))+'</em><i style="width:'+Math.min(92,x.value/max*91).toFixed(1)+'%"></i></button>').join(""):'<p class="eo-loading">Este cultivo no tiene observaciones comparables en '+S.year+'.</p>';
+  '<button class="eo-rank'+(S.city===x.name?' active':'')+'" data-eo-city="'+esc(x.name)+'" type="button"><span>'+esc(x.name)+'</span><em>'+fmtShort(x.value)+' '+esc(metricUnit(rankMetric))+'</em><i style="width:'+Math.min(92,x.value/max*91).toFixed(1)+'%"></i></button>').join(""):'<p class="eo-loading">Este cultivo no tiene observaciones comparables en '+S.year+'.</p>';
 }
 function updateMap(){
  const fc=geoData();if(!fc)return;
  if(mode==="maplibre"&&loaded&&map){
   const src=map.getSource("eo-municipal");if(src)src.setData(fc);
   if(map.getLayer("eo-selected"))map.setFilter("eo-selected",["==",["get","name"],S.city||"\u0000"]);
-  if(map.getLayer("eo-fill"))map.setPaintProperty("eo-fill","fill-opacity",S.satellite?S.opacity:Math.min(.93,S.opacity+.32));
+  if(map.getLayer("eo-fill"))map.setPaintProperty("eo-fill","fill-opacity",S.layer==="climate"?.07:(S.satellite?S.opacity:Math.min(.93,S.opacity+.32)));
  }else if(mode==="leaflet"&&leaflet){
   if(leafGeo){leaflet.removeLayer(leafGeo);leafGeo=null}
-  leafGeo=window.L.geoJSON(fc,{style:f=>({fillColor:f.properties.fill,color:S.city===f.properties.name?"#c0fada":"#e2fbe7",weight:S.city===f.properties.name?3:1,fillOpacity:S.satellite?S.opacity:Math.min(.93,S.opacity+.32)}),onEachFeature:(f,l)=>{
+  leafGeo=window.L.geoJSON(fc,{style:f=>({fillColor:f.properties.fill,color:S.city===f.properties.name?"#c0fada":"#e2fbe7",weight:S.city===f.properties.name?3:1,fillOpacity:S.layer==="climate"?.07:(S.satellite?S.opacity:Math.min(.93,S.opacity+.32))}),onEachFeature:(f,l)=>{
    l.on("click",()=>selectCity(f.properties.name));
    l.bindTooltip(f.properties.name+": "+(f.properties.valid?fmt(f.properties.value)+" "+metricUnit(S.layer):"Sin registro"),{direction:"top"});
   }}).addTo(leaflet);
@@ -816,6 +817,7 @@ function chartSeries(){
  return {primary,secondary,primaryName:labelPlace(),secondaryName:referenceLabel()};
 }
 function drawChart(){
+ if(S.chart==="climate"){if(window.GrowaClimate?.renderChart)window.GrowaClimate.renderChart();else $("eo-chart").innerHTML="Preparando clima NASA POWER…";return}
  const target=$("eo-chart"); const info=chartSeries(),a=info.primary,b=info.secondary;
  chartData=info;
  text("eo-series-a",info.primaryName);text("eo-series-b",info.secondaryName);
@@ -848,7 +850,7 @@ function exportCSV(){
  const file=new Blob(["\ufeff"+out.join("\r\n")],{type:"text/csv;charset=utf-8"});
  const u=URL.createObjectURL(file),a=document.createElement("a");a.href=u;a.download="growa-crop-"+S.crop.toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+S.chart+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);
 }
-function renderAll(){if(!D)return;renderSummary();renderRanking();updateMap();drawChart();}
+function renderAll(){if(!D)return;renderSummary();renderRanking();updateMap();drawChart();window.GrowaClimate?.sync?.(S)}
 function buildSat(){
  map.addSource("eo-world-imagery",{type:"raster",tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"});
  map.addLayer({id:"eo-satellite",type:"raster",source:"eo-world-imagery",layout:{visibility:S.satellite?"visible":"none"}});
@@ -883,6 +885,7 @@ function initMapLibre(){
    map.on("mouseleave","eo-fill",()=>popup.remove());
    map.on("click","eo-fill",e=>{if(e.features?.length)selectCity(e.features[0].properties.name)});
    addImportedMap();
+   window.GrowaClimate?.attachMap?.(map);
    map.fitBounds([[-109.85,22.25],[-105.05,27.65]],{padding:25,duration:0});
    updateMap();
   });
@@ -894,16 +897,41 @@ function initMapLibre(){
 function leafletImport(){
  if(!leaflet)return;
  if(leafImported){leaflet.removeLayer(leafImported);leafImported=null}
- if(S.geojson)leafImported=window.L.geoJSON(S.geojson,{style:{color:"#73ffce",weight:2,fillColor:"#37b583",fillOpacity:.08}}).addTo(leaflet);
+ if(S.geojson)leafImported=window.L.geoJSON(S.geojson,{style:{color:"#73ffce",weight:2,fillColor:"#37b583",fillOpacity:.08},onEachFeature:(f,lyr)=>{
+    lyr.on("click",event=>{window.GrowaClimate?.selectPoint?.(event.latlng.lng,event.latlng.lat,f.properties?.name||"Parcela importada")});
+    lyr.bindTooltip(f.properties?.name||"Parcela importada",{direction:"top"});
+  }}).addTo(leaflet);
 }
 function initLeaflet(){
  if(!window.L||!rootGeom())return false;
  try{
-  const L=window.L;leaflet=L.map("eo-map",{zoomControl:false,scrollWheelZoom:false,attributionControl:true});
+  const L=window.L;leaflet=L.map("eo-map",{zoomControl:false,scrollWheelZoom:false,attributionControl:true,preferCanvas:true});
   leafSatellite=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"});
-  leafRoad=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"© OpenStreetMap"});
-  (S.satellite?leafSatellite:leafRoad).addTo(leaflet);
+  const alternate=L.tileLayer("https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg",{maxZoom:17,attribution:"Sentinel-2 cloudless © EOX / Copernicus"});
+  leafRoad=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"© OpenStreetMap contributors"});
+  let errors=0,alternateErrors=0;
+  leafSatellite.on("tileerror",()=>{
+    if(!S.satellite||!leaflet)return;
+    if(++errors>=4&&leaflet.hasLayer(leafSatellite)){
+      leaflet.removeLayer(leafSatellite);alternate.addTo(leaflet);alternate.bringToBack();
+      text("eo-basemap-label","SAT / EOX");errors=-999;
+    }
+  });
+  alternate.on("tileerror",()=>{
+    if(!S.satellite||!leaflet)return;
+    if(++alternateErrors>=4&&leaflet.hasLayer(alternate)){
+      leaflet.removeLayer(alternate);leafRoad.addTo(leaflet);leafRoad.bringToBack();S.satellite=false;
+      $("eo-satellite").setAttribute("aria-pressed","false");text("eo-basemap-label","STREETS");
+      const alert=$("eo-map-fallback");alert.hidden=false;
+      alert.textContent="Imagen satelital no disponible. Se muestra cartografía de respaldo.";
+    }
+  });
+  leafSatellite.addTo(leaflet);
   mode="leaflet";updateMap();leafletImport();fitCity("");
+  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getState:()=>S};
+  window.GrowaClimate?.attachLeaflet?.(leaflet);
+  setTimeout(()=>leaflet?.invalidateSize({animate:false}),230);
+  window.addEventListener("resize",()=>leaflet?.invalidateSize({animate:false}),{passive:true});
   return true;
  }catch(e){console.warn(e);mode="none";return false}
 }
@@ -970,14 +998,15 @@ function boot(){
  $("eo-satellite").addEventListener("click",function(){
   S.satellite=!S.satellite;this.setAttribute("aria-pressed",String(S.satellite));text("eo-basemap-label",S.satellite?"SATELLITE":"STREETS");
   if(map&&loaded&&map.getLayer("eo-satellite"))map.setLayoutProperty("eo-satellite","visibility",S.satellite?"visible":"none");
-  if(leaflet){leaflet.removeLayer(S.satellite?leafRoad:leafSatellite);(S.satellite?leafSatellite:leafRoad).addTo(leaflet);if(leafGeo)leafGeo.bringToFront();if(leafImported)leafImported.bringToFront()}
+  if(leaflet){for(const b of [leafRoad,leafSatellite])if(b&&leaflet.hasLayer(b))leaflet.removeLayer(b);(S.satellite?leafSatellite:leafRoad).addTo(leaflet);(S.satellite?leafSatellite:leafRoad).bringToBack();if(leafGeo)leafGeo.bringToFront();if(leafImported)leafImported.bringToFront()}
   updateMap();
  });
  $("eo-geojson").addEventListener("change",e=>readGeoJSON(e.target.files?.[0]));
  $("eo-map").addEventListener("click",e=>{const target=e.target.closest("[data-eo-svgcity]");if(target)selectCity(target.dataset.eoSvgcity)});
- $("eo-export").addEventListener("click",exportCSV);
+ $("eo-export").addEventListener("click",()=>{if(S.chart==="climate")window.GrowaClimate?.exportCSV?.();else exportCSV()});
  $("eo-open-explorer").addEventListener("click",()=>{document.body.classList.add("eo-details");const el=$("agx-console");if(el)el.scrollIntoView({behavior:"smooth",block:"start"})});
  $("eo-chart").addEventListener("mousemove",e=>{
+  if(S.chart==="climate"){window.GrowaClimate?.hoverChart?.(e);return}
   if(!chartData)return;
   const r=$("eo-chart").getBoundingClientRect(),i=Math.max(0,Math.min(22,Math.round((e.clientX-r.left)/Math.max(1,r.width)*22)));
   const a=chartData.primary[i],b=chartData.secondary[i];
@@ -991,7 +1020,7 @@ function boot(){
   S.crop=D.cropNames.includes("Maíz grano")?"Maíz grano":D.cropNames[0];
   crop.innerHTML=D.cropNames.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join("");crop.value=S.crop;
   prepare();renderAll();text("eo-data-status",D.crops.length.toLocaleString("es-MX")+" series municipio-cultivo-año");
-  if(!initMapLibre())initFallback();
+  initFallback();
  };
  window.addEventListener("growa:data-ready",ready,{once:true});
  if(window.GrowaSinaloaData?.D)ready();
