@@ -15,6 +15,66 @@ const LOC={
  "Elota":[23.952,-106.710],"San Ignacio":[23.944,-106.425],"Mazatlán":[23.247,-106.411],
  "Concordia":[23.288,-106.067],"Rosario":[22.992,-105.855],"Escuinapa":[22.830,-105.773]
 };
+// Fallback municipal climate slice, annual 2025, extracted from the user's
+// audited NASA POWER 10-state package. Values represent grid cells, not fields.
+// Columns: city, representative latitude, longitude, NASA grid ID,
+// annual mean T (°C), precipitation (mm), RH (%), ET0 (mm), VPD (kPa),
+// shortwave radiation (MJ/m²/day), P-ET0 (mm), root-zone wetness (0–1),
+// days above 35°C, wind at 2m (m/s).
+const AUDIT_2025=[
+["Ahome",25.94,-109.16,"N26.000_W109.375",25.29,460.45,66.98,1885.44,1.26,21.52,-1424.99,0.49,7,2.87],
+["Angostura",25.15,-108.14,"N25.000_W108.125",25.81,564.48,64.41,1937.83,1.49,21.3,-1373.35,0.48,22,2.41],
+["Badiraguato",25.59,-107.4,"N25.500_W107.500",24.27,679.44,48.3,1725.68,2.02,21.17,-1046.24,0.59,62,1.21],
+["Choix",26.68,-108.28,"N26.500_W108.125",23.24,668.84,46.67,1745.77,1.98,21.22,-1076.93,0.48,55,1.28],
+["Concordia",23.41,-105.99,"N23.500_W106.250",25.18,839.25,59.86,1732.6,1.66,21.22,-893.35,0.56,34,1.39],
+["Cosalá",24.48,-106.8,"N24.500_W106.875",25.27,708.7,52.58,1891.09,2.03,20.93,-1182.39,0.58,83,1.59],
+["Culiacán",24.68,-107.25,"N24.500_W107.500",25.82,739.44,65.01,1876.74,1.49,21.04,-1137.3,0.45,36,2.15],
+["El Fuerte",26.26,-108.68,"N26.500_W108.750",26,630.78,48.58,2046.58,2.26,21.22,-1415.8,0.48,128,1.78],
+["Elota",24.04,-106.84,"N24.000_W106.875",25.69,698.74,62.32,1851.79,1.57,20.93,-1153.05,0.5,31,1.97],
+["Escuinapa",22.72,-105.69,"N22.500_W105.625",26.19,1367.12,66.38,1796.22,1.34,21.31,-429.1,0.57,0,2.02],
+["Guasave",25.52,-108.55,"N25.500_W108.750",25.82,494.71,62.47,1991.68,1.57,21.3,-1496.97,0.51,33,2.53],
+["Mazatlán",23.47,-106.31,"N23.500_W106.250",25.18,839.25,59.86,1732.6,1.66,21.22,-893.35,0.56,34,1.39],
+["Mocorito",25.36,-107.78,"N25.500_W107.500",24.27,679.44,48.3,1725.68,2.02,21.17,-1046.24,0.59,62,1.21],
+["Navolato",24.72,-107.76,"N24.500_W107.500",25.82,739.44,65.01,1876.74,1.49,21.04,-1137.3,0.45,36,2.15],
+["Rosario",23.06,-105.81,"N23.000_W105.625",24.17,1168.01,61,1542.79,1.53,20.94,-374.78,0.6,15,0.97],
+["Salvador Alvarado",25.42,-108.08,"N25.500_W108.125",26.49,612.01,51.7,2041.79,2.16,21.3,-1429.78,0.47,117,1.84],
+["San Ignacio",23.95,-106.37,"N24.000_W106.250",22.86,801.32,53.27,1548.63,1.74,20.93,-747.31,0.66,33,0.92],
+["Sinaloa",25.97,-108.11,"N26.000_W108.125",25.1,651.61,47.06,1972.98,2.17,21.22,-1321.37,0.5,87,1.68]
+];
+const AUDIT_FIELDS=["TMEAN","PRECIP_MM","RH_MEAN","ET0_MM","VPD_MEAN","SW_RAD_MEAN","WATER_BALANCE_MM","GWETROOT_MEAN","HOT_DAYS_35","WIND2M"];
+const municipal2025=new Map(AUDIT_2025.map(row=>{
+ const data={};
+ for(let i=0;i<AUDIT_FIELDS.length;i++)data[AUDIT_FIELDS[i]]=row[4+i];
+ return [row[0],{name:row[0],latitude:row[1],longitude:row[2],grid:row[3],values:data}];
+}));
+const MAP_VARIABLES={
+ "PRECIP_MM":{label:"Precipitación anual",unit:"mm"},
+ "TMEAN":{label:"Temperatura media",unit:"°C"},
+ "ET0_MM":{label:"Evapotranspiración ref.",unit:"mm"},
+ "VPD_MEAN":{label:"Déficit presión vapor",unit:"kPa"},
+ "RH_MEAN":{label:"Humedad relativa",unit:"%"},
+ "WATER_BALANCE_MM":{label:"Balance P − ET0",unit:"mm"}
+};
+let mapVariable="PRECIP_MM";
+function mapValue(year,name){
+ if(Number(year)!==2025)return null;
+ const entry=municipal2025.get(name);
+ return entry?entry.values[mapVariable]:null;
+}
+function mapUnit(){return MAP_VARIABLES[mapVariable].unit}
+function mapLabel(){return MAP_VARIABLES[mapVariable].label}
+function compiled2025(point,year){
+ if(year!==2025||!point||point.type==="parcela")return null;
+ const r=municipal2025.get(point.label);
+ if(!r)return null;
+ const v=r.values;
+ return {year:2025,source:"NASA POWER · paquete procesado auditado",compiled:true,monthly:null,
+  availableDays:365,days:365,coverage:{},
+  yearly:{T2M:v.TMEAN,PRECTOTCORR:v.PRECIP_MM,RH2M:v.RH_MEAN,WS2M:v.WIND2M,ALLSKY_SFC_SW_DWN:v.SW_RAD_MEAN,
+   T2M_MIN:null,T2M_MAX:null,ET0_MM:v.ET0_MM,VPD_MEAN:v.VPD_MEAN,GWETROOT_MEAN:v.GWETROOT_MEAN,
+   WATER_BALANCE_MM:v.WATER_BALANCE_MM},
+  grid:r.grid};
+}
 const PARAMS=["T2M","T2M_MAX","T2M_MIN","PRECTOTCORR","RH2M","WS2M","ALLSKY_SFC_SW_DWN"];
 const MONTHS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const fmt1=new Intl.NumberFormat("es-MX",{maximumFractionDigits:1});
@@ -38,7 +98,10 @@ let context={city:"",year:2025,selectedParcel:null,point:null,label:"",mode:"mun
 let status="idle",currentData=null,sequence=0,controller=null,debounce=null;
 let leafletMap=null,leafletMarker=null,maplibreMap=null,maplibreLoaded=false;
 const cache=new Map();
+
 function pointForCity(city){
+ const audit=municipal2025.get(city);
+ if(audit)return {latitude:audit.latitude,longitude:audit.longitude,label:city,type:"cabecera",grid:audit.grid};
  const p=LOC[city];
  return p?{latitude:p[0],longitude:p[1],label:city,type:"cabecera"}:null;
 }
@@ -83,7 +146,7 @@ function parseResponse(raw,year){
 }
 function statusView(label){
  const box=$("eo-climate-hud");if(box)box.dataset.status=status;
- const statusLabel=status==="loading"?"CONSULTANDO":status==="success"?"VERIFICADO":status==="error"?"SIN CONEXIÓN":"SIN CONSULTA";
+ const statusLabel=status==="loading"?"CONSULTANDO":status==="success"?(currentData?.compiled?"AUDITADO 2025":"NASA POWER") : status==="error"?"SIN CONEXIÓN":"SIN CONSULTA";
  cell("eoc-status",statusLabel);
  cell("eoc-location",label||"Selecciona municipio");
  cell("eoc-year",context.year);
@@ -92,7 +155,7 @@ function statusView(label){
  cell("eo-climate-place",label||"Punto de referencia");
  cell("eo-climate-date",context.year+" · "+(p&&p.type==="parcela"?"punto de polígono":"cabecera municipal aproximada"));
  cell("eo-climate-coverage",status==="success"&&currentData?currentData.availableDays+"/"+expectedYearDays(context.year)+" días":"—");
- cell("eo-climate-provider","NASA POWER · datos diarios · LST");
+ cell("eo-climate-provider",currentData?.compiled?"NASA POWER · paquete auditado 2003–2025":"NASA POWER · API diaria · LST");
  const use=status==="success"&&currentData?currentData.yearly:null;
  cell("eoc-temp",fmt(use&&use.T2M));cell("eoc-rain",fmtInt(use&&use.PRECTOTCORR));
  cell("eoc-humidity",fmt(use&&use.RH2M));cell("eoc-radiation",fmt(use&&use.ALLSKY_SFC_SW_DWN));
@@ -104,17 +167,17 @@ function statusView(label){
  if(status==="loading")note="Descargando observaciones diarias de NASA POWER…";
  if(status==="error")note="No fue posible consultar NASA POWER. Sin datos locales alternativos verificados.";
  if(status==="idle")note="Elige un municipio o selecciona un punto dentro de una parcela importada.";
- if(status==="success")note="Punto de consulta NASA POWER. Datos de rejilla; no equivalen a una estación o parcela.";
+ if(status==="success")note=currentData?.compiled?"Capa municipal NASA POWER auditada (2025). Celda de rejilla, no parcela; pulsa «Detalle diario» para consultar NASA API.":"Punto de consulta NASA POWER. Datos de rejilla; no equivalen a una estación o parcela.";
  cell("eoc-note",note);
  cell("eo-climate-panel-note",note);
- const retry=$("eoc-retry");if(retry)retry.hidden=!(status==="error"||status==="idle");
+ const retry=$("eoc-retry");if(retry){retry.hidden=!(status==="error"||status==="idle"||currentData?.compiled);retry.textContent=currentData?.compiled?"Detalle diario":"Reintentar"}
  renderMini();
  updateMarker();
  if(document.querySelector('[data-eo-chart="climate"].active'))renderChart();
 }
 function renderMini(){
  const host=$("eo-climate-mini");if(!host)return;
- const months=currentData&&status==="success"?currentData.monthly:null;
+ const months=currentData&&status==="success"&&Array.isArray(currentData.monthly)?currentData.monthly:null;
  if(!months){host.innerHTML='<div style="padding:12px 0;color:#93ac99;font:500 9px DM Sans,sans-serif">Serie mensual pendiente</div>';return}
  const rainfall=months.map(m=>m.PRECTOTCORR),max=Math.max(1,...rainfall.filter(v=>v!==null));
  const bars=months.map((m,i)=>{const v=m.PRECTOTCORR,h=v===null?0:v/max*40;return '<rect x="'+(i*21+4)+'" y="'+(46-h).toFixed(1)+'" width="11" height="'+h.toFixed(1)+'" rx="1" fill="#67b982"/>';}).join("");
@@ -150,6 +213,8 @@ function request(point,year,force){
  if(!point){if(controller)controller.abort();if(debounce)clearTimeout(debounce);currentData=null;status="idle";statusView("");return}
  const key=dataKey(point,year);
  if(!force&&cache.has(key)){dataReady(cache.get(key));return}
+ const fallback=!force?compiled2025(point,year):null;
+ if(fallback){dataReady(fallback);return}
  status="loading";currentData=null;statusView(context.label);
  if(debounce)clearTimeout(debounce);
  if(controller)controller.abort();
@@ -209,7 +274,7 @@ function renderChart(){
  const host=$("eo-chart");if(!host)return;
  cell("eo-series-a","Lluvia mensual (mm)");cell("eo-series-b","Temperatura media (°C)");
  cell("eo-chart-subtitle","NASA POWER · "+(context.label||"sin selección")+" · "+context.year);
- const monthly=currentData&&status==="success"?currentData.monthly:null;
+ const monthly=currentData&&status==="success"&&Array.isArray(currentData.monthly)?currentData.monthly:null;
  if(!monthly){host.innerHTML='<div class="eoc-chart-note" style="padding:45px 20px;">'+(status==="loading"?"Consultando NASA POWER…":status==="error"?"NASA POWER no disponible; sin datos climáticos que graficar.":"Selecciona un punto para consultar clima.")+'</div>';cell("eo-chart-coverage","NASA POWER · serie diaria → resumen mensual");return}
  const W=1200,H=165,L=56,R=49,TOP=12,BOT=135;
  const rains=monthly.map(m=>m.PRECTOTCORR).filter(v=>v!==null);
@@ -233,7 +298,7 @@ function hoverChart(event){
  if(status!=="success"||!currentData)return;
  const node=$("eo-chart"),rect=node.getBoundingClientRect(),fraction=(event.clientX-rect.left)/Math.max(1,rect.width);
  const month=Math.max(0,Math.min(11,Math.floor(fraction*12)));
- const m=currentData.monthly[month],target=$("eo-chart-tooltip");
+ const m=currentData.monthly?.[month];if(!m)return;const target=$("eo-chart-tooltip");
  target.innerHTML='<strong>'+MONTHS[month]+' '+context.year+'</strong><div style="color:#5cf2bd">Precipitación: '+fmt(m.PRECTOTCORR)+' mm</div><div style="color:#a9c4ff">T media: '+fmt(m.T2M)+' °C</div>';
  target.hidden=false;
 }
@@ -253,7 +318,7 @@ function onReady(){
   if(context.point)request(context.point,context.year,true);
  });
  window.GrowaClimate={sync,selectPoint,attachLeaflet,attachMap,renderChart,hoverChart,exportCSV,
-  getStatus:()=>status,getData:()=>currentData,buildUrl,parseResponse};
+  getStatus:()=>status,getData:()=>currentData,buildUrl,parseResponse,mapValue,mapUnit,mapLabel};
  const city=$("eo-city")?.value||"",year=Number($("eo-year")?.value)||2025;
  const existingLeaflet=window.GrowaEOMap?.getLeaflet?.();if(existingLeaflet)attachLeaflet(existingLeaflet);
  const existingGL=window.GrowaEOMap?.getMap?.();if(existingGL&&existingGL.loaded?.())attachMap(existingGL);
