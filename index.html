@@ -938,7 +938,7 @@ function initLeaflet(){
   });
   leafSatellite.addTo(leaflet);
   mode="leaflet";updateMap();leafletImport();fitCity("");
-  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getState:()=>S,refreshClimate:()=>{renderRanking();updateMap();if(S.chart==="climate")drawChart()}};
+  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getState:()=>S,refreshClimate:()=>{renderSummary();renderRanking();updateMap();if(S.chart==="climate")drawChart()}};
   window.GrowaClimate?.attachLeaflet?.(leaflet);
   setTimeout(()=>leaflet?.invalidateSize({animate:false}),230);
   window.addEventListener("resize",()=>leaflet?.invalidateSize({animate:false}),{passive:true});
@@ -997,6 +997,7 @@ function boot(){
  }));
  document.querySelectorAll("[data-eo-chart]").forEach(b=>b.addEventListener("click",()=>{
   S.chart=b.dataset.eoChart;
+  if(S.chart==="climate")window.GrowaClimate?.ensureDaily?.();
   document.querySelectorAll("[data-eo-chart]").forEach(a=>{const selected=a===b;a.classList.toggle("active",selected);a.setAttribute("aria-pressed",String(selected))});
   drawChart();
  }));
