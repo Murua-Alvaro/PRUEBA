@@ -66,7 +66,7 @@ body[data-view="panorama"].eo-details #agx-console{display:block!important;margi
 .eo-map-gradient{pointer-events:none;position:absolute;inset:0 0 239px;z-index:2;background:linear-gradient(180deg,#0a171b44,transparent 25%,transparent 70%,#0b18185e)}
 .eo-map-fallback{position:absolute;z-index:30;top:20%;left:50%;transform:translateX(-50%);max-width:340px;padding:18px;color:#1a4830;background:#fff;border-radius:6px;box-shadow:0 9px 40px #0003;font-size:12px;text-align:center}
 .eo-map-fallback[hidden]{display:none!important}
-.eo-left,.eo-right{position:absolute;z-index:13;top:17px;bottom:304px;display:flex;flex-direction:column;overflow:hidden;background:rgba(254,255,252,.97);border:1px solid #ffffffbd;box-shadow:0 13px 40px #051b152d,0 2px 8px #07130d16;backdrop-filter:blur(16px);border-radius:9px}
+.eo-left,.eo-right{position:absolute;z-index:13;top:17px;bottom:304px;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#c0d7c5 transparent;background:rgba(254,255,252,.97);border:1px solid #ffffffbd;box-shadow:0 13px 40px #051b152d,0 2px 8px #07130d16;backdrop-filter:blur(16px);border-radius:9px}
 .eo-left{left:17px;width:280px}
 .eo-panel-head{padding:20px 19px 16px;background:#fff;border-bottom:1px solid #e7efe6}
 .eo-overline,.eo-analysis-label,.eo-right-top,.eo-right-eyebrow,.eo-snapshot-label,.eo-layers-title,.eo-layer-divider,.eo-chart-eyebrow{font:600 9px var(--eo-mono);letter-spacing:.015em}
@@ -882,14 +882,16 @@ function initLeaflet(){
 }
 function drawSvg(){
  const geo=geoData();if(!geo)return;
+ function pathFor(g){
+  const polygons=g?.type==="Polygon"?[g.coordinates]:g?.type==="MultiPolygon"?g.coordinates:[];
+  return polygons.map(poly=>poly.map(ring=>ring.map((p,i)=>(i?"L":"M")+((p[0]+110)/5.2*1200).toFixed(1)+","+((27.8-p[1])/5.9*630).toFixed(1)).join(" ")+" Z").join(" ")).join(" ");
+ }
  const shapes=geo.features.map(f=>{
-  const g=f.geometry;if(!g)return "";
-  const rings=g.type==="Polygon"?[g.coordinates]:g.type==="MultiPolygon"?g.coordinates:[];
-  const path=rings.map(poly=>poly.map(ring=>ring.map((p,i)=>(i?"L":"M")+((p[0]+110)/5.2*1200).toFixed(1)+","+((27.8-p[1])/5.9*630).toFixed(1)).join(" ")+" Z").join(" ")).join(" ");
   const p=f.properties;
-  return '<path d="'+path+'" data-eo-svgcity="'+esc(p.name)+'" fill="'+p.fill+'" fill-opacity="'+Math.max(.35,S.opacity)+'" stroke="'+(S.city===p.name?"#d7ffb6":"#72cb9b")+'" stroke-width="'+(S.city===p.name?3:1.2)+'"><title>'+esc(p.name)+'</title></path>';
+  return '<path d="'+pathFor(f.geometry)+'" data-eo-svgcity="'+esc(p.name)+'" fill="'+p.fill+'" fill-opacity="'+Math.max(.35,S.opacity)+'" stroke="'+(S.city===p.name?"#d7ffb6":"#72cb9b")+'" stroke-width="'+(S.city===p.name?3:1.2)+'"><title>'+esc(p.name)+'</title></path>';
  }).join("");
- $("eo-map").innerHTML='<svg viewBox="0 0 1200 630" style="width:100%;height:100%;display:block;background:radial-gradient(circle at center,#284b39,#101d1e)" role="img" aria-label="Mapa vectorial municipal de respaldo">'+shapes+'</svg>';
+ const parcels=S.geojson?S.geojson.features.map(f=>'<path d="'+pathFor(f.geometry)+'" fill="#2ec794" fill-opacity=".07" stroke="#71ffd1" stroke-width="1.8"><title>'+esc(f.properties?.name||"Parcela")+'</title></path>').join(""):"";
+ $("eo-map").innerHTML='<svg viewBox="0 0 1200 630" style="width:100%;height:100%;display:block;background:radial-gradient(circle at center,#284b39,#101d1e)" role="img" aria-label="Mapa vectorial municipal de respaldo">'+shapes+parcels+'</svg>';
  const feedback=$("eo-map-fallback");feedback.hidden=false;feedback.textContent="Vista vectorial de respaldo. Imágenes satelitales no disponibles en esta conexión.";
 }
 function initFallback(){
@@ -910,6 +912,7 @@ function readGeoJSON(file){
   feedback.textContent=polygons.length+" polígonos importados · solo contornos";
   if(mode==="maplibre"&&loaded)addImportedMap();
   if(mode==="leaflet")leafletImport();
+  if(mode==="svg")drawSvg();
  }).catch(e=>{feedback.textContent="Error de GeoJSON: "+e.message});
 }
 function boot(){
