@@ -764,7 +764,7 @@ function getSnap(year,place){
  const records=cropRecords.filter(r=>r.year===year&&(!place||norm(r.municipio)===norm(place)));
  const harvested=sum(records,"harvest"),volume=sum(records,"volume"),planted=sum(records,"planted"),value=sum(records,"value");
  const valid=!!records.length && !invalidUnit && harvested>0 && records.every(r=>ukey(r.unit)===acceptedUnit&&Number.isFinite(r.volume)&&r.volume>=0&&Number.isFinite(r.harvest)&&r.harvest>=0);
- const snap={year,place,has:!!records.length,n:records.length,harvest:records.length?harvest:null,planted:records.length?planted:null,value:records.length?value:null,volume:valid?volume:null,yield:valid?volume/harvest:null};
+ const snap={year,place,has:!!records.length,n:records.length,harvest:records.length?harvested:null,planted:records.length?planted:null,value:records.length?value:null,volume:valid?volume:null,yield:valid?volume/harvest:null};
  dataCache.set(k,snap);return snap;
 }
 function percentile(arr,p){
