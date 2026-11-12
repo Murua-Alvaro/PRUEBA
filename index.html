@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f6f7f4">
   <meta name="description" content="Growa Agricultura: observatorio independiente de datos abiertos e inteligencia territorial para Sinaloa. Series DGSIAP 2003–2025, atlas de cultivos, municipios, agua y laboratorio de análisis.">
-  <title>GROWA / Atlas agrícola de Sinaloa</title>
+  <title>GROWA Crop Intelligence · Modelado territorial</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.css">
   <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.js" defer></script>
@@ -27,236 +27,268 @@
 
 
 
-<style id="studio-design-v3">
-/* GROWA / Geographic intelligence system. MapLibre GL + OpenFreeMap. Product data unchanged. */
-:root{--studio-paper:#f6f7f4;--studio-surface:#fff;--studio-ink:#18241e;--studio-muted:#738078;--studio-line:#dde3db;--studio-deep:#1e4033;--studio-lime:#b8de72}
-body{background:var(--studio-paper)!important;font-family:Inter,"Segoe UI",Arial,sans-serif!important;color:var(--studio-ink)!important}
-body .shell{display:block!important;background:var(--studio-paper)!important}
+<style id="cropos-style-v4">
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700;750&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+:root{--c-ink:#243329;--c-muted:#7c8a7c;--c-line:#e3e8e2;--c-green:#225a40;--c-lime:#c4dd9f;--c-paper:#f8faf7;--c-faint:#f4f6f2;--c-font:"DM Sans","Segoe UI",Arial,sans-serif;--c-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace}
+body{font-family:var(--c-font)!important;background:#f8faf7!important;color:var(--c-ink)!important}
+body .shell{display:block!important;background:#f8faf7!important}
 body .global-utility,body .rail .rail-meta{display:none!important}
-body .rail{position:sticky!important;z-index:1500!important;top:0!important;height:70px!important;min-height:70px!important;width:100%!important;padding:0 clamp(20px,3vw,55px)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;flex-direction:row!important;background:#fbfcf9!important;border:0!important;border-bottom:1px solid #e4e8e1!important;box-shadow:none!important;backdrop-filter:blur(15px)}
-body .rail .brand{display:flex!important;align-items:center!important;gap:10px!important;min-height:45px!important;width:auto!important;padding:0!important;text-decoration:none!important;color:#1c392a!important}
-body .rail .brand-symbol{font-family:Georgia,serif!important;color:#315841!important;font-size:41px!important;font-weight:400!important}
-body .rail .brand-point{color:#78a754!important}
-body .rail .brand-word{font-size:16px!important;letter-spacing:.17em!important;font-weight:780!important;color:#1a392b!important}
-body .rail .brand-word small{display:block!important;font-size:7.5px!important;color:#80958a!important;letter-spacing:.10em!important;font-weight:550!important;margin-top:4px!important}
-body .rail .navigation{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-direction:row!important;gap:clamp(16px,2.7vw,43px)!important;margin:0!important;padding:0!important;width:auto!important;flex:1!important;border:0!important}
-body .rail .nav-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;position:relative!important;width:auto!important;min-height:70px!important;height:auto!important;background:none!important;color:#718077!important;font-size:12px!important;font-weight:600!important;letter-spacing:0!important;padding:0 1px!important;text-transform:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
-body .rail .nav-link.active,body .rail .nav-link[aria-current="page"],body .rail .nav-link:hover{background:none!important;color:#1d4833!important}
-body .rail .nav-link.active:after,body .rail .nav-link[aria-current="page"]:after{content:"";position:absolute;height:2px;left:0;right:0;bottom:0;background:#3e7858}
-body .rail .lab-nav-link{color:#345b42!important}
+body .rail{z-index:1500!important;position:sticky!important;top:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;height:66px!important;min-height:66px!important;padding:0 clamp(20px,3.8vw,66px)!important;background:#fff!important;color:var(--c-ink)!important;border-bottom:1px solid var(--c-line)!important;box-shadow:none!important}
+body .rail .brand{display:flex!important;align-items:center!important;gap:9px!important;min-height:45px!important;margin:0!important;padding:0!important;color:#244430!important;text-decoration:none!important}
+body .rail .brand-symbol{font:400 37px/.9 Georgia,serif!important;color:#255d40!important}
+body .rail .brand-point{color:#90b877!important}
+body .rail .brand-word{color:#203a2a!important;font:750 15px/1.1 var(--c-font)!important;letter-spacing:.15em!important}
+body .rail .brand-word small{display:block!important;margin-top:5px!important;color:#92a196!important;font:650 7px/1.1 var(--c-font)!important;letter-spacing:.1em!important}
+body .rail .navigation{display:flex!important;justify-content:flex-end!important;align-items:center!important;flex:1!important;width:auto!important;gap:clamp(13px,2.7vw,38px)!important;margin:0!important;padding:0!important;border:0!important}
+body .rail .nav-link{position:relative!important;display:inline-flex!important;align-items:center!important;width:auto!important;height:66px!important;min-height:66px!important;padding:0 2px!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;font:600 12px var(--c-font)!important;color:#89948a!important}
+body .rail .nav-link:hover,body .rail .nav-link.active,body .rail .nav-link[aria-current="page"]{color:#2d573c!important;background:none!important}
+body .rail .nav-link.active:after,body .rail .nav-link[aria-current="page"]:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#3b8359}
 body .rail .navigation [data-tab="agua"],body .rail .navigation [data-tab="metodologia"]{display:none!important}
+body .rail .lab-nav-link{color:#366548!important}
 body .rail .ag-nav-toggle{display:none!important}
-body .page{width:100%!important;max-width:1660px!important;margin:0 auto!important;padding:0 clamp(18px,3vw,55px) 70px!important;background:transparent!important;box-shadow:none!important;border:0!important}
-body .topline{min-height:0!important;padding:15px 0 11px!important;margin:0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
-body .topline .breadcrumb{font-size:9px!important;letter-spacing:.1em!important;color:#7d897e!important;font-weight:600!important}
-body .topline .breadcrumb span{color:#bbc4bb!important}
-body .top-actions{display:flex!important;gap:10px!important;align-items:center!important}
+body .page{width:100%!important;max-width:1860px!important;margin:0 auto!important;padding:0 clamp(14px,2.3vw,42px) 90px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+body .topline{min-height:0!important;margin:0!important;padding:12px 0!important;display:flex!important;justify-content:space-between!important;align-items:center!important;border:0!important}
+body .topline .breadcrumb{color:#9ca99f!important;letter-spacing:.07em!important;font-size:9px!important}
+body .topline .breadcrumb span{color:#c5cec4!important}
+body .top-actions{display:flex!important;gap:12px!important;align-items:center!important}
 body .top-actions .ux-header-btn{display:none!important}
-body .top-actions .quick-search{border:1px solid #e2e8df!important;border-radius:6px!important;background:#fff!important;padding:6px 12px!important;box-shadow:none!important;font-size:10px!important;color:#6e796f!important;min-height:31px!important}
-body .top-actions .status{font-size:10px!important;color:#65826b!important}
+body .top-actions .quick-search{min-height:30px!important;padding:6px 12px!important;border-radius:5px!important;border:1px solid #e5eae3!important;background:white!important;box-shadow:none!important;color:#889689!important;font-size:10px!important}
+body .top-actions .status{font-size:10px!important;color:#63826b!important}
 body .ag-data-strip,body .ux-workbench,body[data-view="panorama"] .institutional-access{display:none!important}
-body[data-view="panorama"] .masthead{display:block!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 16px!important;overflow:visible!important;max-width:none!important}
+body[data-view="panorama"] .masthead{display:block!important;margin:0 0 10px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
 body:not([data-view="panorama"]) .masthead{display:none!important}
-body .masthead::before{display:none!important}
-body[data-view="panorama"] .studio-stage{font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--studio-ink)}
-.studio-intro{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:18px 0 24px}
-.studio-kicker{display:flex;gap:11px;align-items:center;flex-wrap:wrap;color:#6e8172;font-size:9px;letter-spacing:.12em;font-weight:750}
-.studio-kicker-indicator{width:7px;height:7px;border-radius:100px;background:#639460;box-shadow:0 0 0 4px #c3d9c1}
-.studio-kicker-separator{color:#aab8a6}
-body[data-view="panorama"] .studio-intro h1{font-family:Arial,"Helvetica Neue",sans-serif!important;font-weight:580!important;font-size:clamp(34px,4vw,58px)!important;letter-spacing:-.065em!important;line-height:1.08!important;margin:17px 0 0!important;color:#22382c!important}
-body[data-view="panorama"] .studio-intro h1 span{font-weight:430!important;color:#7f9485!important}
-.studio-intro-meta{text-align:right;display:flex;flex-direction:column;gap:3px;min-width:190px;padding-bottom:3px}
-.studio-intro-meta>span{font-size:9px;letter-spacing:.10em;color:#97a397;font-weight:660}
-.studio-intro-meta strong{font-size:26px;letter-spacing:-.05em;font-weight:560;line-height:1.1}
-.studio-intro-meta strong span{color:#8aa18e;font-weight:320}
-.studio-intro-meta small{color:#748477;font-size:10px}
-.studio-workspace{display:grid;grid-template-columns:250px minmax(0,1fr) 302px;min-height:700px;height:min(77vh,840px);background:#fff;border:1px solid #d9e2d8;border-radius:12px;overflow:hidden;box-shadow:0 17px 50px #1b322112}
-.studio-left,.studio-right{min-width:0;overflow:hidden;display:flex;flex-direction:column;background:#fff}
-.studio-left{border-right:1px solid #e3e9e1}
-.studio-left-head{padding:24px 22px 15px}
-.studio-label{font-size:10px;letter-spacing:.11em;color:#809083;font-weight:750;display:flex;justify-content:space-between}
-.studio-label b{font-weight:600;color:#a4b1a4}
-.studio-left-head h2{font-size:24px;letter-spacing:-.05em;line-height:1.25;margin:14px 0 5px;font-weight:610;color:#203c2c}
-.studio-left-head p{font-size:11px;line-height:1.65;color:#8a978d;margin:0}
-.studio-mobile-place{display:none!important}
-.studio-fields{padding:0 22px 19px;display:flex;flex-direction:column;gap:15px;border-bottom:1px solid #e7ece5}
-.studio-field{display:flex;flex-direction:column;gap:7px;font-size:9px;letter-spacing:.10em;color:#768575;font-weight:730}
-.studio-select-wrap{position:relative}
-.studio-select-wrap:after{content:"⌄";position:absolute;right:12px;top:6px;color:#68806b;font-size:16px;pointer-events:none}
-.studio-field select{width:100%;border:1px solid #dce3da;border-radius:6px;background:#f8faf7;padding:11px 30px 11px 12px;color:#2e4a36;font-size:12px;font-weight:620;letter-spacing:0;appearance:none;outline:none}
-.studio-field select:focus-visible{outline:2px solid #82a787;outline-offset:2px}
-.studio-municipal-heading{padding:18px 22px 9px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.studio-municipal-heading strong{font-size:10px;letter-spacing:.09em;color:#566b58}
-.studio-municipal-heading span{font-size:9px;letter-spacing:.06em;color:#a1afa3}
-.studio-municipal-list{min-height:150px;overflow-y:auto;overscroll-behavior:contain;padding:0 10px 13px;flex:1;scrollbar-width:thin;scrollbar-color:#c8d9c5 transparent}
-.studio-place-row{display:flex;gap:9px;align-items:center;width:100%;border:0!important;box-shadow:none!important;padding:10px 12px!important;text-align:left;background:transparent!important;border-radius:6px!important;min-height:39px;color:#526759;font-size:11px;font-weight:580;position:relative}
-.studio-place-row:hover{background:#f3f7f1!important;color:#244b33}
-.studio-place-row.is-selected{background:#eaf2e5!important;color:#24503c!important}
-.studio-place-row.is-selected:before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#638e5b;border-radius:4px}
-.studio-place-row .studio-place-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.studio-place-row .studio-place-value{font-size:10px;color:#8c9b8e;font-variant-numeric:tabular-nums}
-.studio-place-row .studio-place-track{display:block;position:absolute;bottom:3px;left:12px;right:12px;height:2px;background:transparent}
-.studio-place-row .studio-place-track i{display:block;background:#9fc5a4;height:2px;max-width:100%}
-.studio-place-row.is-selected .studio-place-track i{background:#538a56}
-.studio-left-source{display:flex;gap:9px;align-items:flex-start;background:#f8faf6;border-top:1px solid #e9eee8;padding:15px 19px;font-size:9px;line-height:1.55;color:#87998a}
-.studio-source-dot{width:6px;height:6px;border-radius:50%;background:#7bac85;flex:none;margin-top:4px}
-.studio-map-section{position:relative;overflow:hidden;background:#e7eae2;min-width:0}
-.studio-map-canvas{position:absolute;inset:0 0 102px;background:radial-gradient(circle at 45% 45%,#d5dfd1,#e9eae3 70%);z-index:1}
-.studio-map-section .maplibregl-map,.studio-map-section .leaflet-container{font-family:inherit}
-.studio-map-section .maplibregl-ctrl-bottom-right{bottom:5px}
-.studio-map-section .maplibregl-ctrl-attrib,.studio-map-section .leaflet-control-attribution{font-size:8px!important;opacity:.68}
-.studio-map-top{position:absolute;z-index:15;top:18px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none}
-.studio-map-overline{font-size:10px;letter-spacing:.13em;color:#305143;font-weight:750;background:#fffffff0;padding:12px 14px;border:1px solid #dee7d9;border-radius:5px;backdrop-filter:blur(6px)}
-.studio-map-switch{pointer-events:auto;background:#fff!important;color:#365442!important;border:1px solid #d2dfd1!important;border-radius:5px!important;padding:10px 14px!important;font-size:11px!important;font-weight:650;box-shadow:0 5px 15px #263d251a!important}
-.studio-map-switch[aria-pressed="true"]{background:#213d31!important;color:#fff!important;border-color:#213d31!important}
-.studio-switch-icon{font-size:15px;line-height:0;margin-right:5px}
-.studio-map-center{position:absolute;z-index:4;width:18px;height:18px;border:1px solid #51705370;border-radius:100%;top:45%;left:49%;pointer-events:none;opacity:.45}
-.studio-map-center:after{content:"";position:absolute;left:7px;top:7px;background:#426b51;width:2px;height:2px;border-radius:100%}
-.studio-map-legend{position:absolute;z-index:15;bottom:123px;left:19px;width:214px;background:#fffffff0;border:1px solid #e2e8e0;border-radius:7px;padding:13px 15px;box-shadow:0 9px 22px #172b1620;pointer-events:none;backdrop-filter:blur(6px)}
-.studio-map-legend-title{display:flex;justify-content:space-between;gap:5px;margin-bottom:11px;font-size:8px;font-weight:760;color:#45644d;letter-spacing:.07em}
-.studio-map-legend-title span+span{color:#6f8370}
-.studio-legend-ramp{height:7px;background:linear-gradient(90deg,#e1e9df 0%,#c9dcc6 20%,#a0c9ac 40%,#69a985 60%,#397e59 80%,#174630 100%);border-radius:3px}
-.studio-legend-ends{display:flex;justify-content:space-between;font-size:10px;color:#56715e;margin-top:7px;font-variant-numeric:tabular-nums}
-.studio-map-data-note{font-size:8px;color:#879a8a;line-height:1.35;margin-top:9px}
-.studio-map-fallback{position:absolute;z-index:21;top:50%;left:50%;transform:translate(-50%,-50%);background:#fdfefbee;color:#365444;padding:16px;border-radius:6px;font-size:12px;width:70%;text-align:center}
-.studio-map-fallback[hidden]{display:none!important}
-.studio-timeline{position:absolute;bottom:0;left:0;right:0;height:102px;z-index:20;background:#fff;border-top:1px solid #e0e7df;padding:17px 23px 13px}
-.studio-timeline-caption{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.studio-timeline-caption span{font-size:9px;font-weight:700;letter-spacing:.10em;color:#879689}
-.studio-timeline-caption strong{font-size:23px;font-weight:560;color:#2a4e38;letter-spacing:-.05em;line-height:1}
-.studio-timeline input{appearance:none;display:block;width:100%;height:16px;background:none;border:0;margin:0;cursor:ew-resize}
-.studio-timeline input::-webkit-slider-runnable-track{height:3px;background:linear-gradient(90deg,#4f8a61,#bddf98);border-radius:3px}
-.studio-timeline input::-moz-range-track{height:3px;background:#8fbc91;border-radius:3px}
-.studio-timeline input::-webkit-slider-thumb{appearance:none;background:#fff;width:13px;height:13px;border:3px solid #457755;border-radius:100%;margin-top:-5px;box-shadow:0 1px 4px #2a4c3a4a}
-.studio-timeline input::-moz-range-thumb{background:#fff;width:10px;height:10px;border:3px solid #457755;border-radius:100%}
-.studio-timeline-ticks{display:flex;justify-content:space-between;font-size:9px;color:#9baa9b;padding-top:4px}
-.studio-right{border-left:1px solid #e2e8e0;padding:24px 24px 0}
-.studio-insight-head{display:flex;justify-content:space-between;font-size:9px;font-weight:780;color:#7e9382;letter-spacing:.09em}
-.studio-insight-count{color:#a8b9a9}
-.studio-focus{padding:29px 0 16px;border-bottom:1px solid #e3e9e1}
-.studio-focus-type{font-size:10px;font-weight:760;color:#7d9680;letter-spacing:.06em}
-body[data-view="panorama"] .studio-focus h2{font-size:32px!important;line-height:1.1!important;letter-spacing:-.06em!important;font-weight:610!important;color:#20402f!important;margin:10px 0 8px!important}
-.studio-focus p{margin:0;color:#829587;font-size:11px;line-height:1.5}
-.studio-primary-stat{padding:20px 0 17px;border-bottom:1px solid #e5ebe3}
-.studio-primary-stat>span{display:block;font-size:9px;font-weight:760;letter-spacing:.10em;color:#819783}
-.studio-primary-stat>strong{display:block;margin:12px 0 7px;font-size:clamp(29px,2.9vw,42px);font-weight:590;letter-spacing:-.07em;color:#1b3f2b;line-height:1.06;font-variant-numeric:tabular-nums}
-.studio-primary-under{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.studio-primary-under>span:first-child{font-size:10px;color:#9ca99f}
-.studio-change{color:#627d69;font-size:10px;font-weight:740;white-space:nowrap}
-.studio-change.is-negative{color:#b86a51}
-.studio-secondary-stats{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e3e9e1}
-.studio-secondary-stats>div{padding:17px 9px 18px 0;min-width:0}
-.studio-secondary-stats>div+div{border-left:1px solid #e5ebe3;padding-left:13px}
-.studio-secondary-stats span{display:block;color:#87988a;font-size:8px;letter-spacing:.08em;font-weight:730;line-height:1.6}
-.studio-secondary-stats strong{display:block;font-size:19px;line-height:1.1;margin:9px 0 4px;color:#2f503a;font-weight:620;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-.studio-secondary-stats small{font-size:8px;color:#a1ada2}
-.studio-trend-head{padding:20px 0 8px;display:flex;align-items:center;justify-content:space-between;color:#829586}
-.studio-trend-head>div{display:flex;flex-direction:column;gap:4px}
-.studio-trend-head span{font-size:9px;font-weight:690;letter-spacing:.08em}
-.studio-trend-head strong{font-size:11px;color:#56765e;font-weight:600}
-.studio-trend-chart{height:120px;width:100%;min-height:120px}
-.studio-trend-chart svg{width:100%;height:120px;display:block;overflow:visible}
-.studio-crops-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:17px 0 12px;border-top:1px solid #e4ebe1}
-.studio-crops-head strong{font-size:9px;letter-spacing:.07em;color:#536c58}
-.studio-crops-head span{font-size:8px;letter-spacing:.05em;color:#a2b0a2}
-.studio-crop-ranking{flex:1;min-height:90px;overflow-y:auto}
-.studio-crop-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center;margin:0 0 11px}
-.studio-crop-name{color:#496250;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.studio-crop-number{font-size:10px;font-variant-numeric:tabular-nums;color:#687e6a}
-.studio-crop-bar{height:3px;border-radius:3px;background:#edf1eb;grid-column:1/-1}
-.studio-crop-bar i{display:block;height:100%;background:#689877;max-width:100%;border-radius:3px}
-.studio-right-footer{margin:8px -24px 0;border-top:1px solid #e1e7df;padding:12px 21px;min-height:53px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fbfcfa}
-.studio-right-footer button{border:0!important;background:none!important;color:#2f6742!important;font-size:10px;font-weight:750;padding:4px 0!important}
-.studio-right-footer button:hover{text-decoration:underline}
-.studio-right-footer span{font-size:9px;color:#9caf9b}
-.studio-tail{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px 2px 20px;font-size:9px;letter-spacing:.06em;color:#879689}
-.studio-tail strong{font-size:13px;color:#56775c;font-family:Georgia,serif;letter-spacing:-.07em;margin-right:7px}
-.studio-tail-divider{color:#b5c4b3;margin:0 5px}
-.studio-loading{color:#9aab9b;font-size:11px;line-height:1.5;padding:12px}
+body .masthead:before{display:none!important}
+.cropos{font-family:var(--c-font)!important;color:var(--c-ink)!important}
+.cropos *{box-sizing:border-box}
+.cropos-top{padding:16px 6px 22px;display:flex;justify-content:space-between;gap:28px;align-items:flex-end}
+.cropos-overline{display:flex;align-items:center;gap:9px;color:#6b846f;font:600 9px var(--c-mono);letter-spacing:.02em}
+.cropos-pulse,.cropos-small-led{display:inline-block;width:6px;height:6px;background:#63a779;border-radius:50%;flex:none;box-shadow:0 0 0 3px #63a77920}
+.cropos-slash{color:#b7c5bb}
+body[data-view="panorama"] .cropos-title h1{margin:10px 0 5px!important;font:650 clamp(29px,3.1vw,43px)/1.08 var(--c-font)!important;letter-spacing:-.058em!important;color:#1c3125!important}
+.cropos-title-dot{color:#7cab75}
+.cropos-title>p{font-size:12px;color:#8a9a8d;line-height:1.55;letter-spacing:-.005em;margin:0}
+.cropos-head-details{display:flex;align-items:flex-end;gap:29px;flex-wrap:wrap;justify-content:flex-end;padding-bottom:5px}
+.cropos-head-data{display:flex;flex-direction:column;gap:7px}
+.cropos-head-data>span{color:#a1afa3;font:600 9px var(--c-mono);letter-spacing:.05em}
+.cropos-head-data>strong{font-size:11px;color:#435a49;font-weight:680}
+.cropos-head-status{display:flex;gap:7px;align-items:center;padding:8px 12px;border:1px solid #dbe9dc;background:#eff6ee;border-radius:5px;white-space:nowrap;color:#41744f;font-size:10px;font-weight:690}
+.cropos-status-led{width:6px;height:6px;border-radius:50%;background:#63a277;flex:none}
+.cropos-status-sub{font-weight:450;color:#869d8c}
+.cropos-application{display:grid;grid-template-columns:258px minmax(350px,1fr) 344px;height:min(77vh,845px);min-height:718px;border:1px solid #dfe6de;background:#fff;border-radius:11px;overflow:hidden;box-shadow:0 14px 45px #203c2614}
+.cropos-sidebar{min-width:0;border-right:1px solid #e3e9e2;background:#fff;display:flex;flex-direction:column}
+.cropos-sidebar-intro{padding:26px 23px 22px;border-bottom:1px solid #edf0eb}
+.cropos-micro{font:600 9px var(--c-mono);letter-spacing:.045em;color:#8da28d}
+body[data-view="panorama"] .cropos-sidebar-intro h2{font:650 23px/1.2 var(--c-font)!important;letter-spacing:-.055em!important;color:#244c32!important;margin:14px 0 8px!important}
+.cropos-sidebar-intro p{font-size:11px;line-height:1.65;margin:0;color:#94a097}
+.cropos-control-group{display:flex;flex-direction:column;gap:10px;padding:22px 20px 24px}
+.cropos-input-label,.cropos-layer-head{display:flex;justify-content:space-between;align-items:center;font:600 10px var(--c-mono);letter-spacing:.04em;color:#607361}
+.cropos-input-label>span,.cropos-layer-head>span{color:#a4b2a4;font-size:9px}
+.cropos-selectbox{position:relative;margin-bottom:14px}
+.cropos-selectbox:after{content:"⌄";position:absolute;right:12px;top:8px;color:#78917b;font-size:18px;pointer-events:none}
+.cropos-selectbox select{appearance:none;display:block;width:100%;min-width:0;border:1px solid #dfe6dd;border-radius:5px;background:#f9faf8;color:#31513a;padding:11px 33px 11px 11px;font:650 12px var(--c-font);min-height:42px}
+.cropos-selectbox select:focus-visible{outline:2px solid #719b7d;outline-offset:2px}
+.cropos-layer-head{margin:0 0 3px}
+.cropos-layer-switch{display:grid;gap:2px;padding:3px;background:#f5f7f4;border:1px solid #e7ebe5;border-radius:6px}
+.cropos-layer{border:0!important;border-radius:4px!important;display:flex!important;gap:10px;align-items:center;justify-content:flex-start;width:100%;padding:10px 12px!important;background:transparent!important;box-shadow:none!important;color:#8c9d8e!important;font:600 11px var(--c-font)!important;transition:background .18s ease}
+.cropos-layer.active,.cropos-layer:hover{background:#fff!important;color:#2b6643!important;box-shadow:0 1px 4px #0000000c!important}
+.cropos-layer-symbol{font:650 14px var(--c-mono);color:#60926a;width:18px;text-align:center}
+.cropos-scope{margin:auto 20px 0;padding:20px 0;border-top:1px solid #e8ece6}
+.cropos-scope-head{display:flex;justify-content:space-between;gap:5px;margin-bottom:14px;font:600 9px var(--c-mono);color:#859687}
+.cropos-scope-head>span:last-child{color:#b0beb1}
+.cropos-scope-stat{display:flex;align-items:baseline;gap:11px;padding:8px 0;border-bottom:1px solid #f1f4ef}
+.cropos-scope-stat>strong{font:600 22px var(--c-font);color:#315c3e;letter-spacing:-.07em;min-width:42px}
+.cropos-scope-stat>span{font-size:11px;color:#8da18e}
+.cropos-sidebar-bottom{display:flex;align-items:flex-start;gap:9px;padding:15px 20px;background:#f7f9f5;border-top:1px solid #e9eee8}
+.cropos-mini-icon{width:15px;height:15px;line-height:13px;border:1px solid #a8bba8;color:#8ca18b;text-align:center;border-radius:100%;font:600 10px/13px var(--c-mono);flex:none}
+.cropos-sidebar-bottom p{font:400 10px/1.6 var(--c-font);color:#99aa9a;margin:0}
+.cropos-map-column{position:relative;min-width:0;background:#e8ede7;overflow:hidden}
+.cropos-map{position:absolute;inset:0 0 104px;z-index:1;background:#e6ece7}
+.cropos-map .maplibregl-control-container{font-family:var(--c-font)}
+.cropos-map .maplibregl-ctrl-attrib{font-size:8px!important;opacity:.72}
+.cropos-map-top,.cropos-map-bottom{position:absolute;z-index:20;display:flex;justify-content:space-between;gap:12px;pointer-events:none}
+.cropos-map-top{left:20px;right:20px;top:20px;align-items:flex-start}
+.cropos-map-label{background:#fffffff2;border:1px solid #e0e9df;border-radius:7px;padding:11px 14px;box-shadow:0 6px 22px #273d331b;backdrop-filter:blur(9px);display:flex;flex-direction:column;gap:6px;max-width:calc(100% - 133px)}
+.cropos-map-overline{font:600 9px var(--c-mono);letter-spacing:.03em;color:#7d9881}
+.cropos-map-label strong{font-size:12px;color:#254a34;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cropos-basemap{pointer-events:auto;border:1px solid #e0e9e0!important;box-shadow:0 6px 20px #2f473322!important;background:#fffffff1!important;color:#477155!important;border-radius:6px!important;min-height:39px;padding:9px 13px!important;font:650 11px var(--c-font)!important;backdrop-filter:blur(8px)}
+.cropos-basemap[aria-pressed="true"]{background:#264636!important;color:#fff!important;border-color:#264636!important}
+.cropos-basemap span{margin-right:6px;font-size:14px}
+.cropos-map-bottom{left:20px;right:20px;bottom:124px;align-items:flex-end}
+.cropos-legend{min-width:205px;max-width:225px;border:1px solid #e0e7dc;border-radius:6px;padding:12px 13px 11px;background:#fffffff0;backdrop-filter:blur(8px);box-shadow:0 5px 19px #18312318}
+.cropos-legend>span{display:block;font:600 9px var(--c-mono);color:#7d937f;letter-spacing:.02em}
+.cropos-legend>span b{font-weight:700;color:#44684b}
+.cropos-legend-gradient{width:100%;height:6px;background:linear-gradient(90deg,#dde7d8,#b2d2ad,#7bae8c,#3d865f,#175239);border-radius:2px;margin:11px 0 5px}
+.cropos-legend-values{display:flex;justify-content:space-between;gap:7px;font:500 10px var(--c-mono);color:#90a18f}
+.cropos-legend-values strong{color:#49644d;font-weight:600}
+.cropos-legend small{display:block;font:400 9px/1.5 var(--c-font);color:#9cad9e;margin-top:8px}
+.cropos-map-note{text-align:right;color:#467059;font:600 10px/1.7 var(--c-mono);background:#ffffffe3;border:1px solid #e5ebe1;border-radius:5px;padding:9px 12px}
+.cropos-map-note small{font:500 9px var(--c-font);color:#8fa390}
+.cropos-map-point{display:inline-block;width:6px;height:6px;border-radius:50%;background:#5c976c}
+.cropos-map-unavailable{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);z-index:22;background:white;box-shadow:0 5px 30px #0002;border:1px solid #e1e7e0;padding:15px 20px;border-radius:7px;width:65%;font-size:12px;text-align:center;color:#637a65}
+.cropos-map-unavailable[hidden]{display:none!important}
+.cropos-timebar{position:absolute;z-index:25;bottom:0;left:0;right:0;height:104px;background:#fff;border-top:1px solid #e3e8e1;padding:16px 24px}
+.cropos-timebar-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 11px}
+.cropos-timebar-top>span{font:650 10px var(--c-mono);letter-spacing:.01em;color:#6e8c74}
+.cropos-timebar-top small{font-size:9px;color:#a0b0a1;margin-left:10px;font-weight:400}
+.cropos-timebar-top strong{font:600 23px/1 var(--c-font);letter-spacing:-.07em;color:#305942}
+.cropos-timebar input{appearance:none;margin:0;width:100%;height:12px;display:block;cursor:ew-resize;background:transparent}
+.cropos-timebar input::-webkit-slider-runnable-track{height:3px;background:linear-gradient(90deg,#397854,#bfd4b2);border-radius:5px}
+.cropos-timebar input::-moz-range-track{height:3px;background:#6f9f73;border-radius:5px}
+.cropos-timebar input::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border:3px solid #2b754b;border-radius:50%;background:white;margin-top:-5px;box-shadow:0 1px 5px #24442f4b}
+.cropos-timebar input::-moz-range-thumb{width:10px;height:10px;border:3px solid #2b754b;border-radius:50%;background:white}
+.cropos-timebar-ticks{display:flex;justify-content:space-between;font:450 9px var(--c-mono);color:#a0afa1;margin-top:6px}
+.cropos-intelligence{min-width:0;border-left:1px solid #e2e9e1;background:#fff;overflow-y:auto;display:flex;flex-direction:column;padding:21px 22px 0;scrollbar-width:thin;scrollbar-color:#d9e5d9 transparent}
+.cropos-intro-line{display:flex;justify-content:space-between;align-items:center;font:650 10px var(--c-mono);color:#78977e}
+.cropos-engine-pill{font:650 8px var(--c-mono);letter-spacing:.03em;color:#3e8c51;background:#eef6e9;padding:6px 8px;border:1px solid #d6e9d3;border-radius:4px}
+.cropos-model-head{padding:19px 0 13px;border-bottom:1px solid #edf0ea}
+.cropos-model-location{font:600 9px var(--c-mono);color:#8ea58e}
+body[data-view="panorama"] .cropos-model-head h2{color:#274c35!important;font:650 28px/1.14 var(--c-font)!important;letter-spacing:-.06em!important;margin:9px 0 6px!important;overflow-wrap:anywhere}
+.cropos-model-head>span{font-size:11px;color:#95a397}
+.cropos-hero-metric{padding:14px 0 15px;border-bottom:1px solid #e9eee7}
+.cropos-hero-number{display:flex;align-items:baseline;gap:10px}
+.cropos-hero-number strong{font:650 43px/1.08 var(--c-font);letter-spacing:-.09em;color:#224931;font-variant-numeric:tabular-nums}
+.cropos-hero-number>span{font:550 11px var(--c-mono);color:#9cad9d}
+.cropos-benchmark-label{margin-top:9px;color:#66876b;font-size:11px;line-height:1.45;font-weight:580}
+.cropos-model-quantiles{padding:17px 0 17px;border-bottom:1px solid #e9eee8}
+.cropos-quantile-header{display:flex;justify-content:space-between;align-items:center;gap:6px;font:650 9px var(--c-mono);color:#7b927e}
+.cropos-quantile-header span:last-child{color:#a6b5a5;font-weight:400;font-size:8px;white-space:nowrap}
+.cropos-percentile-line{position:relative;height:8px;margin:15px 2px 14px;background:linear-gradient(90deg,#e4ede3,#b2d6b4,#6baa77,#32744e);border-radius:7px}
+.cropos-percentile-band{position:absolute;left:25%;right:25%;height:12px;top:-2px;border:2px solid #fff9;border-radius:5px;background:#245d4733}
+.cropos-percentile-marker{position:absolute;top:-6px;height:20px;width:3px;border-radius:4px;background:#1c3024;left:50%;box-shadow:0 0 0 2px #fff9;transition:left .18s ease}
+.cropos-quantile-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.cropos-quantile-row>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.cropos-quantile-row span{font:550 8px var(--c-mono);color:#829985;letter-spacing:-.03em;white-space:nowrap}
+.cropos-quantile-row strong{font:650 16px var(--c-font);color:#466851;letter-spacing:-.04em}
+.cropos-qdot{display:inline-block;height:4px;width:19px;background:#96c6a0;border-radius:2px}
+.cropos-qdot.qlow{background:#bdd7bc}.cropos-qdot.qcentral{background:#7db68d}.cropos-qdot.qhigh{background:#387950}
+.cropos-plot-heading{display:flex;justify-content:space-between;gap:8px;padding:15px 0 0;font:650 9px var(--c-mono);color:#78917b}
+.cropos-plot-heading span:last-child{font-weight:450;color:#a4b1a3}
+.cropos-plot{height:103px;margin:4px 0 10px;min-height:103px;color:#a8b6aa;font:400 10px var(--c-font)}
+.cropos-plot svg{width:100%;height:103px;overflow:visible;display:block}
+.cropos-plot p{padding-top:20px}
+.cropos-scenario{margin:8px -22px 0;background:#f6f9f4;border-top:1px solid #e7eee5;padding:20px 22px 16px}
+.cropos-scenario-title{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#76927c;font:650 9px var(--c-mono);letter-spacing:.02em}
+.cropos-scenario-chip{background:#e7f0e2;border:1px solid #d9e9d2;border-radius:4px;padding:5px 8px;font:600 8px var(--c-mono);color:#5b8864}
+.cropos-scenario-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:17px}
+.cropos-scenario-head strong{font-size:15px;letter-spacing:-.035em;font-weight:680;color:#304f37}
+.cropos-scenario-head>span{font:600 13px var(--c-mono);color:#578367}
+.cropos-scenario>p{font:400 10px/1.6 var(--c-font);color:#8d9d8e;margin:9px 0 16px}
+.cropos-scenario input[type="range"]{display:block;appearance:none;width:100%;height:12px;background:transparent;cursor:ew-resize}
+.cropos-scenario input::-webkit-slider-runnable-track{height:4px;background:linear-gradient(90deg,#e4b9a4,#d4dfc8,#86b888);border-radius:5px}
+.cropos-scenario input::-moz-range-track{height:4px;background:#a9c9a6;border-radius:5px}
+.cropos-scenario input::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border:3px solid #408358;border-radius:100%;background:white;margin-top:-5px}
+.cropos-scenario input::-moz-range-thumb{width:10px;height:10px;border:3px solid #408358;border-radius:100%;background:white}
+.cropos-impact-ticks{display:flex;justify-content:space-between;font:500 9px var(--c-mono);color:#a0ada0;margin:6px 0 16px}
+.cropos-scenario-result{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;border-top:1px solid #e2e9df;padding-top:15px}
+.cropos-scenario-result>div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.cropos-scenario-result span{font:600 8px var(--c-mono);color:#9caf9b}
+.cropos-scenario-result strong{font:650 18px var(--c-font);color:#315b3e;letter-spacing:-.035em;overflow-wrap:anywhere}
+.cropos-scenario-result>div+div strong{font-size:10px;font-weight:630;letter-spacing:0;margin-top:4px}
+.cropos-scenario>p.cropos-method-note{font:400 9px/1.55 var(--c-font);color:#a1b09e;margin:12px 0 0}
+.cropos-analysis-link{width:calc(100% + 44px);margin:0 -22px 0;border:0!important;border-top:1px solid #e2e8df!important;background:#fff!important;padding:16px 22px!important;text-align:left!important;display:flex!important;align-items:center!important;justify-content:space-between!important;font:700 11px var(--c-font)!important;color:#326f46!important}
+.cropos-analysis-link:hover{background:#f8fbf6!important}
+.cropos-underbar{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:14px 3px 0;color:#a2b0a4;font:500 9px var(--c-mono)}
+.cropos-underbar>span{display:flex;align-items:center;gap:7px}
+.cropos-underbar b{color:#638d67;font-weight:600}
+.cropos-underbar i{font-style:normal}
 body[data-view="panorama"] #agx-console{display:none!important}
-body[data-view="panorama"].studio-show-details #agx-console{display:block!important;border:1px solid #dae5da!important;border-radius:12px!important;overflow:hidden!important}
-body[data-view="panorama"] #panel-panorama{padding-top:0!important;border:0!important}
-body[data-view="panorama"] #panel-panorama .ag5-filters{background:#f6f9f4!important}
-body .section-panel .section-heading h2{color:#1d4030}
-@media(max-width:1390px){
- .studio-workspace{grid-template-columns:230px minmax(0,1fr) 275px}
- .studio-left-head{padding:21px 18px 14px}
- .studio-fields{padding:0 18px 18px}
- .studio-municipal-heading{padding-inline:18px}
- .studio-right{padding:20px 20px 0}
- .studio-right-footer{margin-inline:-20px;padding-inline:17px}
+body[data-view="panorama"].cropos-details-visible #agx-console{display:block!important;border:1px solid #e0e9df!important;border-radius:10px!important;overflow:hidden!important;margin-top:22px!important}
+body[data-view="panorama"] #panel-panorama{border:0!important;padding-top:0!important}
+body[data-view="panorama"] #agx-console .ag5-shell{grid-template-columns:235px minmax(0,1fr)!important}
+body[data-view="panorama"] #agx-console .ag5-filters{background:#f7faf6!important;border-color:#e4ebe3!important}
+body .section-panel .section-heading h2{color:#31543a}
+@media(max-width:1480px){
+ .cropos-application{grid-template-columns:230px minmax(330px,1fr) 320px}
+ .cropos-sidebar-intro{padding:23px 18px}
+ .cropos-control-group{padding:18px}
+ .cropos-scope{margin-inline:18px}
+ .cropos-intelligence{padding-inline:18px}
+ .cropos-scenario{margin-inline:-18px;padding-inline:18px}
+ .cropos-analysis-link{margin-inline:-18px;width:calc(100% + 36px);padding-inline:18px!important}
 }
-@media(max-width:1130px){
- .studio-workspace{grid-template-columns:215px minmax(0,1fr) 252px;height:710px}
- .studio-right{padding:18px 16px 0}
- .studio-right-footer{margin-inline:-16px}
- .studio-focus h2{font-size:27px!important}
- .studio-secondary-stats strong{font-size:17px}
- .studio-map-legend{width:188px}
+@media(max-width:1190px){
+ .cropos-application{grid-template-columns:208px minmax(310px,1fr) 287px;min-height:700px}
+ .cropos-plot{height:93px;min-height:93px}
+ .cropos-plot svg{height:93px}
+ .cropos-head-data{display:none}
+ .cropos-hero-number strong{font-size:38px}
+ .cropos-quantile-row span{font-size:7px}
+ .cropos-model-head h2{font-size:25px!important}
+ .cropos-map-note{display:none}
 }
-@media(max-width:940px){
- .studio-workspace{grid-template-columns:235px minmax(0,1fr);height:auto;min-height:690px}
- .studio-map-section{min-height:690px}
- .studio-right{grid-column:1/-1;border-left:0;border-top:1px solid #e1e8df;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 26px;padding:20px 25px}
- .studio-insight-head,.studio-focus,.studio-primary-stat,.studio-secondary-stats{grid-column:1}
- .studio-trend-head,.studio-trend-chart,.studio-crops-head,.studio-crop-ranking{grid-column:2}
- .studio-trend-head{grid-row:1/3}
- .studio-trend-chart{grid-row:3/5}
- .studio-crops-head{grid-row:5}
- .studio-crop-ranking{grid-row:6/9}
- .studio-right-footer{grid-column:1/-1;margin:0 -25px -20px}
- .studio-focus{padding-top:20px}
+@media(max-width:980px){
+ .cropos-application{grid-template-columns:230px minmax(0,1fr);height:auto;min-height:0}
+ .cropos-sidebar{grid-column:1;grid-row:1}
+ .cropos-map-column{grid-column:2;grid-row:1;min-height:660px}
+ .cropos-intelligence{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:minmax(200px,.85fr) minmax(270px,1fr);gap:0 26px;max-height:none;overflow:visible;padding:21px 25px 0}
+ .cropos-intro-line,.cropos-model-head,.cropos-hero-metric,.cropos-model-quantiles{grid-column:1}
+ .cropos-plot-heading,.cropos-plot,.cropos-scenario{grid-column:2}
+ .cropos-plot-heading{grid-row:1}
+ .cropos-plot{grid-row:2/4;align-self:center}
+ .cropos-scenario{grid-row:4/7;margin:0 -25px 0 0;padding:18px 23px}
+ .cropos-analysis-link{grid-column:1/-1;margin:12px -25px 0;width:calc(100% + 50px)}
+ .cropos-underbar{font-size:8px}
 }
-@media(max-width:700px){
- body .rail{height:62px!important;min-height:62px!important;padding:0 15px!important}
+@media(max-width:720px){
+ body .rail{height:60px!important;min-height:60px!important;padding:0 15px!important}
+ body .rail .brand-symbol{font-size:32px!important}
  body .rail .brand-word{font-size:12px!important}
  body .rail .brand-word small{font-size:6px!important}
- body .rail .brand-symbol{font-size:33px!important}
- body .rail .navigation{gap:14px!important;width:auto!important;overflow-x:auto!important;justify-content:flex-end!important;white-space:nowrap!important}
- body .rail .nav-link{font-size:10px!important;min-height:62px!important}
+ body .rail .navigation{gap:13px!important;overflow-x:auto!important;justify-content:flex-end!important}
+ body .rail .nav-link{height:60px!important;min-height:60px!important;font-size:10px!important}
  body .rail .lab-nav-link{display:none!important}
- body .page{padding:0 13px 38px!important}
- body .topline{padding:12px 1px!important}
+ body .page{padding:0 12px 50px!important}
+ body .topline{padding:9px 1px!important}
  body .topline .breadcrumb{font-size:8px!important}
- body .top-actions .quick-search{min-height:28px!important;padding:3px 8px!important;font-size:0!important}
- body .top-actions .quick-search .search-glyph{font-size:17px!important}
+ body .top-actions .quick-search{font-size:0!important;padding:5px 9px!important;min-height:28px!important}
+ body .top-actions .quick-search .search-glyph{font-size:16px!important}
  body .top-actions .quick-search kbd,body .top-actions .status{display:none!important}
- .studio-intro{padding:16px 0 17px;align-items:flex-start;gap:12px}
- .studio-intro h1{font-size:clamp(29px,7vw,44px)!important}
- .studio-intro-meta{min-width:0;padding-top:4px}
- .studio-intro-meta>span{display:none}
- .studio-intro-meta strong{font-size:18px}
- .studio-intro-meta small{font-size:8px}
- .studio-kicker{font-size:8px;letter-spacing:.06em}
- .studio-kicker-separator,.studio-kicker-separator~*{display:none}
- .studio-workspace{display:flex;flex-direction:column;border-radius:9px;min-height:0;height:auto}
- .studio-left{order:1;border:0;border-bottom:1px solid #e4eae2}
- .studio-left-head{padding:17px 17px 8px}
- .studio-left-head h2,.studio-left-head p,.studio-municipal-heading,.studio-municipal-list,.studio-left-source{display:none}
- .studio-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px 17px 15px;border:0}
- .studio-mobile-place{display:flex!important;grid-column:1/-1}
- .studio-field{font-size:8px}
- .studio-field select{padding:9px 21px 9px 9px;font-size:10px}
- .studio-map-section{order:2;min-height:470px}
- .studio-map-canvas{bottom:95px}
- .studio-timeline{height:95px;padding:15px 16px 10px}
- .studio-map-top{top:12px;left:12px;right:12px}
- .studio-map-overline{font-size:8px;padding:9px}
- .studio-map-switch{font-size:10px;padding:9px!important}
- .studio-map-legend{bottom:114px;left:12px;width:170px;padding:10px}
- .studio-map-legend-title{font-size:7px}
- .studio-map-data-note{font-size:7px}
- .studio-right{order:3;display:flex;gap:0;padding:20px 18px 0}
- .studio-insight-head,.studio-focus,.studio-primary-stat,.studio-secondary-stats,.studio-trend-head,.studio-trend-chart,.studio-crops-head,.studio-crop-ranking{grid-column:auto;grid-row:auto}
- .studio-focus{padding:18px 0 14px}
- .studio-primary-stat>strong{font-size:39px}
- .studio-crop-ranking{min-height:90px}
- .studio-right-footer{margin:10px -18px 0;padding:14px 18px}
- .studio-tail{display:block;line-height:1.9}
- .studio-tail>span+span{display:block;font-size:8px}
+ .cropos-top{padding:13px 2px 18px}
+ .cropos-overline{font-size:8px;gap:6px}
+ body[data-view="panorama"] .cropos-title h1{font-size:clamp(26px,7vw,37px)!important}
+ .cropos-title>p{font-size:10px;max-width:330px}
+ .cropos-head-details{display:none}
+ .cropos-application{display:flex;flex-direction:column;border-radius:9px}
+ .cropos-sidebar{display:block;border:0;border-bottom:1px solid #e6ece4}
+ .cropos-sidebar-intro{padding:17px 16px 9px;border:0}
+ .cropos-sidebar-intro h2,.cropos-sidebar-intro p{display:none}
+ .cropos-control-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;padding:0 16px 15px}
+ .cropos-input-label{font-size:9px}
+ .cropos-selectbox{margin-bottom:4px}
+ .cropos-selectbox select{font-size:10px;min-height:38px}
+ .cropos-layer-head{grid-column:1/-1;margin-top:5px}
+ .cropos-layer-switch{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+ .cropos-layer{font-size:10px!important;padding:10px 5px!important;justify-content:center;gap:4px}
+ .cropos-layer-symbol{font-size:11px;width:12px}
+ .cropos-scope,.cropos-sidebar-bottom{display:none}
+ .cropos-map-column{min-height:490px}
+ .cropos-map{bottom:94px}
+ .cropos-map-top{top:12px;left:12px;right:12px}
+ .cropos-map-label{padding:9px 10px}
+ .cropos-map-overline{font-size:7px}
+ .cropos-map-label strong{font-size:10px}
+ .cropos-basemap{padding:8px 10px!important;font-size:10px!important}
+ .cropos-map-bottom{left:12px;right:12px;bottom:110px}
+ .cropos-legend{min-width:163px;max-width:180px;padding:10px}
+ .cropos-timebar{height:94px;padding:14px 15px}
+ .cropos-timebar-top>span{font-size:8px}
+ .cropos-timebar-top small{font-size:8px}
+ .cropos-timebar-top strong{font-size:20px}
+ .cropos-intelligence{display:block;padding:22px 19px 0}
+ .cropos-plot-heading,.cropos-plot,.cropos-scenario{grid-column:auto;grid-row:auto}
+ .cropos-model-head{padding-top:17px}
+ .cropos-hero-number strong{font-size:45px}
+ .cropos-plot{height:117px;min-height:117px}
+ .cropos-plot svg{height:117px}
+ .cropos-scenario{margin:12px -19px 0;padding:18px 19px}
+ .cropos-analysis-link{width:calc(100% + 38px);margin:0 -19px;padding:15px 19px!important}
+ .cropos-underbar{display:block;line-height:1.8;padding:11px 3px}
+ .cropos-underbar>span{display:block}
+ .cropos-underbar>span:first-child{margin-bottom:3px}
+ .cropos-small-led{margin-right:5px}
 }
-@media(prefers-reduced-motion:reduce){.studio-place-row,.studio-map-switch{transition:none!important}}
-@media print{body .rail,body .topline,body .studio-map-section,body .studio-left{display:none!important}.studio-workspace{display:block!important;height:auto!important}.studio-right{display:block!important}}
+@media(prefers-reduced-motion:reduce){.cropos-percentile-marker,.cropos-layer{transition:none!important}}
+@media print{body .rail,body .topline,body .cropos-sidebar,body .cropos-map-column{display:none!important}.cropos-application{display:block!important;height:auto!important}.cropos-intelligence{display:block!important}}
 </style>
 </head>
 <body>
@@ -306,71 +338,96 @@ body .section-panel .section-heading h2{color:#1d4030}
     </div>
 
     
-<header class="masthead studio-stage" aria-label="Explorador de agricultura">
-  <div class="studio-intro">
-    <div>
-      <div class="studio-kicker"><span class="studio-kicker-indicator"></span> GROWA / AGRICULTURAL INTELLIGENCE <span class="studio-kicker-separator">/</span> SINALOA, MÉXICO</div>
-      <h1>El territorio, <span>en datos.</span></h1>
+
+<header class="masthead cropos" aria-label="GROWA, estación de inteligencia de cultivos">
+  <div class="cropos-top">
+    <div class="cropos-title">
+      <div class="cropos-overline"><span class="cropos-pulse"></span> WORKSPACE <span class="cropos-slash">/</span> AGRICULTURE <span class="cropos-slash">/</span> SINALOA</div>
+      <h1>Crop Intelligence<span class="cropos-title-dot">.</span></h1>
+      <p>Modelado territorial del rendimiento agrícola a partir de observaciones históricas.</p>
     </div>
-    <div class="studio-intro-meta"><span>OBSERVATORIO DE PRODUCCIÓN AGRÍCOLA</span><strong>2003 <span>—</span> 2025</strong><small>Series oficiales · DGSIAP</small></div>
+    <div class="cropos-head-details">
+      <div class="cropos-head-data"><span>DATASET</span><strong>DGSIAP 2003–2025</strong></div>
+      <div class="cropos-head-data"><span>ÁMBITO</span><strong>18 municipios</strong></div>
+      <div class="cropos-head-status"><span class="cropos-status-led"></span> Baseline histórico <span class="cropos-status-sub">· no es pronóstico ML</span></div>
+    </div>
   </div>
-  <div class="studio-workspace" id="studio-workspace">
-    <aside class="studio-left" aria-label="Filtros de exploración">
-      <div class="studio-left-head"><span class="studio-label">EXPLORADOR <b>01 / 03</b></span><h2>Parámetros</h2><p>Filtra los datos y observa sus diferencias geográficas.</p></div>
-      <div class="studio-fields">
-        <label class="studio-field"><span>CULTIVO</span><div class="studio-select-wrap"><select id="studio-crop"><option value="">Todos los cultivos</option></select></div></label>
-        <label class="studio-field"><span>INDICADOR</span><div class="studio-select-wrap"><select id="studio-metric">
-          <option value="value">Valor de producción</option>
-          <option value="harvest">Superficie cosechada</option>
-          <option value="planted">Superficie sembrada</option>
-        </select></div></label>
-        <label class="studio-field studio-mobile-place"><span>MUNICIPIO</span><div class="studio-select-wrap"><select id="studio-municipality-select" aria-label="Seleccionar municipio"><option value="">Todo Sinaloa</option></select></div></label>
+  <div class="cropos-application" id="cropos-application">
+    <aside class="cropos-sidebar" aria-label="Configuración del análisis">
+      <div class="cropos-sidebar-intro"><span class="cropos-micro">01 / CONFIGURACIÓN</span><h2>Explorar producción</h2><p>Selecciona el sistema productivo y su territorio de referencia.</p></div>
+      <div class="cropos-control-group">
+        <label class="cropos-input-label" for="cropos-crop">CULTIVO <span>01</span></label>
+        <div class="cropos-selectbox"><select id="cropos-crop" aria-label="Selecciona el cultivo"><option>Preparando catálogo…</option></select></div>
+        <label class="cropos-input-label" for="cropos-place">TERRITORIO <span>02</span></label>
+        <div class="cropos-selectbox"><select id="cropos-place" aria-label="Selecciona el municipio"><option value="">Todos los municipios</option></select></div>
+        <div class="cropos-layer-head">CAPA DE MAPA <span>03</span></div>
+        <div class="cropos-layer-switch" role="group" aria-label="Indicador cartográfico">
+          <button type="button" class="cropos-layer active" data-model-layer="yield" aria-pressed="true"><span class="cropos-layer-symbol">≋</span> Rendimiento</button>
+          <button type="button" class="cropos-layer" data-model-layer="value" aria-pressed="false"><span class="cropos-layer-symbol">$</span> Valor</button>
+          <button type="button" class="cropos-layer" data-model-layer="area" aria-pressed="false"><span class="cropos-layer-symbol">▨</span> Superficie</button>
+        </div>
       </div>
-      <div class="studio-municipal-heading"><strong>TERRITORIO</strong><span>18 MUNICIPIOS</span></div>
-      <div class="studio-municipal-list" id="studio-municipal-list" aria-label="Seleccionar municipio"><p class="studio-loading">Preparando datos territoriales…</p></div>
-      <div class="studio-left-source"><span class="studio-source-dot"></span><span>Datos agregados municipales. La ausencia de un registro no equivale a producción nula.</span></div>
+      <div class="cropos-scope">
+        <div class="cropos-scope-head"><span>UNIVERSO DEL ESTUDIO</span><span>DGSIAP</span></div>
+        <div class="cropos-scope-stat"><strong>23</strong><span>cierres anuales</span></div>
+        <div class="cropos-scope-stat"><strong>113</strong><span>cultivos en catálogo</span></div>
+        <div class="cropos-scope-stat"><strong>18</strong><span>municipios históricos</span></div>
+      </div>
+      <div class="cropos-sidebar-bottom"><span class="cropos-mini-icon">i</span><p>Las geometrías son municipales, no parcelas agrícolas. Los cálculos físicos solo se muestran cuando las unidades son compatibles.</p></div>
     </aside>
-    <section class="studio-map-section" aria-label="Mapa de Sinaloa">
-      <div class="studio-map-canvas" id="studio-map" role="application" aria-label="Mapa interactivo de municipios según la variable y el año seleccionados"></div>
-      <div class="studio-map-top"><span class="studio-map-overline">ATLAS / SINALOA</span><button id="studio-map-style" class="studio-map-switch" type="button" aria-pressed="false"><span class="studio-switch-icon" aria-hidden="true">◈</span> Satélite</button></div>
-      <div class="studio-map-center" aria-hidden="true"></div>
-      <div class="studio-map-legend">
-        <div class="studio-map-legend-title"><span>INTENSIDAD DEL INDICADOR</span><span id="studio-legend-units">MDP</span></div>
-        <div class="studio-legend-ramp"></div>
-        <div class="studio-legend-ends"><span>0</span><span id="studio-legend-max">—</span></div>
-        <div class="studio-map-data-note">Color por municipio · datos DGSIAP · límites generalizados</div>
+    <section class="cropos-map-column" aria-label="Atlas de productividad">
+      <div class="cropos-map-top">
+        <div class="cropos-map-label"><span class="cropos-map-overline">GEOGRAPHIC MODEL VIEW</span><strong id="cropos-map-context">Maíz grano · Sinaloa</strong></div>
+        <button id="cropos-base-toggle" type="button" class="cropos-basemap" aria-pressed="false"><span aria-hidden="true">◈</span> Satélite</button>
       </div>
-      <div class="studio-map-fallback" id="studio-map-fallback" hidden>Mapa no disponible. El análisis estadístico sigue funcionando.</div>
-      <div class="studio-timeline">
-        <div class="studio-timeline-caption"><span>AÑO DE REFERENCIA</span><strong id="studio-year-label">2025</strong></div>
-        <input id="studio-year" aria-label="Año de referencia" type="range" min="2003" max="2025" step="1" value="2025"/>
-        <div class="studio-timeline-ticks"><span>2003</span><span>2010</span><span>2015</span><span>2020</span><span>2025</span></div>
+      <div id="cropos-map" class="cropos-map" role="application" aria-label="Mapa interactivo de rendimiento por municipio"></div>
+      <div id="cropos-map-unavailable" class="cropos-map-unavailable" hidden>La cartografía no está disponible. Los perfiles estadísticos siguen operativos.</div>
+      <div class="cropos-map-bottom">
+        <div class="cropos-legend">
+          <span>ESCALA / <b id="cropos-legend-unit">Rendimiento</b></span>
+          <div class="cropos-legend-gradient"></div>
+          <div class="cropos-legend-values"><span>Menor</span><strong id="cropos-legend-max">—</strong></div>
+          <small id="cropos-legend-help">Datos registrados en el año seleccionado</small>
+        </div>
+        <div class="cropos-map-note"><span class="cropos-map-point"></span> CAPA MUNICIPAL<br><small>Base cartográfica generalizada</small></div>
+      </div>
+      <div class="cropos-timebar">
+        <div class="cropos-timebar-top"><span>PERIODO DE OBSERVACIÓN <small>2003 — 2025</small></span><strong id="cropos-year-output">2025</strong></div>
+        <input type="range" min="2003" max="2025" step="1" value="2025" id="cropos-year" aria-label="Seleccionar cierre anual">
+        <div class="cropos-timebar-ticks"><span>2003</span><span>2008</span><span>2013</span><span>2018</span><span>2025</span></div>
       </div>
     </section>
-    <aside class="studio-right" aria-label="Ficha productiva">
-      <div class="studio-insight-head"><span>LECTURA DEL TERRITORIO</span><span class="studio-insight-count">02 / 03</span></div>
-      <div class="studio-focus">
-        <div class="studio-focus-type" id="studio-focus-type">ESTADO / SINALOA</div>
-        <h2 id="studio-focus-name">Sinaloa</h2>
-        <p id="studio-focus-detail">Producción agrícola registrada en la selección territorial.</p>
+    <aside class="cropos-intelligence" aria-label="Perfil de rendimiento agrícola">
+      <div class="cropos-intro-line"><span>02 / YIELD ENGINE</span><span class="cropos-engine-pill">HISTORICAL</span></div>
+      <div class="cropos-model-head">
+        <div class="cropos-model-location" id="cropos-territory-label">SINALOA / MÉXICO</div>
+        <h2 id="cropos-focus-crop">Maíz grano</h2>
+        <span id="cropos-measurement-sub">Rendimiento observado · 2025</span>
       </div>
-      <div class="studio-primary-stat">
-        <span id="studio-primary-label">VALOR AGRÍCOLA · 2025</span>
-        <strong id="studio-primary-value">—</strong>
-        <div class="studio-primary-under"><span id="studio-primary-unit">Millones de pesos nominales</span><span id="studio-primary-change" class="studio-change">—</span></div>
+      <div class="cropos-hero-metric">
+        <div class="cropos-hero-number"><strong id="cropos-yield-observed">—</strong><span id="cropos-yield-unit">t/ha</span></div>
+        <div class="cropos-benchmark-label" id="cropos-benchmark-label">Comparando con temporadas previas…</div>
       </div>
-      <div class="studio-secondary-stats"><div><span>SUPERFICIE COSECHADA</span><strong id="studio-harvest">—</strong><small>Hectáreas registradas</small></div><div><span>SUPERFICIE SEMBRADA</span><strong id="studio-planted">—</strong><small>Hectáreas registradas</small></div></div>
-      <div class="studio-trend-head"><div><span>TRAYECTORIA HISTÓRICA</span><strong id="studio-trend-title">2003—2025</strong></div><span id="studio-series-count">—</span></div>
-      <div id="studio-trend-chart" class="studio-trend-chart" role="img" aria-label="Serie histórica del indicador seleccionado"><span class="studio-loading">Procesando serie…</span></div>
-      <div class="studio-crops-head"><strong>PRINCIPALES CULTIVOS</strong><span>POR VALOR REGISTRADO</span></div>
-      <div id="studio-crop-ranking" class="studio-crop-ranking"><span class="studio-loading">Cargando distribución…</span></div>
-      <div class="studio-right-footer"><button type="button" id="studio-open-records">Ver tablas y series <span aria-hidden="true">↗</span></button><span>DGSIAP / 23 cierres</span></div>
+      <div class="cropos-model-quantiles">
+        <div class="cropos-quantile-header"><span>REGÍMENES HISTÓRICOS</span><span id="cropos-sample-count">— temporadas</span></div>
+        <div class="cropos-percentile-line" aria-hidden="true"><div class="cropos-percentile-band"></div><span id="cropos-current-tick" class="cropos-percentile-marker"></span></div>
+        <div class="cropos-quantile-row"><div><i class="cropos-qdot qlow"></i><span>BAJO · P25</span><strong id="cropos-q25">—</strong></div><div><i class="cropos-qdot qcentral"></i><span>MEDIANA · P50</span><strong id="cropos-q50">—</strong></div><div><i class="cropos-qdot qhigh"></i><span>ALTO · P75</span><strong id="cropos-q75">—</strong></div></div>
+      </div>
+      <div class="cropos-plot-heading"><span>HISTORIAL DEL CULTIVO</span><span id="cropos-plot-period">2003–2025</span></div>
+      <div class="cropos-plot" id="cropos-plot" role="img" aria-label="Serie histórica del rendimiento observado"><p>Preparando datos…</p></div>
+      <div class="cropos-scenario">
+        <div class="cropos-scenario-title"><span>03 / SCENARIO LAB</span><span class="cropos-scenario-chip">WHAT IF</span></div>
+        <div class="cropos-scenario-head"><strong>Sensibilidad productiva</strong><span id="cropos-impact-label">+0 %</span></div>
+        <p>Ajusta el rendimiento histórico mediano y observa el volumen equivalente sobre la superficie cosechada del año elegido.</p>
+        <input type="range" id="cropos-impact" min="-30" max="30" step="5" value="0" aria-label="Variación hipotética del rendimiento">
+        <div class="cropos-impact-ticks"><span>−30 %</span><span>0</span><span>+30 %</span></div>
+        <div class="cropos-scenario-result"><div><span>VOLUMEN DE ESCENARIO</span><strong id="cropos-impact-volume">—</strong></div><div><span>BASE DE CÁLCULO</span><strong id="cropos-impact-reference">Mediana histórica</strong></div></div>
+        <p class="cropos-method-note" id="cropos-scenario-note">Ejercicio determinista, no es predicción meteorológica ni modelo entrenado.</p>
+      </div>
+      <button id="cropos-open-analysis" class="cropos-analysis-link" type="button">Explorar registros y metodología <span aria-hidden="true">↗</span></button>
     </aside>
   </div>
-  <div class="studio-tail">
-    <span><strong>G /</strong> EVIDENCIA AGRÍCOLA, SIN CAPAS SIMULADAS</span>
-    <span>Base productiva 2003–2025 <span class="studio-tail-divider">·</span> Geometría municipal generalizada <span class="studio-tail-divider">·</span> Valores nominales</span>
-  </div>
+  <div class="cropos-underbar"><span><b class="cropos-small-led"></b> FUENTE VERIFICADA <b>·</b> DGSIAP / SIAP</span><span><b id="cropos-coverage">2003–2025</b> <i>·</i> La meteorología NASA POWER y el modelo ML aún no están conectados</span></div>
 </header>
 <section class="institutional-access" aria-label="Rutas principales de exploración">
   <div class="institutional-access-lead"><span class="institutional-access-label">EXPLORAR EL OBSERVATORIO</span><h2>Una plataforma. Múltiples perspectivas.</h2><p>Acceda directamente a las herramientas de información y análisis.</p></div>
