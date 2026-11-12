@@ -3,10 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0c3024">
+  <meta name="theme-color" content="#f6f7f4">
   <meta name="description" content="Growa Agricultura: observatorio independiente de datos abiertos e inteligencia territorial para Sinaloa. Series DGSIAP 2003–2025, atlas de cultivos, municipios, agua y laboratorio de análisis.">
-  <title>GROWA Agricultura — Inteligencia territorial y productiva</title>
+  <title>GROWA / Atlas agrícola de Sinaloa</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.css">
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.js" defer></script>
   <!-- Módulo hídrico integrado en la edición estática de Render: su build original publica solo index.html, styles.css y app.js. -->
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -25,177 +27,234 @@
 
 
 
-<style id="terra-design-v1">
-/* GROWA / AGRICULTURAL INTELLIGENCE SYSTEM — visual-only enhancement, production data unchanged */
-:root{--terra-ink:#0b2720;--terra-forest:#103c2f;--terra-moss:#95d6ad;--terra-paper:#f0f3ed;--terra-accent:#c9f26c;--terra-rule:#cfd9ce}
-body{background:var(--terra-paper)!important;color:var(--terra-ink)!important;font-family:"Inter","Segoe UI",Arial,Helvetica,sans-serif!important}
-body .shell{display:block!important;background:var(--terra-paper)!important;min-height:100vh!important}
-body .global-utility{display:none!important}
-body .rail{position:sticky!important;top:0!important;z-index:1200!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;min-height:76px!important;height:auto!important;max-width:none!important;width:100%!important;padding:10px clamp(22px,4.8vw,92px)!important;margin:0!important;background:rgba(8,35,27,.96)!important;color:#f4faf3!important;border:0!important;border-bottom:1px solid #e4f4df20!important;box-shadow:0 12px 26px #0e302313!important;backdrop-filter:blur(22px)}
-body .rail .brand{min-width:0!important;min-height:45px!important;padding:0!important;gap:11px!important;color:#fff!important}
-body .rail .brand-symbol{font-family:Georgia,serif!important;font-size:39px!important;line-height:.9!important;color:#e4f9e7!important}
-body .rail .brand-word{color:#f5fbf3!important;font-weight:780!important;font-size:16px!important;letter-spacing:.18em!important;line-height:1.1!important}
-body .rail .brand-word small{color:#adbbad!important;font-size:8px!important;letter-spacing:.12em!important;font-weight:500!important;margin-top:5px!important}
-body .rail .navigation{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;flex:1!important;gap:clamp(8px,1.8vw,31px)!important;margin:0!important;padding:0!important;width:auto!important;border:0!important}
-body .rail .nav-link{position:relative!important;width:auto!important;height:auto!important;display:inline-flex!important;align-items:center!important;white-space:nowrap!important;padding:13px 2px!important;background:transparent!important;border:0!important;color:#b5c9bc!important;box-shadow:none!important;font-size:12px!important;letter-spacing:.005em!important;font-weight:560!important;text-transform:none!important}
-body .rail .nav-link:hover,body .rail .nav-link.active,body .rail .nav-link[aria-current="page"]{color:#f3ffde!important;background:none!important}
-body .rail .nav-link[aria-current="page"]::after,body .rail .nav-link.active::after{content:"";height:2px;width:100%;position:absolute;left:0;bottom:5px;background:var(--terra-accent);border-radius:3px}
-body .rail .lab-nav-link{border-radius:100px!important;border:1px solid #c9f26c54!important;padding:10px 15px!important;color:#d0f2ad!important}
-body .rail .lab-nav-link::after{display:none!important}
-body .rail .rail-meta{display:none!important}
+<style id="studio-design-v3">
+/* GROWA / Geographic intelligence system. MapLibre GL + OpenFreeMap. Product data unchanged. */
+:root{--studio-paper:#f6f7f4;--studio-surface:#fff;--studio-ink:#18241e;--studio-muted:#738078;--studio-line:#dde3db;--studio-deep:#1e4033;--studio-lime:#b8de72}
+body{background:var(--studio-paper)!important;font-family:Inter,"Segoe UI",Arial,sans-serif!important;color:var(--studio-ink)!important}
+body .shell{display:block!important;background:var(--studio-paper)!important}
+body .global-utility,body .rail .rail-meta{display:none!important}
+body .rail{position:sticky!important;z-index:1500!important;top:0!important;height:70px!important;min-height:70px!important;width:100%!important;padding:0 clamp(20px,3vw,55px)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;flex-direction:row!important;background:#fbfcf9!important;border:0!important;border-bottom:1px solid #e4e8e1!important;box-shadow:none!important;backdrop-filter:blur(15px)}
+body .rail .brand{display:flex!important;align-items:center!important;gap:10px!important;min-height:45px!important;width:auto!important;padding:0!important;text-decoration:none!important;color:#1c392a!important}
+body .rail .brand-symbol{font-family:Georgia,serif!important;color:#315841!important;font-size:41px!important;font-weight:400!important}
+body .rail .brand-point{color:#78a754!important}
+body .rail .brand-word{font-size:16px!important;letter-spacing:.17em!important;font-weight:780!important;color:#1a392b!important}
+body .rail .brand-word small{display:block!important;font-size:7.5px!important;color:#80958a!important;letter-spacing:.10em!important;font-weight:550!important;margin-top:4px!important}
+body .rail .navigation{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-direction:row!important;gap:clamp(16px,2.7vw,43px)!important;margin:0!important;padding:0!important;width:auto!important;flex:1!important;border:0!important}
+body .rail .nav-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;position:relative!important;width:auto!important;min-height:70px!important;height:auto!important;background:none!important;color:#718077!important;font-size:12px!important;font-weight:600!important;letter-spacing:0!important;padding:0 1px!important;text-transform:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+body .rail .nav-link.active,body .rail .nav-link[aria-current="page"],body .rail .nav-link:hover{background:none!important;color:#1d4833!important}
+body .rail .nav-link.active:after,body .rail .nav-link[aria-current="page"]:after{content:"";position:absolute;height:2px;left:0;right:0;bottom:0;background:#3e7858}
+body .rail .lab-nav-link{color:#345b42!important}
 body .rail .navigation [data-tab="agua"],body .rail .navigation [data-tab="metodologia"]{display:none!important}
 body .rail .ag-nav-toggle{display:none!important}
-body #agx-console .ag5-sidebar-links{display:none!important}
-body .page{max-width:1740px!important;width:100%!important;margin:0 auto!important;padding:0 clamp(20px,4.8vw,92px) 96px!important;background:transparent!important;box-shadow:none!important;border:0!important}
-body .topline{min-height:60px!important;margin:0!important;padding:16px 0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;color:#547265!important}
-body .breadcrumb{font-size:10px!important;letter-spacing:.16em!important;font-weight:650!important;color:#4c6c5c!important}
-body .breadcrumb span{color:#9cb19e!important}
-body .top-actions{display:flex!important;align-items:center!important;gap:12px!important}
+body .page{width:100%!important;max-width:1660px!important;margin:0 auto!important;padding:0 clamp(18px,3vw,55px) 70px!important;background:transparent!important;box-shadow:none!important;border:0!important}
+body .topline{min-height:0!important;padding:15px 0 11px!important;margin:0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
+body .topline .breadcrumb{font-size:9px!important;letter-spacing:.1em!important;color:#7d897e!important;font-weight:600!important}
+body .topline .breadcrumb span{color:#bbc4bb!important}
+body .top-actions{display:flex!important;gap:10px!important;align-items:center!important}
 body .top-actions .ux-header-btn{display:none!important}
-body .top-actions .quick-search{background:#ffffff80!important;color:#335449!important;border:1px solid #d8e3d6!important;border-radius:100px!important;box-shadow:none!important;min-height:34px!important;padding:7px 15px!important;font-size:11px!important}
-body .top-actions .status{color:#6a8a75!important;font-size:10px!important}
-body .ag-data-strip{margin:0!important;padding:0 0 13px!important;background:transparent!important;border:0!important;min-height:auto!important;color:#627a6b!important}
-body .ag-data-source{font-size:9px!important;letter-spacing:.06em!important;gap:11px!important}
-body .ag-data-source strong{color:#325c48!important}
-body .ag-data-ready{color:#39734b!important}
-body .ux-workbench{display:none!important}
-body[data-view="panorama"] .masthead{display:block!important;padding:0!important;margin:4px 0 38px!important;border:0!important;background:none!important;border-radius:20px!important;box-shadow:0 25px 80px #123f301c!important;overflow:hidden!important}
+body .top-actions .quick-search{border:1px solid #e2e8df!important;border-radius:6px!important;background:#fff!important;padding:6px 12px!important;box-shadow:none!important;font-size:10px!important;color:#6e796f!important;min-height:31px!important}
+body .top-actions .status{font-size:10px!important;color:#65826b!important}
+body .ag-data-strip,body .ux-workbench,body[data-view="panorama"] .institutional-access{display:none!important}
+body[data-view="panorama"] .masthead{display:block!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 16px!important;overflow:visible!important;max-width:none!important}
 body:not([data-view="panorama"]) .masthead{display:none!important}
 body .masthead::before{display:none!important}
-body[data-view="panorama"] .terra-hero{display:grid!important;grid-template-columns:minmax(390px,.95fr) minmax(450px,1.05fr)!important;min-height:570px!important;background:#092e23!important;color:#f3fff1!important;isolation:isolate}
-.terra-copy{display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:clamp(26px,3.1vw,47px) clamp(28px,3.2vw,59px) 26px!important;position:relative;overflow:hidden;background:radial-gradient(ellipse at -25% 80%,#1d5d42 0,transparent 56%),linear-gradient(145deg,#103e2f 0%,#08291f 90%)}
-.terra-copy::after{content:"";width:360px;height:360px;position:absolute;right:-260px;top:120px;border:1px solid #dcffd81e;border-radius:50%;box-shadow:0 0 0 50px #d8fdd006,0 0 0 130px #d8fdd005;pointer-events:none}
-.terra-overline{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;color:#a6c9b3;font-size:9px;font-weight:700;letter-spacing:.1em}
-.terra-live{display:inline-flex;gap:10px;align-items:center;white-space:nowrap}
-.terra-live-dot{display:inline-block;width:7px;height:7px;background:var(--terra-accent);border-radius:100%;box-shadow:0 0 0 5px #d9f47f20}
-.terra-edition{text-align:right;font-size:8px;color:#7eb495;font-weight:550}
-.terra-story{position:relative;z-index:2;margin:43px 0 34px}
-.terra-eyebrow{display:flex;align-items:center;gap:13px;font-size:10px;letter-spacing:.19em;color:#a1c0a8;font-weight:690}
-.terra-line{width:26px;height:1px;background:var(--terra-accent)}
-body[data-view="panorama"] .terra-story h1{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(53px,5.4vw,92px)!important;line-height:1.015!important;letter-spacing:-.067em!important;font-weight:400!important;margin:19px 0 21px!important;color:#f5faec!important;text-wrap:balance!important}
-body[data-view="panorama"] .terra-story h1 em{font-style:italic!important;color:var(--terra-accent)!important;font-weight:400!important}
-.terra-period{color:var(--terra-accent)}
-.terra-story>p{font-size:clamp(12px,.95vw,14px);color:#bdd1c1;line-height:1.85;max-width:475px;letter-spacing:.005em}
-.terra-cta-line{display:flex;align-items:center;gap:25px;margin-top:29px}
-body[data-view="panorama"] .terra-main-action{display:inline-flex!important;justify-content:space-between!important;align-items:center!important;min-width:183px!important;gap:27px!important;padding:14px 19px!important;border:1px solid var(--terra-accent)!important;border-radius:100px!important;background:var(--terra-accent)!important;color:#173627!important;font-size:12px!important;font-weight:700!important;box-shadow:none!important;transition:transform .22s ease,background .22s ease!important}
-body[data-view="panorama"] .terra-main-action:hover{transform:translateY(-2px)!important;background:#efffa2!important}
-.terra-action-note{color:#87a995;font-size:9px;line-height:1.65}
-.terra-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;border-top:1px solid #a8ceb82b;padding-top:22px;position:relative;z-index:2}
-.terra-metrics>div{display:flex;flex-direction:column;gap:5px}
-.terra-metrics strong{font-size:clamp(23px,2.7vw,39px);letter-spacing:-.065em;line-height:1;font-weight:480;font-variant-numeric:tabular-nums;color:#f6f8ef}
-.terra-metrics strong span{font-size:13px;letter-spacing:0;color:#b6d4be}
-.terra-metrics small{font-size:8px;letter-spacing:.07em;color:#8daf99;line-height:1.35}
-.terra-geovisual{position:relative;overflow:hidden;min-height:560px;background:radial-gradient(circle at 40% 40%,#325b45,#1a352c 70%);isolation:isolate}
-.terra-map{position:absolute;inset:0;z-index:0;filter:saturate(.73) contrast(1.07) brightness(.78)}
-.terra-geovisual::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:400;background:linear-gradient(180deg,#071b19ab 0%,transparent 27%,transparent 54%,#071c19df 100%);mix-blend-mode:normal}
-.terra-map-grid{position:absolute;inset:0;z-index:401;pointer-events:none;background-image:linear-gradient(#d6fff00d 1px,transparent 1px),linear-gradient(90deg,#d6fff00d 1px,transparent 1px);background-size:72px 72px;opacity:.48}
-.terra-map-top,.terra-map-lower,.terra-map-legend{position:absolute;z-index:750;pointer-events:none}
-.terra-map-top{top:29px;left:30px;right:30px;display:flex;justify-content:space-between;gap:16px;align-items:center}
-.terra-map-badge{font-size:9px;letter-spacing:.12em;color:#e2f9de;border:1px solid #c4e6b766;background:#13352b94;padding:9px 13px;border-radius:100px;backdrop-filter:blur(8px)}
-.terra-map-badge span{color:var(--terra-accent);margin-right:7px}
-.terra-map-coords{font:10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#b9d2bd;letter-spacing:.02em}
-.terra-map-cross{position:absolute;top:48%;left:51%;transform:translate(-50%,-50%);width:55px;height:55px;z-index:450;opacity:.42;pointer-events:none}
-.terra-map-cross span:first-child{position:absolute;top:26px;width:55px;height:1px;background:#e8fff4}
-.terra-map-cross span:last-child{position:absolute;left:26px;height:55px;width:1px;background:#e8fff4}
-.terra-map-lower{left:30px;bottom:65px;right:30px;display:flex;justify-content:space-between;align-items:end;gap:18px}
-.terra-map-location{display:flex;flex-direction:column;gap:5px}
-.terra-map-location small{color:#a7c5ad;font-size:9px;letter-spacing:.18em}
-.terra-map-location strong{font-size:clamp(22px,2.4vw,34px);font-weight:540;letter-spacing:-.04em;color:#f3ffed}
-.terra-map-location>span{font-size:11px;color:#bfd9c2}
-.terra-map-stamp{border-left:1px solid #daffb46b;padding-left:15px;line-height:1.15;font-size:32px;color:var(--terra-accent);font-family:Georgia,serif}
-.terra-map-stamp span{font:8px Arial,sans-serif;letter-spacing:.18em;color:#a9c3b4}
-.terra-map-legend{left:30px;bottom:18px;font-size:8px;letter-spacing:.05em;line-height:1.55;color:#8aab96}
-.terra-map-point{background:transparent!important;border:0!important;width:14px!important;height:14px!important}
-.terra-map-point .terra-point-core{display:block;width:10px;height:10px;border:2px solid #0e3c2c;border-radius:50%;background:#d7f86e;box-shadow:0 0 0 5px #d8f96f44,0 0 0 13px #d8f96f15;transition:transform .2s ease}
-.terra-map-point:hover .terra-point-core{transform:scale(1.45)}
-.terra-map-point .terra-point-label{position:absolute;left:15px;top:-3px;display:block;white-space:nowrap;font-size:10px;font-family:Arial,sans-serif;color:#e6f8e5;text-shadow:0 1px 6px #07170e,1px 1px 3px #07170e;font-weight:600}
-.terra-map-point .terra-point-label[hidden]{display:none}
-.terra-geovisual .leaflet-container{background:transparent!important;font:inherit}
-.terra-geovisual .leaflet-control-attribution{font-size:7px!important;background:#0d3229aa!important;color:#b6c9b9!important}
-.terra-geovisual .leaflet-control-attribution a{color:#d1e8c3!important}
-.terra-tooltip{border:1px solid #a0cf9380!important;background:#102b23f0!important;color:#f0ffef!important;border-radius:5px!important;box-shadow:0 8px 25px #0004!important;font:11px Arial,sans-serif!important}
-body[data-view="panorama"] .institutional-access{display:none!important}
-body[data-view="panorama"] #panel-panorama{border:0!important;padding-top:0!important}
-body #agx-console{border:1px solid #d5e1d4!important;border-radius:18px!important;overflow:hidden!important;box-shadow:0 16px 50px #214a3210!important;background:white!important;margin:0 0 35px!important}
-body #agx-console .ag5-shell{background:#fff!important;min-height:0!important;grid-template-columns:235px minmax(0,1fr)!important}
-body #agx-console .ag5-filters{background:#f3f7f1!important;border-right:1px solid #dbe5da!important;padding:20px 18px 22px!important}
-body #agx-console .ag5-main{background:#fff!important;padding:28px 25px 32px!important}
-body #agx-console .ag5-filter-header h2,body #agx-console .ag5-heading h1{color:#163e2c!important;letter-spacing:-.04em!important}
-body #agx-console .ag5-overline,body #agx-console .ag5-section-id{color:#3a7455!important}
-body #agx-console select,body #agx-console input{border:1px solid #d4dfd4!important;background:#fff!important;border-radius:8px!important;color:#264c37!important}
-body #agx-console .ag5-kpis{border-radius:12px!important;overflow:hidden!important;border:1px solid #dce7dc!important}
-body #agx-console .ag5-kpi{background:#f8faf7!important;border-color:#dde6dc!important}
-body #agx-console .ag5-kpi>strong{color:#163e2e!important}
-body #agx-console .ag5-analyzer,body #agx-console .ag5-register,body #agx-console .ag5-interpretation{border-color:#dae4d8!important}
-body #agx-console button:not(.terra-main-action){transition:background .2s ease,border-color .2s ease}
-body .section-panel .section-heading h2,body .section-panel .feature-intro h3{color:#133d2b!important}
-body .section-panel .editorial-panel,body .section-panel .story-panel{border-color:#d8e3d5!important;background:#fff!important}
-body .section-panel .eyebrow,body .section-panel .section-counter{color:#327451!important}
-body .section-panel [class*="chart"] svg{max-width:100%}
-@media(max-width:1200px){
- body[data-view="panorama"] .terra-hero{grid-template-columns:minmax(330px,1fr) minmax(380px,1fr)!important;min-height:500px!important}
- body[data-view="panorama"] .terra-story h1{font-size:clamp(46px,5.5vw,70px)!important}
- .terra-copy{padding:27px!important}
- .terra-edition{display:none}
- body .rail{padding-inline:28px!important}
- body .page{padding-inline:28px!important}
+body[data-view="panorama"] .studio-stage{font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--studio-ink)}
+.studio-intro{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:18px 0 24px}
+.studio-kicker{display:flex;gap:11px;align-items:center;flex-wrap:wrap;color:#6e8172;font-size:9px;letter-spacing:.12em;font-weight:750}
+.studio-kicker-indicator{width:7px;height:7px;border-radius:100px;background:#639460;box-shadow:0 0 0 4px #c3d9c1}
+.studio-kicker-separator{color:#aab8a6}
+body[data-view="panorama"] .studio-intro h1{font-family:Arial,"Helvetica Neue",sans-serif!important;font-weight:580!important;font-size:clamp(34px,4vw,58px)!important;letter-spacing:-.065em!important;line-height:1.08!important;margin:17px 0 0!important;color:#22382c!important}
+body[data-view="panorama"] .studio-intro h1 span{font-weight:430!important;color:#7f9485!important}
+.studio-intro-meta{text-align:right;display:flex;flex-direction:column;gap:3px;min-width:190px;padding-bottom:3px}
+.studio-intro-meta>span{font-size:9px;letter-spacing:.10em;color:#97a397;font-weight:660}
+.studio-intro-meta strong{font-size:26px;letter-spacing:-.05em;font-weight:560;line-height:1.1}
+.studio-intro-meta strong span{color:#8aa18e;font-weight:320}
+.studio-intro-meta small{color:#748477;font-size:10px}
+.studio-workspace{display:grid;grid-template-columns:250px minmax(0,1fr) 302px;min-height:700px;height:min(77vh,840px);background:#fff;border:1px solid #d9e2d8;border-radius:12px;overflow:hidden;box-shadow:0 17px 50px #1b322112}
+.studio-left,.studio-right{min-width:0;overflow:hidden;display:flex;flex-direction:column;background:#fff}
+.studio-left{border-right:1px solid #e3e9e1}
+.studio-left-head{padding:24px 22px 15px}
+.studio-label{font-size:10px;letter-spacing:.11em;color:#809083;font-weight:750;display:flex;justify-content:space-between}
+.studio-label b{font-weight:600;color:#a4b1a4}
+.studio-left-head h2{font-size:24px;letter-spacing:-.05em;line-height:1.25;margin:14px 0 5px;font-weight:610;color:#203c2c}
+.studio-left-head p{font-size:11px;line-height:1.65;color:#8a978d;margin:0}
+.studio-fields{padding:0 22px 19px;display:flex;flex-direction:column;gap:15px;border-bottom:1px solid #e7ece5}
+.studio-field{display:flex;flex-direction:column;gap:7px;font-size:9px;letter-spacing:.10em;color:#768575;font-weight:730}
+.studio-select-wrap{position:relative}
+.studio-select-wrap:after{content:"⌄";position:absolute;right:12px;top:6px;color:#68806b;font-size:16px;pointer-events:none}
+.studio-field select{width:100%;border:1px solid #dce3da;border-radius:6px;background:#f8faf7;padding:11px 30px 11px 12px;color:#2e4a36;font-size:12px;font-weight:620;letter-spacing:0;appearance:none;outline:none}
+.studio-field select:focus-visible{outline:2px solid #82a787;outline-offset:2px}
+.studio-municipal-heading{padding:18px 22px 9px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.studio-municipal-heading strong{font-size:10px;letter-spacing:.09em;color:#566b58}
+.studio-municipal-heading span{font-size:9px;letter-spacing:.06em;color:#a1afa3}
+.studio-municipal-list{min-height:150px;overflow-y:auto;overscroll-behavior:contain;padding:0 10px 13px;flex:1;scrollbar-width:thin;scrollbar-color:#c8d9c5 transparent}
+.studio-place-row{display:flex;gap:9px;align-items:center;width:100%;border:0!important;box-shadow:none!important;padding:10px 12px!important;text-align:left;background:transparent!important;border-radius:6px!important;min-height:39px;color:#526759;font-size:11px;font-weight:580;position:relative}
+.studio-place-row:hover{background:#f3f7f1!important;color:#244b33}
+.studio-place-row.is-selected{background:#eaf2e5!important;color:#24503c!important}
+.studio-place-row.is-selected:before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#638e5b;border-radius:4px}
+.studio-place-row .studio-place-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.studio-place-row .studio-place-value{font-size:10px;color:#8c9b8e;font-variant-numeric:tabular-nums}
+.studio-place-row .studio-place-track{display:block;position:absolute;bottom:3px;left:12px;right:12px;height:2px;background:transparent}
+.studio-place-row .studio-place-track i{display:block;background:#9fc5a4;height:2px;max-width:100%}
+.studio-place-row.is-selected .studio-place-track i{background:#538a56}
+.studio-left-source{display:flex;gap:9px;align-items:flex-start;background:#f8faf6;border-top:1px solid #e9eee8;padding:15px 19px;font-size:9px;line-height:1.55;color:#87998a}
+.studio-source-dot{width:6px;height:6px;border-radius:50%;background:#7bac85;flex:none;margin-top:4px}
+.studio-map-section{position:relative;overflow:hidden;background:#e7eae2;min-width:0}
+.studio-map-canvas{position:absolute;inset:0 0 102px;background:radial-gradient(circle at 45% 45%,#d5dfd1,#e9eae3 70%);z-index:1}
+.studio-map-section .maplibregl-map,.studio-map-section .leaflet-container{font-family:inherit}
+.studio-map-section .maplibregl-ctrl-bottom-right{bottom:5px}
+.studio-map-section .maplibregl-ctrl-attrib,.studio-map-section .leaflet-control-attribution{font-size:8px!important;opacity:.68}
+.studio-map-top{position:absolute;z-index:15;top:18px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none}
+.studio-map-overline{font-size:10px;letter-spacing:.13em;color:#305143;font-weight:750;background:#fffffff0;padding:12px 14px;border:1px solid #dee7d9;border-radius:5px;backdrop-filter:blur(6px)}
+.studio-map-switch{pointer-events:auto;background:#fff!important;color:#365442!important;border:1px solid #d2dfd1!important;border-radius:5px!important;padding:10px 14px!important;font-size:11px!important;font-weight:650;box-shadow:0 5px 15px #263d251a!important}
+.studio-map-switch[aria-pressed="true"]{background:#213d31!important;color:#fff!important;border-color:#213d31!important}
+.studio-switch-icon{font-size:15px;line-height:0;margin-right:5px}
+.studio-map-center{position:absolute;z-index:4;width:18px;height:18px;border:1px solid #51705370;border-radius:100%;top:45%;left:49%;pointer-events:none;opacity:.45}
+.studio-map-center:after{content:"";position:absolute;left:7px;top:7px;background:#426b51;width:2px;height:2px;border-radius:100%}
+.studio-map-legend{position:absolute;z-index:15;bottom:123px;left:19px;width:214px;background:#fffffff0;border:1px solid #e2e8e0;border-radius:7px;padding:13px 15px;box-shadow:0 9px 22px #172b1620;pointer-events:none;backdrop-filter:blur(6px)}
+.studio-map-legend-title{display:flex;justify-content:space-between;gap:5px;margin-bottom:11px;font-size:8px;font-weight:760;color:#45644d;letter-spacing:.07em}
+.studio-map-legend-title span+span{color:#6f8370}
+.studio-legend-ramp{height:7px;background:linear-gradient(90deg,#e1e9df 0%,#c9dcc6 20%,#a0c9ac 40%,#69a985 60%,#397e59 80%,#174630 100%);border-radius:3px}
+.studio-legend-ends{display:flex;justify-content:space-between;font-size:10px;color:#56715e;margin-top:7px;font-variant-numeric:tabular-nums}
+.studio-map-data-note{font-size:8px;color:#879a8a;line-height:1.35;margin-top:9px}
+.studio-map-fallback{position:absolute;z-index:21;top:50%;left:50%;transform:translate(-50%,-50%);background:#fdfefbee;color:#365444;padding:16px;border-radius:6px;font-size:12px;width:70%;text-align:center}
+.studio-map-fallback[hidden]{display:none!important}
+.studio-timeline{position:absolute;bottom:0;left:0;right:0;height:102px;z-index:20;background:#fff;border-top:1px solid #e0e7df;padding:17px 23px 13px}
+.studio-timeline-caption{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.studio-timeline-caption span{font-size:9px;font-weight:700;letter-spacing:.10em;color:#879689}
+.studio-timeline-caption strong{font-size:23px;font-weight:560;color:#2a4e38;letter-spacing:-.05em;line-height:1}
+.studio-timeline input{appearance:none;display:block;width:100%;height:16px;background:none;border:0;margin:0;cursor:ew-resize}
+.studio-timeline input::-webkit-slider-runnable-track{height:3px;background:linear-gradient(90deg,#4f8a61,#bddf98);border-radius:3px}
+.studio-timeline input::-moz-range-track{height:3px;background:#8fbc91;border-radius:3px}
+.studio-timeline input::-webkit-slider-thumb{appearance:none;background:#fff;width:13px;height:13px;border:3px solid #457755;border-radius:100%;margin-top:-5px;box-shadow:0 1px 4px #2a4c3a4a}
+.studio-timeline input::-moz-range-thumb{background:#fff;width:10px;height:10px;border:3px solid #457755;border-radius:100%}
+.studio-timeline-ticks{display:flex;justify-content:space-between;font-size:9px;color:#9baa9b;padding-top:4px}
+.studio-right{border-left:1px solid #e2e8e0;padding:24px 24px 0}
+.studio-insight-head{display:flex;justify-content:space-between;font-size:9px;font-weight:780;color:#7e9382;letter-spacing:.09em}
+.studio-insight-count{color:#a8b9a9}
+.studio-focus{padding:29px 0 16px;border-bottom:1px solid #e3e9e1}
+.studio-focus-type{font-size:10px;font-weight:760;color:#7d9680;letter-spacing:.06em}
+body[data-view="panorama"] .studio-focus h2{font-size:32px!important;line-height:1.1!important;letter-spacing:-.06em!important;font-weight:610!important;color:#20402f!important;margin:10px 0 8px!important}
+.studio-focus p{margin:0;color:#829587;font-size:11px;line-height:1.5}
+.studio-primary-stat{padding:20px 0 17px;border-bottom:1px solid #e5ebe3}
+.studio-primary-stat>span{display:block;font-size:9px;font-weight:760;letter-spacing:.10em;color:#819783}
+.studio-primary-stat>strong{display:block;margin:12px 0 7px;font-size:clamp(29px,2.9vw,42px);font-weight:590;letter-spacing:-.07em;color:#1b3f2b;line-height:1.06;font-variant-numeric:tabular-nums}
+.studio-primary-under{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.studio-primary-under>span:first-child{font-size:10px;color:#9ca99f}
+.studio-change{color:#627d69;font-size:10px;font-weight:740;white-space:nowrap}
+.studio-change.is-negative{color:#b86a51}
+.studio-secondary-stats{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e3e9e1}
+.studio-secondary-stats>div{padding:17px 9px 18px 0;min-width:0}
+.studio-secondary-stats>div+div{border-left:1px solid #e5ebe3;padding-left:13px}
+.studio-secondary-stats span{display:block;color:#87988a;font-size:8px;letter-spacing:.08em;font-weight:730;line-height:1.6}
+.studio-secondary-stats strong{display:block;font-size:19px;line-height:1.1;margin:9px 0 4px;color:#2f503a;font-weight:620;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.studio-secondary-stats small{font-size:8px;color:#a1ada2}
+.studio-trend-head{padding:20px 0 8px;display:flex;align-items:center;justify-content:space-between;color:#829586}
+.studio-trend-head>div{display:flex;flex-direction:column;gap:4px}
+.studio-trend-head span{font-size:9px;font-weight:690;letter-spacing:.08em}
+.studio-trend-head strong{font-size:11px;color:#56765e;font-weight:600}
+.studio-trend-chart{height:120px;width:100%;min-height:120px}
+.studio-trend-chart svg{width:100%;height:120px;display:block;overflow:visible}
+.studio-crops-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:17px 0 12px;border-top:1px solid #e4ebe1}
+.studio-crops-head strong{font-size:9px;letter-spacing:.07em;color:#536c58}
+.studio-crops-head span{font-size:8px;letter-spacing:.05em;color:#a2b0a2}
+.studio-crop-ranking{flex:1;min-height:90px;overflow-y:auto}
+.studio-crop-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center;margin:0 0 11px}
+.studio-crop-name{color:#496250;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.studio-crop-number{font-size:10px;font-variant-numeric:tabular-nums;color:#687e6a}
+.studio-crop-bar{height:3px;border-radius:3px;background:#edf1eb;grid-column:1/-1}
+.studio-crop-bar i{display:block;height:100%;background:#689877;max-width:100%;border-radius:3px}
+.studio-right-footer{margin:8px -24px 0;border-top:1px solid #e1e7df;padding:12px 21px;min-height:53px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fbfcfa}
+.studio-right-footer button{border:0!important;background:none!important;color:#2f6742!important;font-size:10px;font-weight:750;padding:4px 0!important}
+.studio-right-footer button:hover{text-decoration:underline}
+.studio-right-footer span{font-size:9px;color:#9caf9b}
+.studio-tail{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px 2px 20px;font-size:9px;letter-spacing:.06em;color:#879689}
+.studio-tail strong{font-size:13px;color:#56775c;font-family:Georgia,serif;letter-spacing:-.07em;margin-right:7px}
+.studio-tail-divider{color:#b5c4b3;margin:0 5px}
+.studio-loading{color:#9aab9b;font-size:11px;line-height:1.5;padding:12px}
+body[data-view="panorama"] #agx-console{display:none!important}
+body[data-view="panorama"].studio-show-details #agx-console{display:block!important;border:1px solid #dae5da!important;border-radius:12px!important;overflow:hidden!important}
+body[data-view="panorama"] #panel-panorama{padding-top:0!important;border:0!important}
+body[data-view="panorama"] #panel-panorama .ag5-filters{background:#f6f9f4!important}
+body .section-panel .section-heading h2{color:#1d4030}
+@media(max-width:1390px){
+ .studio-workspace{grid-template-columns:230px minmax(0,1fr) 275px}
+ .studio-left-head{padding:21px 18px 14px}
+ .studio-fields{padding:0 18px 18px}
+ .studio-municipal-heading{padding-inline:18px}
+ .studio-right{padding:20px 20px 0}
+ .studio-right-footer{margin-inline:-20px;padding-inline:17px}
 }
-@media(max-width:980px){
- body[data-view="panorama"] .terra-hero{grid-template-columns:1fr!important}
- .terra-copy{min-height:485px}
- .terra-geovisual{min-height:430px}
- body .rail .navigation{gap:13px!important}
- body .rail .nav-link{font-size:11px!important}
- body .top-actions .status{display:none!important}
+@media(max-width:1130px){
+ .studio-workspace{grid-template-columns:215px minmax(0,1fr) 252px;height:710px}
+ .studio-right{padding:18px 16px 0}
+ .studio-right-footer{margin-inline:-16px}
+ .studio-focus h2{font-size:27px!important}
+ .studio-secondary-stats strong{font-size:17px}
+ .studio-map-legend{width:188px}
 }
-@media(max-width:760px){
- body .rail{padding:10px 18px!important;min-height:64px!important;flex-wrap:wrap!important;gap:8px!important}
- body .rail .brand{flex:1!important}
- body .rail .brand-word{font-size:13px!important}
- body .rail .brand-word small{font-size:7px!important}
- body .rail .ag-nav-toggle{display:inline-flex!important;background:#173e2d!important;color:#f2ffec!important;border:1px solid #7699825c!important}
- body .rail .navigation{width:100%!important;flex-basis:100%!important;overflow-x:auto!important;gap:15px!important;justify-content:flex-start!important;border-top:1px solid #d3eed129!important}
- body .rail .nav-link{font-size:11px!important;padding:11px 1px!important}
- body .page{padding:0 16px 45px!important}
- body .topline{min-height:48px!important;padding:13px 0!important}
- body .breadcrumb{font-size:8px!important;letter-spacing:.08em!important}
- body .top-actions .quick-search{font-size:0!important;min-height:32px!important;padding:4px 9px!important}
- body .top-actions .quick-search .search-glyph{font-size:18px!important}
- body .top-actions .quick-search kbd{display:none!important}
- body .ag-data-strip{padding-bottom:10px!important}
- body .ag-data-source span{display:none!important}
- body[data-view="panorama"] .masthead{margin:0 0 20px!important;border-radius:15px!important}
- .terra-copy{min-height:475px!important;padding:26px 23px 23px!important}
- .terra-story{margin:30px 0!important}
- body[data-view="panorama"] .terra-story h1{font-size:clamp(46px,10.8vw,76px)!important;margin:16px 0!important}
- .terra-story>p{font-size:12px;max-width:430px}
- .terra-eyebrow{font-size:8px;letter-spacing:.09em}
- .terra-cta-line{gap:14px;flex-wrap:wrap}
- .terra-metrics{gap:9px;padding-top:18px}
- .terra-metrics strong{font-size:27px}
- .terra-metrics small{font-size:7px}
- .terra-geovisual{min-height:360px!important}
- .terra-map-top{left:16px;right:16px;top:15px}
- .terra-map-coords{display:none}
- .terra-map-lower{left:16px;right:16px;bottom:55px}
- .terra-map-legend{left:16px;right:16px;bottom:13px;font-size:7px}
- body #agx-console .ag5-shell{display:block!important}
- body #agx-console .ag5-filters{padding:15px!important;border-right:0!important;border-bottom:1px solid #dee5db!important}
- body #agx-console .ag5-main{padding:18px 12px 25px!important}
- body #agx-console .ag5-filter-header{display:none!important}
- body #agx-console .ag5-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:0!important}
- body #agx-console .ag5-source-note,body #agx-console .ag5-sidebar-links{display:none!important}
+@media(max-width:940px){
+ .studio-workspace{grid-template-columns:235px minmax(0,1fr);height:auto;min-height:690px}
+ .studio-map-section{min-height:690px}
+ .studio-right{grid-column:1/-1;border-left:0;border-top:1px solid #e1e8df;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 26px;padding:20px 25px}
+ .studio-insight-head,.studio-focus,.studio-primary-stat,.studio-secondary-stats{grid-column:1}
+ .studio-trend-head,.studio-trend-chart,.studio-crops-head,.studio-crop-ranking{grid-column:2}
+ .studio-trend-head{grid-row:1/3}
+ .studio-trend-chart{grid-row:3/5}
+ .studio-crops-head{grid-row:5}
+ .studio-crop-ranking{grid-row:6/9}
+ .studio-right-footer{grid-column:1/-1;margin:0 -25px -20px}
+ .studio-focus{padding-top:20px}
 }
-@media(max-width:450px){
- .terra-copy{min-height:475px!important}
- body[data-view="panorama"] .terra-story h1{font-size:48px!important}
- .terra-cta-line{align-items:flex-start}
- .terra-action-note{font-size:8px}
- .terra-metrics strong{font-size:22px}
- .terra-map-stamp{font-size:25px}
+@media(max-width:700px){
+ body .rail{height:62px!important;min-height:62px!important;padding:0 15px!important}
+ body .rail .brand-word{font-size:12px!important}
+ body .rail .brand-word small{font-size:6px!important}
+ body .rail .brand-symbol{font-size:33px!important}
+ body .rail .navigation{gap:14px!important;width:auto!important;overflow-x:auto!important;justify-content:flex-end!important;white-space:nowrap!important}
+ body .rail .nav-link{font-size:10px!important;min-height:62px!important}
+ body .rail .lab-nav-link{display:none!important}
+ body .page{padding:0 13px 38px!important}
+ body .topline{padding:12px 1px!important}
+ body .topline .breadcrumb{font-size:8px!important}
+ body .top-actions .quick-search{min-height:28px!important;padding:3px 8px!important;font-size:0!important}
+ body .top-actions .quick-search .search-glyph{font-size:17px!important}
+ body .top-actions .quick-search kbd,body .top-actions .status{display:none!important}
+ .studio-intro{padding:16px 0 17px;align-items:flex-start;gap:12px}
+ .studio-intro h1{font-size:clamp(29px,7vw,44px)!important}
+ .studio-intro-meta{min-width:0;padding-top:4px}
+ .studio-intro-meta>span{display:none}
+ .studio-intro-meta strong{font-size:18px}
+ .studio-intro-meta small{font-size:8px}
+ .studio-kicker{font-size:8px;letter-spacing:.06em}
+ .studio-kicker-separator,.studio-kicker-separator~*{display:none}
+ .studio-workspace{display:flex;flex-direction:column;border-radius:9px;min-height:0;height:auto}
+ .studio-left{order:1;border:0;border-bottom:1px solid #e4eae2}
+ .studio-left-head{padding:17px 17px 8px}
+ .studio-left-head h2,.studio-left-head p,.studio-municipal-heading,.studio-municipal-list,.studio-left-source{display:none}
+ .studio-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px 17px 15px;border:0}
+ .studio-field{font-size:8px}
+ .studio-field select{padding:9px 21px 9px 9px;font-size:10px}
+ .studio-map-section{order:2;min-height:470px}
+ .studio-map-canvas{bottom:95px}
+ .studio-timeline{height:95px;padding:15px 16px 10px}
+ .studio-map-top{top:12px;left:12px;right:12px}
+ .studio-map-overline{font-size:8px;padding:9px}
+ .studio-map-switch{font-size:10px;padding:9px!important}
+ .studio-map-legend{bottom:114px;left:12px;width:170px;padding:10px}
+ .studio-map-legend-title{font-size:7px}
+ .studio-map-data-note{font-size:7px}
+ .studio-right{order:3;display:flex;gap:0;padding:20px 18px 0}
+ .studio-insight-head,.studio-focus,.studio-primary-stat,.studio-secondary-stats,.studio-trend-head,.studio-trend-chart,.studio-crops-head,.studio-crop-ranking{grid-column:auto;grid-row:auto}
+ .studio-focus{padding:18px 0 14px}
+ .studio-primary-stat>strong{font-size:39px}
+ .studio-crop-ranking{min-height:90px}
+ .studio-right-footer{margin:10px -18px 0;padding:14px 18px}
+ .studio-tail{display:block;line-height:1.9}
+ .studio-tail>span+span{display:block;font-size:8px}
 }
-@media(prefers-reduced-motion:reduce){.terra-main-action,.terra-map-point .terra-point-core{transition:none!important}}
-@media print{body .rail,body .masthead,body .topline,body .ag-data-strip{display:none!important}body #agx-console{border:0!important;box-shadow:none!important}}
+@media(prefers-reduced-motion:reduce){.studio-place-row,.studio-map-switch{transition:none!important}}
+@media print{body .rail,body .topline,body .studio-map-section,body .studio-left{display:none!important}.studio-workspace{display:block!important;height:auto!important}.studio-right{display:block!important}}
 </style>
 </head>
 <body>
@@ -244,42 +303,72 @@ body .section-panel [class*="chart"] svg{max-width:100%}
       </div>
     </div>
 
-    <header class="masthead" aria-label="Portada de inteligencia agrícola">
-      <div class="terra-hero" id="agri-intel">
-        <div class="terra-copy">
-          <div class="terra-overline"><span class="terra-live"><span class="terra-live-dot"></span> GROWA / EARTH INTELLIGENCE</span><span class="terra-edition">EDICIÓN 2026 · SINALOA, MÉXICO</span></div>
-          <div class="terra-story">
-            <div class="terra-eyebrow"><span class="terra-line"></span> INFORMACIÓN TERRITORIAL · AGRICULTURA</div>
-            <h1>Una nueva<br>forma de <em>leer</em><br>la tierra<span class="terra-period">.</span></h1>
-            <p>Del comportamiento de los cultivos a la transformación del territorio. Una plataforma para explorar la producción agrícola con perspectiva histórica, geográfica y científica.</p>
-            <div class="terra-cta-line">
-              <button class="terra-main-action" type="button" data-tab="explorar-estados">Explorar territorio <span aria-hidden="true">↗</span></button>
-              <span class="terra-action-note">Datos DGSIAP · análisis GROWA<br>Sin simulaciones ni cifras estimadas</span>
-            </div>
-          </div>
-          <div class="terra-metrics" aria-label="Cobertura estadística verificada">
-            <div><strong>23<span> años</span></strong><small>SERIE HISTÓRICA · 2003–2025</small></div>
-            <div><strong>18</strong><small>MUNICIPIOS EN LA SERIE</small></div>
-            <div><strong>113</strong><small>CULTIVOS IDENTIFICADOS</small></div>
-          </div>
-        </div>
-        <div class="terra-geovisual">
-          <div id="terra-map" class="terra-map" role="application" aria-label="Mapa satelital exploratorio con puntos de referencia municipales de Sinaloa"></div>
-          <div class="terra-map-grid" aria-hidden="true"></div>
-          <div class="terra-map-top">
-            <span class="terra-map-badge"><span aria-hidden="true">◉</span> EXPLORADOR TERRITORIAL</span>
-            <span class="terra-map-coords">24° 48′ N &nbsp; 107° 24′ O</span>
-          </div>
-          <div class="terra-map-cross" aria-hidden="true"><span></span><span></span></div>
-          <div class="terra-map-lower">
-            <div class="terra-map-location"><small>REGIÓN DE ESTUDIO / MX-SIN</small><strong id="terra-selected">Sinaloa, México</strong><span>18 referencias municipales · selección interactiva</span></div>
-            <div class="terra-map-stamp">G / 01<br><span>EARTH VIEW</span></div>
-          </div>
-          <div class="terra-map-legend">IMAGEN BASE: ESRI · PUNTOS MUNICIPALES APROXIMADOS<br>NO REPRESENTA PARCELAS NI ÍNDICES SATELITALES</div>
-        </div>
+    
+<header class="masthead studio-stage" aria-label="Explorador de agricultura">
+  <div class="studio-intro">
+    <div>
+      <div class="studio-kicker"><span class="studio-kicker-indicator"></span> GROWA / AGRICULTURAL INTELLIGENCE <span class="studio-kicker-separator">/</span> SINALOA, MÉXICO</div>
+      <h1>El territorio, <span>en datos.</span></h1>
+    </div>
+    <div class="studio-intro-meta"><span>OBSERVATORIO DE PRODUCCIÓN AGRÍCOLA</span><strong>2003 <span>—</span> 2025</strong><small>Series oficiales · DGSIAP</small></div>
+  </div>
+  <div class="studio-workspace" id="studio-workspace">
+    <aside class="studio-left" aria-label="Filtros de exploración">
+      <div class="studio-left-head"><span class="studio-label">EXPLORADOR <b>01 / 03</b></span><h2>Parámetros</h2><p>Filtra los datos y observa sus diferencias geográficas.</p></div>
+      <div class="studio-fields">
+        <label class="studio-field"><span>CULTIVO</span><div class="studio-select-wrap"><select id="studio-crop"><option value="">Todos los cultivos</option></select></div></label>
+        <label class="studio-field"><span>INDICADOR</span><div class="studio-select-wrap"><select id="studio-metric">
+          <option value="value">Valor de producción</option>
+          <option value="harvest">Superficie cosechada</option>
+          <option value="planted">Superficie sembrada</option>
+        </select></div></label>
       </div>
-    </header>
-
+      <div class="studio-municipal-heading"><strong>TERRITORIO</strong><span>18 MUNICIPIOS</span></div>
+      <div class="studio-municipal-list" id="studio-municipal-list" aria-label="Seleccionar municipio"><p class="studio-loading">Preparando datos territoriales…</p></div>
+      <div class="studio-left-source"><span class="studio-source-dot"></span><span>Datos agregados municipales. La ausencia de un registro no equivale a producción nula.</span></div>
+    </aside>
+    <section class="studio-map-section" aria-label="Mapa de Sinaloa">
+      <div class="studio-map-canvas" id="studio-map" role="application" aria-label="Mapa interactivo de municipios según la variable y el año seleccionados"></div>
+      <div class="studio-map-top"><span class="studio-map-overline">ATLAS / SINALOA</span><button id="studio-map-style" class="studio-map-switch" type="button" aria-pressed="false"><span class="studio-switch-icon" aria-hidden="true">◈</span> Satélite</button></div>
+      <div class="studio-map-center" aria-hidden="true"></div>
+      <div class="studio-map-legend">
+        <div class="studio-map-legend-title"><span>INTENSIDAD DEL INDICADOR</span><span id="studio-legend-units">MDP</span></div>
+        <div class="studio-legend-ramp"></div>
+        <div class="studio-legend-ends"><span>0</span><span id="studio-legend-max">—</span></div>
+        <div class="studio-map-data-note">Color por municipio · datos DGSIAP · límites generalizados</div>
+      </div>
+      <div class="studio-map-fallback" id="studio-map-fallback" hidden>Mapa no disponible. El análisis estadístico sigue funcionando.</div>
+      <div class="studio-timeline">
+        <div class="studio-timeline-caption"><span>AÑO DE REFERENCIA</span><strong id="studio-year-label">2025</strong></div>
+        <input id="studio-year" aria-label="Año de referencia" type="range" min="2003" max="2025" step="1" value="2025"/>
+        <div class="studio-timeline-ticks"><span>2003</span><span>2010</span><span>2015</span><span>2020</span><span>2025</span></div>
+      </div>
+    </section>
+    <aside class="studio-right" aria-label="Ficha productiva">
+      <div class="studio-insight-head"><span>LECTURA DEL TERRITORIO</span><span class="studio-insight-count">02 / 03</span></div>
+      <div class="studio-focus">
+        <div class="studio-focus-type" id="studio-focus-type">ESTADO / SINALOA</div>
+        <h2 id="studio-focus-name">Sinaloa</h2>
+        <p id="studio-focus-detail">Producción agrícola registrada en la selección territorial.</p>
+      </div>
+      <div class="studio-primary-stat">
+        <span id="studio-primary-label">VALOR AGRÍCOLA · 2025</span>
+        <strong id="studio-primary-value">—</strong>
+        <div class="studio-primary-under"><span id="studio-primary-unit">Millones de pesos nominales</span><span id="studio-primary-change" class="studio-change">—</span></div>
+      </div>
+      <div class="studio-secondary-stats"><div><span>SUPERFICIE COSECHADA</span><strong id="studio-harvest">—</strong><small>Hectáreas registradas</small></div><div><span>SUPERFICIE SEMBRADA</span><strong id="studio-planted">—</strong><small>Hectáreas registradas</small></div></div>
+      <div class="studio-trend-head"><div><span>TRAYECTORIA HISTÓRICA</span><strong id="studio-trend-title">2003—2025</strong></div><span id="studio-series-count">—</span></div>
+      <div id="studio-trend-chart" class="studio-trend-chart" role="img" aria-label="Serie histórica del indicador seleccionado"><span class="studio-loading">Procesando serie…</span></div>
+      <div class="studio-crops-head"><strong>PRINCIPALES CULTIVOS</strong><span>POR VALOR REGISTRADO</span></div>
+      <div id="studio-crop-ranking" class="studio-crop-ranking"><span class="studio-loading">Cargando distribución…</span></div>
+      <div class="studio-right-footer"><button type="button" id="studio-open-records">Ver tablas y series <span aria-hidden="true">↗</span></button><span>DGSIAP / 23 cierres</span></div>
+    </aside>
+  </div>
+  <div class="studio-tail">
+    <span><strong>G /</strong> EVIDENCIA AGRÍCOLA, SIN CAPAS SIMULADAS</span>
+    <span>Base productiva 2003–2025 <span class="studio-tail-divider">·</span> Geometría municipal generalizada <span class="studio-tail-divider">·</span> Valores nominales</span>
+  </div>
+</header>
 <section class="institutional-access" aria-label="Rutas principales de exploración">
   <div class="institutional-access-lead"><span class="institutional-access-label">EXPLORAR EL OBSERVATORIO</span><h2>Una plataforma. Múltiples perspectivas.</h2><p>Acceda directamente a las herramientas de información y análisis.</p></div>
   <div class="institutional-access-grid">
@@ -665,43 +754,176 @@ body .section-panel [class*="chart"] svg{max-width:100%}
 (()=>{const root=document.getElementById('panel-agua'),frame=document.getElementById('water-platform-frame');if(!root||!frame)return;function open(){if(root.hidden||frame.dataset.loaded)return;frame.dataset.loaded='true';const q=new URLSearchParams(location.search).get('water')||'';frame.src='agua/?embedded=1'+(q?'&'+q:'');}new MutationObserver(open).observe(root,{attributes:true,attributeFilter:['hidden']});document.addEventListener('DOMContentLoaded',open);document.querySelector('.navigation')?.addEventListener('click',e=>{if(e.target.closest('[data-tab]'))requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}))});window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=='growa-water-height')return;const h=Number(e.data.height);if(Number.isFinite(h))frame.style.height=Math.max(900,Math.min(6000,h))+'px'});open();})();
 </script>
 
-<script id="terra-map-controller">
+<script id="studio-controller-v3">
 (function(){
 "use strict";
-function bootTerra(){
- var host=document.getElementById("terra-map");
- if(!host || !window.L || host.dataset.initialized) return;
- host.dataset.initialized="true";
- try {
-  var L=window.L;
-  var map=L.map(host,{zoomControl:false,scrollWheelZoom:false,attributionControl:true,preferCanvas:true}).setView([24.8,-107.35],7);
-  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"}).addTo(map);
-  var towns=[
-   ["Ahome",25.793,-108.998,1],["El Fuerte",26.419,-108.619,0],["Choix",26.710,-108.324,0],
-   ["Guasave",25.567,-108.469,1],["Sinaloa",25.822,-108.222,0],["Angostura",25.365,-108.161,0],
-   ["Salvador Alvarado",25.458,-108.091,0],["Mocorito",25.482,-107.921,0],["Badiraguato",25.364,-107.552,0],
-   ["Culiacán",24.804,-107.394,1],["Navolato",24.766,-107.698,1],["Cosalá",24.414,-106.692,0],
-   ["Elota",23.952,-106.710,0],["San Ignacio",23.944,-106.425,0],["Mazatlán",23.247,-106.411,1],
-   ["Concordia",23.288,-106.067,0],["Rosario",22.992,-105.855,0],["Escuinapa",22.830,-105.773,1]
-  ];
-  towns.forEach(function(t){
-   var html='<span class="terra-point-core"></span>'+(t[3]?'<span class="terra-point-label">'+t[0]+'</span>':'');
-   var pin=L.marker([t[1],t[2]],{icon:L.divIcon({html:html,className:"terra-map-point",iconSize:[14,14],iconAnchor:[7,7]}),title:"Consultar "+t[0]}).addTo(map);
-   pin.bindTooltip(t[0],{direction:"top",offset:[0,-9],className:"terra-tooltip"});
-   pin.on("mouseover",function(){var title=document.getElementById("terra-selected");if(title)title.textContent=t[0];});
-   pin.on("mouseout",function(){var title=document.getElementById("terra-selected");if(title)title.textContent="Sinaloa, México";});
-   pin.on("click",function(){
-    if(window.GrowaExplorer && typeof window.GrowaExplorer.openState==="function"){window.GrowaExplorer.openState("Sinaloa",t[0]);}
-    else if(typeof window.GrowaNavigate==="function"){window.GrowaNavigate("explorar-estados");}
-   });
-  });
-  var observer=new MutationObserver(function(){if(document.body.dataset.view==="panorama")setTimeout(function(){map.invalidateSize(false);},85);});
-  observer.observe(document.body,{attributes:true,attributeFilter:["data-view"]});
-  window.addEventListener("resize",function(){map.invalidateSize(false);},{passive:true});
-  setTimeout(function(){map.invalidateSize(false);},350);
- }catch(e){host.dataset.initialized="";host.setAttribute("aria-label","Mapa temporalmente no disponible");}
+// MapLibre GL JS / OpenFreeMap, open-source geospatial canvas. Production series are from existing DGSIAP bundle only.
+var S={year:2025,crop:"",metric:"value",municipio:"",satellite:false}, D=null, map=null, leaflet=null, leafletGeo=null, mapReady=false, mapMode="";
+var names=["Ahome","El Fuerte","Choix","Guasave","Sinaloa","Angostura","Salvador Alvarado","Mocorito","Badiraguato","Culiacán","Navolato","Cosalá","Elota","San Ignacio","Mazatlán","Concordia","Rosario","Escuinapa"];
+var $=function(id){return document.getElementById(id)};
+var money=new Intl.NumberFormat("es-MX",{maximumFractionDigits:1});
+var compact=new Intl.NumberFormat("es-MX",{notation:"compact",maximumFractionDigits:1});
+var normalize=function(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()};
+var esc=function(s){return String(s||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+var sum=function(a,key){return a.reduce(function(t,r){return t+(Number(r[key])||0)},0)};
+var metricVal=function(r){return Number(r[S.metric==="planted"?(S.crop?"planted":"area"):S.metric])||0};
+var metricUnit=function(){return S.metric==="value"?"MDP":"ha"};
+var geo=function(){var g=window.GrowaMunicipalGeometry;return g&&Array.isArray(g.features)?g:null};
+var rows=function(year){if(!D)return [];return (S.crop?D.crops:D.municipalities).filter(function(r){return r.year===year&&(!S.crop||normalize(r.name)===normalize(S.crop))})};
+var fromPlace=function(r){return S.crop?r.municipio:r.name};
+var curRows=function(year){var a=rows(year);return S.municipio?a.filter(function(r){return normalize(fromPlace(r))===normalize(S.municipio)}):a};
+var measure=function(year){var a=curRows(year);return a.length?sum(a,S.metric==="planted"?(S.crop?"planted":"area"):S.metric):null};
+var fmt=function(v){return v===null||!isFinite(v)?"—":money.format(v)};
+var pretty=function(v){return v===null||!isFinite(v)?"—":Math.abs(v)>=1000?compact.format(v):money.format(v)};
+function valueByMuni(year){var m=new Map();rows(year).forEach(function(r){var n=normalize(fromPlace(r));m.set(n,(m.get(n)||0)+metricVal(r))});return m}
+function writeText(id,text){var el=$(id);if(el)el.textContent=text}
+function renderList(){
+ var totals=valueByMuni(S.year);
+ var currentMax=Math.max(1,...Array.from(totals.values()));
+ var list=[{name:"Todo Sinaloa",key:"",val:measureAcross(totals)}].concat(names.map(function(name){return {name:name,key:name,val:totals.has(normalize(name))?totals.get(normalize(name)):null}}).sort(function(a,b){return (b.val||0)-(a.val||0)}));
+ $("studio-municipal-list").innerHTML=list.map(function(p){return '<button type="button" class="studio-place-row'+(S.municipio===p.key?' is-selected':'')+'" data-place="'+esc(p.key)+'" aria-pressed="'+(S.municipio===p.key?'true':'false')+'"><span class="studio-place-name">'+esc(p.name)+'</span><span class="studio-place-value">'+(p.val===null?"s/r":pretty(p.val))+'</span>'+(p.key?'<span class="studio-place-track"><i style="width:'+Math.min(100,(p.val||0)/currentMax*100).toFixed(2)+'%"></i></span>':'')+'</button>'}).join("");
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootTerra);else bootTerra();
+function measureAcross(m){return Array.from(m.values()).reduce(function(a,b){return a+b},0)}
+function renderSeries(){
+ var years=Array.from({length:23},function(_,i){return 2003+i});
+ var values=years.map(measure);
+ var valid=values.filter(function(v){return v!==null});
+ writeText("studio-series-count",valid.length+" / 23 años");
+ var host=$("studio-trend-chart");
+ if(!valid.length){host.innerHTML='<span class="studio-loading">Sin serie disponible para este corte.</span>';return}
+ var max=Math.max(...valid,1), min=Math.min(...valid,0), w=420,h=128,pad=8,top=10,bottom=105;
+ var y=function(v){return bottom-(v-min)/(max-min||1)*(bottom-top)};
+ var x=function(i){return pad+i*(w-2*pad)/22};
+ var chunks=[],cur=[];
+ values.forEach(function(v,i){if(v===null){if(cur.length)chunks.push(cur);cur=[]}else cur.push([x(i),y(v)])});if(cur.length)chunks.push(cur);
+ var paths=chunks.map(function(c){return "M"+c.map(function(p){return p.map(function(v){return v.toFixed(1)}).join(",")}).join("L")}).join(" ");
+ var selectedIdx=S.year-2003, current=values[selectedIdx],dot=current!==null?'<circle cx="'+x(selectedIdx)+'" cy="'+y(current)+'" r="5" fill="#2c6848" stroke="#fff" stroke-width="3"/>':"";
+ var area=chunks.map(function(c){return "M"+c[0][0].toFixed(1)+","+bottom+" L"+c.map(function(p){return p.map(function(v){return v.toFixed(1)}).join(",")}).join(" L")+" L"+c[c.length-1][0].toFixed(1)+","+bottom+" Z"}).join(" ");
+ host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-label="Serie histórica 2003 a 2025">'
+  +'<defs><linearGradient id="studio-chart-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#74a47a" stop-opacity=".26"/><stop offset="1" stop-color="#74a47a" stop-opacity="0"/></linearGradient></defs>'
+  +'<line x1="'+pad+'" y1="'+bottom+'" x2="'+(w-pad)+'" y2="'+bottom+'" stroke="#e6ece5" stroke-width="1"/>'
+  +'<path d="'+area+'" fill="url(#studio-chart-fade)"/>'
+  +'<path d="'+paths+'" fill="none" stroke="#3b7751" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'
+  +'<line x1="'+x(selectedIdx)+'" y1="'+top+'" x2="'+x(selectedIdx)+'" y2="'+bottom+'" stroke="#a6c3a6" stroke-dasharray="3 4" stroke-width="1.3"/>'+dot
+  +'<text x="'+pad+'" y="124" font-size="11" fill="#9aab9e">2003</text><text x="'+(w-pad)+'" y="124" text-anchor="end" font-size="11" fill="#9aab9e">2025</text></svg>';
+}
+function renderCrops(){
+ if(!D)return;
+ var by=new Map();
+ D.crops.filter(function(r){return r.year===S.year&&(!S.municipio||normalize(r.municipio)===normalize(S.municipio))&&(!S.crop||normalize(r.name)===normalize(S.crop))}).forEach(function(r){by.set(r.name,(by.get(r.name)||0)+(Number(r.value)||0))});
+ var sorted=Array.from(by).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
+ var total=Array.from(by.values()).reduce(function(a,b){return a+b},0);
+ $("studio-crop-ranking").innerHTML=sorted.length?sorted.map(function(r){return '<div class="studio-crop-item"><span class="studio-crop-name" title="'+esc(r[0])+'">'+esc(r[0])+'</span><span class="studio-crop-number">'+(total>0?(r[1]/total*100).toFixed(1)+" %":"—")+'</span><span class="studio-crop-bar"><i style="width:'+Math.min(100,total>0?r[1]/total*100:0).toFixed(1)+'%"></i></span></div>'}).join(""):'<p class="studio-loading">Sin registros de cultivos en esta selección.</p>';
+}
+function renderFocus(){
+ if(!D)return;
+ var current=measure(S.year),prior=measure(S.year-1),base=curRows(S.year);
+ writeText("studio-focus-name",S.municipio||"Sinaloa");
+ writeText("studio-focus-type",S.municipio?"MUNICIPIO / SINALOA":"ESTADO / MÉXICO");
+ writeText("studio-focus-detail",(S.crop||"Todos los cultivos")+" · cierre "+S.year);
+ writeText("studio-primary-label",({value:"VALOR DE PRODUCCIÓN",harvest:"SUPERFICIE COSECHADA",planted:"SUPERFICIE SEMBRADA"})[S.metric]+" · "+S.year);
+ writeText("studio-primary-value",fmt(current));
+ writeText("studio-primary-unit",S.metric==="value"?"Millones de pesos nominales":"Hectáreas registradas");
+ var change=$("studio-primary-change"),delta=prior!==null&&prior!==0&&current!==null?(current-prior)/prior*100:null;
+ change.textContent=delta===null?"Sin comparación":(delta>0?"+":"")+delta.toFixed(1)+" % interanual";
+ change.classList.toggle("is-negative",delta!==null&&delta<0);
+ var planted=base.length?sum(base,S.crop?"planted":"area"):null;
+ var harvest=base.length?sum(base,"harvest"):null;
+ writeText("studio-harvest",pretty(harvest));
+ writeText("studio-planted",pretty(planted));
+ writeText("studio-trend-title",S.metric==="value"?"Valor (MDP)":"Superficie (ha)");
+ writeText("studio-legend-units",metricUnit());
+ renderCrops();renderSeries();
+}
+function ramp(v,max){if(v===null||v===undefined||!isFinite(v))return "#e4e9e1";var t=Math.sqrt(Math.max(0,v)/(max||1));var stops=["#d9e8d8","#b6d6b5","#86bd9c","#569772","#2a6d4c","#174631"];return stops[Math.min(stops.length-1,Math.floor(t*(stops.length-1)+.001))]}
+function coloredGeography(){
+ var g=geo(),totals=valueByMuni(S.year),max=Math.max(1,...Array.from(totals.values()));
+ if(!g)return null;
+ writeText("studio-legend-max",pretty(max)+" "+metricUnit());
+ return {type:"FeatureCollection",features:g.features.map(function(f){var name=String(f.properties.name||""),v=totals.get(normalize(name));return {type:"Feature",properties:{name:name,hasData:v!==undefined,color:ramp(v,max),value:v===undefined?null:v},geometry:f.geometry}})};
+}
+function updateMap(){
+ var g=coloredGeography();if(!g)return;
+ if(map&&mapReady){var source=map.getSource("studio-municipios");if(source)source.setData(g);if(map.getLayer("studio-selected"))map.setFilter("studio-selected",["==",["get","name"],S.municipio||"\u0000"]);}
+ if(leafletGeo){leafletGeo.eachLayer(function(layer){var p=layer.feature.properties;layer.setStyle({fillColor:p.color,weight:S.municipio===p.name?3:1.2,color:S.municipio===p.name?"#0e4e32":"#f8faf6",fillOpacity:.75})});leafletGeo.clearLayers();leafletGeo.addData(g);}
+}
+function render(){
+ if(!D)return;
+ writeText("studio-year-label",S.year);
+ renderList();renderFocus();updateMap();
+}
+function setMunicipio(name){
+ S.municipio=name||"";render();
+ if(map&&mapReady&&S.municipio){
+  var f=geo()&&geo().features.find(function(f){return normalize(f.properties.name)===normalize(S.municipio)});
+  if(f){var minX=180,minY=90,maxX=-180,maxY=-90;function walk(a){if(typeof a[0]==="number"){minX=Math.min(minX,a[0]);maxX=Math.max(maxX,a[0]);minY=Math.min(minY,a[1]);maxY=Math.max(maxY,a[1])}else a.forEach(walk)}walk(f.geometry.coordinates);if(maxX>minX&&maxY>minY)map.fitBounds([[minX,minY],[maxX,maxY]],{padding:65,maxZoom:9,duration:750})}
+ }else if(map&&mapReady)map.fitBounds([[-109.85,22.4],[-105.2,27.5]],{padding:30,duration:700});
+ if(leaflet&&S.municipio){leafletGeo.eachLayer(function(layer){if(normalize(layer.feature.properties.name)===normalize(S.municipio))leaflet.fitBounds(layer.getBounds(),{padding:[35,35],maxZoom:9})})}
+ else if(leaflet)leaflet.fitBounds([[22.4,-109.85],[27.5,-105.2]],{padding:[30,30]});
+}
+function mapLibreInit(){
+ var g=coloredGeography();if(!g)return false;
+ try{
+  map=new maplibregl.Map({container:"studio-map",style:"https://tiles.openfreemap.org/styles/positron",center:[-107.5,24.85],zoom:6.8,attributionControl:true,dragRotate:false,pitchWithRotate:false});
+  map.on("load",function(){
+   mapReady=true;
+   map.addSource("studio-satellite-source",{type:"raster",tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"});
+   map.addLayer({id:"studio-satellite-layer",type:"raster",source:"studio-satellite-source",layout:{visibility:"none"}});
+   map.addSource("studio-municipios",{type:"geojson",data:coloredGeography()});
+   map.addLayer({id:"studio-fill",type:"fill",source:"studio-municipios",paint:{"fill-color":["get","color"],"fill-opacity":.76}});
+   map.addLayer({id:"studio-boundaries",type:"line",source:"studio-municipios",paint:{"line-color":"#fbfff9","line-width":1.15,"line-opacity":.92}});
+   map.addLayer({id:"studio-selected",type:"line",source:"studio-municipios",filter:["==",["get","name"],"\u0000"],paint:{"line-color":"#194f36","line-width":3}});
+   map.on("mouseenter","studio-fill",function(){map.getCanvas().style.cursor="pointer"});
+   map.on("mouseleave","studio-fill",function(){map.getCanvas().style.cursor=""});
+   var popup=new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:12,className:"studio-popup"});
+   map.on("mousemove","studio-fill",function(e){if(!e.features||!e.features.length)return;var p=e.features[0].properties;popup.setLngLat(e.lngLat).setHTML('<strong>'+esc(p.name)+'</strong><span>'+(p.value===null||p.value==="null"?"Sin registro":pretty(Number(p.value))+" "+metricUnit())+'</span>').addTo(map)});
+   map.on("mouseleave","studio-fill",function(){popup.remove()});
+   map.on("click","studio-fill",function(e){if(e.features&&e.features.length)setMunicipio(e.features[0].properties.name)});
+   map.fitBounds([[-109.85,22.4],[-105.2,27.5]],{padding:30,duration:0});
+   render();
+  });
+  map.on("error",function(e){if(e&&e.error)console.warn("MapLibre: "+e.error.message)});
+  setTimeout(function(){if(!mapReady){try{map.remove()}catch(_){}map=null;leafletInit()}},12000);
+  return true;
+ }catch(e){map=null;return false}
+}
+function leafletInit(){
+ if(!window.L){$("studio-map-fallback").hidden=false;return}
+ try{
+  var L=window.L;leaflet=L.map("studio-map",{zoomControl:false,scrollWheelZoom:false,attributionControl:true}).fitBounds([[22.4,-109.85],[27.5,-105.2]]);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:18}).addTo(leaflet);
+  var g=coloredGeography();
+  leafletGeo=L.geoJSON(g,{style:function(f){return {fillColor:f.properties.color,fillOpacity:.75,color:"#f8faf7",weight:1}},onEachFeature:function(f,l){l.on("click",function(){setMunicipio(f.properties.name)});l.bindTooltip(f.properties.name)}}).addTo(leaflet);
+  mapMode="leaflet";render();
+ }catch(e){$("studio-map-fallback").hidden=false}
+}
+function boot(){
+ if(!$("studio-workspace"))return;
+ var crop=$("studio-crop"),metric=$("studio-metric"),year=$("studio-year");
+ crop.addEventListener("change",function(){S.crop=crop.value;render()});
+ metric.addEventListener("change",function(){S.metric=metric.value;render()});
+ year.addEventListener("input",function(){S.year=Number(year.value);render()});
+ $("studio-municipal-list").addEventListener("click",function(e){var b=e.target.closest("[data-place]");if(b)setMunicipio(b.dataset.place)});
+ $("studio-map-style").addEventListener("click",function(){
+  S.satellite=!S.satellite;this.setAttribute("aria-pressed",String(S.satellite));this.innerHTML='<span class="studio-switch-icon" aria-hidden="true">◈</span> '+(S.satellite?"Cartografía":"Satélite");
+  if(map&&mapReady&&map.getLayer("studio-satellite-layer"))map.setLayoutProperty("studio-satellite-layer","visibility",S.satellite?"visible":"none");
+  if(leaflet){/* Leaflet fallback intentionally stays on OSM instead of claiming satellite imagery */this.setAttribute("aria-pressed","false");this.innerHTML='<span aria-hidden="true">◈</span> Cartografía';S.satellite=false}
+ });
+ $("studio-open-records").addEventListener("click",function(){
+  document.body.classList.add("studio-show-details");
+  var panel=$("agx-console");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});
+ });
+ function ready(){
+  if(!window.GrowaSinaloaData||!window.GrowaSinaloaData.D)return;
+  D=window.GrowaSinaloaData.D;
+  crop.innerHTML='<option value="">Todos los cultivos</option>'+D.cropNames.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");
+  render();
+  if(window.maplibregl)mapLibreInit()||leafletInit();else leafletInit();
+ }
+ window.addEventListener("growa:data-ready",ready,{once:true});
+ if(window.GrowaSinaloaData&&window.GrowaSinaloaData.D)ready();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
 </script>
 </body>
