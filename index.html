@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f6f7f4">
   <meta name="description" content="Growa Agricultura: observatorio independiente de datos abiertos e inteligencia territorial para Sinaloa. Series DGSIAP 2003–2025, atlas de cultivos, municipios, agua y laboratorio de análisis.">
-  <title>GROWA Crop Intelligence · Modelado territorial</title>
+  <title>GROWA Crop Intelligence | Agricultura de precisión</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.css">
   <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.js" defer></script>
@@ -27,268 +27,176 @@
 
 
 
-<style id="cropos-style-v4">
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700;750&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-:root{--c-ink:#243329;--c-muted:#7c8a7c;--c-line:#e3e8e2;--c-green:#225a40;--c-lime:#c4dd9f;--c-paper:#f8faf7;--c-faint:#f4f6f2;--c-font:"DM Sans","Segoe UI",Arial,sans-serif;--c-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace}
-body{font-family:var(--c-font)!important;background:#f8faf7!important;color:var(--c-ink)!important}
-body .shell{display:block!important;background:#f8faf7!important}
-body .global-utility,body .rail .rail-meta{display:none!important}
-body .rail{z-index:1500!important;position:sticky!important;top:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;height:66px!important;min-height:66px!important;padding:0 clamp(20px,3.8vw,66px)!important;background:#fff!important;color:var(--c-ink)!important;border-bottom:1px solid var(--c-line)!important;box-shadow:none!important}
-body .rail .brand{display:flex!important;align-items:center!important;gap:9px!important;min-height:45px!important;margin:0!important;padding:0!important;color:#244430!important;text-decoration:none!important}
-body .rail .brand-symbol{font:400 37px/.9 Georgia,serif!important;color:#255d40!important}
-body .rail .brand-point{color:#90b877!important}
-body .rail .brand-word{color:#203a2a!important;font:750 15px/1.1 var(--c-font)!important;letter-spacing:.15em!important}
-body .rail .brand-word small{display:block!important;margin-top:5px!important;color:#92a196!important;font:650 7px/1.1 var(--c-font)!important;letter-spacing:.1em!important}
-body .rail .navigation{display:flex!important;justify-content:flex-end!important;align-items:center!important;flex:1!important;width:auto!important;gap:clamp(13px,2.7vw,38px)!important;margin:0!important;padding:0!important;border:0!important}
-body .rail .nav-link{position:relative!important;display:inline-flex!important;align-items:center!important;width:auto!important;height:66px!important;min-height:66px!important;padding:0 2px!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;font:600 12px var(--c-font)!important;color:#89948a!important}
-body .rail .nav-link:hover,body .rail .nav-link.active,body .rail .nav-link[aria-current="page"]{color:#2d573c!important;background:none!important}
-body .rail .nav-link.active:after,body .rail .nav-link[aria-current="page"]:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#3b8359}
+<style id="gp-design-v6">
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+:root{--gp-ink:#19392a;--gp-muted:#7d9080;--gp-edge:#e2eae1;--gp-b:#285d3f;--gp-p:#f7faf7;--gp-font:"DM Sans","Segoe UI",Arial,sans-serif;--gp-mono:"IBM Plex Mono",monospace}
+body,body .shell{background:var(--gp-p)!important;color:var(--gp-ink)!important;font-family:var(--gp-font)!important}
+body .shell{display:block!important}body .global-utility,body .rail .rail-meta{display:none!important}
+body .rail{z-index:1500!important;position:sticky!important;top:0!important;height:66px!important;min-height:66px!important;padding:0 clamp(16px,3vw,52px)!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;background:#fff!important;border:0!important;border-bottom:1px solid #e7ede5!important;box-shadow:none!important}
+body .rail .brand{display:flex!important;gap:10px!important;align-items:center!important;min-height:40px!important;padding:0!important;margin:0!important;color:var(--gp-ink)!important;text-decoration:none!important}
+body .rail .brand-symbol{color:#255b40!important;font:400 36px/1 Georgia,serif!important}body .rail .brand-point{color:#8ab77e!important}
+body .rail .brand-word{font:700 15px/1 var(--gp-font)!important;letter-spacing:.16em!important;color:#234a31!important}
+body .rail .brand-word small{display:block!important;font:600 7px/1 var(--gp-font)!important;letter-spacing:.09em!important;color:#a0aea0!important;margin-top:5px!important}
+body .rail .navigation{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;flex:1!important;gap:clamp(12px,2.7vw,37px)!important;width:auto!important;margin:0!important;padding:0!important;border:0!important}
+body .rail .nav-link{position:relative!important;display:inline-flex!important;align-items:center!important;width:auto!important;height:66px!important;min-height:66px!important;padding:0 2px!important;border:0!important;background:none!important;border-radius:0!important;color:#849588!important;font:600 12px var(--gp-font)!important;box-shadow:none!important}
+body .rail .nav-link.active,body .rail .nav-link[aria-current="page"],body .rail .nav-link:hover{color:#285d3f!important;background:none!important}
+body .rail .nav-link.active:after,body .rail .nav-link[aria-current="page"]:after{content:"";height:2px;background:#398157;position:absolute;bottom:0;left:0;right:0}
 body .rail .navigation [data-tab="agua"],body .rail .navigation [data-tab="metodologia"]{display:none!important}
-body .rail .lab-nav-link{color:#366548!important}
 body .rail .ag-nav-toggle{display:none!important}
-body .page{width:100%!important;max-width:1860px!important;margin:0 auto!important;padding:0 clamp(14px,2.3vw,42px) 90px!important;background:transparent!important;border:0!important;box-shadow:none!important}
-body .topline{min-height:0!important;margin:0!important;padding:12px 0!important;display:flex!important;justify-content:space-between!important;align-items:center!important;border:0!important}
-body .topline .breadcrumb{color:#9ca99f!important;letter-spacing:.07em!important;font-size:9px!important}
-body .topline .breadcrumb span{color:#c5cec4!important}
-body .top-actions{display:flex!important;gap:12px!important;align-items:center!important}
+body .page{background:transparent!important;box-shadow:none!important;border:0!important;max-width:1760px!important;width:100%!important;padding:0 clamp(13px,2.3vw,40px) 80px!important;margin:0 auto!important}
+body .topline{margin:0!important;padding:12px 2px!important;min-height:0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
+body .topline .breadcrumb{color:#92a395!important;font-size:9px!important;letter-spacing:.06em!important}
+body .top-actions{display:flex!important;align-items:center!important;gap:8px!important}
 body .top-actions .ux-header-btn{display:none!important}
-body .top-actions .quick-search{min-height:30px!important;padding:6px 12px!important;border-radius:5px!important;border:1px solid #e5eae3!important;background:white!important;box-shadow:none!important;color:#889689!important;font-size:10px!important}
-body .top-actions .status{font-size:10px!important;color:#63826b!important}
+body .top-actions .quick-search{background:#fff!important;border:1px solid #e3ebe2!important;border-radius:5px!important;box-shadow:none!important;color:#869689!important;font-size:10px!important;min-height:30px!important;padding:6px 11px!important}
+body .top-actions .status{font-size:10px!important;color:#648773!important}
 body .ag-data-strip,body .ux-workbench,body[data-view="panorama"] .institutional-access{display:none!important}
-body[data-view="panorama"] .masthead{display:block!important;margin:0 0 10px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
-body:not([data-view="panorama"]) .masthead{display:none!important}
-body .masthead:before{display:none!important}
-.cropos{font-family:var(--c-font)!important;color:var(--c-ink)!important}
-.cropos *{box-sizing:border-box}
-.cropos-top{padding:16px 6px 22px;display:flex;justify-content:space-between;gap:28px;align-items:flex-end}
-.cropos-overline{display:flex;align-items:center;gap:9px;color:#6b846f;font:600 9px var(--c-mono);letter-spacing:.02em}
-.cropos-pulse,.cropos-small-led{display:inline-block;width:6px;height:6px;background:#63a779;border-radius:50%;flex:none;box-shadow:0 0 0 3px #63a77920}
-.cropos-slash{color:#b7c5bb}
-body[data-view="panorama"] .cropos-title h1{margin:10px 0 5px!important;font:650 clamp(29px,3.1vw,43px)/1.08 var(--c-font)!important;letter-spacing:-.058em!important;color:#1c3125!important}
-.cropos-title-dot{color:#7cab75}
-.cropos-title>p{font-size:12px;color:#8a9a8d;line-height:1.55;letter-spacing:-.005em;margin:0}
-.cropos-head-details{display:flex;align-items:flex-end;gap:29px;flex-wrap:wrap;justify-content:flex-end;padding-bottom:5px}
-.cropos-head-data{display:flex;flex-direction:column;gap:7px}
-.cropos-head-data>span{color:#a1afa3;font:600 9px var(--c-mono);letter-spacing:.05em}
-.cropos-head-data>strong{font-size:11px;color:#435a49;font-weight:680}
-.cropos-head-status{display:flex;gap:7px;align-items:center;padding:8px 12px;border:1px solid #dbe9dc;background:#eff6ee;border-radius:5px;white-space:nowrap;color:#41744f;font-size:10px;font-weight:690}
-.cropos-status-led{width:6px;height:6px;border-radius:50%;background:#63a277;flex:none}
-.cropos-status-sub{font-weight:450;color:#869d8c}
-.cropos-application{display:grid;grid-template-columns:258px minmax(350px,1fr) 344px;height:min(77vh,845px);min-height:718px;border:1px solid #dfe6de;background:#fff;border-radius:11px;overflow:hidden;box-shadow:0 14px 45px #203c2614}
-.cropos-sidebar{min-width:0;border-right:1px solid #e3e9e2;background:#fff;display:flex;flex-direction:column}
-.cropos-sidebar-intro{padding:26px 23px 22px;border-bottom:1px solid #edf0eb}
-.cropos-micro{font:600 9px var(--c-mono);letter-spacing:.045em;color:#8da28d}
-body[data-view="panorama"] .cropos-sidebar-intro h2{font:650 23px/1.2 var(--c-font)!important;letter-spacing:-.055em!important;color:#244c32!important;margin:14px 0 8px!important}
-.cropos-sidebar-intro p{font-size:11px;line-height:1.65;margin:0;color:#94a097}
-.cropos-control-group{display:flex;flex-direction:column;gap:10px;padding:22px 20px 24px}
-.cropos-input-label,.cropos-layer-head{display:flex;justify-content:space-between;align-items:center;font:600 10px var(--c-mono);letter-spacing:.04em;color:#607361}
-.cropos-input-label>span,.cropos-layer-head>span{color:#a4b2a4;font-size:9px}
-.cropos-selectbox{position:relative;margin-bottom:14px}
-.cropos-selectbox:after{content:"⌄";position:absolute;right:12px;top:8px;color:#78917b;font-size:18px;pointer-events:none}
-.cropos-selectbox select{appearance:none;display:block;width:100%;min-width:0;border:1px solid #dfe6dd;border-radius:5px;background:#f9faf8;color:#31513a;padding:11px 33px 11px 11px;font:650 12px var(--c-font);min-height:42px}
-.cropos-selectbox select:focus-visible{outline:2px solid #719b7d;outline-offset:2px}
-.cropos-layer-head{margin:0 0 3px}
-.cropos-layer-switch{display:grid;gap:2px;padding:3px;background:#f5f7f4;border:1px solid #e7ebe5;border-radius:6px}
-.cropos-layer{border:0!important;border-radius:4px!important;display:flex!important;gap:10px;align-items:center;justify-content:flex-start;width:100%;padding:10px 12px!important;background:transparent!important;box-shadow:none!important;color:#8c9d8e!important;font:600 11px var(--c-font)!important;transition:background .18s ease}
-.cropos-layer.active,.cropos-layer:hover{background:#fff!important;color:#2b6643!important;box-shadow:0 1px 4px #0000000c!important}
-.cropos-layer-symbol{font:650 14px var(--c-mono);color:#60926a;width:18px;text-align:center}
-.cropos-scope{margin:auto 20px 0;padding:20px 0;border-top:1px solid #e8ece6}
-.cropos-scope-head{display:flex;justify-content:space-between;gap:5px;margin-bottom:14px;font:600 9px var(--c-mono);color:#859687}
-.cropos-scope-head>span:last-child{color:#b0beb1}
-.cropos-scope-stat{display:flex;align-items:baseline;gap:11px;padding:8px 0;border-bottom:1px solid #f1f4ef}
-.cropos-scope-stat>strong{font:600 22px var(--c-font);color:#315c3e;letter-spacing:-.07em;min-width:42px}
-.cropos-scope-stat>span{font-size:11px;color:#8da18e}
-.cropos-sidebar-bottom{display:flex;align-items:flex-start;gap:9px;padding:15px 20px;background:#f7f9f5;border-top:1px solid #e9eee8}
-.cropos-mini-icon{width:15px;height:15px;line-height:13px;border:1px solid #a8bba8;color:#8ca18b;text-align:center;border-radius:100%;font:600 10px/13px var(--c-mono);flex:none}
-.cropos-sidebar-bottom p{font:400 10px/1.6 var(--c-font);color:#99aa9a;margin:0}
-.cropos-map-column{position:relative;min-width:0;background:#e8ede7;overflow:hidden}
-.cropos-map{position:absolute;inset:0 0 104px;z-index:1;background:#e6ece7}
-.cropos-map .maplibregl-control-container{font-family:var(--c-font)}
-.cropos-map .maplibregl-ctrl-attrib{font-size:8px!important;opacity:.72}
-.cropos-map-top,.cropos-map-bottom{position:absolute;z-index:20;display:flex;justify-content:space-between;gap:12px;pointer-events:none}
-.cropos-map-top{left:20px;right:20px;top:20px;align-items:flex-start}
-.cropos-map-label{background:#fffffff2;border:1px solid #e0e9df;border-radius:7px;padding:11px 14px;box-shadow:0 6px 22px #273d331b;backdrop-filter:blur(9px);display:flex;flex-direction:column;gap:6px;max-width:calc(100% - 133px)}
-.cropos-map-overline{font:600 9px var(--c-mono);letter-spacing:.03em;color:#7d9881}
-.cropos-map-label strong{font-size:12px;color:#254a34;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cropos-basemap{pointer-events:auto;border:1px solid #e0e9e0!important;box-shadow:0 6px 20px #2f473322!important;background:#fffffff1!important;color:#477155!important;border-radius:6px!important;min-height:39px;padding:9px 13px!important;font:650 11px var(--c-font)!important;backdrop-filter:blur(8px)}
-.cropos-basemap[aria-pressed="true"]{background:#264636!important;color:#fff!important;border-color:#264636!important}
-.cropos-basemap span{margin-right:6px;font-size:14px}
-.cropos-map-bottom{left:20px;right:20px;bottom:124px;align-items:flex-end}
-.cropos-legend{min-width:205px;max-width:225px;border:1px solid #e0e7dc;border-radius:6px;padding:12px 13px 11px;background:#fffffff0;backdrop-filter:blur(8px);box-shadow:0 5px 19px #18312318}
-.cropos-legend>span{display:block;font:600 9px var(--c-mono);color:#7d937f;letter-spacing:.02em}
-.cropos-legend>span b{font-weight:700;color:#44684b}
-.cropos-legend-gradient{width:100%;height:6px;background:linear-gradient(90deg,#dde7d8,#b2d2ad,#7bae8c,#3d865f,#175239);border-radius:2px;margin:11px 0 5px}
-.cropos-legend-values{display:flex;justify-content:space-between;gap:7px;font:500 10px var(--c-mono);color:#90a18f}
-.cropos-legend-values strong{color:#49644d;font-weight:600}
-.cropos-legend small{display:block;font:400 9px/1.5 var(--c-font);color:#9cad9e;margin-top:8px}
-.cropos-map-note{text-align:right;color:#467059;font:600 10px/1.7 var(--c-mono);background:#ffffffe3;border:1px solid #e5ebe1;border-radius:5px;padding:9px 12px}
-.cropos-map-note small{font:500 9px var(--c-font);color:#8fa390}
-.cropos-map-point{display:inline-block;width:6px;height:6px;border-radius:50%;background:#5c976c}
-.cropos-map-unavailable{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);z-index:22;background:white;box-shadow:0 5px 30px #0002;border:1px solid #e1e7e0;padding:15px 20px;border-radius:7px;width:65%;font-size:12px;text-align:center;color:#637a65}
-.cropos-map-unavailable[hidden]{display:none!important}
-.cropos-timebar{position:absolute;z-index:25;bottom:0;left:0;right:0;height:104px;background:#fff;border-top:1px solid #e3e8e1;padding:16px 24px}
-.cropos-timebar-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 11px}
-.cropos-timebar-top>span{font:650 10px var(--c-mono);letter-spacing:.01em;color:#6e8c74}
-.cropos-timebar-top small{font-size:9px;color:#a0b0a1;margin-left:10px;font-weight:400}
-.cropos-timebar-top strong{font:600 23px/1 var(--c-font);letter-spacing:-.07em;color:#305942}
-.cropos-timebar input{appearance:none;margin:0;width:100%;height:12px;display:block;cursor:ew-resize;background:transparent}
-.cropos-timebar input::-webkit-slider-runnable-track{height:3px;background:linear-gradient(90deg,#397854,#bfd4b2);border-radius:5px}
-.cropos-timebar input::-moz-range-track{height:3px;background:#6f9f73;border-radius:5px}
-.cropos-timebar input::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border:3px solid #2b754b;border-radius:50%;background:white;margin-top:-5px;box-shadow:0 1px 5px #24442f4b}
-.cropos-timebar input::-moz-range-thumb{width:10px;height:10px;border:3px solid #2b754b;border-radius:50%;background:white}
-.cropos-timebar-ticks{display:flex;justify-content:space-between;font:450 9px var(--c-mono);color:#a0afa1;margin-top:6px}
-.cropos-intelligence{min-width:0;border-left:1px solid #e2e9e1;background:#fff;overflow-y:auto;display:flex;flex-direction:column;padding:21px 22px 0;scrollbar-width:thin;scrollbar-color:#d9e5d9 transparent}
-.cropos-intro-line{display:flex;justify-content:space-between;align-items:center;font:650 10px var(--c-mono);color:#78977e}
-.cropos-engine-pill{font:650 8px var(--c-mono);letter-spacing:.03em;color:#3e8c51;background:#eef6e9;padding:6px 8px;border:1px solid #d6e9d3;border-radius:4px}
-.cropos-model-head{padding:19px 0 13px;border-bottom:1px solid #edf0ea}
-.cropos-model-location{font:600 9px var(--c-mono);color:#8ea58e}
-body[data-view="panorama"] .cropos-model-head h2{color:#274c35!important;font:650 28px/1.14 var(--c-font)!important;letter-spacing:-.06em!important;margin:9px 0 6px!important;overflow-wrap:anywhere}
-.cropos-model-head>span{font-size:11px;color:#95a397}
-.cropos-hero-metric{padding:14px 0 15px;border-bottom:1px solid #e9eee7}
-.cropos-hero-number{display:flex;align-items:baseline;gap:10px}
-.cropos-hero-number strong{font:650 43px/1.08 var(--c-font);letter-spacing:-.09em;color:#224931;font-variant-numeric:tabular-nums}
-.cropos-hero-number>span{font:550 11px var(--c-mono);color:#9cad9d}
-.cropos-benchmark-label{margin-top:9px;color:#66876b;font-size:11px;line-height:1.45;font-weight:580}
-.cropos-model-quantiles{padding:17px 0 17px;border-bottom:1px solid #e9eee8}
-.cropos-quantile-header{display:flex;justify-content:space-between;align-items:center;gap:6px;font:650 9px var(--c-mono);color:#7b927e}
-.cropos-quantile-header span:last-child{color:#a6b5a5;font-weight:400;font-size:8px;white-space:nowrap}
-.cropos-percentile-line{position:relative;height:8px;margin:15px 2px 14px;background:linear-gradient(90deg,#e4ede3,#b2d6b4,#6baa77,#32744e);border-radius:7px}
-.cropos-percentile-band{position:absolute;left:25%;right:25%;height:12px;top:-2px;border:2px solid #fff9;border-radius:5px;background:#245d4733}
-.cropos-percentile-marker{position:absolute;top:-6px;height:20px;width:3px;border-radius:4px;background:#1c3024;left:50%;box-shadow:0 0 0 2px #fff9;transition:left .18s ease}
-.cropos-quantile-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.cropos-quantile-row>div{display:flex;flex-direction:column;gap:5px;min-width:0}
-.cropos-quantile-row span{font:550 8px var(--c-mono);color:#829985;letter-spacing:-.03em;white-space:nowrap}
-.cropos-quantile-row strong{font:650 16px var(--c-font);color:#466851;letter-spacing:-.04em}
-.cropos-qdot{display:inline-block;height:4px;width:19px;background:#96c6a0;border-radius:2px}
-.cropos-qdot.qlow{background:#bdd7bc}.cropos-qdot.qcentral{background:#7db68d}.cropos-qdot.qhigh{background:#387950}
-.cropos-plot-heading{display:flex;justify-content:space-between;gap:8px;padding:15px 0 0;font:650 9px var(--c-mono);color:#78917b}
-.cropos-plot-heading span:last-child{font-weight:450;color:#a4b1a3}
-.cropos-plot{height:103px;margin:4px 0 10px;min-height:103px;color:#a8b6aa;font:400 10px var(--c-font)}
-.cropos-plot svg{width:100%;height:103px;overflow:visible;display:block}
-.cropos-plot p{padding-top:20px}
-.cropos-scenario{margin:8px -22px 0;background:#f6f9f4;border-top:1px solid #e7eee5;padding:20px 22px 16px}
-.cropos-scenario-title{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#76927c;font:650 9px var(--c-mono);letter-spacing:.02em}
-.cropos-scenario-chip{background:#e7f0e2;border:1px solid #d9e9d2;border-radius:4px;padding:5px 8px;font:600 8px var(--c-mono);color:#5b8864}
-.cropos-scenario-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:17px}
-.cropos-scenario-head strong{font-size:15px;letter-spacing:-.035em;font-weight:680;color:#304f37}
-.cropos-scenario-head>span{font:600 13px var(--c-mono);color:#578367}
-.cropos-scenario>p{font:400 10px/1.6 var(--c-font);color:#8d9d8e;margin:9px 0 16px}
-.cropos-scenario input[type="range"]{display:block;appearance:none;width:100%;height:12px;background:transparent;cursor:ew-resize}
-.cropos-scenario input::-webkit-slider-runnable-track{height:4px;background:linear-gradient(90deg,#e4b9a4,#d4dfc8,#86b888);border-radius:5px}
-.cropos-scenario input::-moz-range-track{height:4px;background:#a9c9a6;border-radius:5px}
-.cropos-scenario input::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border:3px solid #408358;border-radius:100%;background:white;margin-top:-5px}
-.cropos-scenario input::-moz-range-thumb{width:10px;height:10px;border:3px solid #408358;border-radius:100%;background:white}
-.cropos-impact-ticks{display:flex;justify-content:space-between;font:500 9px var(--c-mono);color:#a0ada0;margin:6px 0 16px}
-.cropos-scenario-result{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;border-top:1px solid #e2e9df;padding-top:15px}
-.cropos-scenario-result>div{display:flex;flex-direction:column;gap:7px;min-width:0}
-.cropos-scenario-result span{font:600 8px var(--c-mono);color:#9caf9b}
-.cropos-scenario-result strong{font:650 18px var(--c-font);color:#315b3e;letter-spacing:-.035em;overflow-wrap:anywhere}
-.cropos-scenario-result>div+div strong{font-size:10px;font-weight:630;letter-spacing:0;margin-top:4px}
-.cropos-scenario>p.cropos-method-note{font:400 9px/1.55 var(--c-font);color:#a1b09e;margin:12px 0 0}
-.cropos-analysis-link{width:calc(100% + 44px);margin:0 -22px 0;border:0!important;border-top:1px solid #e2e8df!important;background:#fff!important;padding:16px 22px!important;text-align:left!important;display:flex!important;align-items:center!important;justify-content:space-between!important;font:700 11px var(--c-font)!important;color:#326f46!important}
-.cropos-analysis-link:hover{background:#f8fbf6!important}
-.cropos-underbar{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:14px 3px 0;color:#a2b0a4;font:500 9px var(--c-mono)}
-.cropos-underbar>span{display:flex;align-items:center;gap:7px}
-.cropos-underbar b{color:#638d67;font-weight:600}
-.cropos-underbar i{font-style:normal}
+body[data-view="panorama"] .masthead{display:block!important;background:transparent!important;margin:0!important;padding:0!important;overflow:visible!important;box-shadow:none!important;border:0!important;border-radius:0!important}
+body:not([data-view="panorama"]) .masthead{display:none!important}body .masthead:before{display:none!important}
+body[data-view="panorama"] #panel-panorama{padding:0!important;border:0!important}
+body[data-view="panorama"] #panel-panorama > :not(#agx-console){display:none!important}
 body[data-view="panorama"] #agx-console{display:none!important}
-body[data-view="panorama"].cropos-details-visible #agx-console{display:block!important;border:1px solid #e0e9df!important;border-radius:10px!important;overflow:hidden!important;margin-top:22px!important}
-body[data-view="panorama"] #panel-panorama{border:0!important;padding-top:0!important}
-body[data-view="panorama"] #agx-console .ag5-shell{grid-template-columns:235px minmax(0,1fr)!important}
-body[data-view="panorama"] #agx-console .ag5-filters{background:#f7faf6!important;border-color:#e4ebe3!important}
-body .section-panel .section-heading h2{color:#31543a}
-@media(max-width:1480px){
- .cropos-application{grid-template-columns:230px minmax(330px,1fr) 320px}
- .cropos-sidebar-intro{padding:23px 18px}
- .cropos-control-group{padding:18px}
- .cropos-scope{margin-inline:18px}
- .cropos-intelligence{padding-inline:18px}
- .cropos-scenario{margin-inline:-18px;padding-inline:18px}
- .cropos-analysis-link{margin-inline:-18px;width:calc(100% + 36px);padding-inline:18px!important}
-}
-@media(max-width:1190px){
- .cropos-application{grid-template-columns:208px minmax(310px,1fr) 287px;min-height:700px}
- .cropos-plot{height:93px;min-height:93px}
- .cropos-plot svg{height:93px}
- .cropos-head-data{display:none}
- .cropos-hero-number strong{font-size:38px}
- .cropos-quantile-row span{font-size:7px}
- .cropos-model-head h2{font-size:25px!important}
- .cropos-map-note{display:none}
-}
-@media(max-width:980px){
- .cropos-application{grid-template-columns:230px minmax(0,1fr);height:auto;min-height:0}
- .cropos-sidebar{grid-column:1;grid-row:1}
- .cropos-map-column{grid-column:2;grid-row:1;min-height:660px}
- .cropos-intelligence{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:minmax(200px,.85fr) minmax(270px,1fr);gap:0 26px;max-height:none;overflow:visible;padding:21px 25px 0}
- .cropos-intro-line,.cropos-model-head,.cropos-hero-metric,.cropos-model-quantiles{grid-column:1}
- .cropos-plot-heading,.cropos-plot,.cropos-scenario{grid-column:2}
- .cropos-plot-heading{grid-row:1}
- .cropos-plot{grid-row:2/4;align-self:center}
- .cropos-scenario{grid-row:4/7;margin:0 -25px 0 0;padding:18px 23px}
- .cropos-analysis-link{grid-column:1/-1;margin:12px -25px 0;width:calc(100% + 50px)}
- .cropos-underbar{font-size:8px}
-}
-@media(max-width:720px){
- body .rail{height:60px!important;min-height:60px!important;padding:0 15px!important}
- body .rail .brand-symbol{font-size:32px!important}
- body .rail .brand-word{font-size:12px!important}
- body .rail .brand-word small{font-size:6px!important}
- body .rail .navigation{gap:13px!important;overflow-x:auto!important;justify-content:flex-end!important}
- body .rail .nav-link{height:60px!important;min-height:60px!important;font-size:10px!important}
- body .rail .lab-nav-link{display:none!important}
- body .page{padding:0 12px 50px!important}
- body .topline{padding:9px 1px!important}
- body .topline .breadcrumb{font-size:8px!important}
- body .top-actions .quick-search{font-size:0!important;padding:5px 9px!important;min-height:28px!important}
- body .top-actions .quick-search .search-glyph{font-size:16px!important}
- body .top-actions .quick-search kbd,body .top-actions .status{display:none!important}
- .cropos-top{padding:13px 2px 18px}
- .cropos-overline{font-size:8px;gap:6px}
- body[data-view="panorama"] .cropos-title h1{font-size:clamp(26px,7vw,37px)!important}
- .cropos-title>p{font-size:10px;max-width:330px}
- .cropos-head-details{display:none}
- .cropos-application{display:flex;flex-direction:column;border-radius:9px}
- .cropos-sidebar{display:block;border:0;border-bottom:1px solid #e6ece4}
- .cropos-sidebar-intro{padding:17px 16px 9px;border:0}
- .cropos-sidebar-intro h2,.cropos-sidebar-intro p{display:none}
- .cropos-control-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;padding:0 16px 15px}
- .cropos-input-label{font-size:9px}
- .cropos-selectbox{margin-bottom:4px}
- .cropos-selectbox select{font-size:10px;min-height:38px}
- .cropos-layer-head{grid-column:1/-1;margin-top:5px}
- .cropos-layer-switch{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
- .cropos-layer{font-size:10px!important;padding:10px 5px!important;justify-content:center;gap:4px}
- .cropos-layer-symbol{font-size:11px;width:12px}
- .cropos-scope,.cropos-sidebar-bottom{display:none}
- .cropos-map-column{min-height:490px}
- .cropos-map{bottom:94px}
- .cropos-map-top{top:12px;left:12px;right:12px}
- .cropos-map-label{padding:9px 10px}
- .cropos-map-overline{font-size:7px}
- .cropos-map-label strong{font-size:10px}
- .cropos-basemap{padding:8px 10px!important;font-size:10px!important}
- .cropos-map-bottom{left:12px;right:12px;bottom:110px}
- .cropos-legend{min-width:163px;max-width:180px;padding:10px}
- .cropos-timebar{height:94px;padding:14px 15px}
- .cropos-timebar-top>span{font-size:8px}
- .cropos-timebar-top small{font-size:8px}
- .cropos-timebar-top strong{font-size:20px}
- .cropos-intelligence{display:block;padding:22px 19px 0}
- .cropos-plot-heading,.cropos-plot,.cropos-scenario{grid-column:auto;grid-row:auto}
- .cropos-model-head{padding-top:17px}
- .cropos-hero-number strong{font-size:45px}
- .cropos-plot{height:117px;min-height:117px}
- .cropos-plot svg{height:117px}
- .cropos-scenario{margin:12px -19px 0;padding:18px 19px}
- .cropos-analysis-link{width:calc(100% + 38px);margin:0 -19px;padding:15px 19px!important}
- .cropos-underbar{display:block;line-height:1.8;padding:11px 3px}
- .cropos-underbar>span{display:block}
- .cropos-underbar>span:first-child{margin-bottom:3px}
- .cropos-small-led{margin-right:5px}
-}
-@media(prefers-reduced-motion:reduce){.cropos-percentile-marker,.cropos-layer{transition:none!important}}
-@media print{body .rail,body .topline,body .cropos-sidebar,body .cropos-map-column{display:none!important}.cropos-application{display:block!important;height:auto!important}.cropos-intelligence{display:block!important}}
+body[data-view="panorama"].gp-details-visible #agx-console{display:block!important;overflow:hidden!important;border-radius:10px!important;border:1px solid var(--gp-edge)!important;margin:24px 0!important}
+.cropin-inspired{font-family:var(--gp-font)!important;color:var(--gp-ink)!important}
+.cropin-inspired *{box-sizing:border-box}
+.gp-heading{padding:16px 4px 25px;display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
+.gp-overline{display:flex;align-items:center;gap:8px;font:600 9px var(--gp-mono);color:#709579;letter-spacing:.03em;flex-wrap:wrap}
+.gp-led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#65a76f;box-shadow:0 0 0 3px #65a76f21;flex:none}
+.gp-slash{color:#b7cdbd}
+body[data-view="panorama"] .gp-heading h1{margin:10px 0 8px!important;font:700 clamp(34px,3.8vw,54px)/1.06 var(--gp-font)!important;letter-spacing:-.067em!important;color:#183f2a!important}
+body[data-view="panorama"] .gp-heading h1 span{font-weight:400!important;color:#87a28d!important}
+.gp-heading h1 i{font-style:normal;color:#5e9d67}
+.gp-heading p{color:#7d9382;font-size:12px;line-height:1.6;margin:0;max-width:660px}
+.gp-heading-right{display:flex;align-items:flex-end;justify-content:flex-end;gap:19px;flex-wrap:wrap}
+.gp-heading-right>div{display:flex;flex-direction:column;gap:7px}
+.gp-heading-right>div>span{color:#94a896;font:500 9px var(--gp-mono)}
+.gp-heading-right>div>strong{font:600 11px var(--gp-font);color:#446c4d}
+.gp-status{display:inline-flex;align-items:center;gap:8px;border:1px solid #d7e8d8;background:#eef7ed;color:#398354;padding:9px 12px;border-radius:5px;font:600 9px var(--gp-mono);white-space:nowrap}
+.gp-workspace{display:grid;grid-template-columns:238px minmax(320px,1fr) 313px;height:735px;min-height:735px;border:1px solid #e0e9df;background:#fff;border-radius:10px;box-shadow:0 12px 40px #24462c0d;overflow:hidden}
+.gp-controls,.gp-insights{display:flex;flex-direction:column;min-width:0;background:#fff;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#d4e1d4 transparent}
+.gp-controls{border-right:1px solid var(--gp-edge)}
+.gp-panel-title{padding:23px 21px 17px;border-bottom:1px solid #edf2ec}
+.gp-kicker{display:flex;justify-content:space-between;color:#83a08a;font:600 9px var(--gp-mono)}
+.gp-kicker b{font-weight:500;color:#a7b6aa}
+body[data-view="panorama"] .gp-panel-title h2{font:700 21px/1.2 var(--gp-font)!important;letter-spacing:-.045em!important;color:#284b34!important;margin:13px 0 6px!important}
+.gp-panel-title p{margin:0;color:#95a598;font-size:11px;line-height:1.55}
+.gp-control-fields{padding:19px 20px;display:flex;flex-direction:column;gap:15px}
+.gp-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.gp-field>span{font:600 9px var(--gp-mono);color:#66846f}
+.gp-field small{font-size:9px;color:#99af9c}
+.gp-field select,.gp-field input{background:#f9fbf8;border:1px solid #dce8dc;border-radius:5px;color:#2a573a;width:100%;padding:10px 11px;min-height:40px;font:600 12px var(--gp-font);outline:none;box-shadow:none}
+.gp-field select:focus-visible,.gp-field input:focus-visible{outline:2px solid #72ab86;outline-offset:2px}
+.gp-control-section{padding:18px 20px;border-top:1px solid #edf2ed}
+.gp-subhead{display:flex;justify-content:space-between;gap:5px;color:#5c7963;font:600 9px var(--gp-mono)}
+.gp-subhead span{font-size:8px;color:#a2b4a5}
+.gp-layer-tabs{display:flex;background:#f2f6f1;border:1px solid #e4ece2;border-radius:5px;padding:3px;gap:2px;margin:14px 0 9px}
+.gp-layer-tabs button{background:transparent!important;border:0!important;box-shadow:none!important;color:#93a596!important;border-radius:4px!important;padding:8px 6px!important;font:600 9px var(--gp-font)!important;flex:1}
+.gp-layer-tabs button.active{background:#fff!important;color:#2b7446!important;box-shadow:0 1px 3px #1e4f1d0e!important}
+.gp-control-help{color:#a1b0a2;font-size:10px;line-height:1.65}
+.gp-source-card{margin:auto 18px 18px;background:#eff7ec;border:1px solid #dbead7;border-radius:6px;padding:16px 14px}
+.gp-source-card>span{font:600 8px var(--gp-mono);color:#5c9167;display:flex;align-items:center;gap:7px}
+.gp-source-card strong{display:block;color:#31583b;font-size:15px;font-weight:700;letter-spacing:-.03em;margin:12px 0 8px}
+.gp-source-card p{color:#89a18a;font-size:10px;line-height:1.65;margin:0}
+.gp-map-panel{position:relative;background:#e9efe8;overflow:hidden;min-width:0}
+.gp-map{position:absolute;inset:0 0 107px;z-index:1;background:#e9eee8}
+.gp-map-top{position:absolute;z-index:15;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.gp-map-title{background:#fffffff4;border:1px solid #dce5dc;border-radius:6px;box-shadow:0 6px 16px #2c52341b;backdrop-filter:blur(10px);padding:11px 13px;display:flex;flex-direction:column;gap:6px;max-width:calc(100% - 106px)}
+.gp-map-title span{color:#7a9980;font:600 8px var(--gp-mono)}
+.gp-map-title strong{color:#28583c;font:700 12px var(--gp-font);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.gp-map-top>button{pointer-events:auto;border:1px solid #e0e9e0!important;background:#fffffff0!important;color:#3e7751!important;border-radius:5px!important;padding:10px 12px!important;font:600 11px var(--gp-font)!important;box-shadow:0 5px 20px #28482d20!important}
+.gp-map-top>button[aria-pressed="true"]{background:#225037!important;color:#fff!important}
+.gp-map-top>button span{margin-right:5px;font-size:14px}
+.gp-map-legend{position:absolute;z-index:15;bottom:127px;left:18px;width:215px;background:#fffffff0;border:1px solid #dfe8de;border-radius:6px;box-shadow:0 6px 20px #26473515;backdrop-filter:blur(8px);padding:12px 13px}
+.gp-legend-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#54755d;font:600 9px var(--gp-mono)}
+.gp-legend-heading strong{font:600 9px var(--gp-mono)}
+.gp-ramp{background:linear-gradient(90deg,#e0ece0,#b8d9c0,#83b997,#438f65,#145437);height:7px;border-radius:2px;margin:13px 0 7px}
+.gp-ramp-scale{display:flex;justify-content:space-between;font:500 9px var(--gp-mono);color:#769580}
+.gp-map-legend small{display:block;margin-top:11px;font:400 9px/1.45 var(--gp-font);color:#9bac9d}
+.gp-map-error{position:absolute;z-index:18;top:38%;left:50%;transform:translate(-50%,-50%);border:1px solid #e1e8df;border-radius:6px;background:#fff;padding:16px;max-width:300px;text-align:center;color:#62816b;font-size:11px}
+.gp-map-error[hidden]{display:none!important}
+.gp-timebar{position:absolute;left:0;right:0;bottom:0;height:107px;z-index:20;background:#fff;border-top:1px solid #e1e9e0;padding:18px 23px}
+.gp-time-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:11px}
+.gp-time-head>span{color:#719177;font:600 9px var(--gp-mono)}
+.gp-time-head small{margin-left:10px;color:#a0b4a4;font-size:8px}
+.gp-time-head strong{font:700 22px/1 var(--gp-font);letter-spacing:-.055em;color:#37684b}
+.gp-timebar input{display:block;appearance:none;width:100%;height:14px;margin:0;background:none;cursor:ew-resize}
+.gp-timebar input::-webkit-slider-runnable-track{height:3px;background:linear-gradient(90deg,#4f9366,#b7dab3);border-radius:4px}
+.gp-timebar input::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;border:3px solid #398157;background:#fff;margin-top:-5px}
+.gp-timebar input::-moz-range-track{height:3px;background:#91bb91}
+.gp-timebar input::-moz-range-thumb{width:10px;height:10px;background:white;border:3px solid #398157;border-radius:50%}
+.gp-time-ticks{display:flex;justify-content:space-between;color:#a1b4a4;font:400 9px var(--gp-mono);margin-top:6px}
+.gp-insights{border-left:1px solid var(--gp-edge);padding:21px 21px 0}
+.gp-insights-top{display:flex;align-items:center;justify-content:space-between;gap:6px;color:#719477;font:600 9px var(--gp-mono)}
+.gp-live-tag{padding:5px 7px;background:#eaf5e8;border:1px solid #d8e9d6;border-radius:3px;color:#528663;font-size:8px}
+.gp-profile{padding:19px 0 15px;border-bottom:1px solid #e7eee5}
+.gp-profile-place{color:#83a088;font:600 9px var(--gp-mono)}
+body[data-view="panorama"] .gp-profile h2{font:700 26px/1.1 var(--gp-font)!important;letter-spacing:-.055em!important;color:#245539!important;margin:10px 0 5px!important}
+.gp-profile p{margin:0;color:#90a695;font-size:10px}
+.gp-primary{padding:18px 0 17px;border-bottom:1px solid #e7eee5}
+.gp-primary-caption{color:#79997e;font:600 9px var(--gp-mono)}
+.gp-primary-value{display:flex;align-items:baseline;gap:10px;margin:10px 0 8px}
+.gp-primary-value strong{color:#235638;font:700 43px/1.03 var(--gp-font);letter-spacing:-.075em;font-variant-numeric:tabular-nums}
+.gp-primary-value span{color:#8ca38f;font:500 11px var(--gp-mono)}
+.gp-primary-note{color:#638a6e;font-size:10px;line-height:1.5}
+.gp-performance{padding:17px 0 16px;border-bottom:1px solid #e6eee4}
+.gp-performance-top{display:flex;justify-content:space-between;align-items:center;color:#79957e;font:600 9px var(--gp-mono)}
+.gp-performance-top strong{color:#a1b5a3;font-size:9px;font-weight:500}
+.gp-sparkline{height:90px;margin:6px 0 5px;color:#90a991;font-size:11px}
+.gp-sparkline svg{display:block;width:100%;height:90px;overflow:visible}
+.gp-historical-band{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.gp-historical-band>div{display:flex;flex-direction:column;gap:6px}
+.gp-historical-band span{color:#91a992;font:600 8px var(--gp-mono)}
+.gp-historical-band strong{color:#487053;font:700 16px var(--gp-font);letter-spacing:-.03em}
+.gp-goal{padding:17px 0;border-bottom:1px solid #e7eee4}
+.gp-goal-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.gp-goal-head span{color:#79967e;font:600 9px var(--gp-mono)}
+.gp-goal-head strong{font:700 23px var(--gp-font);color:#265b3b;letter-spacing:-.035em}
+.gp-goal p{margin:5px 0 10px;font-size:10px;line-height:1.5;color:#96a99a}
+.gp-goal-track{height:6px;border-radius:3px;background:#edf3eb;overflow:hidden}
+.gp-goal-track span{display:block;height:100%;width:0;background:linear-gradient(90deg,#96c69b,#347e50);border-radius:3px;transition:width .2s ease}
+.gp-scenario{padding:16px 0 19px}
+.gp-scenario-header{display:flex;justify-content:space-between;gap:7px;align-items:center;color:#75987d;font:600 9px var(--gp-mono)}
+.gp-scenario-header small{color:#96a998;font-size:9px}
+.gp-scenario-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:15px 0 11px}
+.gp-scenario-values>div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.gp-scenario-values span{color:#8da591;font:600 8px var(--gp-mono)}
+.gp-scenario-values strong{color:#54755b;font:700 15px var(--gp-font);letter-spacing:-.03em}
+.gp-scenario-values .central strong{color:#24613e;font-size:18px}
+.gp-scenario p{color:#9cad9d;font-size:9px;line-height:1.5;margin:0}
+.gp-insights-foot{margin:auto -21px 0;background:#fcfdfb;border-top:1px solid #e8eee7;padding:12px 21px}
+.gp-insights-foot button{width:100%;border:0!important;background:none!important;box-shadow:none!important;color:#306b44!important;text-align:left!important;display:flex!important;align-items:center!important;justify-content:space-between!important;font:700 11px var(--gp-font)!important;padding:5px 0!important}
+.gp-insights-foot button:hover{text-decoration:underline}
+.gp-comparison{background:#fff;border:1px solid #e0e9df;border-radius:10px;margin-top:18px;overflow:hidden;box-shadow:0 10px 30px #24462c08}
+.gp-comparison-head{display:flex;align-items:end;justify-content:space-between;gap:15px;padding:23px 25px 19px}
+.gp-comparison-head>div>span{font:600 9px var(--gp-mono);color:#7d9982}
+.gp-comparison-head>div>span b{font-weight:400;color:#b5c7b7}
+body[data-view="panorama"] .gp-comparison-head h2{margin:7px 0 0!important;font:700 21px/1.2 var(--gp-font)!important;color:#254c36!important;letter-spacing:-.044em!important}
+.gp-comparison-actions{display:flex;align-items:center;gap:15px}
+.gp-comparison-actions label{color:#8ea392;font:600 9px var(--gp-mono);display:flex;align-items:center;gap:8px}
+.gp-comparison-actions select{border:1px solid #e1eadf;background:#f9fbf8;border-radius:4px;color:#376047;padding:8px 9px;font:600 11px var(--gp-font)}
+.gp-comparison-actions button{border:1px solid #bad7bd!important;border-radius:5px!important;background:#edf7ec!important;color:#3a7a4c!important;font:700 10px var(--gp-font)!important;padding:9px 12px!important}
+.gp-table-wrap{width:100%;overflow:auto}
+.gp-table{width:100%;border-collapse:collapse;font-size:11px}
+.gp-table th{background:#f6faf5;border-bottom:1px solid #e2eae1;border-top:1px solid #e8eee7;text-align:right;color:#78957d;padding:12px 22px;font:600 9px var(--gp-mono);white-space:nowrap}
+.gp-table th:first-child{text-align:left;width:32%}
+.gp-table td{padding:12px 22px;border-bottom:1px solid #eff3ed;text-align:right;font-variant-numeric:tabular-nums;color:#51725a;font-weight:600}
+.gp-table tr[tabindex]{cursor:pointer;transition:background .12s ease}
+.gp-table tr[tabindex]:hover{background:#f5faf5}
+.gp-table tr.is-selected{background:#edf7ec}
+.gp-table tr:focus-visible{outline:2px solid #7db58b;outline-offset:-2px}
+.gp-table td:first-child{text-align:left;color:#315d40;font-weight:700}
+.gp-percent-tag{display:inline-flex;align-items:center;gap:7px;color:#35784b}
+.gp-percent-tag span{width:48px;display:inline-block;height:4px;background:#eef3ec;border-radius:3px;overflow:hidden}
+.gp-percent-tag span i{display:block;height:100%;background:#5da171;border-radius:3px}
+.gp-table-footer{display:flex;justify-content:space-between;gap:15px;padding:12px 25px;background:#fcfdfb;color:#91a394;font:400 9px var(--gp-font)}
+.gp-table-footer>span:first-child{color:#5c8065;font-weight:600}
+.gp-footnote{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 3px;color:#92a494;font:500 9px var(--gp-mono)}
+.gp-footnote>span:first-child{display:flex;align-items:center;gap:7px}.gp-footnote b{font-weight:400}
+@media(max-width:1320px){.gp-workspace{grid-template-columns:220px minmax(310px,1fr) 290px}.gp-control-fields,.gp-control-section{padding-inline:15px}.gp-panel-title{padding-inline:15px}.gp-insights{padding-inline:16px}.gp-insights-foot{margin-inline:-16px;padding-inline:16px}.gp-heading-right>div{display:none}}
+@media(max-width:1000px){.gp-workspace{grid-template-columns:235px minmax(0,1fr);height:auto}.gp-controls{min-height:590px}.gp-map-panel{min-height:590px}.gp-insights{grid-column:1/-1;border-left:0;border-top:1px solid var(--gp-edge);display:grid;grid-template-columns:1fr 1fr;gap:0 25px;padding:20px 24px}.gp-insights-top,.gp-profile,.gp-primary,.gp-goal{grid-column:1}.gp-performance,.gp-scenario{grid-column:2}.gp-performance{grid-row:1/4}.gp-scenario{grid-row:4/7}.gp-insights-foot{grid-column:1/-1;margin:0 -24px -20px;padding:15px 24px}.gp-heading-right{display:none}}
+@media(max-width:700px){body .rail{height:60px!important;min-height:60px!important;padding:0 14px!important}body .rail .brand-symbol{font-size:30px!important}body .rail .brand-word{font-size:12px!important}body .rail .brand-word small{font-size:6px!important}body .rail .navigation{gap:13px!important;overflow-x:auto!important;justify-content:flex-end!important}body .rail .nav-link{font-size:10px!important;height:60px!important;min-height:60px!important}body .rail .lab-nav-link{display:none!important}body .page{padding:0 11px 45px!important}body .topline{padding:9px 0!important}body .topline .breadcrumb{font-size:8px!important}body .top-actions .quick-search{font-size:0!important;min-height:28px!important;padding:4px 9px!important}body .top-actions .quick-search .search-glyph{font-size:16px!important}body .top-actions .quick-search kbd,body .top-actions .status{display:none!important}.gp-heading{padding:14px 2px 20px}.gp-overline{font-size:8px}.gp-heading h1{font-size:34px!important}.gp-heading p{font-size:10px;max-width:330px}.gp-workspace{display:flex;flex-direction:column}.gp-controls{min-height:0}.gp-panel-title{padding:16px 15px 9px;border:0}.gp-panel-title h2,.gp-panel-title p{display:none}.gp-control-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 15px 12px}.gp-field>span{font-size:8px}.gp-field input,.gp-field select{min-height:36px;font-size:10px;padding:7px}.gp-control-section{padding:9px 15px 13px}.gp-layer-tabs{margin:8px 0 5px}.gp-control-help,.gp-source-card{display:none}.gp-map-panel{min-height:500px}.gp-map{bottom:96px}.gp-map-top{top:11px;left:11px;right:11px}.gp-map-title{padding:9px}.gp-map-title span{font-size:7px}.gp-map-title strong{font-size:10px}.gp-map-top>button{font-size:10px!important;padding:9px!important}.gp-map-legend{left:11px;bottom:109px;width:170px;padding:10px}.gp-legend-heading{font-size:8px}.gp-timebar{height:96px;padding:14px 15px}.gp-time-head span{font-size:8px}.gp-time-head small{font-size:8px}.gp-insights{display:block;padding:18px 18px 0}.gp-profile{padding:14px 0}.gp-profile h2{font-size:23px!important}.gp-primary-value strong{font-size:43px}.gp-sparkline{height:108px}.gp-sparkline svg{height:108px}.gp-insights-foot{margin:0 -18px;padding:14px 18px}.gp-comparison{margin-top:12px}.gp-comparison-head{padding:18px 15px;display:block}.gp-comparison-head h2{font-size:19px!important}.gp-comparison-actions{margin-top:14px;justify-content:space-between}.gp-comparison-actions select{font-size:10px;max-width:185px}.gp-table{min-width:680px}.gp-table td,.gp-table th{padding-inline:14px}.gp-table-footer{display:block;padding:12px 15px;line-height:1.65}.gp-table-footer span{display:block}.gp-footnote{display:block;line-height:1.8}.gp-footnote span{display:block}}
+@media(prefers-reduced-motion:reduce){.gp-goal-track span,.gp-table tr{transition:none!important}}
+@media print{body .rail,body .topline,body .gp-controls,body .gp-map-panel{display:none!important}.gp-workspace{display:block!important;height:auto!important}}
 </style>
 </head>
 <body>
@@ -339,95 +247,98 @@ body .section-panel .section-heading h2{color:#31543a}
 
     
 
-<header class="masthead cropos" aria-label="GROWA, estación de inteligencia de cultivos">
-  <div class="cropos-top">
-    <div class="cropos-title">
-      <div class="cropos-overline"><span class="cropos-pulse"></span> WORKSPACE <span class="cropos-slash">/</span> AGRICULTURE <span class="cropos-slash">/</span> SINALOA</div>
-      <h1>Crop Intelligence<span class="cropos-title-dot">.</span></h1>
-      <p>Modelado territorial del rendimiento agrícola a partir de observaciones históricas.</p>
+
+<header class="masthead cropin-inspired" aria-label="GROWA agricultura, análisis de rendimiento">
+  <div class="gp-heading">
+    <div class="gp-heading-left">
+      <div class="gp-overline"><span class="gp-led"></span> GROWA <span class="gp-slash">/</span> INTELIGENCIA DE CULTIVOS <span class="gp-slash">/</span> SINALOA</div>
+      <h1>Crop <span>Intelligence</span><i>.</i></h1>
+      <p>Explora el rendimiento agrícola, compara territorios y evalúa escenarios productivos con datos históricos verificados.</p>
     </div>
-    <div class="cropos-head-details">
-      <div class="cropos-head-data"><span>DATASET</span><strong>DGSIAP 2003–2025</strong></div>
-      <div class="cropos-head-data"><span>ÁMBITO</span><strong>18 municipios</strong></div>
-      <div class="cropos-head-status"><span class="cropos-status-led"></span> Baseline histórico <span class="cropos-status-sub">· no es pronóstico ML</span></div>
+    <div class="gp-heading-right">
+      <span class="gp-status"><span class="gp-led"></span> DATOS CONECTADOS</span>
+      <div><span>FUENTE</span><strong>DGSIAP · 2003—2025</strong></div>
+      <div><span>MODELO</span><strong>Referencia histórica</strong></div>
     </div>
   </div>
-  <div class="cropos-application" id="cropos-application">
-    <aside class="cropos-sidebar" aria-label="Configuración del análisis">
-      <div class="cropos-sidebar-intro"><span class="cropos-micro">01 / CONFIGURACIÓN</span><h2>Explorar producción</h2><p>Selecciona el sistema productivo y su territorio de referencia.</p></div>
-      <div class="cropos-control-group">
-        <label class="cropos-input-label" for="cropos-crop">CULTIVO <span>01</span></label>
-        <div class="cropos-selectbox"><select id="cropos-crop" aria-label="Selecciona el cultivo"><option>Preparando catálogo…</option></select></div>
-        <label class="cropos-input-label" for="cropos-place">TERRITORIO <span>02</span></label>
-        <div class="cropos-selectbox"><select id="cropos-place" aria-label="Selecciona el municipio"><option value="">Todos los municipios</option></select></div>
-        <div class="cropos-layer-head">CAPA DE MAPA <span>03</span></div>
-        <div class="cropos-layer-switch" role="group" aria-label="Indicador cartográfico">
-          <button type="button" class="cropos-layer active" data-model-layer="yield" aria-pressed="true"><span class="cropos-layer-symbol">≋</span> Rendimiento</button>
-          <button type="button" class="cropos-layer" data-model-layer="value" aria-pressed="false"><span class="cropos-layer-symbol">$</span> Valor</button>
-          <button type="button" class="cropos-layer" data-model-layer="area" aria-pressed="false"><span class="cropos-layer-symbol">▨</span> Superficie</button>
+  <div class="gp-workspace" id="gp-workspace">
+    <aside class="gp-controls" aria-label="Filtros de modelado">
+      <div class="gp-panel-title">
+        <span class="gp-kicker">WORKSPACE <b>01</b></span>
+        <h2>Configurar análisis</h2>
+        <p>Selecciona el cultivo y las condiciones que deseas comparar.</p>
+      </div>
+      <div class="gp-control-fields">
+        <label class="gp-field"><span>CULTIVO</span><select id="gp-crop" aria-label="Elegir cultivo"><option>Cargando cultivos…</option></select></label>
+        <label class="gp-field"><span>MUNICIPIO</span><select id="gp-place" aria-label="Seleccionar municipio"><option value="">Todo Sinaloa</option></select></label>
+        <label class="gp-field"><span>SUPERFICIE DE REFERENCIA <small>ha</small></span><input type="number" min=".1" max="1000000" step="1" value="20" id="gp-area" aria-label="Hectáreas para escenarios"/></label>
+        <label class="gp-field"><span>RENDIMIENTO OBJETIVO <small id="gp-target-unit">t/ha</small></span><input type="number" min="0.01" max="1000000" step=".1" value="5" id="gp-target" aria-label="Rendimiento que se desea alcanzar"/></label>
+      </div>
+      <div class="gp-control-section">
+        <div class="gp-subhead">VISUALIZACIÓN <span>MAP LAYERS</span></div>
+        <div class="gp-layer-tabs" aria-label="Variable cartográfica">
+          <button data-gp-layer="hit" type="button" class="active" aria-pressed="true">Cumplimiento</button>
+          <button data-gp-layer="yield" type="button" aria-pressed="false">Rendimiento</button>
+          <button data-gp-layer="area" type="button" aria-pressed="false">Superficie</button>
         </div>
+        <div class="gp-control-help">El cumplimiento es la frecuencia de temporadas observadas que alcanzaron el objetivo; no una probabilidad predictiva.</div>
       </div>
-      <div class="cropos-scope">
-        <div class="cropos-scope-head"><span>UNIVERSO DEL ESTUDIO</span><span>DGSIAP</span></div>
-        <div class="cropos-scope-stat"><strong>23</strong><span>cierres anuales</span></div>
-        <div class="cropos-scope-stat"><strong>113</strong><span>cultivos en catálogo</span></div>
-        <div class="cropos-scope-stat"><strong>18</strong><span>municipios históricos</span></div>
+      <div class="gp-source-card">
+        <span><span class="gp-led"></span> DATOS AUDITADOS</span>
+        <strong>23 años / 18 municipios</strong>
+        <p>Estadística productiva municipal. No representa parcelas, clima en tiempo real ni modelos de IA entrenados.</p>
       </div>
-      <div class="cropos-sidebar-bottom"><span class="cropos-mini-icon">i</span><p>Las geometrías son municipales, no parcelas agrícolas. Los cálculos físicos solo se muestran cuando las unidades son compatibles.</p></div>
     </aside>
-    <section class="cropos-map-column" aria-label="Atlas de productividad">
-      <div class="cropos-map-top">
-        <div class="cropos-map-label"><span class="cropos-map-overline">GEOGRAPHIC MODEL VIEW</span><strong id="cropos-map-context">Maíz grano · Sinaloa</strong></div>
-        <button id="cropos-base-toggle" type="button" class="cropos-basemap" aria-pressed="false"><span aria-hidden="true">◈</span> Satélite</button>
+    <section class="gp-map-panel" aria-label="Mapa interactivo de Sinaloa">
+      <div id="gp-map" class="gp-map" role="application" aria-label="Mapa de municipios, condicionado por cultivo e indicador"></div>
+      <div class="gp-map-top">
+        <div class="gp-map-title"><span>CROP PERFORMANCE / SINALOA</span><strong id="gp-map-crop">Maíz grano</strong></div>
+        <button type="button" id="gp-basemap" aria-pressed="false"><span aria-hidden="true">◈</span> Satélite</button>
       </div>
-      <div id="cropos-map" class="cropos-map" role="application" aria-label="Mapa interactivo de rendimiento por municipio"></div>
-      <div id="cropos-map-unavailable" class="cropos-map-unavailable" hidden>La cartografía no está disponible. Los perfiles estadísticos siguen operativos.</div>
-      <div class="cropos-map-bottom">
-        <div class="cropos-legend">
-          <span>ESCALA / <b id="cropos-legend-unit">Rendimiento</b></span>
-          <div class="cropos-legend-gradient"></div>
-          <div class="cropos-legend-values"><span>Menor</span><strong id="cropos-legend-max">—</strong></div>
-          <small id="cropos-legend-help">Datos registrados en el año seleccionado</small>
-        </div>
-        <div class="cropos-map-note"><span class="cropos-map-point"></span> CAPA MUNICIPAL<br><small>Base cartográfica generalizada</small></div>
-      </div>
-      <div class="cropos-timebar">
-        <div class="cropos-timebar-top"><span>PERIODO DE OBSERVACIÓN <small>2003 — 2025</small></span><strong id="cropos-year-output">2025</strong></div>
-        <input type="range" min="2003" max="2025" step="1" value="2025" id="cropos-year" aria-label="Seleccionar cierre anual">
-        <div class="cropos-timebar-ticks"><span>2003</span><span>2008</span><span>2013</span><span>2018</span><span>2025</span></div>
+      <div class="gp-map-legend"><div class="gp-legend-heading"><span id="gp-legend-title">Cumplimiento histórico</span><strong id="gp-legend-unit">%</strong></div><div class="gp-ramp"></div><div class="gp-ramp-scale"><span>0</span><span id="gp-legend-max">100 %</span></div><small>Gris: sin años suficientes · límites municipales generalizados</small></div>
+      <div id="gp-map-error" class="gp-map-error" hidden>El mapa no está disponible; el análisis histórico sigue funcionando.</div>
+      <div class="gp-timebar">
+        <div class="gp-time-head"><span>CORTE DE LA OBSERVACIÓN <small>2003—2025</small></span><strong id="gp-year-display">2025</strong></div>
+        <input id="gp-year" type="range" min="2003" max="2025" step="1" value="2025" aria-label="Año máximo de comparación"/>
+        <div class="gp-time-ticks"><span>2003</span><span>2008</span><span>2014</span><span>2020</span><span>2025</span></div>
       </div>
     </section>
-    <aside class="cropos-intelligence" aria-label="Perfil de rendimiento agrícola">
-      <div class="cropos-intro-line"><span>02 / YIELD ENGINE</span><span class="cropos-engine-pill">HISTORICAL</span></div>
-      <div class="cropos-model-head">
-        <div class="cropos-model-location" id="cropos-territory-label">SINALOA / MÉXICO</div>
-        <h2 id="cropos-focus-crop">Maíz grano</h2>
-        <span id="cropos-measurement-sub">Rendimiento observado · 2025</span>
+    <aside class="gp-insights" aria-label="Información del cultivo seleccionado">
+      <div class="gp-insights-top"><span>PERFORMANCE INSIGHTS</span><span class="gp-live-tag">HISTORICAL</span></div>
+      <div class="gp-profile">
+        <div class="gp-profile-place" id="gp-profile-place">SINALOA · MÉXICO</div>
+        <h2 id="gp-profile-crop">Maíz grano</h2>
+        <p id="gp-profile-sub">Rendimiento del cierre 2025</p>
       </div>
-      <div class="cropos-hero-metric">
-        <div class="cropos-hero-number"><strong id="cropos-yield-observed">—</strong><span id="cropos-yield-unit">t/ha</span></div>
-        <div class="cropos-benchmark-label" id="cropos-benchmark-label">Comparando con temporadas previas…</div>
+      <div class="gp-primary">
+        <div class="gp-primary-caption">RENDIMIENTO REGISTRADO</div>
+        <div class="gp-primary-value"><strong id="gp-observed">—</strong><span id="gp-observed-unit">t/ha</span></div>
+        <div class="gp-primary-note" id="gp-benchmark">Calculando serie histórica…</div>
       </div>
-      <div class="cropos-model-quantiles">
-        <div class="cropos-quantile-header"><span>REGÍMENES HISTÓRICOS</span><span id="cropos-sample-count">— temporadas</span></div>
-        <div class="cropos-percentile-line" aria-hidden="true"><div class="cropos-percentile-band"></div><span id="cropos-current-tick" class="cropos-percentile-marker"></span></div>
-        <div class="cropos-quantile-row"><div><i class="cropos-qdot qlow"></i><span>BAJO · P25</span><strong id="cropos-q25">—</strong></div><div><i class="cropos-qdot qcentral"></i><span>MEDIANA · P50</span><strong id="cropos-q50">—</strong></div><div><i class="cropos-qdot qhigh"></i><span>ALTO · P75</span><strong id="cropos-q75">—</strong></div></div>
+      <div class="gp-performance">
+        <div class="gp-performance-top"><span>HISTORIAL COMPARABLE</span><strong id="gp-history-count">—</strong></div>
+        <div id="gp-sparkline" class="gp-sparkline" role="img" aria-label="Evolución anual del rendimiento"></div>
+        <div class="gp-historical-band"><div><span>P25</span><strong id="gp-p25">—</strong></div><div><span>MEDIANA</span><strong id="gp-p50">—</strong></div><div><span>P75</span><strong id="gp-p75">—</strong></div></div>
       </div>
-      <div class="cropos-plot-heading"><span>HISTORIAL DEL CULTIVO</span><span id="cropos-plot-period">2003–2025</span></div>
-      <div class="cropos-plot" id="cropos-plot" role="img" aria-label="Serie histórica del rendimiento observado"><p>Preparando datos…</p></div>
-      <div class="cropos-scenario">
-        <div class="cropos-scenario-title"><span>03 / SCENARIO LAB</span><span class="cropos-scenario-chip">WHAT IF</span></div>
-        <div class="cropos-scenario-head"><strong>Sensibilidad productiva</strong><span id="cropos-impact-label">+0 %</span></div>
-        <p>Ajusta el rendimiento histórico mediano y observa el volumen equivalente sobre la superficie cosechada del año elegido.</p>
-        <input type="range" id="cropos-impact" min="-30" max="30" step="5" value="0" aria-label="Variación hipotética del rendimiento">
-        <div class="cropos-impact-ticks"><span>−30 %</span><span>0</span><span>+30 %</span></div>
-        <div class="cropos-scenario-result"><div><span>VOLUMEN DE ESCENARIO</span><strong id="cropos-impact-volume">—</strong></div><div><span>BASE DE CÁLCULO</span><strong id="cropos-impact-reference">Mediana histórica</strong></div></div>
-        <p class="cropos-method-note" id="cropos-scenario-note">Ejercicio determinista, no es predicción meteorológica ni modelo entrenado.</p>
+      <div class="gp-goal">
+        <div class="gp-goal-head"><span>OBJETIVO PRODUCTIVO</span><strong id="gp-hit">—</strong></div>
+        <p id="gp-goal-description">Temporadas observadas con rendimiento igual o superior al objetivo.</p>
+        <div class="gp-goal-track"><span id="gp-goal-fill"></span></div>
       </div>
-      <button id="cropos-open-analysis" class="cropos-analysis-link" type="button">Explorar registros y metodología <span aria-hidden="true">↗</span></button>
+      <div class="gp-scenario">
+        <div class="gp-scenario-header"><span>ESCENARIOS DE VOLUMEN</span><small id="gp-scenario-area">20 ha</small></div>
+        <div class="gp-scenario-values"><div><span>BAJO / P25</span><strong id="gp-scenario-low">—</strong></div><div class="central"><span>CENTRAL / P50</span><strong id="gp-scenario-mid">—</strong></div><div><span>ALTO / P75</span><strong id="gp-scenario-high">—</strong></div></div>
+        <p id="gp-scenario-note">Proyección algebraica sobre rendimientos históricos, no pronóstico ML.</p>
+      </div>
+      <div class="gp-insights-foot"><button id="gp-open-source" type="button">Abrir registros originales <span aria-hidden="true">↗</span></button></div>
     </aside>
   </div>
-  <div class="cropos-underbar"><span><b class="cropos-small-led"></b> FUENTE VERIFICADA <b>·</b> DGSIAP / SIAP</span><span><b id="cropos-coverage">2003–2025</b> <i>·</i> La meteorología NASA POWER y el modelo ML aún no están conectados</span></div>
+  <section class="gp-comparison" aria-label="Comparador de municipios">
+    <div class="gp-comparison-head"><div><span>COMPARACIÓN TERRITORIAL <b>/</b> 18 MUNICIPIOS</span><h2>¿Dónde se ha obtenido mejor rendimiento?</h2></div><div class="gp-comparison-actions"><label>ORDENAR <select id="gp-sort" aria-label="Ordenar municipios"><option value="hit">Cumplimiento del objetivo</option><option value="yield">Rendimiento mediano</option><option value="stable">Menor variabilidad</option></select></label><button id="gp-csv" type="button">↓ Exportar CSV</button></div></div>
+    <div class="gp-table-wrap"><table class="gp-table"><thead><tr><th>Municipio</th><th>Rendimiento mediano</th><th>Frecuencia objetivo</th><th>Variabilidad (IQR)</th><th>Temporadas</th></tr></thead><tbody id="gp-rows"><tr><td colspan="5">Preparando comparación…</td></tr></tbody></table></div>
+    <div class="gp-table-footer"><span id="gp-table-status">Cargando registros…</span><span>Comparabilidad condicionada a unidad física consistente y superficie cosechada positiva.</span></div>
+  </section>
+  <div class="gp-footnote"><span><i class="gp-led"></i> SOURCE / SIAP-DGSIAP <b>·</b> 2003–2025</span><span>La plataforma todavía no tiene modelos climáticos NASA POWER entrenados ni predicciones operativas.</span></div>
 </header>
 <section class="institutional-access" aria-label="Rutas principales de exploración">
   <div class="institutional-access-lead"><span class="institutional-access-label">EXPLORAR EL OBSERVATORIO</span><h2>Una plataforma. Múltiples perspectivas.</h2><p>Acceda directamente a las herramientas de información y análisis.</p></div>
