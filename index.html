@@ -265,6 +265,10 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
     <div id="eo-climate-hud" class="eo-climate-hud" data-status="loading" aria-label="Monitoreo climático NASA POWER" aria-live="polite">
       <div class="eoc-head"><span class="eoc-kicker">NASA POWER / CLIMATE MONITOR</span><span id="eoc-status" class="eoc-state">CONSULTANDO</span></div>
       <div class="eoc-title"><div><strong id="eoc-location">Culiacán</strong><small id="eoc-coordinate">Punto de referencia municipal</small></div><span id="eoc-year" class="eoc-year">2025</span></div>
+      <div class="eoc-variablebar"><label for="eo-climate-variable">CAPA CLIMÁTICA <select id="eo-climate-variable" aria-label="Variable climática cartográfica">
+        <option value="PRECIP_MM">Precipitación anual</option><option value="TMEAN">Temperatura media</option><option value="ET0_MM">Evapotranspiración de referencia</option>
+        <option value="VPD_MEAN">Déficit de presión de vapor</option><option value="RH_MEAN">Humedad relativa</option><option value="WATER_BALANCE_MM">Balance hídrico P − ET0</option>
+      </select></label><span>NASA POWER · 2025 AUDITADO</span></div>
       <div class="eoc-grid">
         <div class="eoc-cell"><span>TEMPERATURA MEDIA</span><strong><span id="eoc-temp">—</span>°</strong><small>°C · media anual</small></div>
         <div class="eoc-cell"><span>PRECIPITACIÓN</span><strong id="eoc-rain">—</strong><small>mm · acumulado anual</small></div>
@@ -292,6 +296,10 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
           <div class="eo-climate-panel-stat"><span>PRECIPITACIÓN</span><strong><span id="eo-climate-precip">—</span> mm</strong><small>Acumulado anual</small></div>
           <div class="eo-climate-panel-stat"><span>T MÍN / MÁX</span><strong><span id="eo-climate-tmin">—</span> / <span id="eo-climate-tmax">—</span></strong><small>°C · medias de extremos diarios</small></div>
           <div class="eo-climate-panel-stat"><span>VIENTO / HUMEDAD</span><strong><span id="eo-climate-wind">—</span> m/s</strong><small><span id="eo-climate-rh">—</span> % humedad relativa</small></div>
+        </div>
+        <div class="eo-climate-panel-grid eo-extra-climate">
+          <div class="eo-climate-panel-stat"><span>ET0 REFERENCIA</span><strong><span id="eo-climate-et0">—</span> mm</strong><small>Estimación del paquete climático</small></div>
+          <div class="eo-climate-panel-stat"><span>DÉFICIT DE VAPOR</span><strong><span id="eo-climate-vpd">—</span> kPa</strong><small>VPD medio anual</small></div>
         </div>
         <div id="eo-climate-mini" class="eo-climate-mini" aria-label="Lluvia acumulada mensual"></div>
         <p id="eo-climate-panel-note" class="eo-climate-panel-note">Reanálisis NASA POWER a nivel de rejilla, no estación ni parcela.</p>
