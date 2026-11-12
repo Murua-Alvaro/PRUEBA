@@ -57,9 +57,12 @@ const MAP_VARIABLES={
 };
 let mapVariable="PRECIP_MM";
 function mapValue(year,name){
- if(Number(year)!==2025)return null;
- const entry=municipal2025.get(name);
- return entry?entry.values[mapVariable]:null;
+ if(Number(year)===2025){const entry=municipal2025.get(name);return entry?entry.values[mapVariable]:null}
+ if(Number(year)===context.year&&name===context.city&&currentData&&!currentData.compiled&&status==="success"){
+  const dict={PRECIP_MM:"PRECTOTCORR",TMEAN:"T2M",RH_MEAN:"RH2M"};
+  const k=dict[mapVariable];return k&&Number.isFinite(currentData.yearly[k])?currentData.yearly[k]:null;
+ }
+ return null;
 }
 function mapUnit(){return MAP_VARIABLES[mapVariable].unit}
 function mapLabel(){return MAP_VARIABLES[mapVariable].label}
@@ -161,6 +164,7 @@ function statusView(label){
  cell("eoc-humidity",fmt(use&&use.RH2M));cell("eoc-radiation",fmt(use&&use.ALLSKY_SFC_SW_DWN));
  cell("eo-climate-tmin",fmt(use&&use.T2M_MIN));cell("eo-climate-tmax",fmt(use&&use.T2M_MAX));
  cell("eo-climate-wind",fmt(use&&use.WS2M));cell("eo-climate-rh",fmt(use&&use.RH2M));
+ cell("eo-climate-et0",fmt(use&&use.ET0_MM));cell("eo-climate-vpd",fmt(use&&use.VPD_MEAN));
  cell("eo-climate-precip",fmtInt(use&&use.PRECTOTCORR));
  cell("eo-climate-temp",fmt(use&&use.T2M));
  let note="";
@@ -232,9 +236,11 @@ function request(point,year,force){
    dataReady(record);
   }catch(err){
    if(token!==sequence)return;
-   status="error";currentData=null;
-   statusView(context.label);
-   cell("eoc-note","Consulta NASA POWER no disponible: "+(err&&err.message?err.message:"error de conexión"));
+   const fallback=compiled2025(point,year);
+   if(fallback){status="success";currentData=fallback;statusView(context.label);
+    cell("eoc-note","API diaria no disponible; se conservan los indicadores auditados 2025. "+(err?.message||""))}
+   else{status="error";currentData=null;statusView(context.label);
+    cell("eoc-note","Consulta NASA POWER no disponible: "+(err&&err.message?err.message:"error de conexión"))}
   }finally{clearTimeout(timeout)}
  },force?0:320);
 }
@@ -302,6 +308,10 @@ function hoverChart(event){
  target.innerHTML='<strong>'+MONTHS[month]+' '+context.year+'</strong><div style="color:#5cf2bd">Precipitación: '+fmt(m.PRECTOTCORR)+' mm</div><div style="color:#a9c4ff">T media: '+fmt(m.T2M)+' °C</div>';
  target.hidden=false;
 }
+function ensureDaily(){
+ if(!context.point||status==="loading")return;
+ if(currentData?.compiled || !Array.isArray(currentData?.monthly))request(context.point,context.year,true);
+}
 function exportCSV(){
  if(!currentData||status!=="success")return;
  const labels=["mes","T2M_C","T2M_MAX_C","T2M_MIN_C","PRECTOTCORR_mm","RH2M_pct","WS2M_m_s","ALLSKY_SFC_SW_DWN_MJ_m2_dia"];
@@ -314,10 +324,16 @@ function exportCSV(){
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function onReady(){
- const retry=$("eoc-retry");if(retry)retry.addEventListener("click",()=>{
-  if(context.point)request(context.point,context.year,true);
- });
- window.GrowaClimate={sync,selectPoint,attachLeaflet,attachMap,renderChart,hoverChart,exportCSV,
+ const retry=$("eoc-retry");if(retry)retry.addEventListener("click",()=>{if(context.point)request(context.point,context.year,true)});
+ const layerSelect=$("eo-climate-variable");
+ if(layerSelect){layerSelect.value=mapVariable;layerSelect.addEventListener("change",()=>{
+   if(!MAP_VARIABLES[layerSelect.value])return;
+   mapVariable=layerSelect.value;
+   const climateButton=document.querySelector('[data-eo-layer="climate"]');
+   if(climateButton&&!climateButton.classList.contains("active"))climateButton.click();
+   window.GrowaEOMap?.refreshClimate?.();
+ })}
+ window.GrowaClimate={sync,selectPoint,attachLeaflet,attachMap,renderChart,hoverChart,exportCSV,ensureDaily,
   getStatus:()=>status,getData:()=>currentData,buildUrl,parseResponse,mapValue,mapUnit,mapLabel};
  const city=$("eo-city")?.value||"",year=Number($("eo-year")?.value)||2025;
  const existingLeaflet=window.GrowaEOMap?.getLeaflet?.();if(existingLeaflet)attachLeaflet(existingLeaflet);
