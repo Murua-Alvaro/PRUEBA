@@ -746,9 +746,9 @@ function snap(year,place){
  const result={year,place,have,harvest,area,value,volume,yield:good?volume/harvest:null};
  dataCache.set(k,result);return result;
 }
-function metricValue(snapshot,metric){return metric==="climate"?null:metric==="yield"?snapshot.yield:metric==="value"?snapshot.value:snapshot.harvest}
-function metricUnit(metric){return metric==="climate"?"NASA POWER":metric==="yield"?(physicalUnit?physicalUnit+"/ha":"unidad/ha"):metric==="value"?"MDP":"ha"}
-function metricLabel(metric){return metric==="climate"?"Clima puntual":metric==="yield"?"Rendimiento":metric==="value"?"Valor de producción":"Superficie cosechada"}
+function metricValue(snapshot,metric){return metric==="climate"?(window.GrowaClimate?.mapValue?.(snapshot.year,snapshot.place)??null):metric==="yield"?snapshot.yield:metric==="value"?snapshot.value:snapshot.harvest}
+function metricUnit(metric){return metric==="climate"?(window.GrowaClimate?.mapUnit?.()||"NASA POWER"):metric==="yield"?(physicalUnit?physicalUnit+"/ha":"unidad/ha"):metric==="value"?"MDP":"ha"}
+function metricLabel(metric){return metric==="climate"?(window.GrowaClimate?.mapLabel?.()||"Clima puntual"):metric==="yield"?"Rendimiento":metric==="value"?"Valor de producción":"Superficie cosechada"}
 function metricColor(v,max){
  if(v===null||!Number.isFinite(v))return "#7c8e84";
  const t=Math.sqrt(Math.max(0,v)/Math.max(1,max));
@@ -758,11 +758,13 @@ function geoData(){
  const geo=rootGeom();if(!geo)return null;
  const values=cities.map(city=>metricValue(snap(S.year,city),S.layer));
  const valid=values.filter(v=>v!==null&&Number.isFinite(v));
+ const min=valid.length?Math.min(...valid):0;
  const max=Math.max(1,...valid);
- text("eo-scale-max",S.layer==="climate"?"PUNTO":fmtShort(max)+" "+metricUnit(S.layer));text("eo-layer-unit",metricUnit(S.layer));
+ const span=S.layer==="climate"?Math.max(1,max-min):max;
+ text("eo-scale-max",S.layer==="climate"?(valid.length?fmtShort(max)+" "+metricUnit(S.layer):"Sin datos cartográficos"):fmtShort(max)+" "+metricUnit(S.layer));text("eo-layer-unit",metricUnit(S.layer));
  return {type:"FeatureCollection",features:geo.features.map(f=>{
   const name=String(f.properties?.name||""),v=metricValue(snap(S.year,name),S.layer);
-  return {type:"Feature",geometry:f.geometry,properties:{name,value:v===null?-1:v,valid:v!==null&&Number.isFinite(v),fill:metricColor(v,max)}};
+  return {type:"Feature",geometry:f.geometry,properties:{name,value:v===null?-1:v,valid:v!==null&&Number.isFinite(v),fill:metricColor(S.layer==="climate"&&v!==null?v-min:v,span)}};
  })};
 }
 function referencePlace(){return S.compare||(!S.city?"Culiacán":"")}
@@ -780,7 +782,7 @@ function renderSummary(){
  text("eo-visible-layer",metricLabel(S.layer).toUpperCase());
 }
 function renderRanking(){
- const rankMetric=S.layer==="climate"?"yield":S.layer;
+ const rankMetric=S.layer;
  const values=cities.map(name=>({name,value:metricValue(snap(S.year,name),rankMetric)})).filter(x=>x.value!==null&&Number.isFinite(x.value)).sort((a,b)=>b.value-a.value);
  const max=Math.max(1,...values.map(x=>x.value));
  $("eo-municipality-ranking").innerHTML=values.length?values.map(x=>
@@ -791,10 +793,10 @@ function updateMap(){
  if(mode==="maplibre"&&loaded&&map){
   const src=map.getSource("eo-municipal");if(src)src.setData(fc);
   if(map.getLayer("eo-selected"))map.setFilter("eo-selected",["==",["get","name"],S.city||"\u0000"]);
-  if(map.getLayer("eo-fill"))map.setPaintProperty("eo-fill","fill-opacity",S.layer==="climate"?.07:(S.satellite?S.opacity:Math.min(.93,S.opacity+.32)));
+  if(map.getLayer("eo-fill"))map.setPaintProperty("eo-fill","fill-opacity",S.layer==="climate"?(S.satellite?.57:.74):(S.satellite?S.opacity:Math.min(.93,S.opacity+.32)));
  }else if(mode==="leaflet"&&leaflet){
   if(leafGeo){leaflet.removeLayer(leafGeo);leafGeo=null}
-  leafGeo=window.L.geoJSON(fc,{style:f=>({fillColor:f.properties.fill,color:S.city===f.properties.name?"#c0fada":"#e2fbe7",weight:S.city===f.properties.name?3:1,fillOpacity:S.layer==="climate"?.07:(S.satellite?S.opacity:Math.min(.93,S.opacity+.32))}),onEachFeature:(f,l)=>{
+  leafGeo=window.L.geoJSON(fc,{style:f=>({fillColor:f.properties.fill,color:S.city===f.properties.name?"#c0fada":"#e2fbe7",weight:S.city===f.properties.name?3:1,fillOpacity:S.layer==="climate"?(S.satellite?.57:.74):(S.satellite?S.opacity:Math.min(.93,S.opacity+.32))}),onEachFeature:(f,l)=>{
    l.on("click",()=>selectCity(f.properties.name));
    l.bindTooltip(f.properties.name+": "+(f.properties.valid?fmt(f.properties.value)+" "+metricUnit(S.layer):"Sin registro"),{direction:"top"});
   }}).addTo(leaflet);
@@ -936,7 +938,7 @@ function initLeaflet(){
   });
   leafSatellite.addTo(leaflet);
   mode="leaflet";updateMap();leafletImport();fitCity("");
-  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getState:()=>S};
+  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getState:()=>S,refreshClimate:()=>{renderRanking();updateMap();if(S.chart==="climate")drawChart()}};
   window.GrowaClimate?.attachLeaflet?.(leaflet);
   setTimeout(()=>leaflet?.invalidateSize({animate:false}),230);
   window.addEventListener("resize",()=>leaflet?.invalidateSize({animate:false}),{passive:true});
