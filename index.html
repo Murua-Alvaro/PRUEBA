@@ -969,7 +969,7 @@ function boot(){
  place.addEventListener("change",()=>choosePlace(place.value));
  area.addEventListener("input",()=>{
   const n=Number(area.value);S.area=Number.isFinite(n)&&n>0&&n<=1000000?n:0;
-  renderInsights();
+  if(D)renderInsights();
  });
  area.addEventListener("change",()=>{area.value=String(S.area||20);S.area=Number(area.value);renderInsights()});
  target.addEventListener("input",()=>{
