@@ -814,175 +814,246 @@ body .section-panel .section-heading h2{color:#31543a}
 (()=>{const root=document.getElementById('panel-agua'),frame=document.getElementById('water-platform-frame');if(!root||!frame)return;function open(){if(root.hidden||frame.dataset.loaded)return;frame.dataset.loaded='true';const q=new URLSearchParams(location.search).get('water')||'';frame.src='agua/?embedded=1'+(q?'&'+q:'');}new MutationObserver(open).observe(root,{attributes:true,attributeFilter:['hidden']});document.addEventListener('DOMContentLoaded',open);document.querySelector('.navigation')?.addEventListener('click',e=>{if(e.target.closest('[data-tab]'))requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}))});window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=='growa-water-height')return;const h=Number(e.data.height);if(Number.isFinite(h))frame.style.height=Math.max(900,Math.min(6000,h))+'px'});open();})();
 </script>
 
-<script id="studio-controller-v3">
+<script id="cropos-controller-v4">
 (function(){
 "use strict";
-// MapLibre GL JS / OpenFreeMap, open-source geospatial canvas. Production series are from existing DGSIAP bundle only.
-var S={year:2025,crop:"",metric:"value",municipio:"",satellite:false}, D=null, map=null, leaflet=null, leafletGeo=null, mapReady=false, mapMode="";
-var names=["Ahome","El Fuerte","Choix","Guasave","Sinaloa","Angostura","Salvador Alvarado","Mocorito","Badiraguato","Culiacán","Navolato","Cosalá","Elota","San Ignacio","Mazatlán","Concordia","Rosario","Escuinapa"];
-var $=function(id){return document.getElementById(id)};
-var money=new Intl.NumberFormat("es-MX",{maximumFractionDigits:1});
-var compact=new Intl.NumberFormat("es-MX",{notation:"compact",maximumFractionDigits:1});
-var normalize=function(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()};
-var esc=function(s){return String(s||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
-var sum=function(a,key){return a.reduce(function(t,r){return t+(Number(r[key])||0)},0)};
-var metricVal=function(r){return Number(r[S.metric==="planted"?(S.crop?"planted":"area"):S.metric])||0};
-var metricUnit=function(){return S.metric==="value"?"MDP":"ha"};
-var geo=function(){var g=window.GrowaMunicipalGeometry;return g&&Array.isArray(g.features)?g:null};
-var rows=function(year){if(!D)return [];return (S.crop?D.crops:D.municipalities).filter(function(r){return r.year===year&&(!S.crop||normalize(r.name)===normalize(S.crop))})};
-var fromPlace=function(r){return S.crop?r.municipio:r.name};
-var curRows=function(year){var a=rows(year);return S.municipio?a.filter(function(r){return normalize(fromPlace(r))===normalize(S.municipio)}):a};
-var measure=function(year){var a=curRows(year);return a.length?sum(a,S.metric==="planted"?(S.crop?"planted":"area"):S.metric):null};
-var fmt=function(v){return v===null||!isFinite(v)?"—":money.format(v)};
-var pretty=function(v){return v===null||!isFinite(v)?"—":Math.abs(v)>=1000?compact.format(v):money.format(v)};
-function valueByMuni(year){var m=new Map();rows(year).forEach(function(r){var n=normalize(fromPlace(r));m.set(n,(m.get(n)||0)+metricVal(r))});return m}
-function writeText(id,text){var el=$(id);if(el)el.textContent=text}
-function renderList(){
- var totals=valueByMuni(S.year);
- var currentMax=Math.max(1,...Array.from(totals.values()));
- var list=[{name:"Todo Sinaloa",key:"",val:measureAcross(totals)}].concat(names.map(function(name){return {name:name,key:name,val:totals.has(normalize(name))?totals.get(normalize(name)):null}}).sort(function(a,b){return (b.val||0)-(a.val||0)}));
- $("studio-municipal-list").innerHTML=list.map(function(p){return '<button type="button" class="studio-place-row'+(S.municipio===p.key?' is-selected':'')+'" data-place="'+esc(p.key)+'" aria-pressed="'+(S.municipio===p.key?'true':'false')+'"><span class="studio-place-name">'+esc(p.name)+'</span><span class="studio-place-value">'+(p.val===null?"s/r":pretty(p.val))+'</span>'+(p.key?'<span class="studio-place-track"><i style="width:'+Math.min(100,(p.val||0)/currentMax*100).toFixed(2)+'%"></i></span>':'')+'</button>'}).join("");
+/*
+GROWA Crop Intelligence / historical productivity baseline.
+All displayed production statistics derive from pre-existing DGSIAP bundle.
+NO live NASA POWER / satellite vegetation indices / trained forecasting model is implied.
+Maps: MapLibre GL JS, municipal geometry from existing GIS module.
+*/
+const $=id=>document.getElementById(id);
+const S={crop:"Maíz grano",place:"",year:2025,layer:"yield",impact:0,satellite:false};
+const MUNICIPIOS=["Ahome","El Fuerte","Choix","Guasave","Sinaloa","Angostura","Salvador Alvarado","Mocorito","Badiraguato","Culiacán","Navolato","Cosalá","Elota","San Ignacio","Mazatlán","Concordia","Rosario","Escuinapa"];
+const numFmt=new Intl.NumberFormat("es-MX",{maximumFractionDigits:1});
+const valueFmt=new Intl.NumberFormat("es-MX",{maximumFractionDigits:2});
+const compactFmt=new Intl.NumberFormat("es-MX",{notation:"compact",maximumFractionDigits:2});
+const norm=s=>String(s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sum=(arr,key)=>arr.reduce((total,r)=>total+(Number(r[key])||0),0);
+const pretty=v=>v===null||!Number.isFinite(v)?"—":numFmt.format(v);
+const precise=v=>v===null||!Number.isFinite(v)?"—":valueFmt.format(v);
+const short=v=>v===null||!Number.isFinite(v)?"—":Math.abs(v)>=10000?compactFmt.format(v):numFmt.format(v);
+const unitName=u=>{const x=norm(u);return (x==="tonelada"||x==="toneladas"||x==="t")?"Tonelada":String(u||"")};
+let D=null,map=null,leaflet=null,leafletLayer=null,mapLoaded=false,popup=null,mode="none";
+const cache=new Map();
+const geometry=()=>window.GrowaMunicipalGeometry && Array.isArray(window.GrowaMunicipalGeometry.features)?window.GrowaMunicipalGeometry:null;
+const historicalYears=()=>Array.from({length:23},(_,i)=>2003+i);
+function cropRows(year,place){
+ if(!D)return [];
+ const key=year+"|"+norm(S.crop)+"|"+norm(place||"");
+ if(cache.has(key))return cache.get(key);
+ const result=D.crops.filter(r=>r.year===year && norm(r.name)===norm(S.crop) && (!place||norm(r.municipio)===norm(place)));
+ cache.set(key,result);return result;
 }
-function measureAcross(m){return Array.from(m.values()).reduce(function(a,b){return a+b},0)}
-function renderSeries(){
- var years=Array.from({length:23},function(_,i){return 2003+i});
- var values=years.map(measure);
- var valid=values.filter(function(v){return v!==null});
- writeText("studio-series-count",valid.length+" / 23 años");
- var host=$("studio-trend-chart");
- if(!valid.length){host.innerHTML='<span class="studio-loading">Sin serie disponible para este corte.</span>';return}
- var max=Math.max(...valid,1), min=Math.min(...valid,0), w=420,h=128,pad=8,top=10,bottom=105;
- var y=function(v){return bottom-(v-min)/(max-min||1)*(bottom-top)};
- var x=function(i){return pad+i*(w-2*pad)/22};
- var chunks=[],cur=[];
- values.forEach(function(v,i){if(v===null){if(cur.length)chunks.push(cur);cur=[]}else cur.push([x(i),y(v)])});if(cur.length)chunks.push(cur);
- var paths=chunks.map(function(c){return "M"+c.map(function(p){return p.map(function(v){return v.toFixed(1)}).join(",")}).join("L")}).join(" ");
- var selectedIdx=S.year-2003, current=values[selectedIdx],dot=current!==null?'<circle cx="'+x(selectedIdx)+'" cy="'+y(current)+'" r="5" fill="#2c6848" stroke="#fff" stroke-width="3"/>':"";
- var area=chunks.map(function(c){return "M"+c[0][0].toFixed(1)+","+bottom+" L"+c.map(function(p){return p.map(function(v){return v.toFixed(1)}).join(",")}).join(" L")+" L"+c[c.length-1][0].toFixed(1)+","+bottom+" Z"}).join(" ");
- host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-label="Serie histórica 2003 a 2025">'
-  +'<defs><linearGradient id="studio-chart-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#74a47a" stop-opacity=".26"/><stop offset="1" stop-color="#74a47a" stop-opacity="0"/></linearGradient></defs>'
-  +'<line x1="'+pad+'" y1="'+bottom+'" x2="'+(w-pad)+'" y2="'+bottom+'" stroke="#e6ece5" stroke-width="1"/>'
-  +'<path d="'+area+'" fill="url(#studio-chart-fade)"/>'
-  +'<path d="'+paths+'" fill="none" stroke="#3b7751" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'
-  +'<line x1="'+x(selectedIdx)+'" y1="'+top+'" x2="'+x(selectedIdx)+'" y2="'+bottom+'" stroke="#a6c3a6" stroke-dasharray="3 4" stroke-width="1.3"/>'+dot
-  +'<text x="'+pad+'" y="124" font-size="11" fill="#9aab9e">2003</text><text x="'+(w-pad)+'" y="124" text-anchor="end" font-size="11" fill="#9aab9e">2025</text></svg>';
+function snapshot(year,place){
+ const r=cropRows(year,place);
+ if(!r.length)return {valid:false,count:0,area:null,volume:null,value:null,yield:null,unit:null};
+ const area=sum(r,"harvest"),value=sum(r,"value"),volume=sum(r,"volume"),planted=sum(r,"planted");
+ const physicalUnits=[...new Set(r.map(x=>unitName(x.unit)).filter(Boolean))];
+ // Refuse to calculate physical yield across mixed or unknown unit systems.
+ const physical=physicalUnits.length===1&&r.every(x=>unitName(x.unit)&&Number.isFinite(x.harvest)&&Number.isFinite(x.volume)&&x.harvest>=0&&x.volume>=0)&&area>0;
+ return {valid:true,count:r.length,area,volume:physical?volume:null,value,planted,yield:physical?volume/area:null,unit:physical?physicalUnits[0]:null};
 }
-function renderCrops(){
- if(!D)return;
- var by=new Map();
- D.crops.filter(function(r){return r.year===S.year&&(!S.municipio||normalize(r.municipio)===normalize(S.municipio))&&(!S.crop||normalize(r.name)===normalize(S.crop))}).forEach(function(r){by.set(r.name,(by.get(r.name)||0)+(Number(r.value)||0))});
- var sorted=Array.from(by).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
- var total=Array.from(by.values()).reduce(function(a,b){return a+b},0);
- $("studio-crop-ranking").innerHTML=sorted.length?sorted.map(function(r){return '<div class="studio-crop-item"><span class="studio-crop-name" title="'+esc(r[0])+'">'+esc(r[0])+'</span><span class="studio-crop-number">'+(total>0?(r[1]/total*100).toFixed(1)+" %":"—")+'</span><span class="studio-crop-bar"><i style="width:'+Math.min(100,total>0?r[1]/total*100:0).toFixed(1)+'%"></i></span></div>'}).join(""):'<p class="studio-loading">Sin registros de cultivos en esta selección.</p>';
+function quantile(sorted,p){
+ if(!sorted.length)return null;
+ const index=(sorted.length-1)*p,low=Math.floor(index),high=Math.ceil(index),part=index-low;
+ return sorted[low]*(1-part)+sorted[high]*part;
 }
-function renderFocus(){
- if(!D)return;
- var current=measure(S.year),prior=measure(S.year-1),base=curRows(S.year);
- writeText("studio-focus-name",S.municipio||"Sinaloa");
- writeText("studio-focus-type",S.municipio?"MUNICIPIO / SINALOA":"ESTADO / MÉXICO");
- writeText("studio-focus-detail",(S.crop||"Todos los cultivos")+" · cierre "+S.year);
- writeText("studio-primary-label",({value:"VALOR DE PRODUCCIÓN",harvest:"SUPERFICIE COSECHADA",planted:"SUPERFICIE SEMBRADA"})[S.metric]+" · "+S.year);
- writeText("studio-primary-value",fmt(current));
- writeText("studio-primary-unit",S.metric==="value"?"Millones de pesos nominales":"Hectáreas registradas");
- var change=$("studio-primary-change"),delta=prior!==null&&prior!==0&&current!==null?(current-prior)/prior*100:null;
- change.textContent=delta===null?"Sin comparación":(delta>0?"+":"")+delta.toFixed(1)+" % interanual";
- change.classList.toggle("is-negative",delta!==null&&delta<0);
- var planted=base.length?sum(base,S.crop?"planted":"area"):null;
- var harvest=base.length?sum(base,"harvest"):null;
- writeText("studio-harvest",pretty(harvest));
- writeText("studio-planted",pretty(planted));
- writeText("studio-trend-title",S.metric==="value"?"Valor (MDP)":"Superficie (ha)");
- writeText("studio-legend-units",metricUnit());
- renderCrops();renderSeries();
+function profile(){
+ const samples=historicalYears().filter(y=>y<S.year).map(y=>({year:y,...snapshot(y,S.place)})).filter(x=>x.yield!==null && Number.isFinite(x.yield)&&x.yield>=0);
+ const values=samples.map(x=>x.yield).sort((a,b)=>a-b);
+ return {samples,n:values.length,p25:values.length>=4?quantile(values,.25):null,p50:values.length>=4?quantile(values,.5):null,p75:values.length>=4?quantile(values,.75):null,min:values.length?values[0]:null,max:values.length?values[values.length-1]:null};
 }
-function ramp(v,max){if(v===null||v===undefined||!isFinite(v))return "#e4e9e1";var t=Math.sqrt(Math.max(0,v)/(max||1));var stops=["#d9e8d8","#b6d6b5","#86bd9c","#569772","#2a6d4c","#174631"];return stops[Math.min(stops.length-1,Math.floor(t*(stops.length-1)+.001))]}
-function coloredGeography(){
- var g=geo(),totals=valueByMuni(S.year),max=Math.max(1,...Array.from(totals.values()));
- if(!g)return null;
- writeText("studio-legend-max",pretty(max)+" "+metricUnit());
- return {type:"FeatureCollection",features:g.features.map(function(f){var name=String(f.properties.name||""),v=totals.get(normalize(name));return {type:"Feature",properties:{name:name,hasData:v!==undefined,color:ramp(v,max),value:v===undefined?null:v},geometry:f.geometry}})};
+function displayedUnit(unit){return unit?(/tonelada/i.test(unit)?"t/ha":unit+"/ha"):"unid./ha";}
+function label(id,text){const e=$(id);if(e)e.textContent=text}
+function mapValue(s){return !s.valid?null:S.layer==="yield"?s.yield:S.layer==="value"?s.value:s.area}
+function mapUnit(){const one=snapshot(S.year,"");return S.layer==="yield"?displayedUnit(one.unit):S.layer==="value"?"millones MXN":"hectáreas";}
+function territoryMap(){
+ const m=new Map();MUNICIPIOS.forEach(n=>{m.set(norm(n),mapValue(snapshot(S.year,n))) });return m;
+}
+function color(val,max){
+ if(val===null||!Number.isFinite(val))return "#dfe6dc";
+ const t=max>0?Math.sqrt(Math.max(0,val)/max):0;
+ const ramp=["#dce8db","#c5dbc4","#a3caa9","#7eaf90","#4f916c","#2b7552","#15523b"];
+ return ramp[Math.max(0,Math.min(ramp.length-1,Math.round(t*(ramp.length-1))))];
+}
+function getGeoData(){
+ const g=geometry();if(!g)return null;
+ const m=territoryMap(),valid=[...m.values()].filter(v=>v!==null&&Number.isFinite(v)),max=Math.max(...valid,1);
+ label("cropos-legend-unit",S.layer==="yield"?"Rendimiento":S.layer==="value"?"Valor bruto":"Superficie");
+ label("cropos-legend-max",short(max)+" "+mapUnit());
+ label("cropos-legend-help",S.layer==="yield"?"Producción / superficie cosechada":"Distribución del cierre "+S.year);
+ return {type:"FeatureCollection",features:g.features.map(f=>{const n=String(f.properties.name||""),v=m.get(norm(n));return {type:"Feature",geometry:f.geometry,properties:{name:n,value:v,hasData:v!==null&&Number.isFinite(v),color:color(v,max)}}})};
+}
+function renderMain(){
+ const observed=snapshot(S.year,S.place),p=profile();
+ label("cropos-map-context",S.crop+" · "+(S.place||"Sinaloa"));
+ label("cropos-territory-label",S.place?norm(S.place).toUpperCase()+" / SINALOA":"SINALOA / MÉXICO");
+ label("cropos-focus-crop",S.crop);
+ label("cropos-measurement-sub","Rendimiento observado · "+S.year);
+ label("cropos-year-output",String(S.year));
+ label("cropos-yield-observed",precise(observed.yield));
+ label("cropos-yield-unit",displayedUnit(observed.unit));
+ label("cropos-sample-count",p.n+" temporadas previas");
+ label("cropos-q25",precise(p.p25));
+ label("cropos-q50",precise(p.p50));
+ label("cropos-q75",precise(p.p75));
+ let benchmark;
+ if(observed.yield===null)benchmark=observed.valid?"Unidades físicas incompatibles o sin cosecha":"Sin registro para este cultivo y territorio";
+ else if(p.n<4)benchmark="Sin suficientes años previos para clasificar";
+ else if(observed.yield<p.p25)benchmark="Régimen históricamente bajo · por debajo de P25";
+ else if(observed.yield>p.p75)benchmark="Régimen históricamente alto · por encima de P75";
+ else benchmark="Dentro del rango intercuartílico histórico";
+ label("cropos-benchmark-label",benchmark);
+ const tick=$("cropos-current-tick");
+ if(tick)tick.style.left=(p.n>=4&&observed.yield!==null?Math.max(0,Math.min(100,((observed.yield-p.min)/(p.max-p.min||1))*100)):50).toFixed(1)+"%";
+ label("cropos-plot-period","2003 – "+S.year);
+ renderTrend(p);
+ renderScenario(observed,p);
+}
+function renderTrend(p){
+ const el=$("cropos-plot");
+ const history=historicalYears().map(y=>y<=S.year?snapshot(y,S.place).yield:null);
+ const valid=history.filter(v=>v!==null);
+ if(!valid.length){el.innerHTML='<p>Sin trayectoria física compatible para mostrar.</p>';return}
+ const W=420,H=110,TOP=8,BOT=90,LEFT=4,RIGHT=415;
+ const hi=Math.max(...valid,1),lo=Math.min(0,...valid);
+ const y=v=>BOT-(v-lo)/Math.max(.00001,hi-lo)*(BOT-TOP),x=i=>LEFT+i*(RIGHT-LEFT)/22;
+ const segments=[];let buffer=[];
+ history.forEach((v,i)=>{if(v===null){if(buffer.length){segments.push(buffer);buffer=[]}}else{buffer.push([x(i),y(v)])}});if(buffer.length)segments.push(buffer);
+ const paths=segments.map(a=>"M"+a.map(v=>v[0].toFixed(2)+","+v[1].toFixed(2)).join(" L")).join(" ");
+ const i=S.year-2003,current=history[i];
+ const lastDot=current!==null?'<circle cx="'+x(i)+'" cy="'+y(current)+'" r="4.8" fill="#276846" stroke="#fff" stroke-width="2.2"/>':"";
+ const midline=p.p50!==null?'<path d="M4 '+y(p.p50).toFixed(2)+' H415" stroke="#9bbba0" stroke-dasharray="4 4" stroke-width="1"/>':"";
+ const band=p.p25!==null?'<rect x="4" y="'+y(p.p75).toFixed(2)+'" width="411" height="'+Math.max(0,y(p.p25)-y(p.p75)).toFixed(2)+'" fill="#bad6b7" opacity=".20"/>':"";
+ el.innerHTML='<svg role="img" aria-label="Serie de rendimiento observado por año, con rango intercuartílico histórico" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
+ +'<line x1="4" x2="415" y1="'+BOT+'" y2="'+BOT+'" stroke="#e6ece5" stroke-width="1"/>'
+ +'<line x1="4" x2="415" y1="48" y2="48" stroke="#e9eeea" stroke-dasharray="3 4"/>'
+ +band+midline
+ +'<path d="'+paths+'" fill="none" stroke="#2c7850" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'+lastDot
+ +'<text x="4" y="106" font-size="10" fill="#9aab9d">2003</text><text x="415" y="106" font-size="10" text-anchor="end" fill="#9aab9d">2025</text></svg>';
+}
+function renderScenario(obs,p){
+ const impact=S.impact,control=$("cropos-impact"),basis=p.p50;
+ label("cropos-impact-label",(impact>0?"+":"")+impact+" %");
+ if(control)control.value=String(impact);
+ const ok=p.n>=4 && obs.area!==null && obs.area>0 && basis!==null && Number.isFinite(basis);
+ const volume=ok?basis*(1+impact/100)*obs.area:null;
+ label("cropos-impact-volume",ok?short(volume)+" "+(obs.unit?(/tonelada/i.test(obs.unit)?"t":obs.unit):"unid."):"—");
+ label("cropos-impact-reference",ok?"P50 × "+short(obs.area)+" ha":"Sin base suficiente");
+ label("cropos-scenario-note",ok?"Escenario algebraico sobre área "+S.year+"; mediana calculada con "+p.n+" años anteriores. No es pronóstico ni incorpora clima.":"Se requieren cuatro años anteriores con unidades físicas compatibles. No se generan supuestos cuando faltan datos.");
 }
 function updateMap(){
- var g=coloredGeography();if(!g)return;
- if(map&&mapReady){var source=map.getSource("studio-municipios");if(source)source.setData(g);if(map.getLayer("studio-selected"))map.setFilter("studio-selected",["==",["get","name"],S.municipio||"\u0000"]);}
- if(leafletGeo){leafletGeo.eachLayer(function(layer){var p=layer.feature.properties;layer.setStyle({fillColor:p.color,weight:S.municipio===p.name?3:1.2,color:S.municipio===p.name?"#0e4e32":"#f8faf6",fillOpacity:.75})});leafletGeo.clearLayers();leafletGeo.addData(g);}
+ const collection=getGeoData();if(!collection)return;
+ if(map&&mapLoaded){
+  const source=map.getSource("cropos-units");if(source)source.setData(collection);
+  if(map.getLayer("cropos-outline-selected"))map.setFilter("cropos-outline-selected",["==",["get","name"],S.place||"\u0000"]);
+ }
+ if(leafletLayer){
+  leafletLayer.clearLayers();
+  leafletLayer.addData(collection);
+  leafletLayer.eachLayer(layer=>{const p=layer.feature.properties;layer.setStyle({color:norm(p.name)===norm(S.place)?"#123f29":"#fafcf9",weight:norm(p.name)===norm(S.place)?3.5:1,fillColor:p.color,fillOpacity:.76})});
+ }
 }
 function render(){
  if(!D)return;
- writeText("studio-year-label",S.year);
- renderList();renderFocus();updateMap();
+ renderMain();
+ updateMap();
 }
-function setMunicipio(name){
- S.municipio=name||"";var mobile=$("studio-municipality-select");if(mobile)mobile.value=S.municipio;render();
- if(map&&mapReady&&S.municipio){
-  var f=geo()&&geo().features.find(function(f){return normalize(f.properties.name)===normalize(S.municipio)});
-  if(f){var minX=180,minY=90,maxX=-180,maxY=-90;function walk(a){if(typeof a[0]==="number"){minX=Math.min(minX,a[0]);maxX=Math.max(maxX,a[0]);minY=Math.min(minY,a[1]);maxY=Math.max(maxY,a[1])}else a.forEach(walk)}walk(f.geometry.coordinates);if(maxX>minX&&maxY>minY)map.fitBounds([[minX,minY],[maxX,maxY]],{padding:65,maxZoom:9,duration:750})}
- }else if(map&&mapReady)map.fitBounds([[-109.85,22.4],[-105.2,27.5]],{padding:30,duration:700});
- if(leaflet&&S.municipio){leafletGeo.eachLayer(function(layer){if(normalize(layer.feature.properties.name)===normalize(S.municipio))leaflet.fitBounds(layer.getBounds(),{padding:[35,35],maxZoom:9})})}
- else if(leaflet)leaflet.fitBounds([[22.4,-109.85],[27.5,-105.2]],{padding:[30,30]});
+function setPlace(v){
+ S.place=v||"";$("cropos-place").value=S.place;render();
+ const g=geometry(),feature=g&&g.features.find(f=>norm(f.properties.name)===norm(S.place));
+ if(!feature){if(mapLoaded&&map)map.fitBounds([[-109.9,22.35],[-105.1,27.6]],{padding:35,maxZoom:9,duration:700});if(leaflet)leaflet.fitBounds([[22.35,-109.9],[27.6,-105.1]],{padding:[35,35]});return}
+ let minx=180,miny=90,maxx=-180,maxy=-90;
+ function walk(v){if(typeof v[0]==="number"){minx=Math.min(minx,v[0]);maxx=Math.max(maxx,v[0]);miny=Math.min(miny,v[1]);maxy=Math.max(maxy,v[1])}else v.forEach(walk)}
+ walk(feature.geometry.coordinates);
+ if(maxx<=minx||maxy<=miny)return;
+ if(map&&mapLoaded)map.fitBounds([[minx,miny],[maxx,maxy]],{padding:65,maxZoom:9,duration:650});
+ if(leaflet)leaflet.fitBounds([[miny,minx],[maxy,maxx]],{padding:[40,40],maxZoom:9});
 }
-function mapLibreInit(){
- var g=coloredGeography();if(!g)return false;
+function initializeMap(){
+ const data=getGeoData();
+ if(!data){$("cropos-map-unavailable").hidden=false;return}
+ if(!window.maplibregl){initLeaflet();return}
  try{
-  map=new maplibregl.Map({container:"studio-map",style:"https://tiles.openfreemap.org/styles/positron",center:[-107.5,24.85],zoom:6.8,attributionControl:true,dragRotate:false,pitchWithRotate:false});
-  map.on("load",function(){
-   mapReady=true;
-   map.addSource("studio-satellite-source",{type:"raster",tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"});
-   map.addLayer({id:"studio-satellite-layer",type:"raster",source:"studio-satellite-source",layout:{visibility:"none"}});
-   map.addSource("studio-municipios",{type:"geojson",data:coloredGeography()});
-   map.addLayer({id:"studio-fill",type:"fill",source:"studio-municipios",paint:{"fill-color":["get","color"],"fill-opacity":.76}});
-   map.addLayer({id:"studio-boundaries",type:"line",source:"studio-municipios",paint:{"line-color":"#fbfff9","line-width":1.15,"line-opacity":.92}});
-   map.addLayer({id:"studio-selected",type:"line",source:"studio-municipios",filter:["==",["get","name"],"\u0000"],paint:{"line-color":"#194f36","line-width":3}});
-   map.on("mouseenter","studio-fill",function(){map.getCanvas().style.cursor="pointer"});
-   map.on("mouseleave","studio-fill",function(){map.getCanvas().style.cursor=""});
-   var popup=new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:12,className:"studio-popup"});
-   map.on("mousemove","studio-fill",function(e){if(!e.features||!e.features.length)return;var p=e.features[0].properties;popup.setLngLat(e.lngLat).setHTML('<strong>'+esc(p.name)+'</strong><span>'+(p.value===null||p.value==="null"?"Sin registro":pretty(Number(p.value))+" "+metricUnit())+'</span>').addTo(map)});
-   map.on("mouseleave","studio-fill",function(){popup.remove()});
-   map.on("click","studio-fill",function(e){if(e.features&&e.features.length)setMunicipio(e.features[0].properties.name)});
-   map.fitBounds([[-109.85,22.4],[-105.2,27.5]],{padding:30,duration:0});
-   render();
+  map=new window.maplibregl.Map({container:"cropos-map",style:"https://tiles.openfreemap.org/styles/positron",center:[-107.5,24.85],zoom:6.65,attributionControl:true,dragRotate:false,pitchWithRotate:false});
+  map.on("load",()=>{
+   mapLoaded=true;
+   map.addSource("cropos-satellite-base",{type:"raster",tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"});
+   map.addLayer({id:"cropos-satellite",type:"raster",source:"cropos-satellite-base",layout:{visibility:"none"}});
+   map.addSource("cropos-units",{type:"geojson",data:getGeoData()});
+   map.addLayer({id:"cropos-fill",type:"fill",source:"cropos-units",paint:{"fill-color":["get","color"],"fill-opacity":.81}});
+   map.addLayer({id:"cropos-line",type:"line",source:"cropos-units",paint:{"line-color":"#fff","line-width":1.2,"line-opacity":.9}});
+   map.addLayer({id:"cropos-outline-selected",type:"line",source:"cropos-units",filter:["==",["get","name"],"\u0000"],paint:{"line-color":"#16472d","line-width":3.5}});
+   map.on("mouseenter","cropos-fill",()=>map.getCanvas().style.cursor="pointer");
+   map.on("mouseleave","cropos-fill",()=>map.getCanvas().style.cursor="");
+   popup=new window.maplibregl.Popup({closeButton:false,closeOnClick:false,offset:12,className:"cropos-popup"});
+   map.on("mousemove","cropos-fill",e=>{
+    if(!e.features||!e.features.length)return;
+    const x=e.features[0].properties,v=x.value;
+    const observed=x.hasData && v!==null && v!=="null" && Number.isFinite(Number(v));
+    const text=observed?precise(Number(v))+" "+mapUnit():"Sin registro comparable";
+    popup.setLngLat(e.lngLat).setHTML('<div style="font:600 12px DM Sans,Arial,sans-serif;color:#235039">'+esc(x.name)+'</div><div style="font:400 11px DM Sans,Arial,sans-serif;color:#667e6d;margin-top:4px">'+esc(text)+'</div>').addTo(map);
+   });
+   map.on("mouseleave","cropos-fill",()=>popup.remove());
+   map.on("click","cropos-fill",e=>{if(e.features&&e.features.length)setPlace(e.features[0].properties.name)});
+   map.fitBounds([[-109.9,22.35],[-105.1,27.6]],{padding:28,duration:0});
+   updateMap();
   });
-  map.on("error",function(e){if(e&&e.error)console.warn("MapLibre: "+e.error.message)});
-  setTimeout(function(){if(!mapReady){try{map.remove()}catch(_){}map=null;leafletInit()}},12000);
-  return true;
- }catch(e){map=null;return false}
+  map.on("error",e=>{if(e?.error)console.warn("Map layer:",e.error.message)});
+  setTimeout(()=>{if(!mapLoaded&&map){try{map.remove()}catch(_e){}map=null;initLeaflet()}},12000);
+ }catch(e){console.warn(e);map=null;initLeaflet()}
 }
-function leafletInit(){
- if(!window.L){$("studio-map-fallback").hidden=false;return}
+function initLeaflet(){
+ if(!window.L){$("cropos-map-unavailable").hidden=false;return}
  try{
-  var L=window.L;leaflet=L.map("studio-map",{zoomControl:false,scrollWheelZoom:false,attributionControl:true}).fitBounds([[22.4,-109.85],[27.5,-105.2]]);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:18}).addTo(leaflet);
-  var g=coloredGeography();
-  leafletGeo=L.geoJSON(g,{style:function(f){return {fillColor:f.properties.color,fillOpacity:.75,color:"#f8faf7",weight:1}},onEachFeature:function(f,l){l.on("click",function(){setMunicipio(f.properties.name)});l.bindTooltip(f.properties.name)}}).addTo(leaflet);
-  mapMode="leaflet";render();
- }catch(e){$("studio-map-fallback").hidden=false}
+  const L=window.L;
+  leaflet=L.map("cropos-map",{zoomControl:false,scrollWheelZoom:false}).fitBounds([[22.35,-109.9],[27.6,-105.1]]);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"© OpenStreetMap contributors"}).addTo(leaflet);
+  leafletLayer=L.geoJSON(getGeoData(),{style:f=>({fillColor:f.properties.color,fillOpacity:.76,color:"#fff",weight:1}),onEachFeature:(f,l)=>{
+   l.on("click",()=>setPlace(f.properties.name));
+   l.bindTooltip(f.properties.name,{direction:"top"});
+  }}).addTo(leaflet);
+  mode="leaflet";
+ }catch(e){console.warn(e);$("cropos-map-unavailable").hidden=false}
 }
 function boot(){
- if(!$("studio-workspace"))return;
- var crop=$("studio-crop"),metric=$("studio-metric"),year=$("studio-year");
- crop.addEventListener("change",function(){S.crop=crop.value;render()});
- var placeSelect=$("studio-municipality-select");placeSelect.innerHTML='<option value="">Todo Sinaloa</option>'+names.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");placeSelect.addEventListener("change",function(){setMunicipio(this.value)});
- metric.addEventListener("change",function(){S.metric=metric.value;render()});
- year.addEventListener("input",function(){S.year=Number(year.value);render()});
- $("studio-municipal-list").addEventListener("click",function(e){var b=e.target.closest("[data-place]");if(b)setMunicipio(b.dataset.place)});
- $("studio-map-style").addEventListener("click",function(){
-  S.satellite=!S.satellite;this.setAttribute("aria-pressed",String(S.satellite));this.innerHTML='<span class="studio-switch-icon" aria-hidden="true">◈</span> '+(S.satellite?"Cartografía":"Satélite");
-  if(map&&mapReady&&map.getLayer("studio-satellite-layer"))map.setLayoutProperty("studio-satellite-layer","visibility",S.satellite?"visible":"none");
-  if(leaflet){/* Leaflet fallback intentionally stays on OSM instead of claiming satellite imagery */this.setAttribute("aria-pressed","false");this.innerHTML='<span aria-hidden="true">◈</span> Cartografía';S.satellite=false}
- });
- $("studio-open-records").addEventListener("click",function(){
-  document.body.classList.add("studio-show-details");
-  var panel=$("agx-console");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});
- });
- function ready(){
-  if(!window.GrowaSinaloaData||!window.GrowaSinaloaData.D)return;
-  D=window.GrowaSinaloaData.D;
-  crop.innerHTML='<option value="">Todos los cultivos</option>'+D.cropNames.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");
+ if(!$("cropos-application"))return;
+ const crop=$("cropos-crop"),place=$("cropos-place"),year=$("cropos-year");
+ place.innerHTML='<option value="">Todo Sinaloa</option>'+MUNICIPIOS.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join("");
+ crop.addEventListener("change",()=>{S.crop=crop.value;cache.clear();render()});
+ place.addEventListener("change",()=>setPlace(place.value));
+ year.addEventListener("input",()=>{S.year=Number(year.value);render()});
+ $("cropos-impact").addEventListener("input",e=>{S.impact=Number(e.target.value);if(D)renderScenario(snapshot(S.year,S.place),profile())});
+ document.querySelectorAll("[data-model-layer]").forEach(btn=>btn.addEventListener("click",()=>{
+  S.layer=btn.dataset.modelLayer;
+  document.querySelectorAll("[data-model-layer]").forEach(b=>{const active=b===btn;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))});
   render();
-  if(window.maplibregl)mapLibreInit()||leafletInit();else leafletInit();
- }
+ }));
+ $("cropos-base-toggle").addEventListener("click",function(){
+  if(!mapLoaded||!map||!map.getLayer("cropos-satellite"))return;
+  S.satellite=!S.satellite;
+  map.setLayoutProperty("cropos-satellite","visibility",S.satellite?"visible":"none");
+  this.setAttribute("aria-pressed",String(S.satellite));
+  this.innerHTML='<span aria-hidden="true">◈</span> '+(S.satellite?"Cartografía":"Satélite");
+ });
+ $("cropos-open-analysis").addEventListener("click",()=>{
+  document.body.classList.add("cropos-details-visible");
+  const el=$("agx-console");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});
+ });
+ const ready=()=>{
+  if(!window.GrowaSinaloaData?.D||D)return;
+  D=window.GrowaSinaloaData.D;
+  S.crop=D.cropNames.includes("Maíz grano")?"Maíz grano":D.cropNames[0];
+  crop.innerHTML=D.cropNames.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join("");
+  crop.value=S.crop;
+  render();
+  initializeMap();
+ };
  window.addEventListener("growa:data-ready",ready,{once:true});
- if(window.GrowaSinaloaData&&window.GrowaSinaloaData.D)ready();
+ if(window.GrowaSinaloaData?.D)ready();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
