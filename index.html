@@ -181,6 +181,8 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
 @media(prefers-reduced-motion:reduce){.eo-layer,.eo-chart-controls button{transition:none!important}}
 @media print{body .rail,body .eo-map,body .eo-map-controls,body .eo-left,body .eo-right{display:none!important}.eo-bottom{position:relative!important;height:330px;background:white;color:#222}.eo-chart svg{color:#222}}
 </style>
+  <link rel="stylesheet" href="climate.css">
+  <script src="climate.js" defer></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Saltar al contenido principal</a>
@@ -251,6 +253,7 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
       </div>
       <div class="eo-analysis-label eo-layer-label"><span>02 — CAPAS TERRITORIALES</span><span id="eo-visible-layer">RENDIMIENTO</span></div>
       <div class="eo-layer-list" role="group" aria-label="Elegir indicador del mapa">
+        <button class="eo-layer" type="button" data-eo-layer="climate" aria-pressed="false"><span class="eo-layer-symbol">☼</span><span class="eo-layer-text"><strong>Clima NASA POWER</strong><small>Punto de referencia · serie diaria</small></span><span class="eo-layer-mark"></span></button>
         <button class="eo-layer active" type="button" data-eo-layer="yield" aria-pressed="true"><span class="eo-layer-symbol">↗</span><span class="eo-layer-text"><strong>Rendimiento agrícola</strong><small>Producción / superficie cosechada</small></span><span class="eo-layer-mark"></span></button>
         <button class="eo-layer" type="button" data-eo-layer="value" aria-pressed="false"><span class="eo-layer-symbol">$</span><span class="eo-layer-text"><strong>Valor de producción</strong><small>Millones de pesos nominales</small></span><span class="eo-layer-mark"></span></button>
         <button class="eo-layer" type="button" data-eo-layer="harvest" aria-pressed="false"><span class="eo-layer-symbol">▦</span><span class="eo-layer-text"><strong>Superficie cosechada</strong><small>Hectáreas registradas</small></span><span class="eo-layer-mark"></span></button>
@@ -259,6 +262,17 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
       <div class="eo-import"><label class="eo-upload" for="eo-geojson"><span class="eo-import-symbol">＋</span><span>Importar polígonos de parcela<small>GeoJSON local · solo geometrías</small></span></label><input id="eo-geojson" type="file" accept=".json,.geojson,application/geo+json,application/json" hidden><div id="eo-import-feedback" class="eo-import-feedback" aria-live="polite">Ninguna parcela cargada</div></div>
       <div class="eo-left-foot"><span class="eo-dataset-led"></span><span id="eo-data-status">Preparando series productivas…</span><button type="button" id="eo-open-explorer" aria-label="Abrir observatorio completo">↗</button></div>
     </aside>
+    <div id="eo-climate-hud" class="eo-climate-hud" data-status="loading" aria-label="Monitoreo climático NASA POWER" aria-live="polite">
+      <div class="eoc-head"><span class="eoc-kicker">NASA POWER / CLIMATE MONITOR</span><span id="eoc-status" class="eoc-state">CONSULTANDO</span></div>
+      <div class="eoc-title"><div><strong id="eoc-location">Culiacán</strong><small id="eoc-coordinate">Punto de referencia municipal</small></div><span id="eoc-year" class="eoc-year">2025</span></div>
+      <div class="eoc-grid">
+        <div class="eoc-cell"><span>TEMPERATURA MEDIA</span><strong><span id="eoc-temp">—</span>°</strong><small>°C · media anual</small></div>
+        <div class="eoc-cell"><span>PRECIPITACIÓN</span><strong id="eoc-rain">—</strong><small>mm · acumulado anual</small></div>
+        <div class="eoc-cell"><span>HUMEDAD REL.</span><strong><span id="eoc-humidity">—</span>%</strong><small>Media anual</small></div>
+        <div class="eoc-cell"><span>RADIACIÓN SOLAR</span><strong id="eoc-radiation">—</strong><small>MJ/m²/día · promedio</small></div>
+      </div>
+      <div class="eoc-foot"><span id="eoc-note">Solicitando observaciones diarias…</span><button id="eoc-retry" type="button" hidden>Reintentar</button></div>
+    </div>
     <div class="eo-map-heading"><div><span>REGIÓN / SINALOA, MÉXICO</span><strong id="eo-map-title">Maíz grano · mapa de rendimiento</strong></div><span class="eo-map-coordinates">24.8°N / 107.4°W</span></div>
     <div class="eo-map-controls" aria-label="Controles de mapa">
       <button type="button" id="eo-satellite" aria-pressed="true" title="Cambiar entre satélite y cartografía"><span class="eo-control-icon">◈</span><span id="eo-basemap-label">SATELLITE</span></button>
@@ -270,6 +284,19 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
       <div class="eo-right-top"><span>GEOSPATIAL ANALYTICS</span><span class="eo-right-live"><i></i> HISTORICAL</span></div>
       <div class="eo-right-crop"><div class="eo-right-eyebrow">PERFIL DEL CULTIVO</div><h2 id="eo-selected-crop">Maíz grano</h2><div class="eo-right-location" id="eo-selected-location">Sinaloa · 2025</div></div>
       <div class="eo-snapshot"><div class="eo-snapshot-label">RENDIMIENTO OBSERVADO <span id="eo-yield-year">2025</span></div><div class="eo-snapshot-value"><strong id="eo-yield">—</strong><span id="eo-yield-unit">t/ha</span></div><div class="eo-snapshot-note" id="eo-yield-note">Serie municipal · datos oficiales</div></div>
+      <section id="eo-climate-panel" class="eo-climate-panel" aria-label="Indicadores climáticos verificados">
+        <div class="eo-climate-panel-head"><strong>CLIMA / NASA POWER</strong><a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer" title="Documentación del proveedor">FUENTE ↗</a></div>
+        <div class="eo-climate-panel-source"><strong id="eo-climate-place">Culiacán</strong><small id="eo-climate-date">2025 · referencia municipal</small></div>
+        <div class="eo-climate-panel-grid">
+          <div class="eo-climate-panel-stat"><span>T MEDIA</span><strong><span id="eo-climate-temp">—</span> °C</strong><small>NASA POWER · 2 m</small></div>
+          <div class="eo-climate-panel-stat"><span>PRECIPITACIÓN</span><strong><span id="eo-climate-precip">—</span> mm</strong><small>Acumulado anual</small></div>
+          <div class="eo-climate-panel-stat"><span>T MÍN / MÁX</span><strong><span id="eo-climate-tmin">—</span> / <span id="eo-climate-tmax">—</span></strong><small>°C · medias de extremos diarios</small></div>
+          <div class="eo-climate-panel-stat"><span>VIENTO / HUMEDAD</span><strong><span id="eo-climate-wind">—</span> m/s</strong><small><span id="eo-climate-rh">—</span> % humedad relativa</small></div>
+        </div>
+        <div id="eo-climate-mini" class="eo-climate-mini" aria-label="Lluvia acumulada mensual"></div>
+        <p id="eo-climate-panel-note" class="eo-climate-panel-note">Reanálisis NASA POWER a nivel de rejilla, no estación ni parcela.</p>
+        <div class="eo-climate-panel-source" style="margin-top:10px;margin-bottom:0"><small id="eo-climate-provider">NASA POWER · datos diarios · LST</small><small id="eo-climate-coverage">—</small></div>
+      </section>
       <div class="eo-layers-title"><span>LEYENDA DEL INDICADOR</span><span id="eo-layer-unit">t/ha</span></div>
       <div class="eo-heatbar" aria-hidden="true"></div><div class="eo-heatbar-labels"><span>BAJO / 0</span><span id="eo-scale-max">—</span></div>
       <label class="eo-opacity">OPACIDAD DE CAPAS <span id="eo-opacity-value">38 %</span><input type="range" id="eo-opacity" min="10" max="90" value="38" step="5" aria-label="Opacidad de los polígonos de mapa"></label>
@@ -280,7 +307,7 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
     </aside>
     <div class="eo-metadata"><div class="eo-metadata-tag"><span class="eo-pulse"></span> EARTH VIEW / SATELLITE</div><div class="eo-yearbar"><span>AÑO DE CORTE</span><input id="eo-year" type="range" min="2003" max="2025" step="1" value="2025" aria-label="Año de referencia"><strong id="eo-year-value">2025</strong></div><span class="eo-meta-notice">Los polígonos coloreados representan municipios, no parcelas ni índices NDVI</span></div>
     <section class="eo-bottom" aria-label="Análisis temporal agrícola">
-      <div class="eo-chart-header"><div class="eo-chart-heading"><span class="eo-chart-eyebrow">04 / TEMPORAL ANALYSIS</span><strong>Historial productivo</strong><span id="eo-chart-subtitle">Comparación municipal · 2003–2025</span></div><div class="eo-chart-controls" role="group" aria-label="Indicador gráfico"><button type="button" class="active" data-eo-chart="yield" aria-pressed="true">Rendimiento</button><button type="button" data-eo-chart="value" aria-pressed="false">Valor bruto</button><button type="button" data-eo-chart="harvest" aria-pressed="false">Superficie</button></div><div class="eo-chart-legend"><span class="eo-legend-a"><i></i><b id="eo-series-a">Sinaloa</b></span><span class="eo-legend-b"><i></i><b id="eo-series-b">Referencia</b></span></div></div>
+      <div class="eo-chart-header"><div class="eo-chart-heading"><span class="eo-chart-eyebrow">04 / TEMPORAL ANALYSIS</span><strong>Historial productivo</strong><span id="eo-chart-subtitle">Comparación municipal · 2003–2025</span></div><div class="eo-chart-controls" role="group" aria-label="Indicador gráfico"><button type="button" class="active" data-eo-chart="yield" aria-pressed="true">Rendimiento</button><button type="button" data-eo-chart="value" aria-pressed="false">Valor bruto</button><button type="button" data-eo-chart="harvest" aria-pressed="false">Superficie</button><button type="button" data-eo-chart="climate" aria-pressed="false">Clima NASA</button></div><div class="eo-chart-legend"><span class="eo-legend-a"><i></i><b id="eo-series-a">Sinaloa</b></span><span class="eo-legend-b"><i></i><b id="eo-series-b">Referencia</b></span></div></div>
       <div class="eo-chart-plot"><div id="eo-chart" class="eo-chart" role="img" aria-label="Serie comparada por año"></div><div id="eo-chart-tooltip" class="eo-chart-tooltip" hidden></div></div>
       <div class="eo-chart-foot"><span id="eo-chart-coverage">23 cierres agrícolas · DGSIAP</span><span>Las observaciones faltantes permanecen como huecos; sin interpolación</span><button type="button" id="eo-export" aria-label="Descargar serie de tiempo como CSV">↓ Exportar serie</button></div>
     </section>
