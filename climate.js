@@ -72,7 +72,7 @@ function compiled2025(point,year){
  if(!r)return null;
  const v=r.values;
  return {year:2025,source:"NASA POWER · paquete procesado auditado",compiled:true,monthly:null,
-  availableDays:365,days:365,coverage:{},
+  availableDays:null,days:null,coverage:{},
   yearly:{T2M:v.TMEAN,PRECTOTCORR:v.PRECIP_MM,RH2M:v.RH_MEAN,WS2M:v.WIND2M,ALLSKY_SFC_SW_DWN:v.SW_RAD_MEAN,
    T2M_MIN:null,T2M_MAX:null,ET0_MM:v.ET0_MM,VPD_MEAN:v.VPD_MEAN,GWETROOT_MEAN:v.GWETROOT_MEAN,
    WATER_BALANCE_MM:v.WATER_BALANCE_MM},
@@ -104,9 +104,9 @@ const cache=new Map();
 
 function pointForCity(city){
  const audit=municipal2025.get(city);
- if(audit)return {latitude:audit.latitude,longitude:audit.longitude,label:city,type:"cabecera",grid:audit.grid};
+ if(audit)return {latitude:audit.latitude,longitude:audit.longitude,label:city,type:"referencia",grid:audit.grid};
  const p=LOC[city];
- return p?{latitude:p[0],longitude:p[1],label:city,type:"cabecera"}:null;
+ return p?{latitude:p[0],longitude:p[1],label:city,type:"referencia"}:null;
 }
 function dataKey(point,year){return year+"|"+point.latitude.toFixed(3)+"|"+point.longitude.toFixed(3)}
 function buildUrl(point,year){
@@ -154,10 +154,10 @@ function statusView(label){
  cell("eoc-location",label||"Selecciona municipio");
  cell("eoc-year",context.year);
  const p=context.point;
- cell("eoc-coordinate",p?(p.latitude.toFixed(3)+"°N · "+Math.abs(p.longitude).toFixed(3)+"°O · "+(p.type==="parcela"?"punto de polígono":"referencia municipal")):"Punto geográfico sin seleccionar");
+ cell("eoc-coordinate",p?(p.latitude.toFixed(3)+"°N · "+Math.abs(p.longitude).toFixed(3)+"°O · "+(p.type==="parcela"?"punto de polígono":"punto de referencia NASA")):"Punto geográfico sin seleccionar");
  cell("eo-climate-place",label||"Punto de referencia");
- cell("eo-climate-date",context.year+" · "+(p&&p.type==="parcela"?"punto de polígono":"cabecera municipal aproximada"));
- cell("eo-climate-coverage",status==="success"&&currentData?currentData.availableDays+"/"+expectedYearDays(context.year)+" días":"—");
+ cell("eo-climate-date",context.year+" · "+(p&&p.type==="parcela"?"punto de polígono":"punto municipal de referencia"));
+ cell("eo-climate-coverage",status==="success"&&currentData?(currentData.compiled?"Corte anual compilado":currentData.availableDays+"/"+expectedYearDays(context.year)+" días"):"—");
  cell("eo-climate-provider",currentData?.compiled?"NASA POWER · paquete auditado 2003–2025":"NASA POWER · API diaria · LST");
  const use=status==="success"&&currentData?currentData.yearly:null;
  cell("eoc-temp",fmt(use&&use.T2M));cell("eoc-rain",fmtInt(use&&use.PRECTOTCORR));
@@ -171,7 +171,7 @@ function statusView(label){
  if(status==="loading")note="Descargando observaciones diarias de NASA POWER…";
  if(status==="error")note="No fue posible consultar NASA POWER. Sin datos locales alternativos verificados.";
  if(status==="idle")note="Elige un municipio o selecciona un punto dentro de una parcela importada.";
- if(status==="success")note=currentData?.compiled?"Capa municipal NASA POWER auditada (2025). Celda de rejilla, no parcela; pulsa «Detalle diario» para consultar NASA API.":"Punto de consulta NASA POWER. Datos de rejilla; no equivalen a una estación o parcela.";
+ if(status==="success")note=currentData?.compiled?"Clima compilado de NASA POWER 2025, sin cotejo independiente contra la API; celda de rejilla, no parcela. «Detalle diario» consulta NASA.":"Punto de consulta NASA POWER. Datos de rejilla; no equivalen a una estación o parcela.";
  cell("eoc-note",note);
  cell("eo-climate-panel-note",note);
  const retry=$("eoc-retry");if(retry){retry.hidden=!(status==="error"||status==="idle"||currentData?.compiled);retry.textContent=currentData?.compiled?"Detalle diario":"Reintentar"}
