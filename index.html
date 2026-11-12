@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#073b67">
+  <meta name="theme-color" content="#0c3024">
   <meta name="description" content="Growa Agricultura: observatorio independiente de datos abiertos e inteligencia territorial para Sinaloa. Series DGSIAP 2003–2025, atlas de cultivos, municipios, agua y laboratorio de análisis.">
-  <title>Growa Agricultura | Inteligencia territorial para la gestión pública</title>
+  <title>GROWA Agricultura — Inteligencia territorial y productiva</title>
   <link rel="stylesheet" href="styles.css">
   <!-- Módulo hídrico integrado en la edición estática de Render: su build original publica solo index.html, styles.css y app.js. -->
   
@@ -24,6 +24,176 @@
 
 
 
+
+<style id="terra-design-v1">
+/* GROWA / AGRICULTURAL INTELLIGENCE SYSTEM — visual-only enhancement, production data unchanged */
+:root{--terra-ink:#0b2720;--terra-forest:#103c2f;--terra-moss:#95d6ad;--terra-paper:#f0f3ed;--terra-accent:#c9f26c;--terra-rule:#cfd9ce}
+body{background:var(--terra-paper)!important;color:var(--terra-ink)!important;font-family:"Inter","Segoe UI",Arial,Helvetica,sans-serif!important}
+body .shell{display:block!important;background:var(--terra-paper)!important;min-height:100vh!important}
+body .global-utility{display:none!important}
+body .rail{position:sticky!important;top:0!important;z-index:1200!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;min-height:76px!important;height:auto!important;max-width:none!important;width:100%!important;padding:10px clamp(22px,4.8vw,92px)!important;margin:0!important;background:rgba(8,35,27,.96)!important;color:#f4faf3!important;border:0!important;border-bottom:1px solid #e4f4df20!important;box-shadow:0 12px 26px #0e302313!important;backdrop-filter:blur(22px)}
+body .rail .brand{min-width:0!important;min-height:45px!important;padding:0!important;gap:11px!important;color:#fff!important}
+body .rail .brand-symbol{font-family:Georgia,serif!important;font-size:39px!important;line-height:.9!important;color:#e4f9e7!important}
+body .rail .brand-word{color:#f5fbf3!important;font-weight:780!important;font-size:16px!important;letter-spacing:.18em!important;line-height:1.1!important}
+body .rail .brand-word small{color:#adbbad!important;font-size:8px!important;letter-spacing:.12em!important;font-weight:500!important;margin-top:5px!important}
+body .rail .navigation{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;flex:1!important;gap:clamp(8px,1.8vw,31px)!important;margin:0!important;padding:0!important;width:auto!important;border:0!important}
+body .rail .nav-link{position:relative!important;width:auto!important;height:auto!important;display:inline-flex!important;align-items:center!important;white-space:nowrap!important;padding:13px 2px!important;background:transparent!important;border:0!important;color:#b5c9bc!important;box-shadow:none!important;font-size:12px!important;letter-spacing:.005em!important;font-weight:560!important;text-transform:none!important}
+body .rail .nav-link:hover,body .rail .nav-link.active,body .rail .nav-link[aria-current="page"]{color:#f3ffde!important;background:none!important}
+body .rail .nav-link[aria-current="page"]::after,body .rail .nav-link.active::after{content:"";height:2px;width:100%;position:absolute;left:0;bottom:5px;background:var(--terra-accent);border-radius:3px}
+body .rail .lab-nav-link{border-radius:100px!important;border:1px solid #c9f26c54!important;padding:10px 15px!important;color:#d0f2ad!important}
+body .rail .lab-nav-link::after{display:none!important}
+body .rail .rail-meta{display:none!important}
+body .page{max-width:1740px!important;width:100%!important;margin:0 auto!important;padding:0 clamp(20px,4.8vw,92px) 96px!important;background:transparent!important;box-shadow:none!important;border:0!important}
+body .topline{min-height:60px!important;margin:0!important;padding:16px 0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;color:#547265!important}
+body .breadcrumb{font-size:10px!important;letter-spacing:.16em!important;font-weight:650!important;color:#4c6c5c!important}
+body .breadcrumb span{color:#9cb19e!important}
+body .top-actions{display:flex!important;align-items:center!important;gap:12px!important}
+body .top-actions .ux-header-btn{display:none!important}
+body .top-actions .quick-search{background:#ffffff80!important;color:#335449!important;border:1px solid #d8e3d6!important;border-radius:100px!important;box-shadow:none!important;min-height:34px!important;padding:7px 15px!important;font-size:11px!important}
+body .top-actions .status{color:#6a8a75!important;font-size:10px!important}
+body .ag-data-strip{margin:0!important;padding:0 0 13px!important;background:transparent!important;border:0!important;min-height:auto!important;color:#627a6b!important}
+body .ag-data-source{font-size:9px!important;letter-spacing:.06em!important;gap:11px!important}
+body .ag-data-source strong{color:#325c48!important}
+body .ag-data-ready{color:#39734b!important}
+body .ux-workbench{display:none!important}
+body[data-view="panorama"] .masthead{display:block!important;padding:0!important;margin:4px 0 38px!important;border:0!important;background:none!important;border-radius:20px!important;box-shadow:0 25px 80px #123f301c!important;overflow:hidden!important}
+body:not([data-view="panorama"]) .masthead{display:none!important}
+body .masthead::before{display:none!important}
+body[data-view="panorama"] .terra-hero{display:grid!important;grid-template-columns:minmax(390px,.95fr) minmax(450px,1.05fr)!important;min-height:570px!important;background:#092e23!important;color:#f3fff1!important;isolation:isolate}
+.terra-copy{display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:clamp(26px,3.1vw,47px) clamp(28px,3.2vw,59px) 26px!important;position:relative;overflow:hidden;background:radial-gradient(ellipse at -25% 80%,#1d5d42 0,transparent 56%),linear-gradient(145deg,#103e2f 0%,#08291f 90%)}
+.terra-copy::after{content:"";width:360px;height:360px;position:absolute;right:-260px;top:120px;border:1px solid #dcffd81e;border-radius:50%;box-shadow:0 0 0 50px #d8fdd006,0 0 0 130px #d8fdd005;pointer-events:none}
+.terra-overline{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;color:#a6c9b3;font-size:9px;font-weight:700;letter-spacing:.1em}
+.terra-live{display:inline-flex;gap:10px;align-items:center;white-space:nowrap}
+.terra-live-dot{display:inline-block;width:7px;height:7px;background:var(--terra-accent);border-radius:100%;box-shadow:0 0 0 5px #d9f47f20}
+.terra-edition{text-align:right;font-size:8px;color:#7eb495;font-weight:550}
+.terra-story{position:relative;z-index:2;margin:43px 0 34px}
+.terra-eyebrow{display:flex;align-items:center;gap:13px;font-size:10px;letter-spacing:.19em;color:#a1c0a8;font-weight:690}
+.terra-line{width:26px;height:1px;background:var(--terra-accent)}
+body[data-view="panorama"] .terra-story h1{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(53px,5.4vw,92px)!important;line-height:1.015!important;letter-spacing:-.067em!important;font-weight:400!important;margin:19px 0 21px!important;color:#f5faec!important;text-wrap:balance!important}
+body[data-view="panorama"] .terra-story h1 em{font-style:italic!important;color:var(--terra-accent)!important;font-weight:400!important}
+.terra-period{color:var(--terra-accent)}
+.terra-story>p{font-size:clamp(12px,.95vw,14px);color:#bdd1c1;line-height:1.85;max-width:475px;letter-spacing:.005em}
+.terra-cta-line{display:flex;align-items:center;gap:25px;margin-top:29px}
+body[data-view="panorama"] .terra-main-action{display:inline-flex!important;justify-content:space-between!important;align-items:center!important;min-width:183px!important;gap:27px!important;padding:14px 19px!important;border:1px solid var(--terra-accent)!important;border-radius:100px!important;background:var(--terra-accent)!important;color:#173627!important;font-size:12px!important;font-weight:700!important;box-shadow:none!important;transition:transform .22s ease,background .22s ease!important}
+body[data-view="panorama"] .terra-main-action:hover{transform:translateY(-2px)!important;background:#efffa2!important}
+.terra-action-note{color:#87a995;font-size:9px;line-height:1.65}
+.terra-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;border-top:1px solid #a8ceb82b;padding-top:22px;position:relative;z-index:2}
+.terra-metrics>div{display:flex;flex-direction:column;gap:5px}
+.terra-metrics strong{font-size:clamp(23px,2.7vw,39px);letter-spacing:-.065em;line-height:1;font-weight:480;font-variant-numeric:tabular-nums;color:#f6f8ef}
+.terra-metrics strong span{font-size:13px;letter-spacing:0;color:#b6d4be}
+.terra-metrics small{font-size:8px;letter-spacing:.07em;color:#8daf99;line-height:1.35}
+.terra-geovisual{position:relative;overflow:hidden;min-height:560px;background:radial-gradient(circle at 40% 40%,#325b45,#1a352c 70%);isolation:isolate}
+.terra-map{position:absolute;inset:0;z-index:0;filter:saturate(.73) contrast(1.07) brightness(.78)}
+.terra-geovisual::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:400;background:linear-gradient(180deg,#071b19ab 0%,transparent 27%,transparent 54%,#071c19df 100%);mix-blend-mode:normal}
+.terra-map-grid{position:absolute;inset:0;z-index:401;pointer-events:none;background-image:linear-gradient(#d6fff00d 1px,transparent 1px),linear-gradient(90deg,#d6fff00d 1px,transparent 1px);background-size:72px 72px;opacity:.48}
+.terra-map-top,.terra-map-lower,.terra-map-legend{position:absolute;z-index:750;pointer-events:none}
+.terra-map-top{top:29px;left:30px;right:30px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.terra-map-badge{font-size:9px;letter-spacing:.12em;color:#e2f9de;border:1px solid #c4e6b766;background:#13352b94;padding:9px 13px;border-radius:100px;backdrop-filter:blur(8px)}
+.terra-map-badge span{color:var(--terra-accent);margin-right:7px}
+.terra-map-coords{font:10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#b9d2bd;letter-spacing:.02em}
+.terra-map-cross{position:absolute;top:48%;left:51%;transform:translate(-50%,-50%);width:55px;height:55px;z-index:450;opacity:.42;pointer-events:none}
+.terra-map-cross span:first-child{position:absolute;top:26px;width:55px;height:1px;background:#e8fff4}
+.terra-map-cross span:last-child{position:absolute;left:26px;height:55px;width:1px;background:#e8fff4}
+.terra-map-lower{left:30px;bottom:65px;right:30px;display:flex;justify-content:space-between;align-items:end;gap:18px}
+.terra-map-location{display:flex;flex-direction:column;gap:5px}
+.terra-map-location small{color:#a7c5ad;font-size:9px;letter-spacing:.18em}
+.terra-map-location strong{font-size:clamp(22px,2.4vw,34px);font-weight:540;letter-spacing:-.04em;color:#f3ffed}
+.terra-map-location>span{font-size:11px;color:#bfd9c2}
+.terra-map-stamp{border-left:1px solid #daffb46b;padding-left:15px;line-height:1.15;font-size:32px;color:var(--terra-accent);font-family:Georgia,serif}
+.terra-map-stamp span{font:8px Arial,sans-serif;letter-spacing:.18em;color:#a9c3b4}
+.terra-map-legend{left:30px;bottom:18px;font-size:8px;letter-spacing:.05em;line-height:1.55;color:#8aab96}
+.terra-map-point{background:transparent!important;border:0!important;width:14px!important;height:14px!important}
+.terra-map-point .terra-point-core{display:block;width:10px;height:10px;border:2px solid #0e3c2c;border-radius:50%;background:#d7f86e;box-shadow:0 0 0 5px #d8f96f44,0 0 0 13px #d8f96f15;transition:transform .2s ease}
+.terra-map-point:hover .terra-point-core{transform:scale(1.45)}
+.terra-map-point .terra-point-label{position:absolute;left:15px;top:-3px;display:block;white-space:nowrap;font-size:10px;font-family:Arial,sans-serif;color:#e6f8e5;text-shadow:0 1px 6px #07170e,1px 1px 3px #07170e;font-weight:600}
+.terra-map-point .terra-point-label[hidden]{display:none}
+.terra-geovisual .leaflet-container{background:transparent!important;font:inherit}
+.terra-geovisual .leaflet-control-attribution{font-size:7px!important;background:#0d3229aa!important;color:#b6c9b9!important}
+.terra-geovisual .leaflet-control-attribution a{color:#d1e8c3!important}
+.terra-tooltip{border:1px solid #a0cf9380!important;background:#102b23f0!important;color:#f0ffef!important;border-radius:5px!important;box-shadow:0 8px 25px #0004!important;font:11px Arial,sans-serif!important}
+body[data-view="panorama"] .institutional-access{display:none!important}
+body[data-view="panorama"] #panel-panorama{border:0!important;padding-top:0!important}
+body #agx-console{border:1px solid #d5e1d4!important;border-radius:18px!important;overflow:hidden!important;box-shadow:0 16px 50px #214a3210!important;background:white!important;margin:0 0 35px!important}
+body #agx-console .ag5-shell{background:#fff!important;min-height:0!important;grid-template-columns:235px minmax(0,1fr)!important}
+body #agx-console .ag5-filters{background:#f3f7f1!important;border-right:1px solid #dbe5da!important;padding:20px 18px 22px!important}
+body #agx-console .ag5-main{background:#fff!important;padding:28px 25px 32px!important}
+body #agx-console .ag5-filter-header h2,body #agx-console .ag5-heading h1{color:#163e2c!important;letter-spacing:-.04em!important}
+body #agx-console .ag5-overline,body #agx-console .ag5-section-id{color:#3a7455!important}
+body #agx-console select,body #agx-console input{border:1px solid #d4dfd4!important;background:#fff!important;border-radius:8px!important;color:#264c37!important}
+body #agx-console .ag5-kpis{border-radius:12px!important;overflow:hidden!important;border:1px solid #dce7dc!important}
+body #agx-console .ag5-kpi{background:#f8faf7!important;border-color:#dde6dc!important}
+body #agx-console .ag5-kpi>strong{color:#163e2e!important}
+body #agx-console .ag5-analyzer,body #agx-console .ag5-register,body #agx-console .ag5-interpretation{border-color:#dae4d8!important}
+body #agx-console button:not(.terra-main-action){transition:background .2s ease,border-color .2s ease}
+body .section-panel .section-heading h2,body .section-panel .feature-intro h3{color:#133d2b!important}
+body .section-panel .editorial-panel,body .section-panel .story-panel{border-color:#d8e3d5!important;background:#fff!important}
+body .section-panel .eyebrow,body .section-panel .section-counter{color:#327451!important}
+body .section-panel [class*="chart"] svg{max-width:100%}
+@media(max-width:1200px){
+ body[data-view="panorama"] .terra-hero{grid-template-columns:minmax(330px,1fr) minmax(380px,1fr)!important;min-height:500px!important}
+ body[data-view="panorama"] .terra-story h1{font-size:clamp(46px,5.5vw,70px)!important}
+ .terra-copy{padding:27px!important}
+ .terra-edition{display:none}
+ body .rail{padding-inline:28px!important}
+ body .page{padding-inline:28px!important}
+}
+@media(max-width:980px){
+ body[data-view="panorama"] .terra-hero{grid-template-columns:1fr!important}
+ .terra-copy{min-height:485px}
+ .terra-geovisual{min-height:430px}
+ body .rail .navigation{gap:13px!important}
+ body .rail .nav-link{font-size:11px!important}
+ body .top-actions .status{display:none!important}
+}
+@media(max-width:760px){
+ body .rail{padding:10px 18px!important;min-height:64px!important;flex-wrap:wrap!important;gap:8px!important}
+ body .rail .brand{flex:1!important}
+ body .rail .brand-word{font-size:13px!important}
+ body .rail .brand-word small{font-size:7px!important}
+ body .rail .ag-nav-toggle{display:inline-flex!important;background:#173e2d!important;color:#f2ffec!important;border:1px solid #7699825c!important}
+ body .rail .navigation{width:100%!important;flex-basis:100%!important;overflow-x:auto!important;gap:15px!important;justify-content:flex-start!important;border-top:1px solid #d3eed129!important}
+ body .rail .nav-link{font-size:11px!important;padding:11px 1px!important}
+ body .page{padding:0 16px 45px!important}
+ body .topline{min-height:48px!important;padding:13px 0!important}
+ body .breadcrumb{font-size:8px!important;letter-spacing:.08em!important}
+ body .top-actions .quick-search{font-size:0!important;min-height:32px!important;padding:4px 9px!important}
+ body .top-actions .quick-search .search-glyph{font-size:18px!important}
+ body .top-actions .quick-search kbd{display:none!important}
+ body .ag-data-strip{padding-bottom:10px!important}
+ body .ag-data-source span{display:none!important}
+ body[data-view="panorama"] .masthead{margin:0 0 20px!important;border-radius:15px!important}
+ .terra-copy{min-height:475px!important;padding:26px 23px 23px!important}
+ .terra-story{margin:30px 0!important}
+ body[data-view="panorama"] .terra-story h1{font-size:clamp(46px,10.8vw,76px)!important;margin:16px 0!important}
+ .terra-story>p{font-size:12px;max-width:430px}
+ .terra-eyebrow{font-size:8px;letter-spacing:.09em}
+ .terra-cta-line{gap:14px;flex-wrap:wrap}
+ .terra-metrics{gap:9px;padding-top:18px}
+ .terra-metrics strong{font-size:27px}
+ .terra-metrics small{font-size:7px}
+ .terra-geovisual{min-height:360px!important}
+ .terra-map-top{left:16px;right:16px;top:15px}
+ .terra-map-coords{display:none}
+ .terra-map-lower{left:16px;right:16px;bottom:55px}
+ .terra-map-legend{left:16px;right:16px;bottom:13px;font-size:7px}
+ body #agx-console .ag5-shell{display:block!important}
+ body #agx-console .ag5-filters{padding:15px!important;border-right:0!important;border-bottom:1px solid #dee5db!important}
+ body #agx-console .ag5-main{padding:18px 12px 25px!important}
+ body #agx-console .ag5-filter-header{display:none!important}
+ body #agx-console .ag5-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:0!important}
+ body #agx-console .ag5-source-note,body #agx-console .ag5-sidebar-links{display:none!important}
+}
+@media(max-width:450px){
+ .terra-copy{min-height:475px!important}
+ body[data-view="panorama"] .terra-story h1{font-size:48px!important}
+ .terra-cta-line{align-items:flex-start}
+ .terra-action-note{font-size:8px}
+ .terra-metrics strong{font-size:22px}
+ .terra-map-stamp{font-size:25px}
+}
+@media(prefers-reduced-motion:reduce){.terra-main-action,.terra-map-point .terra-point-core{transition:none!important}}
+@media print{body .rail,body .masthead,body .topline,body .ag-data-strip{display:none!important}body #agx-console{border:0!important;box-shadow:none!important}}
+</style>
 </head>
 <body>
 <a href="#main" class="skip-link">Saltar al contenido principal</a>
@@ -70,29 +240,43 @@
         </details>
       </div>
     </div>
-    <header class="masthead">
-      <div class="masthead-content">
-        <div class="masthead-copy">
-          <div class="masthead-kicker"><span class="editorial-rule"></span> AGRICULTURA · INTELIGENCIA PÚBLICA · MÉXICO</div>
-          <h1>La evidencia transforma<br><em>el territorio.</em></h1>
-          <p>Datos abiertos, análisis territorial y herramientas para comprender la producción agrícola de Sinaloa. Explore 23 cierres históricos, compare municipios y construya evidencia para decisiones públicas, académicas y productivas.</p>
-          <div class="hero-actions">
-            <button class="hero-primary" data-tab="explorar-estados" type="button">Explorar municipios <span aria-hidden="true">↗</span></button>
-            <button class="hero-secondary" data-tab="explorar-cultivos" type="button">Consultar cultivos <span aria-hidden="true">→</span></button>
+
+    <header class="masthead" aria-label="Portada de inteligencia agrícola">
+      <div class="terra-hero" id="agri-intel">
+        <div class="terra-copy">
+          <div class="terra-overline"><span class="terra-live"><span class="terra-live-dot"></span> GROWA / EARTH INTELLIGENCE</span><span class="terra-edition">EDICIÓN 2026 · SINALOA, MÉXICO</span></div>
+          <div class="terra-story">
+            <div class="terra-eyebrow"><span class="terra-line"></span> INFORMACIÓN TERRITORIAL · AGRICULTURA</div>
+            <h1>Una nueva<br>forma de <em>leer</em><br>la tierra<span class="terra-period">.</span></h1>
+            <p>Del comportamiento de los cultivos a la transformación del territorio. Una plataforma para explorar la producción agrícola con perspectiva histórica, geográfica y científica.</p>
+            <div class="terra-cta-line">
+              <button class="terra-main-action" type="button" data-tab="explorar-estados">Explorar territorio <span aria-hidden="true">↗</span></button>
+              <span class="terra-action-note">Datos DGSIAP · análisis GROWA<br>Sin simulaciones ni cifras estimadas</span>
+            </div>
+          </div>
+          <div class="terra-metrics" aria-label="Cobertura estadística verificada">
+            <div><strong>23<span> años</span></strong><small>SERIE HISTÓRICA · 2003–2025</small></div>
+            <div><strong>18</strong><small>MUNICIPIOS EN LA SERIE</small></div>
+            <div><strong>113</strong><small>CULTIVOS IDENTIFICADOS</small></div>
           </div>
         </div>
-        <aside class="masthead-aside" aria-label="Ficha del observatorio">
-          <div class="masthead-aside-head"><span>OBSERVATORIO / AGRO</span><span>GROWA RESEARCH</span></div>
-          <div class="masthead-aside-title">Sinaloa<br><span>2003—2025</span></div>
-          <div class="masthead-aside-facts">
-            <div><span>COBERTURA</span><strong>18 municipios históricos</strong></div>
-            <div><span>HORIZONTE</span><strong>23 cierres agrícolas</strong></div>
-            <div><span>FUENTE</span><strong>DGSIAP · Series municipales</strong></div>
+        <div class="terra-geovisual">
+          <div id="terra-map" class="terra-map" role="application" aria-label="Mapa satelital exploratorio con puntos de referencia municipales de Sinaloa"></div>
+          <div class="terra-map-grid" aria-hidden="true"></div>
+          <div class="terra-map-top">
+            <span class="terra-map-badge"><span aria-hidden="true">◉</span> EXPLORADOR TERRITORIAL</span>
+            <span class="terra-map-coords">24° 48′ N &nbsp; 107° 24′ O</span>
           </div>
-          <div class="masthead-aside-bottom"><span>FUENTE: DGSIAP · TRATAMIENTO GROWA</span><span>2003–2025</span></div>
-        </aside>
+          <div class="terra-map-cross" aria-hidden="true"><span></span><span></span></div>
+          <div class="terra-map-lower">
+            <div class="terra-map-location"><small>REGIÓN DE ESTUDIO / MX-SIN</small><strong id="terra-selected">Sinaloa, México</strong><span>18 referencias municipales · selección interactiva</span></div>
+            <div class="terra-map-stamp">G / 01<br><span>EARTH VIEW</span></div>
+          </div>
+          <div class="terra-map-legend">IMAGEN BASE: ESRI · PUNTOS MUNICIPALES APROXIMADOS<br>NO REPRESENTA PARCELAS NI ÍNDICES SATELITALES</div>
+        </div>
       </div>
     </header>
+
 <section class="institutional-access" aria-label="Rutas principales de exploración">
   <div class="institutional-access-lead"><span class="institutional-access-label">EXPLORAR EL OBSERVATORIO</span><h2>Una plataforma. Múltiples perspectivas.</h2><p>Acceda directamente a las herramientas de información y análisis.</p></div>
   <div class="institutional-access-grid">
@@ -476,6 +660,46 @@
 
 <script id="water-platform-loader">
 (()=>{const root=document.getElementById('panel-agua'),frame=document.getElementById('water-platform-frame');if(!root||!frame)return;function open(){if(root.hidden||frame.dataset.loaded)return;frame.dataset.loaded='true';const q=new URLSearchParams(location.search).get('water')||'';frame.src='agua/?embedded=1'+(q?'&'+q:'');}new MutationObserver(open).observe(root,{attributes:true,attributeFilter:['hidden']});document.addEventListener('DOMContentLoaded',open);document.querySelector('.navigation')?.addEventListener('click',e=>{if(e.target.closest('[data-tab]'))requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}))});window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==frame.contentWindow||e.data?.type!=='growa-water-height')return;const h=Number(e.data.height);if(Number.isFinite(h))frame.style.height=Math.max(900,Math.min(6000,h))+'px'});open();})();
+</script>
+
+<script id="terra-map-controller">
+(function(){
+"use strict";
+function bootTerra(){
+ var host=document.getElementById("terra-map");
+ if(!host || !window.L || host.dataset.initialized) return;
+ host.dataset.initialized="true";
+ try {
+  var L=window.L;
+  var map=L.map(host,{zoomControl:false,scrollWheelZoom:false,attributionControl:true,preferCanvas:true}).setView([24.8,-107.35],7);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"}).addTo(map);
+  var towns=[
+   ["Ahome",25.793,-108.998,1],["El Fuerte",26.419,-108.619,0],["Choix",26.710,-108.324,0],
+   ["Guasave",25.567,-108.469,1],["Sinaloa",25.822,-108.222,0],["Angostura",25.365,-108.161,0],
+   ["Salvador Alvarado",25.458,-108.091,0],["Mocorito",25.482,-107.921,0],["Badiraguato",25.364,-107.552,0],
+   ["Culiacán",24.804,-107.394,1],["Navolato",24.766,-107.698,1],["Cosalá",24.414,-106.692,0],
+   ["Elota",23.952,-106.710,0],["San Ignacio",23.944,-106.425,0],["Mazatlán",23.247,-106.411,1],
+   ["Concordia",23.288,-106.067,0],["Rosario",22.992,-105.855,0],["Escuinapa",22.830,-105.773,1]
+  ];
+  towns.forEach(function(t){
+   var html='<span class="terra-point-core"></span>'+(t[3]?'<span class="terra-point-label">'+t[0]+'</span>':'');
+   var pin=L.marker([t[1],t[2]],{icon:L.divIcon({html:html,className:"terra-map-point",iconSize:[14,14],iconAnchor:[7,7]}),title:"Consultar "+t[0]}).addTo(map);
+   pin.bindTooltip(t[0],{direction:"top",offset:[0,-9],className:"terra-tooltip"});
+   pin.on("mouseover",function(){var title=document.getElementById("terra-selected");if(title)title.textContent=t[0];});
+   pin.on("mouseout",function(){var title=document.getElementById("terra-selected");if(title)title.textContent="Sinaloa, México";});
+   pin.on("click",function(){
+    if(window.GrowaExplorer && typeof window.GrowaExplorer.openState==="function"){window.GrowaExplorer.openState("Sinaloa",t[0]);}
+    else if(typeof window.GrowaNavigate==="function"){window.GrowaNavigate("explorar-estados");}
+   });
+  });
+  var observer=new MutationObserver(function(){if(document.body.dataset.view==="panorama")setTimeout(function(){map.invalidateSize(false);},85);});
+  observer.observe(document.body,{attributes:true,attributeFilter:["data-view"]});
+  window.addEventListener("resize",function(){map.invalidateSize(false);},{passive:true});
+  setTimeout(function(){map.invalidateSize(false);},350);
+ }catch(e){host.dataset.initialized="";host.setAttribute("aria-label","Mapa temporalmente no disponible");}
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootTerra);else bootTerra();
+})();
 </script>
 </body>
 </html>
