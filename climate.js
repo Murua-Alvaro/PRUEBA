@@ -237,13 +237,26 @@ function hoverChart(event){
  target.innerHTML='<strong>'+MONTHS[month]+' '+context.year+'</strong><div style="color:#5cf2bd">Precipitación: '+fmt(m.PRECTOTCORR)+' mm</div><div style="color:#a9c4ff">T media: '+fmt(m.T2M)+' °C</div>';
  target.hidden=false;
 }
+function exportCSV(){
+ if(!currentData||status!=="success")return;
+ const labels=["mes","T2M_C","T2M_MAX_C","T2M_MIN_C","PRECTOTCORR_mm","RH2M_pct","WS2M_m_s","ALLSKY_SFC_SW_DWN_MJ_m2_dia"];
+ const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+ const values=currentData.monthly.map(m=>[context.year+"-"+String(m.month+1).padStart(2,"0"),m.T2M,m.T2M_MAX,m.T2M_MIN,m.PRECTOTCORR,m.RH2M,m.WS2M,m.ALLSKY_SFC_SW_DWN].map(v=>q(v===null?"":v)).join(","));
+ const contents="\ufeff"+[labels.join(","),...values].join("\r\n");
+ const blob=new Blob([contents],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="growa-nasa-power-"+(context.label||"punto").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-")+"-"+context.year+".csv";
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
 function onReady(){
  const retry=$("eoc-retry");if(retry)retry.addEventListener("click",()=>{
   if(context.point)request(context.point,context.year,true);
  });
- window.GrowaClimate={sync,selectPoint,attachLeaflet,attachMap,renderChart,hoverChart,
+ window.GrowaClimate={sync,selectPoint,attachLeaflet,attachMap,renderChart,hoverChart,exportCSV,
   getStatus:()=>status,getData:()=>currentData,buildUrl,parseResponse};
  const city=$("eo-city")?.value||"",year=Number($("eo-year")?.value)||2025;
+ const existingLeaflet=window.GrowaEOMap?.getLeaflet?.();if(existingLeaflet)attachLeaflet(existingLeaflet);
+ const existingGL=window.GrowaEOMap?.getMap?.();if(existingGL&&existingGL.loaded?.())attachMap(existingGL);
  sync({city,year});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",onReady);
