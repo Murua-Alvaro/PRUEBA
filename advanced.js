@@ -17,7 +17,7 @@ let N=null,C=null,D=null,leaf=null,markers=null,selectedPoint=null,region="Sinal
 const annual=new Map(),climate=new Map(),pointIndex=new Map(),climateS=new Map(),monthlyS=new Map(),producerIndex=new Map();
 const ready=()=>Boolean(N&&C);
 let mapHealth={state:"loading",provider:"SATÉLITE",detail:"Preparando cartografía"};
-let geoCenter=null,geoZoom=6,geoOffset={x:0,y:0},geoProvider=0,geoToken=0;
+let geoCenter=null,geoZoom=6,geoOffset={x:0,y:0},geoProvider=0,geoToken=0,geoLastSignature="";
 const geoProviders=[
  {name:"ESRI / SATÉLITE",url:(z,x,y)=>"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/"+z+"/"+y+"/"+x,credit:"Imagery © Esri, Maxar, Earthstar Geographics"},
  {name:"CARTO / OPENSTREETMAP",url:(z,x,y)=>"https://a.basemaps.cartocdn.com/light_all/"+z+"/"+x+"/"+y+".png",credit:"© OpenStreetMap contributors © CARTO"},
@@ -53,7 +53,11 @@ function drawGeographicFallback(){
  const w=Math.max(400,stage.clientWidth||window.innerWidth||1200),h=Math.max(350,stage.clientHeight||520);
  const z=geoZoom,scale=Math.pow(2,z),cp=merc(geoCenter.lon,geoCenter.lat,z);
  const left=cp[0]-w/2-geoOffset.x,top=cp[1]-h/2-geoOffset.y;
- const provider=geoProviders[geoProvider],token=++geoToken;
+ const provider=geoProviders[geoProvider];
+ const signature=[region,state().crop,region==="Sinaloa"?state().year:"2025",selectedPoint?.[2]||"",showMarkers,geoZoom,geoCenter?.lat,geoCenter?.lon,geoOffset.x,geoOffset.y,geoProvider].join("|");
+ if(signature===geoLastSignature&&stage.innerHTML.includes('data-ea-raster'))return;
+ geoLastSignature=signature;
+ const token=++geoToken;
  let tiles="";
  for(let ty=Math.max(0,Math.floor(top/256)-1);ty<=Math.min(scale-1,Math.ceil((top+h)/256)+1);ty++){
   for(let tx=Math.floor(left/256)-1;tx<=Math.ceil((left+w)/256)+1;tx++){
@@ -71,11 +75,17 @@ function drawGeographicFallback(){
  stage.innerHTML='<div class="ea-geo-tiles">'+tiles+'</div><div class="ea-geo-tint"></div><div class="ea-geo-pins">'+dots+'</div>'
  +'<div class="ea-geo-legend"><span class="ea-geo-led"></span>'+esc(region)+' · '+points.length+' referencias municipales de '+esc(state().crop)+'</div>'
  +'<div class="ea-geo-credit">'+esc(provider.credit)+'</div>';
- let ok=0,failed=0;const imgs=Array.from(stage.querySelectorAll("img[data-ea-raster]"));
- const threshold=Math.max(1,Math.ceil(imgs.length*.22));
+ let ok=0,failed=0,settled=false;const imgs=Array.from(stage.querySelectorAll("img[data-ea-raster]"));
+ const threshold=Math.max(1,Math.ceil(imgs.length*.16));
+ const fallbackDelay=setTimeout(()=>{
+  if(token!==geoToken||settled)return;
+  if(ok<threshold&&geoProvider<geoProviders.length-1){geoProvider++;drawGeographicFallback()}
+  else if(ok>0){const status=$("ea-map-status");if(status)status.textContent="CARTOGRAFÍA PARCIAL"}
+ },8500);
  function update(){
   if(token!==geoToken)return;
   if(ok>=threshold){
+   settled=true;clearTimeout(fallbackDelay);
    if(mapHealth.state!=="ready"){
     mapHealth={state:"native",provider:provider.name,detail:"Imágenes reales cargadas"};
     const lab=$("ea-map-status"),prov=$("ea-map-provider");
@@ -83,6 +93,7 @@ function drawGeographicFallback(){
     if(prov)prov.textContent=provider.name;
    }
   }else if(failed>=Math.ceil(imgs.length*.6)&&ok===0){
+   settled=true;clearTimeout(fallbackDelay);
    if(geoProvider<geoProviders.length-1){geoProvider++;drawGeographicFallback()}
    else{const lab=$("ea-map-status");if(lab)lab.textContent="IMÁGENES NO DISPONIBLES"}
   }
