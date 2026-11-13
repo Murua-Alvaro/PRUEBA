@@ -93,6 +93,8 @@ function drawGeographicFallback(){
  });
 }
 function zoomFallback(step){geoZoom=Math.max(4,Math.min(13,geoZoom+(step>0?1:-1)));geoOffset={x:0,y:0};drawGeographicFallback()}
+function toggleRaster(){geoProvider=geoProvider===0?1:0;drawGeographicFallback()}
+function retryRaster(){geoProvider=0;drawGeographicFallback()}
 function resetFallback(){setView(true);drawGeographicFallback()}
 function panFallback(dx,dy){geoOffset.x+=dx;geoOffset.y+=dy;drawGeographicFallback()}
 function centerFallback(lat,lon){geoCenter={lat,lon};geoOffset={x:0,y:0};geoZoom=Math.max(7,geoZoom);drawGeographicFallback()}
@@ -367,7 +369,7 @@ function createUI(){
   const mapStatus=document.createElement("div");mapStatus.id="ea-map-health";mapStatus.className="ea-map-health";
   mapStatus.innerHTML='<div><span id="ea-map-status">CARGANDO CARTOGRAFÍA</span><small id="ea-map-provider">Satélite · conexión</small></div><button id="ea-map-retry" type="button" title="Reintentar carga cartográfica" aria-label="Reintentar mapa">↻</button>';
   mapElement.insertAdjacentElement("afterend",mapStatus);
-  $("ea-map-retry").addEventListener("click",()=>window.GrowaEOMap?.retryTiles?.());
+  $("ea-map-retry").addEventListener("click",()=>{if(window.GrowaEOMap?.retryTiles)window.GrowaEOMap.retryTiles();else retryRaster()});
  }
  setMapHealth(mapHealth);
  right.id="eo-right";right.dataset.eaTab="production";
@@ -430,6 +432,6 @@ async function boot(){
   text("eo-data-status","10 estados · 529 puntos · 22 cultivos");
  }catch(err){console.warn("GROWA national extension:",err);const x=document.querySelector(".eo-left-foot span:nth-child(2)");if(x)x.textContent="Sinaloa disponible · extensión: "+err.message}
 }
-window.GrowaAdvanced={active:ready,isNational,selectNationalCity,renderChart,hoverChart,clickChart,exportCSV,attachMap:setMap,onEOState,renderNationalRanking:fillRight,updateMap:drawMarkers,setMapHealth,getMapHealth:()=>mapHealth,renderMapTelemetry,fitRegion,zoomFallback,resetFallback,panFallback};
+window.GrowaAdvanced={active:ready,isNational,selectNationalCity,renderChart,hoverChart,clickChart,exportCSV,attachMap:setMap,onEOState,renderNationalRanking:fillRight,updateMap:drawMarkers,setMapHealth,getMapHealth:()=>mapHealth,renderMapTelemetry,fitRegion,zoomFallback,resetFallback,panFallback,toggleRaster,retryRaster};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
