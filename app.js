@@ -2915,6 +2915,66 @@ const climateVars={TMEAN:["Temperatura media","°C"],PRECIP_MM:["Precipitación"
 let N=null,C=null,D=null,leaf=null,markers=null,selectedPoint=null,region="Sinaloa",compareState="",panel="production",resolution="annual",showMarkers=true,lastGraph=null,lastOptions="";
 const annual=new Map(),climate=new Map(),pointIndex=new Map(),climateS=new Map(),monthlyS=new Map(),producerIndex=new Map();
 const ready=()=>Boolean(N&&C);
+let mapHealth={state:"loading",provider:"SATÉLITE",detail:"Conectando mapa…"};
+function setMapHealth(payload){
+ mapHealth={...mapHealth,...payload};
+ const stage=$("ea-geostage"),status=$("ea-map-status"),provider=$("ea-map-provider");
+ if(stage){
+  stage.hidden=mapHealth.state==="ready";
+  stage.dataset.health=mapHealth.state;
+ }
+ if(status)status.textContent=mapHealth.state==="ready"?"MAPA ACTIVO":mapHealth.state==="loading"?"CARGANDO CARTOGRAFÍA":"BASE EXTERNA NO DISPONIBLE";
+ if(provider)provider.textContent=mapHealth.provider+(mapHealth.detail?" · "+mapHealth.detail:"");
+ if(stage&&!stage.hidden)drawGeographicFallback();
+}
+function hull(points){
+ const a=points.map(p=>[p[4],p[3]]).sort((p,q)=>p[0]-q[0]||p[1]-q[1]);
+ if(a.length<3)return a;
+ const cross=(o,p,q)=>(p[0]-o[0])*(q[1]-o[1])-(p[1]-o[1])*(q[0]-o[0]);
+ const lower=[],upper=[];
+ for(const p of a){while(lower.length>=2&&cross(lower[lower.length-2],lower[lower.length-1],p)<=0)lower.pop();lower.push(p)}
+ for(let i=a.length-1;i>=0;i--){const p=a[i];while(upper.length>=2&&cross(upper[upper.length-2],upper[upper.length-1],p)<=0)upper.pop();upper.push(p)}
+ lower.pop();upper.pop();return lower.concat(upper);
+}
+function drawGeographicFallback(){
+ const stage=$("ea-geostage");if(!stage||!ready())return;
+ const all=N.points.filter(p=>p[1]===stateIndex(region)),selected=activeCropZones();
+ if(!all.length){stage.innerHTML='<p class="ea-geo-empty">No existen referencias territoriales para esta selección.</p>';return}
+ const lat=all.map(p=>p[3]),lon=all.map(p=>p[4]);
+ const south=Math.min(...lat)-.33,north=Math.max(...lat)+.33,west=Math.min(...lon)-.4,east=Math.max(...lon)+.4;
+ const X=lng=>285+(lng-west)/Math.max(.2,east-west)*620;
+ const Y=latitude=>525-(latitude-south)/Math.max(.2,north-south)*440;
+ const border=hull(all).map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ")+" Z";
+ const graticule=Array.from({length:5},(_,i)=>{
+  const dx=285+i*155,dy=85+i*110;
+  return '<path d="M'+dx+' 85V525 M285 '+dy+'H905" stroke="#a5cdb5" stroke-opacity=".16" stroke-width="1"/>';
+ }).join("");
+ const activeId=new Set(selected.map(p=>n(p.city)));
+ const pts=all.map(p=>{
+  const selectedCrop=activeId.has(n(p[2])),isPicked=n(selectedPoint?.[2]||"")===n(p[2]);
+  const radius=isPicked?7:selectedCrop?4.5:2;
+  return '<circle data-ea-fallback-city="'+esc(p[2])+'" cx="'+X(p[4]).toFixed(1)+'" cy="'+Y(p[3]).toFixed(1)+'" r="'+radius+'" fill="'+(isPicked?"#f4e9a6":selectedCrop?"#65edb6":"#638e7f")+'" stroke="'+(selectedCrop?"#ecfff7":"#b6d7c4")+'" stroke-width="'+(isPicked?2.2:0.65)+'" opacity="'+(selectedCrop?1:.65)+'"><title>'+esc(p[2])+(selectedCrop?" · referencia agrícola":" · localidad georreferenciada")+'</title></circle>';
+ }).join("");
+ const textLabels=Array.from({length:3},(_,i)=>{
+  const t=(i+1)/4,yy=85+440*t;
+  return '<text x="276" y="'+yy+'" fill="#a1c7b3" font-size="11" font-family="monospace" text-anchor="end">'+(north-t*(north-south)).toFixed(1)+'°N</text>';
+ }).join("");
+ stage.innerHTML='<div class="ea-geo-message"><span class="ea-geo-pulse"></span><span>REFERENCIAS TERRITORIALES</span><small>La base satelital no está disponible. Coordenadas reales, no límites oficiales.</small></div>'
+ +'<svg class="ea-geo-vector" viewBox="0 0 1200 610" preserveAspectRatio="none" role="img" aria-label="Mapa de respaldo con referencias municipales reales de '+esc(region)+'">'
+ +graticule+'<path d="'+border+'" fill="#2c604a" fill-opacity=".12" stroke="#7ddbb1" stroke-dasharray="7 6" stroke-width="1.6"/>'
+ +pts+textLabels+'<text x="595" y="566" fill="#a9d8c0" font-size="12" font-family="monospace" text-anchor="middle">'+esc(region.toUpperCase())+' · '+selected.length+' PUNTOS DEL CULTIVO · 2025</text></svg>';
+}
+function renderMapTelemetry(){
+ const s=state(),points=activeCropZones();
+ const total=points.reduce((a,p)=>a+(Number(p.harvest)||0),0);
+ const lead=points.length?points.reduce((a,p)=>p.harvest>a.harvest?p:a):null;
+ text("ea-map-place",region.toUpperCase());
+ text("ea-map-crop",s.crop);
+ text("ea-map-points",points.length+" REF.");
+ text("ea-map-area",K(total)+" ha");
+ text("ea-map-lead",lead?lead.city:"Sin referencias 2025");
+ if($("ea-geostage")&&!$("ea-geostage").hidden)drawGeographicFallback();
+}
 const eo=()=>window.GrowaEOAPI;
 const state=()=>eo()?.getState?.()||{crop:"Maíz grano",city:"",year:2025,chart:"yield",compare:""};
 const isNational=()=>region!=="Sinaloa";
@@ -2975,12 +3035,13 @@ function activeCropZones(){
  });
  return [...a].map(([name,val])=>{const p=refs.get(name);return p?{city:p.name,lat:p.lat,lon:p.lon,grid:p.grid,year:s.year,...val}:null}).filter(Boolean);
 }
-function setMap(map){leaf=map;drawMarkers()}
+function setMap(map){leaf=map;drawMarkers();fitRegion()}
 function drawMarkers(){
  if(!ready())return;
  const prePoints=activeCropZones();
  text("ea-point-count",prePoints.length+" referencias productivas");
  text("ea-point-year",isNational()?"Corte georreferenciado: 2025":"Corte georreferenciado: "+state().year);
+ renderMapTelemetry();
  if(!leaf||!window.L)return;
  const original=eo()?.getMunicipalLayer?.();
  if(original){if(isNational()&&leaf.hasLayer(original))leaf.removeLayer(original);if(!isNational()&&!leaf.hasLayer(original))original.addTo(leaf)}
@@ -3000,9 +3061,13 @@ function drawMarkers(){
 }
 function fitRegion(){
  if(!leaf||!window.L)return;
- if(!isNational()){leaf.fitBounds([[22.3,-109.8],[27.55,-105.08]],{padding:[28,28]});return}
+ leaf.invalidateSize({animate:false});
+ if(!isNational()){leaf.fitBounds([[22.3,-109.8],[27.55,-105.08]],{padding:[28,28],animate:false});window.GrowaEOMap?.verifyTiles?.();return}
  const points=N.points.filter(x=>x[1]===stateIndex(region));
- if(points.length)leaf.fitBounds(window.L.latLngBounds(points.map(x=>[x[3],x[4]])),{padding:[60,60],maxZoom:8});
+ if(points.length){
+  leaf.fitBounds(window.L.latLngBounds(points.map(x=>[x[3],x[4]])),{padding:[70,70],maxZoom:8,animate:false});
+  window.GrowaEOMap?.verifyTiles?.();
+ }
 }
 function fillRight(){
  const s=state(),name=isNational()?region:s.city,cur=agriculture(s.year,name,s.crop),old=agriculture(s.year-1,name,s.crop);
@@ -3119,6 +3184,7 @@ function refreshCityOptions(){
 function chooseRegion(name){
  if(!N?.states.includes(name))return;
  region=name;selectedPoint=null;compareState="";lastOptions="";
+ setMapHealth({state:"loading",detail:"Cargando "+region});
  const climateHUD=$("eo-climate-hud");if(climateHUD)climateHUD.hidden=isNational();
  const names=isNational()?N.crops:D.cropNames,sel=$("eo-crop"),keep=names.includes(state().crop)?state().crop:"Maíz grano";
  sel.innerHTML=names.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");sel.value=keep;
@@ -3134,6 +3200,22 @@ function selectNationalCity(name){
 }
 function createUI(){
  const container=document.querySelector(".eo-selection"),right=document.querySelector(".eo-right");if(!container||!right)throw Error("Estructura base no disponible");
+ const mapElement=$("eo-map");if(!mapElement)throw Error("Visor geográfico no encontrado");
+ if(!$("ea-geostage")){
+  const fallback=document.createElement("div");fallback.id="ea-geostage";fallback.className="ea-geostage";
+  mapElement.insertAdjacentElement("afterend",fallback);
+  fallback.addEventListener("click",e=>{
+    const shape=e.target.closest("[data-ea-fallback-city]");if(shape)selectNationalCity(shape.getAttribute("data-ea-fallback-city"));
+  });
+  const telemetry=document.createElement("div");telemetry.id="ea-map-telemetry";telemetry.className="ea-map-telemetry";
+  telemetry.innerHTML='<div class="ea-map-telemetry-top"><span class="ea-map-light"></span><b id="ea-map-place">SINALOA</b><span id="ea-map-points">—</span></div><div class="ea-map-telemetry-body"><strong id="ea-map-crop">Maíz grano</strong><span id="ea-map-area">— ha</span></div><div class="ea-map-telemetry-foot">MAYOR SUPERFICIE REGISTRADA <strong id="ea-map-lead">—</strong></div>';
+  mapElement.insertAdjacentElement("afterend",telemetry);
+  const mapStatus=document.createElement("div");mapStatus.id="ea-map-health";mapStatus.className="ea-map-health";
+  mapStatus.innerHTML='<div><span id="ea-map-status">CARGANDO CARTOGRAFÍA</span><small id="ea-map-provider">Satélite · conexión</small></div><button id="ea-map-retry" type="button" title="Reintentar carga cartográfica" aria-label="Reintentar mapa">↻</button>';
+  mapElement.insertAdjacentElement("afterend",mapStatus);
+  $("ea-map-retry").addEventListener("click",()=>window.GrowaEOMap?.retryTiles?.());
+ }
+ setMapHealth(mapHealth);
  right.id="eo-right";right.dataset.eaTab="production";
  const label=document.createElement("label");label.innerHTML='ESTADO <select id="ea-state" aria-label="Elegir estado"></select>';label.className="ea-state";
  container.insertBefore(label,container.firstChild);
@@ -3166,10 +3248,8 @@ function createUI(){
 }
 async function boot(){
  try{
-  // Render's deployed static build currently publishes app.js but not standalone /data files.
-  // National and climate records are bundled with index.html so the workspace works without CDN or 404 requests.
   const embedded=window.GrowaBundledNational;
-  if(!embedded?.national||!embedded?.sinaloa)throw Error("Paquete local de los 10 estados no disponible");
+  if(!embedded?.national||!embedded?.sinaloa)throw Error("Datos multientidad no disponibles");
   const [a,b]=[embedded.national,embedded.sinaloa];
   if(a.states?.length!==10||a.points?.length!==529||a.cropAnnual?.length!==3933||b.annual?.length!==414||b.monthly?.length!==4968)throw Error("Falló el control de integridad de datos");
   N=a;C=b;D=window.GrowaSinaloaData?.D;
@@ -3191,10 +3271,10 @@ async function boot(){
   const climateHUD=$("eo-climate-hud");if(climateHUD)climateHUD.hidden=isNational();
   leaf=window.GrowaEOMap?.getLeaflet?.()||null;
   window.addEventListener("growa:eo-change",onEOState);
-  onEOState();drawMarkers();
+  onEOState();drawMarkers();renderMapTelemetry();
   text("eo-data-status","10 estados · 529 puntos · 22 cultivos");
  }catch(err){console.warn("GROWA national extension:",err);const x=document.querySelector(".eo-left-foot span:nth-child(2)");if(x)x.textContent="Sinaloa disponible · extensión: "+err.message}
 }
-window.GrowaAdvanced={active:ready,isNational,selectNationalCity,renderChart,hoverChart,clickChart,exportCSV,attachMap:setMap,onEOState,renderNationalRanking:fillRight,updateMap:drawMarkers};
+window.GrowaAdvanced={active:ready,isNational,selectNationalCity,renderChart,hoverChart,clickChart,exportCSV,attachMap:setMap,onEOState,renderNationalRanking:fillRight,updateMap:drawMarkers,setMapHealth,getMapHealth:()=>mapHealth,renderMapTelemetry};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
