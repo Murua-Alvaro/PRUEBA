@@ -1,0 +1,109 @@
+/* GROWA Earth Intelligence / national crop reference & time-series UI */
+:root{--ea-green:#1e6542;--ea-forest:#153a2a;--ea-faint:#f4faf4;--ea-line:#dce9dd;--ea-mono:"IBM Plex Mono",Consolas,monospace}
+body[data-view="panorama"] .eo-right{width:354px!important;right:14px!important;top:15px!important;bottom:298px!important;overflow-y:auto!important;overflow-x:hidden!important;border-radius:10px!important;background:#fcfffb!important;scrollbar-width:thin!important;scrollbar-color:#b7d3bd transparent!important}
+body[data-view="panorama"] .eo-left{width:289px!important;left:14px!important;top:15px!important;bottom:298px!important;scrollbar-width:thin!important;scrollbar-color:#b7d3bd transparent!important}
+body[data-view="panorama"] .eo-map-heading{left:324px!important;right:391px!important;top:22px!important}
+body[data-view="panorama"] .eo-map-controls{right:388px!important;top:111px!important}
+body[data-view="panorama"] .eo-metadata{left:324px!important;right:389px!important}
+body[data-view="panorama"] .eo-climate-hud{left:324px!important;top:177px!important;width:min(322px,calc(100% - 735px))!important;min-width:235px!important}
+.ea-state{display:flex;flex-direction:column;gap:6px;font:600 9px var(--ea-mono);letter-spacing:.03em;color:#638e6e}
+.ea-state select{display:block;width:100%;min-height:39px;padding:9px 10px;border:1px solid #d8e9d9;background:#f4faf4;color:#236344;border-radius:5px;font:650 12px "DM Sans",sans-serif;outline:none}
+.ea-state select:focus-visible{outline:2px solid #62a87c}
+body[data-view="panorama"] .eo-selection{gap:10px!important;padding:5px 17px 17px!important}
+.ea-map-points{margin:2px 15px 12px;padding:13px;border:1px solid #d8eada;border-radius:7px;background:#f2faf0}
+.ea-map-points>div{display:flex;justify-content:space-between;align-items:center;gap:5px}
+.ea-map-points strong{font:700 9px var(--ea-mono);color:#3b7550}
+.ea-map-points label{font:500 9px "DM Sans",sans-serif;color:#628b6c;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.ea-map-points input{accent-color:#33865c;width:12px;height:12px}
+.ea-map-points>span{display:block;margin:11px 0 5px;font:700 17px "DM Sans",sans-serif;color:#24583c;letter-spacing:-.04em}
+.ea-map-points small{font:600 9px var(--ea-mono);color:#73987a}
+body[data-view="panorama"] .ea-tabs{position:sticky;top:0;z-index:15;display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:7px;background:#fff;border-top:1px solid #e6eee6;border-bottom:1px solid #e6eee6}
+.ea-tabs button{border:0!important;border-radius:5px!important;box-shadow:none!important;padding:11px 3px!important;font:700 10px "DM Sans",sans-serif!important;color:#7b9881!important;background:transparent!important}
+.ea-tabs button.active{background:#e7f5e8!important;color:#236a43!important}
+body[data-view="panorama"] .eo-right-crop{padding:16px 20px 12px!important}
+body[data-view="panorama"] .eo-right-crop h2{font-size:25px!important;margin:7px 0!important}
+body[data-view="panorama"] .eo-snapshot{padding:15px 20px!important}
+body[data-view="panorama"] .eo-snapshot-value strong{font-size:39px!important}
+body[data-view="panorama"] .eo-climate-panel{display:none!important}
+body[data-view="panorama"] .eo-right[data-ea-tab="production"] .ea-climate-section,body[data-view="panorama"] .eo-right[data-ea-tab="production"] .ea-reference-section{display:none!important}
+body[data-view="panorama"] .eo-right[data-ea-tab="climate"] .eo-snapshot,body[data-view="panorama"] .eo-right[data-ea-tab="climate"] .ea-product,body[data-view="panorama"] .eo-right[data-ea-tab="climate"] .ea-reference-section,body[data-view="panorama"] .eo-right[data-ea-tab="climate"] .eo-territory-heading,body[data-view="panorama"] .eo-right[data-ea-tab="climate"] .eo-municipality-ranking{display:none!important}
+body[data-view="panorama"] .eo-right[data-ea-tab="reference"] .eo-snapshot,body[data-view="panorama"] .eo-right[data-ea-tab="reference"] .ea-product,body[data-view="panorama"] .eo-right[data-ea-tab="reference"] .ea-climate-section,body[data-view="panorama"] .eo-right[data-ea-tab="reference"] .eo-territory-heading,body[data-view="panorama"] .eo-right[data-ea-tab="reference"] .eo-municipality-ranking{display:none!important}
+.ea-product,.ea-climate-section,.ea-reference-section{padding:18px 20px;background:#fff;border-bottom:1px solid #e7eee5}
+.ea-section-label{display:flex;justify-content:space-between;align-items:center;gap:10px;font:700 9px var(--ea-mono);letter-spacing:.025em;color:#4d8760;margin-bottom:16px}
+.ea-section-label b{font-weight:600;color:#a2b7a5}
+.ea-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.ea-metrics>div{display:flex;flex-direction:column;gap:5px;padding:12px 11px;background:#f5faf5;border:1px solid #e3efe1;border-radius:6px;min-width:0}
+.ea-metrics>div>span{font:600 8px var(--ea-mono);color:#849c8b;letter-spacing:.01em}
+.ea-metrics>div>strong{font:700 22px/1.05 "DM Sans",sans-serif;color:#1f5940;letter-spacing:-.055em;word-break:break-word;font-variant-numeric:tabular-nums}
+.ea-metrics>div>strong b{font-weight:700}
+.ea-metrics>div>small{font:500 9px "DM Sans",sans-serif;color:#97ad9a;line-height:1.3}
+.ea-hist{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:17px 0 10px;padding-top:13px;border-top:1px solid #e6eee4;font:650 9px var(--ea-mono);color:#87a38e}
+.ea-hist strong{font:700 12px "DM Sans",sans-serif;color:#3e7650}
+.ea-hist b{font-size:13px}
+.ea-year-count{font:600 10px "DM Sans",sans-serif;color:#4f9264}
+.ea-source{font:400 9px/1.55 "DM Sans",sans-serif;color:#859c8a;margin:8px 0 0}
+body[data-view="panorama"] .ea-climate-section h3{font:700 16px "DM Sans",sans-serif;color:#2c6b45;letter-spacing:-.045em;margin:0 0 15px}
+.ea-disclaimer{margin:15px 0 3px;color:#7fa089;background:#f0f8ed;border-left:2px solid #8dc098;padding:9px 11px;font:450 10px/1.55 "DM Sans",sans-serif}
+.ea-reference-section dl{display:grid;grid-template-columns:103px minmax(0,1fr);gap:12px 8px;margin:0}
+.ea-reference-section dt{font:650 9px var(--ea-mono);color:#8ca68e}
+.ea-reference-section dd{margin:0;font:650 12px "DM Sans",sans-serif;color:#2c6444;overflow-wrap:anywhere}
+body[data-view="panorama"] .eo-right .eo-layers-title{padding:15px 20px 3px}
+body[data-view="panorama"] .eo-right .eo-heatbar{margin:11px 20px 7px}
+body[data-view="panorama"] .eo-right .eo-heatbar-labels{margin:0 20px 14px}
+body[data-view="panorama"] .eo-right .eo-opacity{padding:14px 20px}
+body[data-view="panorama"] .eo-right .eo-territory-heading{padding:15px 20px 9px}
+body[data-view="panorama"] .eo-right .eo-municipality-ranking{flex:none;min-height:100px;max-height:220px;overflow:auto}
+body[data-view="panorama"] .eo-right .eo-rank{padding:9px 12px!important}
+body[data-view="panorama"] .eo-right .eo-right-foot{min-height:38px;margin-top:auto}
+.ea-period{display:flex;gap:7px;align-items:center;color:#77b59a;font:600 9px var(--ea-mono);white-space:nowrap}
+.ea-period select{border:1px solid #365851;border-radius:4px;color:#a1d8b9;background:#142d2b;padding:6px 7px;max-width:160px;font:600 9px "DM Sans",sans-serif}
+.ea-empty{color:#90b4a6;padding:45px 25px;text-align:center;font:500 11px "DM Sans",sans-serif}
+body[data-view="panorama"] .eo-chart-header{gap:8px!important;padding:0 16px!important}
+body[data-view="panorama"] .eo-chart-controls button{padding:6px 8px!important;font-size:9px!important}
+body[data-view="panorama"] .eo-chart-heading{gap:9px!important}
+body[data-view="panorama"] .eo-chart-heading>span:last-child{max-width:285px;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:1360px) and (min-width:926px){
+ body[data-view="panorama"] .eo-left{width:258px!important}
+ body[data-view="panorama"] .eo-right{width:323px!important}
+ body[data-view="panorama"] .eo-map-heading{left:290px!important;right:348px!important}
+ body[data-view="panorama"] .eo-map-controls{right:347px!important}
+ body[data-view="panorama"] .eo-metadata{left:290px!important;right:348px!important}
+ body[data-view="panorama"] .eo-climate-hud{left:292px!important;min-width:218px!important;width:250px!important}
+ .ea-metrics>div>strong{font-size:19px}
+ .ea-period{font-size:8px}
+}
+@media(max-width:925px){
+ body[data-view="panorama"] .eo-left{position:relative!important;width:auto!important;left:auto!important;top:auto!important;bottom:auto!important}
+ body[data-view="panorama"] .eo-right{top:12px!important;right:12px!important;bottom:auto!important;width:260px!important;height:455px!important}
+ body[data-view="panorama"] .eo-map-heading{left:18px!important;right:295px!important;top:22px!important}
+ body[data-view="panorama"] .eo-map-controls{right:293px!important}
+ body[data-view="panorama"] .eo-metadata{left:17px!important;right:286px!important}
+ body[data-view="panorama"] .eo-climate-hud{top:165px!important;left:15px!important;width:252px!important;min-width:0!important}
+ .ea-metrics>div{padding:10px 8px}
+ .ea-metrics>div>strong{font-size:18px}
+ body[data-view="panorama"] .eo-chart-header{flex-wrap:wrap;min-height:62px;height:62px}
+}
+@media(max-width:650px){
+ body[data-view="panorama"] .eo-map-heading{left:auto!important;right:auto!important;top:auto!important}
+ body[data-view="panorama"] .eo-map-controls{right:12px!important;top:65px!important}
+ body[data-view="panorama"] .eo-metadata{left:12px!important;right:12px!important;top:326px!important}
+ body[data-view="panorama"] .eo-climate-hud{left:12px!important;top:124px!important;width:230px!important}
+ body[data-view="panorama"] .eo-left{order:2!important}
+ body[data-view="panorama"] .eo-right{order:3!important;display:block!important;position:relative!important;width:100%!important;height:auto!important;min-height:310px!important;top:auto!important;right:auto!important;bottom:auto!important;overflow:visible!important;border-radius:0!important}
+ body[data-view="panorama"] .eo-right .eo-right-top{padding:13px 16px}
+ body[data-view="panorama"] .eo-right .eo-right-crop{padding:14px 16px!important}
+ body[data-view="panorama"] .eo-right .eo-snapshot{padding:13px 16px!important}
+ .ea-product,.ea-climate-section,.ea-reference-section{padding:15px 16px}
+ .ea-metrics{gap:8px}
+ .ea-metrics>div>strong{font-size:20px}
+ body[data-view="panorama"] .eo-selection{display:grid!important;grid-template-columns:1fr 1fr;gap:9px!important}
+ .ea-state{grid-column:1/-1}
+ body[data-view="panorama"] .eo-selection label:nth-child(4){grid-column:1/-1}
+ body[data-view="panorama"] .eo-chart-header{min-height:77px;height:77px}
+ .ea-period{margin-left:auto}
+ .ea-period select{max-width:145px}
+ body[data-view="panorama"] .eo-chart-controls{gap:1px}
+ body[data-view="panorama"] .eo-chart-heading{width:100%;justify-content:space-between}
+ body[data-view="panorama"] .eo-chart-heading>span:last-child{display:none}
+ body[data-view="panorama"] .eo-chart-legend{display:none}
+}
