@@ -1171,11 +1171,16 @@ function initLeaflet(){
   function visibleTiles(){
    if(!baseLayer)return 0;
    const pane=baseLayer.getContainer?.();if(!pane)return 0;
-   const mapBox=leaflet.getContainer().getBoundingClientRect();
-   return Array.from(pane.querySelectorAll("img.leaflet-tile-loaded")).filter(el=>{
-    const b=el.getBoundingClientRect();
-    return b.width>0&&b.height>0&&b.right>mapBox.left&&b.left<mapBox.right&&b.bottom>mapBox.top&&b.top<mapBox.bottom;
-   }).length;
+   const box=leaflet.getContainer().getBoundingClientRect();
+   const area=Math.max(1,box.width*box.height);
+   let covered=0;
+   for(const img of pane.querySelectorAll("img.leaflet-tile-loaded")){
+    const r=img.getBoundingClientRect();
+    const ix=Math.max(0,Math.min(r.right,box.right)-Math.max(r.left,box.left));
+    const iy=Math.max(0,Math.min(r.bottom,box.bottom)-Math.max(r.top,box.top));
+    covered+=ix*iy;
+   }
+   return Math.min(1,covered/area);
   }
   function activate(index){
    if(!leaflet)return;
@@ -1191,8 +1196,9 @@ function initLeaflet(){
    baseLayer.on("tileload",()=>{
     if(token!==attempt)return;
     lastSuccessful++;
-    report("ready","Imágenes recibidas");
-    clearProbe();
+    const coverage=visibleTiles();
+    if(coverage>=.52){report("ready",Math.round(coverage*100)+" % del mapa visible");clearProbe()}
+    else report("loading","Completando imágenes · "+Math.round(coverage*100)+" %");
    });
    baseLayer.on("tileerror",()=>{
     if(token!==attempt)return;
@@ -1202,7 +1208,7 @@ function initLeaflet(){
    baseLayer.addTo(leaflet).bringToBack();
    probe=setTimeout(()=>{
     if(token!==attempt)return;
-    if(lastSuccessful||visibleTiles()){report("ready","Cartografía disponible");return}
+    if(visibleTiles()>=.52){report("ready","Cartografía disponible");return}
     activate(Math.min(index+1,providers.length));
    },7200);
    if(leafGeo)leafGeo.bringToFront();
@@ -1213,11 +1219,11 @@ function initLeaflet(){
    leaflet.invalidateSize({animate:false});
    clearProbe();
    const token=attempt,index=providerIndex;
-   if(visibleTiles()>0){report("ready","Imágenes visibles");return}
+   if(visibleTiles()>=.52){report("ready","Imágenes visibles");return}
    report("loading","Actualizando cobertura geográfica");
    probe=setTimeout(()=>{
     if(token!==attempt)return;
-    if(visibleTiles()>0||lastSuccessful>0&&visibleTiles()>0){report("ready","Imágenes visibles");return}
+    if(visibleTiles()>=.52){report("ready","Imágenes visibles");return}
     activate(Math.min(index+1,providers.length));
    },7500);
   }
