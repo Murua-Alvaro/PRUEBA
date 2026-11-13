@@ -27,6 +27,8 @@ jobs:
           python-version: "3.11"
       - name: JavaScript syntax
         run: node --check app.js
+      - name: Territorial dynamics tests
+        run: node tests/territorial-dynamics.test.cjs
       - name: Portal structure and interface
         run: python -m unittest tests.test_portal_console -v
       - name: Run unit tests
