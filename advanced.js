@@ -109,7 +109,7 @@ function chooseNationalCity(city){
  selectedPoint=N.points.find(p=>p[1]===stateIndex(region)&&n(p[2])===n(city))||null;
  if($("eo-city"))$("eo-city").value=selectedPoint?.[2]||"";
  if(selectedPoint){leaf?.panTo([selectedPoint[3],selectedPoint[4]]);window.GrowaClimate?.selectPoint?.(selectedPoint[4],selectedPoint[3],selectedPoint[2])}
- render();
+ onEOState();
 }
 function regionOptions(){
  const s=state();
