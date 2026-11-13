@@ -7,7 +7,7 @@ services:
     runtime: static
     repo: https://github.com/Murua-Alvaro/PRUEBA
     branch: main
-    buildCommand: python3 scripts/build-water.py && mkdir -p dist/data dist/agua && cp index.html styles.css app.js climate.css climate.js agua.css agua-pro.css agua.js dist/ && cp agua/portal-v22.css agua/portal-v22.js dist/agua/ && cp data/analysis-pack.b64 data/agua-v9.json dist/data/
+    buildCommand: python3 scripts/build-water.py && mkdir -p dist/data dist/agua && cp index.html styles.css app.js climate.css climate.js advanced.css advanced.js agua.css agua-pro.css agua.js dist/ && cp agua/portal-v22.css agua/portal-v22.js dist/agua/ && cp data/analysis-pack.b64 data/agua-v9.json data/growa-nacional-10-estados-piloto.json data/clima-sinaloa-historico-2003-2025.json dist/data/
     staticPublishPath: dist
     autoDeployTrigger: off
     envVars:
