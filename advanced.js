@@ -16,60 +16,86 @@ const climateVars={TMEAN:["Temperatura media","°C"],PRECIP_MM:["Precipitación"
 let N=null,C=null,D=null,leaf=null,markers=null,selectedPoint=null,region="Sinaloa",compareState="",panel="production",resolution="annual",showMarkers=true,lastGraph=null,lastOptions="";
 const annual=new Map(),climate=new Map(),pointIndex=new Map(),climateS=new Map(),monthlyS=new Map(),producerIndex=new Map();
 const ready=()=>Boolean(N&&C);
-let mapHealth={state:"loading",provider:"SATÉLITE",detail:"Conectando mapa…"};
-let fallbackZoom=1;
-function setMapHealth(payload){
- mapHealth={...mapHealth,...payload};
- const stage=$("ea-geostage"),status=$("ea-map-status"),provider=$("ea-map-provider");
- if(stage){
-  stage.hidden=mapHealth.state==="ready";
-  stage.dataset.health=mapHealth.state;
- }
- if(status)status.textContent=mapHealth.state==="ready"?"MAPA ACTIVO":mapHealth.state==="loading"?"CARGANDO CARTOGRAFÍA":"BASE EXTERNA NO DISPONIBLE";
- if(provider)provider.textContent=mapHealth.provider+(mapHealth.detail?" · "+mapHealth.detail:"");
- if(stage&&!stage.hidden)drawGeographicFallback();
+let mapHealth={state:"loading",provider:"SATÉLITE",detail:"Preparando cartografía"};
+let geoCenter=null,geoZoom=6,geoOffset={x:0,y:0},geoProvider=0,geoToken=0;
+const geoProviders=[
+ {name:"ESRI / SATÉLITE",url:(z,x,y)=>"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/"+z+"/"+y+"/"+x,credit:"Imagery © Esri, Maxar, Earthstar Geographics"},
+ {name:"CARTO / OPENSTREETMAP",url:(z,x,y)=>"https://a.basemaps.cartocdn.com/light_all/"+z+"/"+x+"/"+y+".png",credit:"© OpenStreetMap contributors © CARTO"},
+ {name:"OPENSTREETMAP",url:(z,x,y)=>"https://tile.openstreetmap.org/"+z+"/"+x+"/"+y+".png",credit:"© OpenStreetMap contributors"}
+];
+function merc(lon,lat,z){
+ const s=256*Math.pow(2,z),a=Math.max(-85.0511,Math.min(85.0511,lat))*Math.PI/180;
+ return [(lon+180)/360*s,(1-Math.log(Math.tan(a)+1/Math.cos(a))/Math.PI)/2*s];
 }
-function hull(points){
- const a=points.map(p=>[p[4],p[3]]).sort((p,q)=>p[0]-q[0]||p[1]-q[1]);
- if(a.length<3)return a;
- const cross=(o,p,q)=>(p[0]-o[0])*(q[1]-o[1])-(p[1]-o[1])*(q[0]-o[0]);
- const lower=[],upper=[];
- for(const p of a){while(lower.length>=2&&cross(lower[lower.length-2],lower[lower.length-1],p)<=0)lower.pop();lower.push(p)}
- for(let i=a.length-1;i>=0;i--){const p=a[i];while(upper.length>=2&&cross(upper[upper.length-2],upper[upper.length-1],p)<=0)upper.pop();upper.push(p)}
- lower.pop();upper.pop();return lower.concat(upper);
+function setView(force=false){
+ if(!ready())return;
+ const points=N.points.filter(p=>p[1]===stateIndex(region));if(!points.length)return;
+ const west=Math.min(...points.map(p=>p[4])),east=Math.max(...points.map(p=>p[4])),south=Math.min(...points.map(p=>p[3])),north=Math.max(...points.map(p=>p[3]));
+ const root=$("ea-geostage"),w=Math.max(320,(root?.clientWidth||1200)-510),h=Math.max(280,(root?.clientHeight||570)-140);
+ const a=merc(west,north,0),b=merc(east,south,0);
+ if(force||!geoCenter){
+  geoCenter={lat:(south+north)/2,lon:(west+east)/2};
+  geoZoom=Math.max(4,Math.min(12,Math.floor(Math.min(Math.log2(w/Math.max(1,b[0]-a[0])),Math.log2(h/Math.max(1,b[1]-a[1]))))));
+  geoOffset={x:0,y:0};geoProvider=0;
+ }
+}
+function setMapHealth(update){
+ mapHealth={...mapHealth,...update};
+ const stage=$("ea-geostage"),label=$("ea-map-status"),name=$("ea-map-provider");
+ if(stage)stage.hidden=mapHealth.state==="ready";
+ if(label)label.textContent=mapHealth.state==="ready"?"SATÉLITE ACTIVO":mapHealth.state==="native"?"MAPA ACTIVO":mapHealth.state==="loading"?"CARGANDO SATÉLITE":"MAPA ALTERNATIVO";
+ if(name)name.textContent=mapHealth.provider||"Cartografía";
+ if(stage&&!stage.hidden)drawGeographicFallback();
 }
 function drawGeographicFallback(){
  const stage=$("ea-geostage");if(!stage||!ready())return;
- const all=N.points.filter(p=>p[1]===stateIndex(region)),selected=activeCropZones();
- if(!all.length){stage.innerHTML='<p class="ea-geo-empty">No existen referencias territoriales para esta selección.</p>';return}
- const lat=all.map(p=>p[3]),lon=all.map(p=>p[4]);
- const south=Math.min(...lat)-.33,north=Math.max(...lat)+.33,west=Math.min(...lon)-.4,east=Math.max(...lon)+.4;
- const X=lng=>285+(lng-west)/Math.max(.2,east-west)*620;
- const Y=latitude=>525-(latitude-south)/Math.max(.2,north-south)*440;
- const border=hull(all).map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ")+" Z";
- const graticule=Array.from({length:5},(_,i)=>{
-  const dx=285+i*155,dy=85+i*110;
-  return '<path d="M'+dx+' 85V525 M285 '+dy+'H905" stroke="#a5cdb5" stroke-opacity=".16" stroke-width="1"/>';
+ if(!geoCenter)setView(true);
+ const w=Math.max(400,stage.clientWidth||window.innerWidth||1200),h=Math.max(350,stage.clientHeight||520);
+ const z=geoZoom,scale=Math.pow(2,z),cp=merc(geoCenter.lon,geoCenter.lat,z);
+ const left=cp[0]-w/2-geoOffset.x,top=cp[1]-h/2-geoOffset.y;
+ const provider=geoProviders[geoProvider],token=++geoToken;
+ let tiles="";
+ for(let ty=Math.max(0,Math.floor(top/256)-1);ty<=Math.min(scale-1,Math.ceil((top+h)/256)+1);ty++){
+  for(let tx=Math.floor(left/256)-1;tx<=Math.ceil((left+w)/256)+1;tx++){
+   tiles+='<img data-ea-raster="1" alt="" draggable="false" loading="eager" decoding="async" style="position:absolute;left:'+(tx*256-left).toFixed(1)+'px;top:'+(ty*256-top).toFixed(1)+'px;width:256px;height:256px" src="'+provider.url(z,((tx%scale)+scale)%scale,ty)+'">';
+  }
+ }
+ const points=showMarkers?activeCropZones():[],max=Math.max(1,...points.map(p=>p.harvest));
+ const dots=points.map(p=>{
+  const xy=merc(p.lon,p.lat,z),x=xy[0]-left,y=xy[1]-top;
+  if(x<0||x>w||y<0||y>h)return "";
+  const pick=n(selectedPoint?.[2]||state().city)===n(p.city);
+  const diameter=pick?20:Math.round(11+Math.sqrt(Math.max(0,p.harvest)/max)*10);
+  return '<button class="ea-geo-pin'+(pick?' selected':'')+'" data-ea-fallback-city="'+esc(p.city)+'" type="button" style="left:'+x.toFixed(1)+'px;top:'+y.toFixed(1)+'px;width:'+diameter+'px;height:'+diameter+'px" title="'+esc(p.city+" · "+state().crop+" · "+F(p.harvest)+" ha, punto municipal de referencia")+'" aria-label="Seleccionar '+esc(p.city)+'"></button>';
  }).join("");
- const activeId=new Set(selected.map(p=>n(p.city)));
- const pts=all.map(p=>{
-  const selectedCrop=activeId.has(n(p[2])),isPicked=n(selectedPoint?.[2]||"")===n(p[2]);
-  const radius=isPicked?7:selectedCrop?4.5:2;
-  return '<circle data-ea-fallback-city="'+esc(p[2])+'" cx="'+X(p[4]).toFixed(1)+'" cy="'+Y(p[3]).toFixed(1)+'" r="'+radius+'" fill="'+(isPicked?"#f4e9a6":selectedCrop?"#65edb6":"#638e7f")+'" stroke="'+(selectedCrop?"#ecfff7":"#b6d7c4")+'" stroke-width="'+(isPicked?2.2:0.65)+'" opacity="'+(selectedCrop?1:.65)+'"><title>'+esc(p[2])+(selectedCrop?" · referencia agrícola":" · localidad georreferenciada")+'</title></circle>';
- }).join("");
- const textLabels=Array.from({length:3},(_,i)=>{
-  const t=(i+1)/4,yy=85+440*t;
-  return '<text x="276" y="'+yy+'" fill="#a1c7b3" font-size="11" font-family="monospace" text-anchor="end">'+(north-t*(north-south)).toFixed(1)+'°N</text>';
- }).join("");
- stage.innerHTML='<div class="ea-geo-message"><span class="ea-geo-pulse"></span><span>REFERENCIAS TERRITORIALES</span><small>La base satelital no está disponible. Coordenadas reales, no límites oficiales.</small></div>'
- +'<svg class="ea-geo-vector" viewBox="0 0 1200 610" preserveAspectRatio="none" role="img" aria-label="Mapa de respaldo con referencias municipales reales de '+esc(region)+'">'
- +'<g transform="translate(595 305) scale('+fallbackZoom+') translate(-595 -305)">'+graticule+'<path d="'+border+'" fill="#2c604a" fill-opacity=".12" stroke="#7ddbb1" stroke-dasharray="7 6" stroke-width="1.6"/>'
- +pts+textLabels+'</g><text x="595" y="566" fill="#a9d8c0" font-size="12" font-family="monospace" text-anchor="middle">'+esc(region.toUpperCase())+' · '+selected.length+' PUNTOS DEL CULTIVO · 2025</text></svg>';
+ stage.innerHTML='<div class="ea-geo-tiles">'+tiles+'</div><div class="ea-geo-tint"></div><div class="ea-geo-pins">'+dots+'</div>'
+ +'<div class="ea-geo-legend"><span class="ea-geo-led"></span>'+esc(region)+' · '+points.length+' referencias municipales de '+esc(state().crop)+'</div>'
+ +'<div class="ea-geo-credit">'+esc(provider.credit)+'</div>';
+ let ok=0,failed=0;const imgs=Array.from(stage.querySelectorAll("img[data-ea-raster]"));
+ const threshold=Math.max(1,Math.ceil(imgs.length*.22));
+ function update(){
+  if(token!==geoToken)return;
+  if(ok>=threshold){
+   if(mapHealth.state!=="ready"){
+    mapHealth={state:"native",provider:provider.name,detail:"Imágenes reales cargadas"};
+    const lab=$("ea-map-status"),prov=$("ea-map-provider");
+    if(lab)lab.textContent="BASE GEOGRÁFICA";
+    if(prov)prov.textContent=provider.name;
+   }
+  }else if(failed>=Math.ceil(imgs.length*.6)&&ok===0){
+   if(geoProvider<geoProviders.length-1){geoProvider++;drawGeographicFallback()}
+   else{const lab=$("ea-map-status");if(lab)lab.textContent="IMÁGENES NO DISPONIBLES"}
+  }
+ }
+ imgs.forEach(img=>{
+  img.addEventListener("load",()=>{ok++;update()},{once:true});
+  img.addEventListener("error",()=>{failed++;update()},{once:true});
+ });
 }
-function zoomFallback(delta){
- fallbackZoom=Math.max(1,Math.min(4,fallbackZoom+delta));
- drawGeographicFallback();
-}
+function zoomFallback(step){geoZoom=Math.max(4,Math.min(13,geoZoom+(step>0?1:-1)));geoOffset={x:0,y:0};drawGeographicFallback()}
+function resetFallback(){setView(true);drawGeographicFallback()}
+function panFallback(dx,dy){geoOffset.x+=dx;geoOffset.y+=dy;drawGeographicFallback()}
+function centerFallback(lat,lon){geoCenter={lat,lon};geoOffset={x:0,y:0};geoZoom=Math.max(7,geoZoom);drawGeographicFallback()}
 function renderMapTelemetry(){
  const s=state(),points=activeCropZones();
  const total=points.reduce((a,p)=>a+(Number(p.harvest)||0),0);
@@ -307,7 +333,7 @@ function refreshCityOptions(){
 }
 function chooseRegion(name){
  if(!N?.states.includes(name))return;
- region=name;selectedPoint=null;compareState="";lastOptions="";fallbackZoom=1;
+ region=name;selectedPoint=null;compareState="";lastOptions="";setView(true);
  setMapHealth({state:"loading",detail:"Cargando "+region});
  const climateHUD=$("eo-climate-hud");if(climateHUD)climateHUD.hidden=isNational();
  const names=isNational()?N.crops:D.cropNames,sel=$("eo-crop"),keep=names.includes(state().crop)?state().crop:"Maíz grano";
@@ -319,7 +345,7 @@ function chooseRegion(name){
 function selectNationalCity(name){
  selectedPoint=N.points.find(p=>p[1]===stateIndex(region)&&n(p[2])===n(name))||null;
  $("eo-city").value=selectedPoint?.[2]||"";
- if(selectedPoint){leaf?.panTo([selectedPoint[3],selectedPoint[4]]);window.GrowaClimate?.selectPoint?.(selectedPoint[4],selectedPoint[3],selectedPoint[2],"municipal")}
+ if(selectedPoint){leaf?.panTo([selectedPoint[3],selectedPoint[4]]);if(!leaf)centerFallback(selectedPoint[3],selectedPoint[4]);window.GrowaClimate?.selectPoint?.(selectedPoint[4],selectedPoint[3],selectedPoint[2],"municipal")}
  onEOState();
 }
 function createUI(){
@@ -328,11 +354,12 @@ function createUI(){
  if(!$("ea-geostage")){
   const fallback=document.createElement("div");fallback.id="ea-geostage";fallback.className="ea-geostage";
   mapElement.insertAdjacentElement("afterend",fallback);
-  fallback.addEventListener("click",e=>{
-    const shape=e.target.closest("[data-ea-fallback-city]");
-    if(!shape)return;
-    const name=shape.getAttribute("data-ea-fallback-city");
-    if(isNational())selectNationalCity(name);else eo()?.selectCity?.(name);
+  let anchor=null,dragged=false;
+  fallback.addEventListener("pointerdown",e=>{if(e.target.closest("button[data-ea-fallback-city]"))return;anchor=[e.clientX,e.clientY];dragged=false});
+  fallback.addEventListener("pointerup",e=>{if(!anchor)return;const dx=e.clientX-anchor[0],dy=e.clientY-anchor[1];anchor=null;if(Math.hypot(dx,dy)>8){dragged=true;panFallback(dx,dy)}});
+  fallback.addEventListener("wheel",e=>{if(e.target.closest("button"))return;e.preventDefault();zoomFallback(e.deltaY<0?1:-1)},{passive:false});
+  fallback.addEventListener("click",e=>{if(dragged){dragged=false;return}const pin=e.target.closest("button[data-ea-fallback-city]");if(!pin)return;
+    const city=pin.getAttribute("data-ea-fallback-city");if(isNational())selectNationalCity(city);else eo()?.selectCity?.(city);
   });
   const telemetry=document.createElement("div");telemetry.id="ea-map-telemetry";telemetry.className="ea-map-telemetry";
   telemetry.innerHTML='<div class="ea-map-telemetry-top"><span class="ea-map-light"></span><b id="ea-map-place">SINALOA</b><span id="ea-map-points">—</span></div><div class="ea-map-telemetry-body"><strong id="ea-map-crop">Maíz grano</strong><span id="ea-map-area">— ha</span></div><div class="ea-map-telemetry-foot">MAYOR SUPERFICIE REGISTRADA <strong id="ea-map-lead">—</strong></div>';
@@ -403,6 +430,6 @@ async function boot(){
   text("eo-data-status","10 estados · 529 puntos · 22 cultivos");
  }catch(err){console.warn("GROWA national extension:",err);const x=document.querySelector(".eo-left-foot span:nth-child(2)");if(x)x.textContent="Sinaloa disponible · extensión: "+err.message}
 }
-window.GrowaAdvanced={active:ready,isNational,selectNationalCity,renderChart,hoverChart,clickChart,exportCSV,attachMap:setMap,onEOState,renderNationalRanking:fillRight,updateMap:drawMarkers,setMapHealth,getMapHealth:()=>mapHealth,renderMapTelemetry,fitRegion,zoomFallback};
+window.GrowaAdvanced={active:ready,isNational,selectNationalCity,renderChart,hoverChart,clickChart,exportCSV,attachMap:setMap,onEOState,renderNationalRanking:fillRight,updateMap:drawMarkers,setMapHealth,getMapHealth:()=>mapHealth,renderMapTelemetry,fitRegion,zoomFallback,resetFallback,panFallback};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
