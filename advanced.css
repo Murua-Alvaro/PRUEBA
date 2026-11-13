@@ -107,3 +107,66 @@ body[data-view="panorama"] .eo-chart-heading>span:last-child{max-width:285px;ove
  body[data-view="panorama"] .eo-chart-heading>span:last-child{display:none}
  body[data-view="panorama"] .eo-chart-legend{display:none}
 }
+
+
+/* GEO WORKBENCH / national imagery reliability and local geographic fallback */
+body[data-view="panorama"] .eo-map{background:radial-gradient(circle at 53% 42%,#224538 0%,#112b26 72%,#081b19 100%)!important}
+.ea-geostage{position:absolute;z-index:4;inset:0 0 239px;overflow:hidden;background:
+  radial-gradient(ellipse at 53% 48%,rgba(29,93,67,.37) 0%,rgba(12,45,37,.55) 65%),
+  repeating-linear-gradient(30deg,rgba(84,153,119,.045) 0px,rgba(84,153,119,.045) 1px,transparent 1px,transparent 35px),
+  #0c2b27}
+.ea-geostage[hidden]{display:none!important}
+.ea-geo-vector{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.ea-geo-vector circle[data-ea-fallback-city]{pointer-events:all;cursor:pointer;transition:stroke-width .12s ease,fill .12s ease}
+.ea-geo-vector circle[data-ea-fallback-city]:hover{stroke:#fff5bf;stroke-width:2.8}
+.ea-geo-message{position:absolute;left:clamp(280px,28%,360px);top:90px;z-index:3;max-width:440px;display:grid;grid-template-columns:8px 1fr;gap:3px 10px;color:#e8fbed;pointer-events:none}
+.ea-geo-pulse{grid-row:1/3;background:#65e8b3;width:7px;height:7px;border-radius:50%;margin-top:5px;box-shadow:0 0 0 5px #75f0b625}
+.ea-geo-message>span:nth-child(2){font:600 10px "IBM Plex Mono",monospace;letter-spacing:.06em}
+.ea-geo-message small{grid-column:2;font:400 11px/1.5 "DM Sans",sans-serif;color:#b2d3bd}
+.ea-geo-empty{position:absolute;top:44%;left:41%;color:#a0c9b3;font:500 12px "DM Sans",sans-serif}
+body[data-view="panorama"] .ea-map-telemetry{position:absolute;z-index:12;left:324px;bottom:300px;width:265px;background:rgba(9,32,27,.88);border:1px solid #9cd4ac3d;border-radius:7px;backdrop-filter:blur(16px);box-shadow:0 6px 26px #04191635;padding:13px 14px;color:#e7f9ec;pointer-events:none}
+.ea-map-telemetry-top{display:flex;align-items:center;gap:9px;font:600 9px "IBM Plex Mono",monospace;color:#a2d6ad}
+.ea-map-light{display:inline-block;width:6px;height:6px;border-radius:50%;background:#6be6a5;box-shadow:0 0 0 3px #68e8a529}
+.ea-map-telemetry-top b{font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ea-map-telemetry-top>span:last-child{margin-left:auto;color:#a3bfa9;white-space:nowrap}
+.ea-map-telemetry-body{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:11px 0 10px}
+.ea-map-telemetry-body>strong{font:700 17px "DM Sans",sans-serif;letter-spacing:-.035em;color:#f1fff6;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ea-map-telemetry-body>span{font:600 11px "IBM Plex Mono",monospace;color:#a8e8bc;white-space:nowrap}
+.ea-map-telemetry-foot{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #bde4c124;padding-top:10px;font:500 8px "IBM Plex Mono",monospace;color:#91b69e}
+.ea-map-telemetry-foot strong{font:600 10px "DM Sans",sans-serif;color:#d7eddc;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body[data-view="panorama"] .ea-map-health{position:absolute;z-index:12;bottom:300px;right:388px;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:10px 11px 10px 14px;border:1px solid #ffffff4c;background:#ffffffed;box-shadow:0 6px 22px #0a1b1233;border-radius:6px;min-width:193px;max-width:244px;backdrop-filter:blur(10px)}
+.ea-map-health>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.ea-map-health #ea-map-status{font:700 9px "IBM Plex Mono",monospace;color:#2d7245;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ea-map-health #ea-map-provider{font:500 9px "DM Sans",sans-serif;color:#83a38a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ea-map-health>button{background:#edf7ec!important;border:1px solid #d7ead5!important;border-radius:5px!important;min-width:25px!important;min-height:25px!important;color:#3f8b54!important;font:700 20px/1 "DM Sans",sans-serif!important;padding:2px 5px!important}
+.ea-map-health>button:hover{background:#d7eddb!important}
+body[data-view="panorama"] .eo-left,body[data-view="panorama"] .eo-right{box-shadow:0 18px 52px #041b142d,0 1px 4px #041b1410!important}
+body[data-view="panorama"] .eo-map-heading>div>span{letter-spacing:.12em!important}
+@media(max-width:1320px) and (min-width:926px){
+ body[data-view="panorama"] .ea-map-telemetry{left:292px!important;bottom:300px!important;width:228px;padding:11px}
+ body[data-view="panorama"] .ea-map-health{right:278px!important;bottom:300px!important;min-width:168px;max-width:200px;padding:8px}
+ .ea-geo-message{left:290px;top:75px;max-width:300px}
+ .ea-map-telemetry-body strong{font-size:14px}
+}
+@media(max-width:925px){
+ .ea-geostage{inset:0 0 auto;height:480px}
+ .ea-geo-message{left:19px;top:90px;max-width:245px}
+ body[data-view="panorama"] .ea-map-telemetry{left:17px!important;bottom:auto!important;top:322px!important;width:212px!important;padding:10px}
+ body[data-view="panorama"] .ea-map-health{bottom:auto!important;top:24px!important;right:279px!important;min-width:0!important;max-width:195px!important}
+ .ea-map-health #ea-map-status{font-size:8px}
+}
+@media(max-width:650px){
+ .ea-geostage{height:390px}
+ .ea-geo-message{top:113px;left:13px;max-width:227px}
+ .ea-geo-message>span:nth-child(2){font-size:8px}
+ .ea-geo-message small{font-size:9px}
+ body[data-view="panorama"] .ea-map-telemetry{top:292px!important;left:12px!important;width:177px!important;padding:7px!important}
+ .ea-map-telemetry-body{margin:5px 0!important}
+ .ea-map-telemetry-body>strong{font-size:11px!important}
+ .ea-map-telemetry-body>span{font-size:8px!important}
+ .ea-map-telemetry-foot{display:none}
+ body[data-view="panorama"] .ea-map-health{top:14px!important;right:12px!important;max-width:126px!important;padding:6px 8px!important}
+ .ea-map-health #ea-map-status{font-size:7px!important}
+ .ea-map-health #ea-map-provider{font-size:7px!important}
+}
+@media(prefers-reduced-motion:reduce){.ea-geo-vector circle[data-ea-fallback-city]{transition:none}}
