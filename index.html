@@ -1087,39 +1087,103 @@ function leafletImport(){
     lyr.bindTooltip(f.properties?.name||"Parcela importada",{direction:"top"});
   }}).addTo(leaflet);
 }
+
 function initLeaflet(){
- if(!window.L||!rootGeom())return false;
+ if(!window.L||!rootGeom()){
+  window.GrowaAdvanced?.setMapHealth?.({state:"offline",provider:"VECTOR",detail:"El motor de mapas no está disponible"});
+  return false;
+ }
  try{
-  const L=window.L;leaflet=L.map("eo-map",{zoomControl:false,scrollWheelZoom:false,attributionControl:true,preferCanvas:true});
-  leafSatellite=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"});
-  const alternate=L.tileLayer("https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg",{maxZoom:17,attribution:"Sentinel-2 cloudless © EOX / Copernicus"});
-  leafRoad=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"© OpenStreetMap contributors"});
-  let errors=0,alternateErrors=0;
-  leafSatellite.on("tileerror",()=>{
-    if(!S.satellite||!leaflet)return;
-    if(++errors>=4&&leaflet.hasLayer(leafSatellite)){
-      leaflet.removeLayer(leafSatellite);alternate.addTo(leaflet);alternate.bringToBack();
-      text("eo-basemap-label","SAT / EOX");errors=-999;
-    }
-  });
-  alternate.on("tileerror",()=>{
-    if(!S.satellite||!leaflet)return;
-    if(++alternateErrors>=4&&leaflet.hasLayer(alternate)){
-      leaflet.removeLayer(alternate);leafRoad.addTo(leaflet);leafRoad.bringToBack();S.satellite=false;
-      $("eo-satellite").setAttribute("aria-pressed","false");text("eo-basemap-label","STREETS");
-      const alert=$("eo-map-fallback");alert.hidden=false;
-      alert.textContent="Imagen satelital no disponible. Se muestra cartografía de respaldo.";
-    }
-  });
-  leafSatellite.addTo(leaflet);
-  mode="leaflet";updateMap();leafletImport();fitCity("");
-  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getMunicipalLayer:()=>leafGeo,getState:()=>S,refreshClimate:()=>{renderSummary();renderRanking();updateMap();if(S.chart==="climate")drawChart()}};
+  const L=window.L;
+  leaflet=L.map("eo-map",{zoomControl:false,scrollWheelZoom:false,attributionControl:true,preferCanvas:true,zoomSnap:.25,fadeAnimation:false,worldCopyJump:false});
+  const providers=[
+   {name:"ESRI WORLD IMAGERY",type:"satellite",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",attr:"Imagery © Esri, Maxar, Earthstar Geographics",maxZoom:18},
+   {name:"SENTINEL-2 / EOX 2024",type:"satellite",url:"https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",attr:"EOxCloudless © EOX IT Services GmbH · modified Copernicus Sentinel data 2024 · CC BY-NC-SA 4.0",maxZoom:17},
+   {name:"CARTO / OPENSTREETMAP",type:"streets",url:"https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",attr:"© OpenStreetMap contributors © CARTO",maxZoom:19},
+   {name:"OPENSTREETMAP",type:"streets",url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",attr:"© OpenStreetMap contributors",maxZoom:19}
+  ];
+  let providerIndex=0,baseLayer=null,probe=null,attempt=0,failed=0,lastSuccessful=0;
+  const report=(state,info)=>window.GrowaAdvanced?.setMapHealth?.({state,provider:providers[providerIndex]?.name||"MAPA",detail:info});
+  function clearProbe(){if(probe){clearTimeout(probe);probe=null}}
+  function visibleTiles(){
+   if(!baseLayer)return 0;
+   const pane=baseLayer.getContainer?.();if(!pane)return 0;
+   const mapBox=leaflet.getContainer().getBoundingClientRect();
+   return Array.from(pane.querySelectorAll("img.leaflet-tile-loaded")).filter(el=>{
+    const b=el.getBoundingClientRect();
+    return b.width>0&&b.height>0&&b.right>mapBox.left&&b.left<mapBox.right&&b.bottom>mapBox.top&&b.top<mapBox.bottom;
+   }).length;
+  }
+  function activate(index){
+   if(!leaflet)return;
+   clearProbe();
+   const prev=baseLayer;if(prev&&leaflet.hasLayer(prev))leaflet.removeLayer(prev);
+   providerIndex=index;const selected=providers[index];
+   if(!selected){report("offline","Mapa de referencias sin fondo satelital");return}
+   const token=++attempt;failed=0;lastSuccessful=0;
+   if(selected.type==="streets"){S.satellite=false;$("eo-satellite")?.setAttribute("aria-pressed","false");text("eo-basemap-label","STREETS")}
+   else{S.satellite=true;$("eo-satellite")?.setAttribute("aria-pressed","true");text("eo-basemap-label","SATELLITE")}
+   report("loading","Buscando imagen geográfica");
+   baseLayer=L.tileLayer(selected.url,{maxZoom:selected.maxZoom,maxNativeZoom:selected.type==="satellite"?16:19,tileSize:256,attribution:selected.attr,keepBuffer:3,updateWhenIdle:true,errorTileUrl:""});
+   baseLayer.on("tileload",()=>{
+    if(token!==attempt)return;
+    lastSuccessful++;
+    report("ready","Imágenes recibidas");
+    clearProbe();
+   });
+   baseLayer.on("tileerror",()=>{
+    if(token!==attempt)return;
+    failed++;
+    if(failed>=5&&!lastSuccessful)activate(Math.min(index+1,providers.length));
+   });
+   baseLayer.addTo(leaflet).bringToBack();
+   probe=setTimeout(()=>{
+    if(token!==attempt)return;
+    if(lastSuccessful||visibleTiles()){report("ready","Cartografía disponible");return}
+    activate(Math.min(index+1,providers.length));
+   },7200);
+   if(leafGeo)leafGeo.bringToFront();
+   if(leafImported)leafImported.bringToFront();
+  }
+  function ensureTiles(){
+   if(!leaflet||!baseLayer)return;
+   leaflet.invalidateSize({animate:false});
+   clearProbe();
+   const token=attempt,index=providerIndex;
+   if(visibleTiles()>0){report("ready","Imágenes visibles");return}
+   report("loading","Actualizando cobertura geográfica");
+   probe=setTimeout(()=>{
+    if(token!==attempt)return;
+    if(visibleTiles()>0||lastSuccessful>0&&visibleTiles()>0){report("ready","Imágenes visibles");return}
+    activate(Math.min(index+1,providers.length));
+   },7500);
+  }
+  function toggleBase(){
+   if(!leaflet)return;
+   const preferred=providers[providerIndex]?.type==="satellite" ? 2:0;
+   activate(preferred);
+   updateMap();
+  }
+  function retry(){
+   activate(0);
+   leaflet.invalidateSize({animate:false});
+  }
+  leafSatellite=null;leafRoad=null;
+  mode="leaflet";
+  activate(0);
+  updateMap();
+  leafletImport();
+  fitCity("");
+  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getMunicipalLayer:()=>leafGeo,getState:()=>S,
+   refreshClimate:()=>{renderSummary();renderRanking();updateMap();if(S.chart==="climate")drawChart()},
+   verifyTiles:ensureTiles,toggleBaseMap:toggleBase,retryTiles:retry,providerName:()=>providers[providerIndex]?.name||"SIN BASE"};
   window.GrowaClimate?.attachLeaflet?.(leaflet);
   window.GrowaAdvanced?.attachMap?.(leaflet);
-  setTimeout(()=>leaflet?.invalidateSize({animate:false}),230);
-  window.addEventListener("resize",()=>leaflet?.invalidateSize({animate:false}),{passive:true});
+  setTimeout(()=>leaflet?.invalidateSize({animate:false}),320);
+  leaflet.on("moveend",()=>{if(!leaflet)return;ensureTiles()});
+  window.addEventListener("resize",()=>{if(leaflet){leaflet.invalidateSize({animate:false});ensureTiles()}},{passive:true});
   return true;
- }catch(e){console.warn(e);mode="none";return false}
+ }catch(e){console.warn("GROWA satellite initialization:",e);mode="none";window.GrowaAdvanced?.setMapHealth?.({state:"offline",provider:"VECTOR",detail:"Modo de respaldo activo"});return false}
 }
 function drawSvg(){
  const geo=geoData();if(!geo)return;
@@ -1183,9 +1247,11 @@ function boot(){
  $("eo-minus").addEventListener("click",()=>{if(map&&loaded)map.zoomOut();else if(leaflet)leaflet.zoomOut()});
  $("eo-home").addEventListener("click",()=>fitCity(""));
  $("eo-satellite").addEventListener("click",function(){
-  S.satellite=!S.satellite;this.setAttribute("aria-pressed",String(S.satellite));text("eo-basemap-label",S.satellite?"SATELLITE":"STREETS");
+  if(window.GrowaEOMap?.toggleBaseMap){window.GrowaEOMap.toggleBaseMap();return}
+  S.satellite=!S.satellite;
+  this.setAttribute("aria-pressed",String(S.satellite));
+  text("eo-basemap-label",S.satellite?"SATELLITE":"STREETS");
   if(map&&loaded&&map.getLayer("eo-satellite"))map.setLayoutProperty("eo-satellite","visibility",S.satellite?"visible":"none");
-  if(leaflet){for(const b of [leafRoad,leafSatellite])if(b&&leaflet.hasLayer(b))leaflet.removeLayer(b);(S.satellite?leafSatellite:leafRoad).addTo(leaflet);(S.satellite?leafSatellite:leafRoad).bringToBack();if(leafGeo)leafGeo.bringToFront();if(leafImported)leafImported.bringToFront()}
   updateMap();
  });
  $("eo-geojson").addEventListener("change",e=>readGeoJSON(e.target.files?.[0]));
