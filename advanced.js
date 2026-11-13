@@ -105,8 +105,8 @@ function drawGeographicFallback(){
 }
 function zoomFallback(step){geoZoom=Math.max(4,Math.min(13,geoZoom+(step>0?1:-1)));geoOffset={x:0,y:0};drawGeographicFallback()}
 function toggleRaster(){geoProvider=geoProvider===0?1:0;drawGeographicFallback()}
-function retryRaster(){geoProvider=0;drawGeographicFallback()}
-function resetFallback(){setView(true);drawGeographicFallback()}
+function retryRaster(){geoProvider=0;geoLastSignature="";drawGeographicFallback()}
+function resetFallback(){geoLastSignature="";setView(true);drawGeographicFallback()}
 function panFallback(dx,dy){geoOffset.x+=dx;geoOffset.y+=dy;drawGeographicFallback()}
 function centerFallback(lat,lon){geoCenter={lat,lon};geoOffset={x:0,y:0};geoZoom=Math.max(7,geoZoom);drawGeographicFallback()}
 function renderMapTelemetry(){
