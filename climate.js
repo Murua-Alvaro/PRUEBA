@@ -67,7 +67,7 @@ function mapValue(year,name){
 function mapUnit(){return MAP_VARIABLES[mapVariable].unit}
 function mapLabel(){return MAP_VARIABLES[mapVariable].label}
 function compiled2025(point,year){
- if(year!==2025||!point||point.type==="parcela")return null;
+ if(year!==2025||!point||point.type==="parcela"||(point.type==="referencia"&&!point.grid))return null;
  const r=municipal2025.get(point.label);
  if(!r)return null;
  const v=r.values;
@@ -257,12 +257,20 @@ function sync(selection){
   request(point,year,false);
  }else{statusView(context.label)}
 }
-function selectPoint(lng,lat,label){
+function selectPoint(lng,lat,label,origin="parcela"){
  const longitude=Number(lng),latitude=Number(lat);
  if(!Number.isFinite(longitude)||!Number.isFinite(latitude)||longitude< -180||longitude>180||latitude< -90||latitude>90)return;
- context.selectedParcel={longitude,latitude,label:label||"Parcela seleccionada",type:"parcela"};
+ context.selectedParcel={longitude,latitude,label:label||(origin==="municipal"?"Municipio seleccionado":"Parcela seleccionada"),type:origin==="municipal"?"referencia":"parcela"};
  context.point=context.selectedParcel;context.label=context.point.label;
  request(context.point,context.year,false);
+}
+function clearPoint(year){
+ sequence++;
+ if(controller)controller.abort();
+ if(debounce)clearTimeout(debounce);
+ context.city="";context.selectedParcel=null;context.point=null;context.label="";
+ if(Number(year)>=2003&&Number(year)<=2025)context.year=Number(year);
+ currentData=null;status="idle";statusView("");
 }
 function attachLeaflet(map){
  leafletMap=map;updateMarker();
@@ -333,7 +341,7 @@ function onReady(){
    if(climateButton&&!climateButton.classList.contains("active"))climateButton.click();
    window.GrowaEOMap?.refreshClimate?.();
  })}
- window.GrowaClimate={sync,selectPoint,attachLeaflet,attachMap,renderChart,hoverChart,exportCSV,ensureDaily,
+ window.GrowaClimate={sync,selectPoint,clearPoint,attachLeaflet,attachMap,renderChart,hoverChart,exportCSV,ensureDaily,
   getStatus:()=>status,getData:()=>currentData,buildUrl,parseResponse,mapValue,mapUnit,mapLabel};
  const city=$("eo-city")?.value||"",year=Number($("eo-year")?.value)||2025;
  const existingLeaflet=window.GrowaEOMap?.getLeaflet?.();if(existingLeaflet)attachLeaflet(existingLeaflet);
