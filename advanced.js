@@ -191,7 +191,7 @@ function setMap(map){leaf=map;drawMarkers();fitRegion()}
 function drawMarkers(){
  if(!ready())return;
  const prePoints=activeCropZones();
- text("ea-point-count",prePoints.length+" referencias productivas");
+ text("ea-point-count",prePoints.length?prePoints.length+" referencias productivas":isNational()?"Sin referencias geográficas verificadas de 2025 para este cultivo":"Sin referencias de producción para el año elegido");
  text("ea-point-year",isNational()?"Corte georreferenciado: 2025":"Corte georreferenciado: "+state().year);
  renderMapTelemetry();
  if(!leaf||!window.L)return;
@@ -247,12 +247,12 @@ function fillRight(){
   }
  }
 
- const loc=isNational()?(selectedPoint?.[2]||region):(s.city||"Sinaloa");
+ const loc=isNational()?region+" · promedio estatal":(s.city||"Sinaloa");
  text("ea-climate-title",loc+" · "+s.year);
  for(const [key,id] of [["TMEAN","ea-temperature"],["PRECIP_MM","ea-rain"],["ET0_MM","ea-et0"],["VPD_MEAN","ea-vpd"],["RH_MEAN","ea-humidity"],["WATER_BALANCE_MM","ea-balance"]]){
   const val=climateAnnual(isNational()?region:s.city,s.year,key);text(id,F(val));
  }
- text("ea-climate-source",isNational()?"Promedio simple de celdas NASA únicas por estado · no ponderado":s.city?"Celda NASA del municipio":"Promedio simple de celdas únicas de Sinaloa");
+ text("ea-climate-source",isNational()?"Promedio estatal no ponderado de celdas NASA POWER únicas; NO es el clima del municipio o punto seleccionado":s.city?"Celda NASA del municipio":"Promedio simple de celdas únicas de Sinaloa");
  const ref=isNational()?selectedPoint:C.municipios.find(x=>n(x.name)===n(s.city));
  text("ea-ref-state",region);text("ea-ref-place",isNational()?(ref?.[2]||"Selecciona una referencia"):(ref?.name||"Sinaloa · agregado"));
  text("ea-ref-point",ref?(isNational()?F(ref[3])+"°N, "+F(ref[4])+"°O":F(ref.lat)+"°N, "+F(ref.lon)+"°O"):"—");
@@ -327,7 +327,7 @@ function onEOState(){
  const s=state(),key=region+"|"+s.crop;
  if(key!==lastOptions){refreshCityOptions();lastOptions=key}
  fillRight();renderChart();drawMarkers();
- if(isNational()&&selectedPoint)window.GrowaClimate?.sync?.({city:"",year:state().year});
+ if(isNational()&&!selectedPoint)window.GrowaClimate?.sync?.({city:"",year:state().year});
 }
 function refreshCityOptions(){
  const s=state();
@@ -349,7 +349,10 @@ function chooseRegion(name){
  region=name;selectedPoint=null;compareState="";lastOptions="";setView(true);
  setMapHealth({state:"loading",detail:"Cargando "+region});
  const climateHUD=$("eo-climate-hud");if(climateHUD)climateHUD.hidden=isNational();
- const names=isNational()?N.crops:D.cropNames,sel=$("eo-crop"),keep=names.includes(state().crop)?state().crop:"Maíz grano";
+ const names=isNational()?N.crops:D.cropNames,sel=$("eo-crop");
+ const supported=isNational()?new Set(N.links2025.filter(x=>pointIndex.get(x[0])?.[1]===stateIndex(region)).map(x=>N.crops[x[1]])):null;
+ const previous=state().crop;
+ const keep=names.includes(previous)&&(!supported||supported.has(previous))?previous:(names.find(x=>x==="Maíz grano"&&(!supported||supported.has(x)))||names.find(x=>supported?.has(x))||names[0]);
  sel.innerHTML=names.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");sel.value=keep;
  eo()?.setCrop?.(keep);
  if(isNational())window.GrowaClimate?.clearPoint?.(state().year);else window.GrowaClimate?.sync?.(state());
