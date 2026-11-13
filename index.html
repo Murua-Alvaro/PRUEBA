@@ -1357,7 +1357,19 @@ function drawSvg(){
 }
 function initFallback(){
  if(initLeaflet())return;
- mode="svg";drawSvg();
+ mode="svg";
+ // Browser-native satellite tiles remain visible while optional Leaflet loads.
+ const alternatives=["https://unpkg.com/leaflet@1.9.4/dist/leaflet.js","https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"];
+ let i=0;
+ function next(){
+  if(window.L&&!leaflet){initLeaflet();return}
+  if(i>=alternatives.length)return;
+  const script=document.createElement("script");script.src=alternatives[i++];script.async=true;script.crossOrigin="anonymous";
+  script.onload=()=>{if(!leaflet&&window.L)initLeaflet();else if(!window.L)next()};
+  script.onerror=next;
+  document.head.appendChild(script);
+ }
+ next();
 }
 function readGeoJSON(file){
  const feedback=$("eo-import-feedback");
