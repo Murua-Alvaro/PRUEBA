@@ -53,7 +53,7 @@ assert.equal(b.first,120);
 assert.equal(b.last,212);
 assert.equal(b.net,92);
 assert.equal(b.expansion.label,"Elota");
-assert.equal(b.contraction,null,"Both municipalities expand over the selected window");
+assert.equal(b.contraction.label,"2021 → 2022","Annual contraction is shown when municipality endpoints both expand");
 const c=api.calculate({state:"Jalisco",city:"",crop:"Maíz grano",year:2025},2020);
 assert.equal(c.first,80);
 assert.equal(c.last,135);
