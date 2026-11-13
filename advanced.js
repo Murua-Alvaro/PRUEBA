@@ -78,14 +78,16 @@ function activeCropZones(){
 }
 function setMap(map){leaf=map;drawMarkers()}
 function drawMarkers(){
- if(!ready()||!leaf||!window.L)return;
+ if(!ready())return;
+ const prePoints=activeCropZones();
+ text("ea-point-count",prePoints.length+" referencias productivas");
+ text("ea-point-year",isNational()?"Corte georreferenciado: 2025":"Corte georreferenciado: "+state().year);
+ if(!leaf||!window.L)return;
  const original=eo()?.getMunicipalLayer?.();
  if(original){if(isNational()&&leaf.hasLayer(original))leaf.removeLayer(original);if(!isNational()&&!leaf.hasLayer(original))original.addTo(leaf)}
  if(!markers)markers=window.L.layerGroup().addTo(leaf);
  markers.clearLayers();
- const points=activeCropZones();
- text("ea-point-count",points.length+" referencias productivas");
- text("ea-point-year",isNational()?"Corte georreferenciado: 2025":"Corte georreferenciado: "+state().year);
+ const points=prePoints;
  if(!showMarkers)return;
  const max=Math.max(1,...points.map(x=>x.harvest));
  points.forEach(p=>{
@@ -142,6 +144,10 @@ function togglePanel(name){
 function fillRight(){
  const s=state(),name=isNational()?region:s.city,cur=agriculture(s.year,name,s.crop),old=agriculture(s.year-1,name,s.crop);
  const changed=cur?.yield!=null&&old?.yield>0?(cur.yield/old.yield-1)*100:null;
+ text("eo-selected-crop",s.crop);
+ text("eo-selected-location",(isNational()?region:(s.city||"Sinaloa"))+" · "+s.year);
+ text("eo-yield",F(cur?.yield));text("eo-yield-unit","t/ha");text("eo-yield-year",s.year);
+ text("eo-yield-note",isNational()?"Agregado estatal, ponderado por superficie":"Registro DGSIAP municipal · histórico");
  text("ea-volume",K(cur?.volume));text("ea-harvest",K(cur?.harvest));text("ea-planted",isNational()?"—":K(cur?.area));
  text("ea-change",changed==null?"—":(changed>0?"+":"")+F(changed)+" %");
  const hist=years.filter(y=>y<=s.year).map(y=>agriculture(y,name,s.crop)?.yield).filter(v=>v!=null&&Number.isFinite(v)).sort((a,b)=>a-b);
@@ -176,7 +182,7 @@ function fillRight(){
 }
 function seriesData(){
  const s=state(),climateMode=s.chart==="climate",field=$("eo-climate-variable")?.value||"PRECIP_MM";
- const monthMode=climateMode&&resolution==="monthly"&&!isNational();
+ const monthMode=climateMode&&resolution==="monthly"&&!isNational()&&C.monthly_fields.includes(field);
  const primary=isNational()?region:(s.city||"Sinaloa");
  const secondary=isNational()?(compareState||"Sinaloa"):(s.compare||"Sinaloa");
  const metricUnit=climateMode?cv(field)[1]:s.chart==="yield"?"t/ha":s.chart==="harvest"?"ha":"valor DGSIAP";
@@ -208,13 +214,13 @@ function renderChart(){
 }
 function hoverChart(e){
  if(!lastGraph)return;
- const el=$("eo-chart"),r=el.getBoundingClientRect(),i=Math.max(0,Math.min(lastGraph.labels.length-1,Math.round((e.clientX-r.left)/Math.max(1,r.width)*(lastGraph.labels.length-1))));
+ const el=$("eo-chart"),r=el.getBoundingClientRect(),f=(e.clientX-r.left-r.width*56/1200)/Math.max(1,r.width*(1200-56-28)/1200),i=Math.max(0,Math.min(lastGraph.labels.length-1,Math.round(f*(lastGraph.labels.length-1))));
  const d=lastGraph,tip=$("eo-chart-tooltip");
  tip.innerHTML="<strong>"+esc(d.labels[i])+"</strong><div style='color:#5cf2b5'>"+esc(d.names[0])+": "+F(d.first[i])+" "+esc(d.unit)+"</div><div style='color:#9fb9ff'>"+esc(d.names[1])+": "+F(d.second[i])+" "+esc(d.unit)+"</div>";tip.hidden=false;
 }
 function clickChart(e){
  if(!lastGraph||lastGraph.monthly)return;
- const r=$("eo-chart").getBoundingClientRect(),i=Math.max(0,Math.min(22,Math.round((e.clientX-r.left)/Math.max(1,r.width)*22))),year=years[i],input=$("eo-year");
+ const r=$("eo-chart").getBoundingClientRect(),f=(e.clientX-r.left-r.width*56/1200)/Math.max(1,r.width*(1200-56-28)/1200),i=Math.max(0,Math.min(22,Math.round(f*22))),year=years[i],input=$("eo-year");
  input.value=String(year);input.dispatchEvent(new Event("input",{bubbles:true}));
 }
 function exportCSV(){
