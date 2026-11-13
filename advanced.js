@@ -197,6 +197,17 @@ function fillRight(){
  text("ea-source",isNational()?"DGSIAP · agregado estatal, unidad toneladas":"DGSIAP · municipio/producto/año");
  const areaText=isNational()?"Corte 2025 en puntos; series estatales 2003–2025":"Series municipales 2003–2025";
  text("ea-production-scope",areaText);
+ const brief=$("ea-reference-brief"),link=isNational()&&selectedPoint?N.links2025.find(x=>x[0]===selectedPoint[0]&&x[1]===cropIndex(s.crop)):null;
+ if(brief){
+  brief.hidden=!link;
+  if(link){
+   text("ea-brief-name",selectedPoint[2]+" · 2025");
+   text("ea-brief-area",K(link[2])+" ha");
+   text("ea-brief-volume",K(link[3])+" t");
+   text("ea-brief-yield",link[2]>0?F(link[3]/link[2])+" t/ha":"—");
+  }
+ }
+
  const loc=isNational()?(selectedPoint?.[2]||region):(s.city||"Sinaloa");
  text("ea-climate-title",loc+" · "+s.year);
  for(const [key,id] of [["TMEAN","ea-temperature"],["PRECIP_MM","ea-rain"],["ET0_MM","ea-et0"],["VPD_MEAN","ea-vpd"],["RH_MEAN","ea-humidity"],["WATER_BALANCE_MM","ea-balance"]]){
@@ -348,6 +359,9 @@ function createUI(){
  const product=document.createElement("section");product.className="ea-product";
  product.innerHTML='<div class="ea-section-label">BALANCE PRODUCTIVO <b>DGSIAP</b></div><div class="ea-metrics"><div><span>PRODUCCIÓN</span><strong id="ea-volume">—</strong><small>Toneladas</small></div><div><span>COSECHADA</span><strong id="ea-harvest">—</strong><small>Hectáreas</small></div><div><span>SEMBRADA</span><strong id="ea-planted">—</strong><small>Hectáreas</small></div><div><span>VARIACIÓN ANUAL</span><strong id="ea-change">—</strong><small>En rendimiento</small></div></div><div class="ea-hist"><span>INTERVALO P25—P75</span><strong><b id="ea-p25">—</b> — <b id="ea-p75">—</b></strong></div><div id="ea-years" class="ea-year-count">—</div><p id="ea-source" class="ea-source">Fuente DGSIAP</p><p id="ea-production-scope" class="ea-source"></p>';
  document.querySelector(".eo-snapshot").insertAdjacentElement("afterend",product);
+ const detail=document.createElement("div");detail.id="ea-reference-brief";detail.className="ea-reference-brief";detail.hidden=true;
+ detail.innerHTML='<div class="ea-brief-header"><span>REFERENCIA MUNICIPAL 2025</span><strong id="ea-brief-name">—</strong></div><div class="ea-brief-grid"><div><span>SUPERFICIE</span><strong id="ea-brief-area">—</strong></div><div><span>PRODUCCIÓN</span><strong id="ea-brief-volume">—</strong></div><div><span>RENDIMIENTO</span><strong id="ea-brief-yield">—</strong></div></div><small>Referencia DGSIAP por municipio, no superficie de parcela.</small>';
+ product.appendChild(detail);
  const climateSection=document.createElement("section");climateSection.className="ea-climate-section";
  climateSection.innerHTML='<div class="ea-section-label">HISTORIAL AGROCLIMÁTICO <b>NASA POWER</b></div><h3 id="ea-climate-title">Referencia municipal</h3><div class="ea-metrics"><div><span>T MEDIA</span><strong><b id="ea-temperature">—</b> °C</strong></div><div><span>LLUVIA</span><strong><b id="ea-rain">—</b> mm</strong></div><div><span>ET0</span><strong><b id="ea-et0">—</b> mm</strong></div><div><span>VPD</span><strong><b id="ea-vpd">—</b> kPa</strong></div><div><span>HUMEDAD</span><strong><b id="ea-humidity">—</b> %</strong></div><div><span>BALANCE</span><strong><b id="ea-balance">—</b> mm</strong></div></div><p id="ea-climate-source" class="ea-source"></p><p class="ea-disclaimer">Rejilla climática NASA POWER. No es medición de una parcela ni predicción de cosecha.</p>';
  product.insertAdjacentElement("afterend",climateSection);
