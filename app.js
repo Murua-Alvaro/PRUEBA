@@ -3119,6 +3119,7 @@ function refreshCityOptions(){
 function chooseRegion(name){
  if(!N?.states.includes(name))return;
  region=name;selectedPoint=null;compareState="";lastOptions="";
+ const climateHUD=$("eo-climate-hud");if(climateHUD)climateHUD.hidden=isNational();
  const names=isNational()?N.crops:D.cropNames,sel=$("eo-crop"),keep=names.includes(state().crop)?state().crop:"Maíz grano";
  sel.innerHTML=names.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");sel.value=keep;
  eo()?.setCrop?.(keep);
@@ -3187,6 +3188,7 @@ async function boot(){
   b.annual.forEach(x=>climateS.set(x[0]+"|"+x[1],x));
   b.monthly.forEach(x=>monthlyS.set(x[0]+"|"+x[1]+"|"+x[2],x));
   createUI();
+  const climateHUD=$("eo-climate-hud");if(climateHUD)climateHUD.hidden=isNational();
   leaf=window.GrowaEOMap?.getLeaflet?.()||null;
   window.addEventListener("growa:eo-change",onEOState);
   onEOState();drawMarkers();
