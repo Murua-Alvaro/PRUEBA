@@ -1401,9 +1401,9 @@ function boot(){
  $("eo-opacity").addEventListener("input",e=>{S.opacity=Number(e.target.value)/100;text("eo-opacity-value",Math.round(S.opacity*100)+" %");updateMap()});
  $("eo-plus").addEventListener("click",()=>{if(map&&loaded)map.zoomIn();else if(leaflet)leaflet.zoomIn();else window.GrowaAdvanced?.zoomFallback?.(.35)});
  $("eo-minus").addEventListener("click",()=>{if(map&&loaded)map.zoomOut();else if(leaflet)leaflet.zoomOut();else window.GrowaAdvanced?.zoomFallback?.(-.35)});
- $("eo-home").addEventListener("click",()=>{if(window.GrowaAdvanced?.isNational?.())window.GrowaAdvanced.fitRegion?.();else fitCity("");if(!leaflet&&!map)window.GrowaAdvanced?.zoomFallback?.(-20)});
+ $("eo-home").addEventListener("click",()=>{if(window.GrowaAdvanced?.isNational?.())window.GrowaAdvanced.fitRegion?.();else fitCity("");if(!leaflet&&!map)window.GrowaAdvanced?.resetFallback?.()});
  $("eo-satellite").addEventListener("click",function(){
-  if(window.GrowaEOMap?.toggleBaseMap){window.GrowaEOMap.toggleBaseMap();return}if(mode==="svg"){$("eo-map").innerHTML="";initFallback();return}
+  if(window.GrowaEOMap?.toggleBaseMap){window.GrowaEOMap.toggleBaseMap();return}if(mode==="svg"){window.GrowaAdvanced?.toggleRaster?.();return}
   S.satellite=!S.satellite;
   this.setAttribute("aria-pressed",String(S.satellite));
   text("eo-basemap-label",S.satellite?"SATELLITE":"STREETS");
