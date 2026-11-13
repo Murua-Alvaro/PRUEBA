@@ -95,7 +95,7 @@ function drawMarkers(){
   const radius=4+Math.sqrt(p.harvest/max)*7;
   const marker=window.L.circleMarker([p.lat,p.lon],{radius:radius+(selected?2:0),weight:selected?3:1.5,color:"#e8ffef",fillColor:selected?"#d9f47a":"#51e2ac",fillOpacity:.84});
   marker.bindTooltip("<b>"+esc(p.city)+"</b><br>"+esc(state().crop)+"<br>"+F(p.harvest)+" ha cosechadas · "+p.year+"<br><small>Punto municipal de referencia; no parcela</small>",{direction:"top",sticky:true});
-  marker.on("click",()=>{if(isNational())chooseNationalCity(p.city);else eo()?.selectCity?.(p.city)});
+  marker.on("click",()=>{if(isNational())selectNationalCity(p.city);else eo()?.selectCity?.(p.city)});
   marker.addTo(markers);
  });
 }
@@ -104,42 +104,6 @@ function fitRegion(){
  if(!isNational()){leaf.fitBounds([[22.3,-109.8],[27.55,-105.08]],{padding:[28,28]});return}
  const points=N.points.filter(x=>x[1]===stateIndex(region));
  if(points.length)leaf.fitBounds(window.L.latLngBounds(points.map(x=>[x[3],x[4]])),{padding:[60,60],maxZoom:8});
-}
-function chooseNationalCity(city){
- selectedPoint=N.points.find(p=>p[1]===stateIndex(region)&&n(p[2])===n(city))||null;
- if($("eo-city"))$("eo-city").value=selectedPoint?.[2]||"";
- if(selectedPoint){leaf?.panTo([selectedPoint[3],selectedPoint[4]]);window.GrowaClimate?.selectPoint?.(selectedPoint[4],selectedPoint[3],selectedPoint[2])}
- onEOState();
-}
-function regionOptions(){
- const s=state();
- const picker=$("eo-city"),comp=$("eo-compare");
- if(!picker||!comp)return;
- if(isNational()){
-  const ps=activeCropZones();
-  picker.innerHTML='<option value="">Agregado estatal</option>'+ps.map(p=>'<option value="'+esc(p.city)+'">'+esc(p.city)+'</option>').join("");
-  comp.innerHTML='<option value="">Comparar con Sinaloa</option>'+N.states.filter(x=>x!==region).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");
-  picker.value=selectedPoint?.[2]||"";comp.value=compareState;
- }else{
-  picker.innerHTML='<option value="">Todo Sinaloa</option>'+C.municipios.map(x=>'<option value="'+esc(x.name)+'">'+esc(x.name)+'</option>').join("");
-  comp.innerHTML='<option value="">Agregado estatal</option>'+C.municipios.map(x=>'<option value="'+esc(x.name)+'">'+esc(x.name)+'</option>').join("");
-  picker.value=s.city||"";comp.value=s.compare||"";
- }
-}
-function chooseRegion(name){
- if(!N?.states.includes(name))return;
- region=name;compareState="";selectedPoint=null;
- $("ea-state").value=name;
- const select=$("eo-crop"),names=isNational()?N.crops:D.cropNames;
- const crop=names.includes(state().crop)?state().crop:"Maíz grano";
- select.innerHTML=names.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");select.value=crop;
- eo()?.setCrop?.(crop);
- regionOptions();render();fitRegion();
- if(isNational())document.querySelector('[data-eo-layer="climate"]')?.click();
-}
-function togglePanel(name){
- panel=name;$("eo-right").dataset.eaTab=name;
- document.querySelectorAll("[data-ea-tab]").forEach(x=>{const on=x.dataset.eaTab===name;x.classList.toggle("active",on);x.setAttribute("aria-selected",String(on))});
 }
 function fillRight(){
  const s=state(),name=isNational()?region:s.city,cur=agriculture(s.year,name,s.crop),old=agriculture(s.year-1,name,s.crop);
@@ -236,6 +200,7 @@ function onEOState(){
  const s=state(),key=region+"|"+s.crop;
  if(key!==lastOptions){refreshCityOptions();lastOptions=key}
  fillRight();renderChart();drawMarkers();
+ if(isNational()&&selectedPoint)window.GrowaClimate?.sync?.({city:"",year:state().year});
 }
 function refreshCityOptions(){
  const s=state();
@@ -258,12 +223,13 @@ function chooseRegion(name){
  const names=isNational()?N.crops:D.cropNames,sel=$("eo-crop"),keep=names.includes(state().crop)?state().crop:"Maíz grano";
  sel.innerHTML=names.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");sel.value=keep;
  eo()?.setCrop?.(keep);
+ if(isNational())window.GrowaClimate?.clearPoint?.(state().year);else window.GrowaClimate?.sync?.(state());
  onEOState();fitRegion();
 }
 function selectNationalCity(name){
  selectedPoint=N.points.find(p=>p[1]===stateIndex(region)&&n(p[2])===n(name))||null;
  $("eo-city").value=selectedPoint?.[2]||"";
- if(selectedPoint){leaf?.panTo([selectedPoint[3],selectedPoint[4]]);window.GrowaClimate?.selectPoint?.(selectedPoint[4],selectedPoint[3],selectedPoint[2])}
+ if(selectedPoint){leaf?.panTo([selectedPoint[3],selectedPoint[4]]);window.GrowaClimate?.selectPoint?.(selectedPoint[4],selectedPoint[3],selectedPoint[2],"municipal")}
  onEOState();
 }
 function createUI(){
