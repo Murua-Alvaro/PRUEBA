@@ -183,6 +183,8 @@ body[data-view="panorama"] .eo-right-crop h2{font:700 24px/1.15 var(--eo-sans)!i
 </style>
   <link rel="stylesheet" href="climate.css">
   <script src="climate.js" defer></script>
+  <link rel="stylesheet" href="advanced.css">
+  <script src="advanced.js" defer></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Saltar al contenido principal</a>
@@ -771,6 +773,7 @@ function referencePlace(){return S.compare||(!S.city?"Culiacán":"")}
 function referenceLabel(){return S.compare||(!S.city?"Culiacán":"Sinaloa · agregado")}
 function labelPlace(){return S.city||"Sinaloa"}
 function renderSummary(){
+ if(window.GrowaAdvanced?.isNational?.())return;
  const x=snap(S.year,S.city);
  text("eo-selected-crop",S.crop);text("eo-selected-location",labelPlace()+" · "+S.year);
  text("eo-yield-year",S.year);text("eo-yield",fmt(x.yield));text("eo-yield-unit",physicalUnit?physicalUnit+"/ha":"—");
@@ -782,6 +785,7 @@ function renderSummary(){
  text("eo-visible-layer",metricLabel(S.layer).toUpperCase());
 }
 function renderRanking(){
+ if(window.GrowaAdvanced?.isNational?.())return window.GrowaAdvanced.renderNationalRanking?.();
  const rankMetric=S.layer;
  const values=cities.map(name=>({name,value:metricValue(snap(S.year,name),rankMetric)})).filter(x=>x.value!==null&&Number.isFinite(x.value)).sort((a,b)=>b.value-a.value);
  const max=Math.max(1,...values.map(x=>x.value));
@@ -789,6 +793,7 @@ function renderRanking(){
   '<button class="eo-rank'+(S.city===x.name?' active':'')+'" data-eo-city="'+esc(x.name)+'" type="button"><span>'+esc(x.name)+'</span><em>'+fmtShort(x.value)+' '+esc(metricUnit(rankMetric))+'</em><i style="width:'+Math.min(92,x.value/max*91).toFixed(1)+'%"></i></button>').join(""):'<p class="eo-loading">Este cultivo no tiene observaciones comparables en '+S.year+'.</p>';
 }
 function updateMap(){
+ if(window.GrowaAdvanced?.isNational?.())return window.GrowaAdvanced.updateMap?.();
  const fc=geoData();if(!fc)return;
  if(mode==="maplibre"&&loaded&&map){
   const src=map.getSource("eo-municipal");if(src)src.setData(fc);
@@ -809,6 +814,7 @@ function geometryBounds(geometry){
  return [minX,minY,maxX,maxY];
 }
 function fitCity(city){
+ if(window.GrowaAdvanced?.isNational?.())return;
  const g=rootGeom(),f=city&&g?.features?.find(x=>norm(x.properties?.name)===norm(city));
  if(mode==="maplibre"&&loaded&&map){
   if(f){const [a,b,c,d]=geometryBounds(f.geometry);if(a<c&&b<d)map.fitBounds([[a,b],[c,d]],{padding:{top:75,bottom:90,left:200,right:210},maxZoom:10,duration:600})}
@@ -820,6 +826,7 @@ function fitCity(city){
  }
 }
 function selectCity(city){
+ if(window.GrowaAdvanced?.isNational?.())return window.GrowaAdvanced.selectNationalCity?.(city);
  S.city=city||"";$("eo-city").value=S.city;renderAll();fitCity(S.city);
 }
 function chartSeries(){
@@ -827,6 +834,7 @@ function chartSeries(){
  return {primary,secondary,primaryName:labelPlace(),secondaryName:referenceLabel()};
 }
 function drawChart(){
+ if(window.GrowaAdvanced?.active?.())return window.GrowaAdvanced.renderChart();
  if(S.chart==="climate"){if(window.GrowaClimate?.renderChart)window.GrowaClimate.renderChart();else $("eo-chart").innerHTML="Preparando clima NASA POWER…";return}
  const target=$("eo-chart"); const info=chartSeries(),a=info.primary,b=info.secondary;
  chartData=info;
@@ -860,7 +868,7 @@ function exportCSV(){
  const file=new Blob(["\ufeff"+out.join("\r\n")],{type:"text/csv;charset=utf-8"});
  const u=URL.createObjectURL(file),a=document.createElement("a");a.href=u;a.download="growa-crop-"+S.crop.toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+S.chart+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);
 }
-function renderAll(){if(!D)return;renderSummary();renderRanking();updateMap();drawChart();window.GrowaClimate?.sync?.(S)}
+function renderAll(){if(!D)return;renderSummary();renderRanking();updateMap();drawChart();if(!window.GrowaAdvanced?.isNational?.())window.GrowaClimate?.sync?.(S);window.GrowaAdvanced?.onEOState?.()}
 function buildSat(){
  map.addSource("eo-world-imagery",{type:"raster",tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"});
  map.addLayer({id:"eo-satellite",type:"raster",source:"eo-world-imagery",layout:{visibility:S.satellite?"visible":"none"}});
@@ -938,8 +946,9 @@ function initLeaflet(){
   });
   leafSatellite.addTo(leaflet);
   mode="leaflet";updateMap();leafletImport();fitCity("");
-  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getState:()=>S,refreshClimate:()=>{renderSummary();renderRanking();updateMap();if(S.chart==="climate")drawChart()}};
+  window.GrowaEOMap={getLeaflet:()=>leaflet,getMap:()=>map,getMunicipalLayer:()=>leafGeo,getState:()=>S,refreshClimate:()=>{renderSummary();renderRanking();updateMap();if(S.chart==="climate")drawChart()}};
   window.GrowaClimate?.attachLeaflet?.(leaflet);
+  window.GrowaAdvanced?.attachMap?.(leaflet);
   setTimeout(()=>leaflet?.invalidateSize({animate:false}),230);
   window.addEventListener("resize",()=>leaflet?.invalidateSize({animate:false}),{passive:true});
   return true;
@@ -1014,9 +1023,11 @@ function boot(){
  });
  $("eo-geojson").addEventListener("change",e=>readGeoJSON(e.target.files?.[0]));
  $("eo-map").addEventListener("click",e=>{const target=e.target.closest("[data-eo-svgcity]");if(target)selectCity(target.dataset.eoSvgcity)});
- $("eo-export").addEventListener("click",()=>{if(S.chart==="climate")window.GrowaClimate?.exportCSV?.();else exportCSV()});
+ $("eo-export").addEventListener("click",()=>{if(window.GrowaAdvanced?.active?.())window.GrowaAdvanced.exportCSV?.();else if(S.chart==="climate")window.GrowaClimate?.exportCSV?.();else exportCSV()});
+ $("eo-chart").addEventListener("click",e=>window.GrowaAdvanced?.clickChart?.(e));
  $("eo-open-explorer").addEventListener("click",()=>{document.body.classList.add("eo-details");const el=$("agx-console");if(el)el.scrollIntoView({behavior:"smooth",block:"start"})});
  $("eo-chart").addEventListener("mousemove",e=>{
+  if(window.GrowaAdvanced?.active?.()){window.GrowaAdvanced.hoverChart?.(e);return}
   if(S.chart==="climate"){window.GrowaClimate?.hoverChart?.(e);return}
   if(!chartData)return;
   const r=$("eo-chart").getBoundingClientRect(),i=Math.max(0,Math.min(22,Math.round((e.clientX-r.left)/Math.max(1,r.width)*22)));
@@ -1025,6 +1036,7 @@ function boot(){
   $("eo-chart-tooltip").hidden=false;
  });
  $("eo-chart").addEventListener("mouseleave",()=>{$("eo-chart-tooltip").hidden=true});
+ window.GrowaEOAPI={getState:()=>S,getData:()=>D,getMap:()=>leaflet,getMunicipalLayer:()=>leafGeo,selectCity,renderAll,setCrop:(name)=>{S.crop=name;prepare();renderAll()}};
  const ready=()=>{
   if(D||!window.GrowaSinaloaData?.D)return;
   D=window.GrowaSinaloaData.D;
