@@ -297,7 +297,15 @@ async function boot(){
   const [a,b]=await Promise.all([fetch("data/growa-nacional-10-estados-piloto.json").then(r=>{if(!r.ok)throw Error("Datos 10 estados: "+r.status);return r.json()}),fetch("data/clima-sinaloa-historico-2003-2025.json").then(r=>{if(!r.ok)throw Error("Datos climáticos: "+r.status);return r.json()})]);
   if(a.states?.length!==10||a.points?.length!==529||a.cropAnnual?.length!==3933||b.annual?.length!==414||b.monthly?.length!==4968)throw Error("Falló el control de integridad de datos");
   N=a;C=b;D=window.GrowaSinaloaData?.D;
-  if(!D)throw Error("La base agrícola original todavía no se cargó");
+  if(!D){
+   await new Promise(resolve=>{
+    const finish=()=>resolve();
+    window.addEventListener("growa:data-ready",finish,{once:true});
+    setTimeout(finish,20000);
+   });
+   D=window.GrowaSinaloaData?.D;
+  }
+  if(!D)throw Error("La base DGSIAP no terminó de cargarse");
   a.points.forEach(x=>pointIndex.set(x[0],x));
   a.cropAnnual.forEach(x=>annual.set(x[0]+"|"+x[1]+"|"+x[2],x));
   a.climateAnnual.forEach(x=>climate.set(x[0]+"|"+x[1],x));
