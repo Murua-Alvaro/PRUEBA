@@ -170,3 +170,16 @@ body[data-view="panorama"] .eo-map-heading>div>span{letter-spacing:.12em!importa
  .ea-map-health #ea-map-provider{font-size:7px!important}
 }
 @media(prefers-reduced-motion:reduce){.ea-geo-vector circle[data-ea-fallback-city]{transition:none}}
+
+
+/* Municipal product reference follows (not replaces) state aggregate */
+.ea-reference-brief{margin:14px 0 3px;padding:13px 14px;background:#eef7ee;border:1px solid #d3e8d6;border-radius:6px;color:#225d3e}
+.ea-reference-brief[hidden]{display:none!important}
+.ea-brief-header{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding-bottom:11px;border-bottom:1px solid #dceadd}
+.ea-brief-header>span{font:600 8px "IBM Plex Mono",monospace;letter-spacing:.03em;color:#6d9a78}
+.ea-brief-header strong{color:#2d6f48;font:700 10px "DM Sans",sans-serif;white-space:nowrap}
+.ea-brief-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:11px}
+.ea-brief-grid>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ea-brief-grid span{font:600 7px "IBM Plex Mono",monospace;color:#779782}
+.ea-brief-grid strong{font:700 13px "DM Sans",sans-serif;color:#245e3c;white-space:nowrap}
+.ea-reference-brief>small{display:block;font:400 9px/1.5 "DM Sans",sans-serif;color:#789781;margin-top:10px}
