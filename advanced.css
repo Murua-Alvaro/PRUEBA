@@ -257,3 +257,27 @@ body[data-view="panorama"] .ea-map-health{
  .ea-geo-credit{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.ea-geo-pin{transition:none!important}}
+
+
+/* Upper map workbench density: let the analytical panels use the entire map height. */
+@media(min-width:926px){
+ body[data-view="panorama"] .eo-left,
+ body[data-view="panorama"] .eo-right{bottom:250px!important}
+ body[data-view="panorama"] .eo-right-crop{padding:12px 17px 10px!important}
+ body[data-view="panorama"] .eo-snapshot{padding:12px 17px!important}
+ body[data-view="panorama"] .eo-snapshot-value strong{font-size:35px!important}
+ body[data-view="panorama"] .ea-tabs{padding:5px!important}
+ body[data-view="panorama"] .ea-tabs button{padding:8px 3px!important}
+ body[data-view="panorama"] .ea-product,
+ body[data-view="panorama"] .ea-climate-section,
+ body[data-view="panorama"] .ea-reference-section{padding:13px 17px!important}
+ body[data-view="panorama"] .ea-metrics{gap:7px!important}
+ body[data-view="panorama"] .ea-metrics>div{padding:9px 10px!important;gap:4px!important}
+ body[data-view="panorama"] .ea-metrics>div>strong{font-size:20px!important}
+ body[data-view="panorama"] .eo-metadata-tag{display:none!important}
+ body[data-view="panorama"] .ea-hist{margin:11px 0 8px!important;padding-top:9px!important}
+}
+@media(min-width:926px) and (max-width:1320px){
+ body[data-view="panorama"] .eo-left,
+ body[data-view="panorama"] .eo-right{bottom:250px!important}
+}
