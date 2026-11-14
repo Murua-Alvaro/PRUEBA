@@ -1908,98 +1908,230 @@ function boot(){
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
 </script>
-<script id="growa-ui-layout-v4">
+<script id="growa-workstation-v6">
 (function(){
  "use strict";
- const get=id=>document.getElementById(id);
- function section(title,id){
-  const root=document.createElement("details");
-  root.id=id;root.className="gw-details";
-  const summary=document.createElement("summary");summary.textContent=title;
-  const content=document.createElement("div");content.className="gw-details-body";
-  root.append(summary,content);return {root,content};
+ const $=id=>document.getElementById(id);
+ const q=(selector,root=document)=>root.querySelector(selector);
+ const el=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
+ function block(title,id){
+  const root=el("details","gw-details");root.id=id;
+  const heading=el("summary","",title),body=el("div","gw-details-body");
+  root.append(heading,body);return {root,body};
  }
- function install(retries){
-  const app=get("eo-app"),left=document.querySelector(".eo-left"),right=document.querySelector(".eo-right");
-  const product=right?.querySelector(".ea-product"),tabs=right?.querySelector(".ea-tabs");
-  const hud=get("eo-climate-hud"),national=get("ea-ficha-national");
-  if(!app||!left||!right||!product||!tabs||!hud||!national){
-   if(retries<180)setTimeout(()=>install(retries+1),250);
+ function setup(attempt){
+  const app=$("eo-app"),left=q(".eo-left"),right=q(".eo-right"),map=q(".eo-map");
+  const product=right&&q(".ea-product",right),tabs=right&&q(".ea-tabs",right);
+  const hud=$("eo-climate-hud"),national=$("ea-ficha-national");
+  if(!app||!left||!right||!map||!product||!tabs||!hud||!national){
+   if(attempt<180)setTimeout(()=>setup(attempt+1),250);
    return;
   }
-  if(app.dataset.gwLayout==="v4")return;
-  app.dataset.gwLayout="v4";
-  // Restore the sidebars to their headers after the previous compact layout.
-  left.scrollTop=0;right.scrollTop=0;
-  requestAnimationFrame(()=>{left.scrollTop=0;right.scrollTop=0;});
-
+  if(app.dataset.gwLayout==="v6")return;
+  app.dataset.gwLayout="v6";
   app.classList.add("growa-insights-open");
-  get("eo-insights-toggle")?.remove();
-  const heading=left.querySelector(".eo-panel-head h1");
+  $("eo-insights-toggle")?.remove();
+  // The base application owns data, maps, change handlers and exports.
+  // This module only rearranges their DOM nodes; it never substitutes their values.
+  const heading=q(".eo-panel-head h1",left);
   if(heading)heading.innerHTML="Explorador <em>agrícola</em>";
-  const sub=left.querySelector(".eo-panel-head p");
-  if(sub)sub.textContent="Producción territorial y clima · series abiertas";
-  const top=right.querySelector(".eo-right-top>span");
-  if(top)top.textContent="INDICADORES PRODUCTIVOS";
-  const crop=right.querySelector(".eo-right-crop");
-  const snapshot=right.querySelector(".eo-snapshot");
+  const description=q(".eo-panel-head p",left);
+  if(description)description.textContent="Producción territorial, series oficiales y clima";
+  const topLabel=q(".eo-right-top>span:first-child",right);
+  if(topLabel)topLabel.textContent="INTELIGENCIA PRODUCTIVA";
+  const crop=q(".eo-right-crop",right),snapshot=q(".eo-snapshot",right);
   if(crop)right.insertBefore(crop,tabs);
   if(snapshot)right.insertBefore(snapshot,tabs);
   right.insertBefore(product,tabs);
-  // Preserve the existing data fields and event bindings; just reorganize presentation.
-  const method=document.createElement("details");
-  method.className="gw-method";
-  const summary=document.createElement("summary");summary.textContent="Intervalo histórico y notas de la fuente";
-  const inside=document.createElement("div");inside.className="gw-method-inner";
-  method.append(summary,inside);
+  left.scrollTop=0;right.scrollTop=0;
+  requestAnimationFrame(()=>{left.scrollTop=0;right.scrollTop=0;});
+  // Keep methodological details, units, period and source intact.
+  const method=el("details","gw-method");
+  const methodSummary=el("summary","","Intervalo histórico y notas de la fuente");
+  const methodBody=el("div","gw-method-inner");
+  method.append(methodSummary,methodBody);
   for(const selector of [".ea-hist","#ea-years","#ea-source","#ea-production-scope","#ea-reference-brief"]){
-   const item=product.querySelector(selector);
-   if(item)inside.appendChild(item);
+   const existing=q(selector,product);if(existing)methodBody.appendChild(existing);
   }
-  if(inside.childElementCount)product.appendChild(method);
-  const balance=section("Dinámica territorial y clima NASA","gw-balance");
-  balance.content.append(hud,national);
-  const launch=get("ea-ficha-launch")?.closest(".ea-ficha-launch");
-  if(launch)balance.content.appendChild(launch);
-  const layers=section("Leyenda y configuración del mapa","gw-layers");
+  if(methodBody.childElementCount)product.appendChild(method);
+  // Map controls belong to their own expandable sections, not to the KPIs.
+  const layers=block("Leyenda y configuración del mapa","gw-layers");
   for(const selector of [".eo-layers-title",".eo-heatbar",".eo-heatbar-labels",".eo-opacity",".eo-layer-divider"]){
-   const item=right.querySelector(selector);if(item)layers.content.appendChild(item);
+   const existing=q(selector,right);if(existing)layers.body.appendChild(existing);
   }
-  const rank=section("Municipios y referencias geográficas","gw-territories");
+  const ranks=block("Municipios y referencias geográficas","gw-territories");
   for(const selector of [".eo-territory-heading","#eo-municipality-ranking",".eo-right-foot"]){
-   const item=right.querySelector(selector);if(item)rank.content.appendChild(item);
+   const existing=q(selector,right);if(existing)ranks.body.appendChild(existing);
   }
-  right.append(balance.root,layers.root,rank.root);
-  document.querySelector('[data-eo-layer="climate"]')?.addEventListener("click",()=>{
-   balance.root.open=true;
-  });
-  const change=get("ea-change");
+  right.append(layers.root,ranks.root);
+  // Full width, real analytical information from the site's existing data controllers.
+  const research=el("section");research.id="gw-research";research.setAttribute("aria-label","Análisis territorial avanzado");
+  const intro=el("div","gw-research-heading");
+  intro.innerHTML='<div><span class="gw-kicker">GROWA / ANÁLISIS GEOGRÁFICO Y TEMPORAL</span><h2>Dinámica productiva y agroclimática</h2><p id="gw-research-subtitle">Comparación histórica de superficie cosechada, exposiciones climáticas de referencia y cobertura de la consulta.</p></div>';
+  const up=el("button","","↑ Volver al mapa");up.type="button";
+  up.addEventListener("click",()=>q(".eo-map-heading")?.scrollIntoView({behavior:"smooth",block:"start"}));
+  intro.appendChild(up);
+  const layout=el("div","gw-research-grid"),primary=el("div","gw-research-primary"),secondary=el("div","gw-research-secondary");
+  primary.append(hud,national);
+  // When a dynamically chosen state has no climate block, the other source takes its place.
+  const card=el("article","gw-research-card");
+  card.innerHTML='<h3>Ficha de la consulta</h3><div class="gw-audit-list"><div><span>Estado</span><strong id="gw-state">—</strong></div><div><span>Cultivo</span><strong id="gw-crop">—</strong></div><div><span>Ámbito municipal</span><strong id="gw-city">—</strong></div><div><span>Año</span><strong id="gw-year">—</strong></div><div><span>Registros en el visor</span><strong id="gw-references">—</strong></div></div>';
+  const contextCard=el("article","gw-research-card");
+  contextCard.innerHTML='<h3>Alcance y criterios</h3><p>Producción y superficies: DGSIAP. Exposición atmosférica: NASA POWER. Las referencias geográficas municipales no identifican parcelas individuales.</p><ul><li>Las diferencias de superficie cosechada no equivalen a cambio de uso de suelo.</li><li>Las celdas climáticas no son estaciones meteorológicas de parcela.</li><li>Los datos observados y las series no son pronósticos de rendimiento.</li><li>Los años o categorías sin observación no se imputan automáticamente.</li></ul>';
+  const actions=el("article","gw-research-card");
+  actions.innerHTML='<h3>Datos para análisis</h3><p>La descarga se genera a partir de la selección y del indicador activo de la gráfica; las unidades permanecen identificadas.</p>';
+  const exportButton=el("button","gw-open-research","↓ Exportar serie visualizada");
+  exportButton.style.margin="12px 0 0";exportButton.style.width="100%";
+  exportButton.addEventListener("click",()=> $("eo-export")?.click());
+  actions.appendChild(exportButton);
+  secondary.append(card,contextCard,actions);
+  layout.append(primary,secondary);research.append(intro,layout);app.appendChild(research);
+  const jump=el("button","gw-open-research","Abrir análisis territorial completo   ↗");
+  jump.type="button";jump.id="gw-open-research";
+  jump.addEventListener("click",()=>research.scrollIntoView({behavior:"smooth",block:"start"}));
+  right.appendChild(jump);
+  // Existing surface analysis button continues running its original functions.
+  // It now scrolls to the full-width panel, rather than a map overlay.
+  const launch=$("ea-ficha-launch");
+  if(launch)launch.addEventListener("click",()=>research.scrollIntoView({behavior:"smooth",block:"start"}));
+  // Reversible map-only mode: leave timeline and research available.
+  const mapControls=q(".eo-map-controls",app);
+  if(mapControls){
+   const focus=el("button","","Ampliar mapa");focus.id="gw-map-focus";focus.type="button";
+   focus.setAttribute("aria-pressed","false");
+   mapControls.appendChild(focus);
+   const toggleFocus=()=>{
+    if(matchMedia("(max-width:800px)").matches)return;
+    const active=app.classList.toggle("gw-map-focus");
+    focus.textContent=active?"Restaurar paneles":"Ampliar mapa";
+    focus.setAttribute("aria-pressed",String(active));
+    requestAnimationFrame(()=>{
+     window.GrowaEOMap?.getLeaflet?.()?.invalidateSize?.();
+     window.dispatchEvent(new Event("resize"));
+     window.GrowaAdvanced?.updateMap?.();
+    });
+   };
+   focus.addEventListener("click",toggleFocus);
+   window.addEventListener("keydown",event=>{
+    const target=event.target;
+    const typing=target instanceof HTMLElement&&(target.matches("input,textarea,select")||target.isContentEditable);
+    if(event.key.toLowerCase()==="f"&&!typing&&!event.ctrlKey&&!event.metaKey&&!event.altKey)toggleFocus();
+    if(event.key==="Escape"&&app.classList.contains("gw-map-focus"))toggleFocus();
+   });
+  }
+  // Temporal explorer: real DGSIAP/NASA year selection and reversible playback.
+  const slider=$("eo-year"),yearbar=slider?.closest(".eo-yearbar");
+  let playback=null;
+  const makeButton=(label,id,title)=>{
+   const btn=el("button","gw-year-btn",label);btn.type="button";btn.id=id;btn.title=title;btn.setAttribute("aria-label",title);
+   return btn;
+  };
+  if(slider&&yearbar){
+   const previous=makeButton("‹","gw-year-prev","Año anterior");
+   const play=makeButton("▶","gw-year-play","Reproducir evolución anual");
+   const next=makeButton("›","gw-year-next","Año siguiente");
+   play.setAttribute("aria-pressed","false");
+   yearbar.insertBefore(previous,slider);
+   yearbar.insertBefore(play,slider);
+   yearbar.insertBefore(next,slider.nextSibling);
+   const min=()=>Number(slider.min||2003),max=()=>Number(slider.max||2025),current=()=>Number(slider.value);
+   const stop=()=>{
+    if(playback!==null){clearInterval(playback);playback=null;}
+    play.textContent="▶";play.setAttribute("aria-pressed","false");play.title="Reproducir evolución anual";
+   };
+   const move=step=>{
+    const year=Math.min(max(),Math.max(min(),current()+step));
+    slider.value=String(year);
+    slider.dispatchEvent(new Event("input",{bubbles:true}));
+    previous.disabled=year<=min();next.disabled=year>=max();
+    return year;
+   };
+   previous.addEventListener("click",()=>{stop();move(-1);});
+   next.addEventListener("click",()=>{stop();move(1);});
+   play.addEventListener("click",()=>{
+    if(playback!==null){stop();return;}
+    if(current()>=max())move(min()-current());
+    play.textContent="Ⅱ";play.setAttribute("aria-pressed","true");play.title="Pausar evolución anual";
+    playback=setInterval(()=>{if(move(1)>=max())stop();},950);
+   });
+   slider.addEventListener("input",()=>{previous.disabled=current()<=min();next.disabled=current()>=max();});
+   slider.addEventListener("change",()=>{if(playback!==null)stop();});
+   document.addEventListener("visibilitychange",()=>{if(document.hidden)stop();});
+   window.addEventListener("pagehide",stop);
+   previous.disabled=current()<=min();next.disabled=current()>=max();
+  }
+  // Chart size adjusts its own row; the map does not sacrifice height.
+  const chartHeader=q(".eo-chart-header",app);
+  if(chartHeader){
+   const toggle=el("button","","Ampliar gráfica");toggle.type="button";toggle.id="gw-chart-size";
+   toggle.setAttribute("aria-pressed","false");chartHeader.appendChild(toggle);
+   toggle.addEventListener("click",()=>{
+    const bigger=app.classList.toggle("gw-chart-big");
+    toggle.textContent=bigger?"Reducir gráfica":"Ampliar gráfica";
+    toggle.setAttribute("aria-pressed",String(bigger));
+    window.dispatchEvent(new Event("resize"));
+   });
+  }
+  // Mobile/tablet navigation: scroll to real page sections, never a duplicated dataset.
+  const nav=el("nav");nav.id="gw-mobile-nav";nav.setAttribute("aria-label","Navegación del observatorio");
+  const destinations=[
+   ["Mapa",".eo-map-heading"],["Filtros",".eo-left"],["Indicadores",".eo-right"],["Series",".eo-bottom"],["Análisis","#gw-research"]
+  ];
+  for(const [name,selector]of destinations){
+   const button=el("button","",name);button.type="button";
+   button.addEventListener("click",()=>q(selector)?.scrollIntoView({behavior:"smooth",block:"start"}));
+   nav.appendChild(button);
+  }
+  left.insertAdjacentElement("beforebegin",nav);
+  const change=$("ea-change");
   if(change){
-   const sync=()=>{
+   const format=()=>{
     const value=(change.textContent||"").trim();
     change.classList.toggle("gw-negative",/^[−–-]/.test(value));
     change.classList.toggle("gw-positive",/^\+/.test(value));
    };
-   new MutationObserver(sync).observe(change,{childList:true,subtree:true,characterData:true});
-   sync();
+   new MutationObserver(format).observe(change,{childList:true,subtree:true,characterData:true});
+   format();
   }
-  const chartHeader=document.querySelector(".eo-chart-header");
-  if(chartHeader&&!get("gw-chart-size")){
-   const btn=document.createElement("button");
-   btn.type="button";btn.id="gw-chart-size";btn.textContent="Ampliar gráfica";
-   btn.setAttribute("aria-pressed","false");chartHeader.appendChild(btn);
-   btn.addEventListener("click",()=>{
-    const big=app.classList.toggle("gw-chart-big");
-    btn.textContent=big?"Reducir gráfica":"Ampliar gráfica";
-    btn.setAttribute("aria-pressed",String(big));
-    dispatchEvent(new Event("resize"));
-   });
+  // Visible source-backed context, always derived from active controls.
+  const set=(id,value)=>{const node=$(id);if(node)node.textContent=String(value||"—");};
+  const valueOf=id=>{
+   const select=$(id);
+   if(!select)return"";
+   return select.selectedOptions?.[0]?.textContent?.trim()||select.value||"";
+  };
+  const context=()=>{
+   set("gw-state",valueOf("ea-state"));
+   set("gw-crop",valueOf("eo-crop"));
+   set("gw-city",valueOf("eo-city"));
+   set("gw-year",$("eo-year-value")?.textContent);
+   set("gw-references",$("ea-point-count")?.textContent||$("eo-geo-status")?.textContent);
+   const title=$("gw-research-subtitle");
+   if(title)title.textContent="Serie "+($("eo-year-value")?.textContent||"")+" · "+
+    (valueOf("eo-crop")||"Cultivo seleccionado")+" · "+(valueOf("ea-state")||"Estado")+" · "+
+    (valueOf("eo-city")||"Agregado estatal")+
+    ". Historial productivo, dinámica de superficie cosechada y referencia climática.";
+  };
+  for(const id of ["ea-state","eo-crop","eo-city","eo-compare","eo-year"]){
+   $(id)?.addEventListener("change",context);
+   $(id)?.addEventListener("input",context);
   }
-  right.addEventListener("toggle",()=>dispatchEvent(new Event("resize")),true);
-  dispatchEvent(new Event("resize"));
+  const observed=["eo-year-value","ea-point-count","eo-geo-status","eo-selected-crop","eo-selected-location"];
+  const watcher=new MutationObserver(context);
+  for(const id of observed){const node=$(id);if(node)watcher.observe(node,{subtree:true,characterData:true,childList:true});}
+  context();
+  app.querySelectorAll(".gw-details,.gw-method").forEach(item=>item.addEventListener("toggle",()=>{
+   requestAnimationFrame(()=>window.dispatchEvent(new Event("resize")));
+  }));
+  // Wait for map to be measurable once DOM is mounted.
+  requestAnimationFrame(()=>{
+   window.GrowaEOMap?.getLeaflet?.()?.invalidateSize?.();
+   window.dispatchEvent(new Event("resize"));
+   left.scrollTop=0;right.scrollTop=0;
+  });
  }
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>install(0));
- else install(0);
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setup(0));
+ else setup(0);
 })();
 </script>
 </body>
