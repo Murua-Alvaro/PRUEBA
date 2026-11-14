@@ -1147,7 +1147,8 @@ body[data-view="panorama"] .gw-details-body .ea-ficha-launch{margin-top:12px!imp
       <div class="eoc-foot"><span id="eoc-note">Solicitando observaciones diarias…</span><button id="eoc-retry" type="button" hidden>Reintentar</button></div>
     </div>
     <div class="eo-map-heading"><div><span>REGIÓN / SINALOA, MÉXICO</span><strong id="eo-map-title">Maíz grano · mapa de rendimiento</strong></div><span class="eo-map-coordinates">24.8°N / 107.4°W</span></div>
-    <button type="button" id="eo-insights-toggle" aria-controls="eo-climate-hud" aria-expanded="false">▤  Ver balance territorial</button>\n    <div class="eo-map-controls" aria-label="Controles de mapa">
+    <button type="button" id="eo-insights-toggle" aria-controls="eo-climate-hud" aria-expanded="false">▤  Ver balance territorial</button>
+    <div class="eo-map-controls" aria-label="Controles de mapa">
       <button type="button" id="eo-satellite" aria-pressed="true" title="Cambiar entre satélite y cartografía"><span class="eo-control-icon">◈</span><span id="eo-basemap-label">SATELLITE</span></button>
       <button type="button" id="eo-home" aria-label="Centrar el mapa en Sinaloa" title="Vista de Sinaloa">⌂</button>
       <button type="button" id="eo-plus" aria-label="Acercar mapa" title="Acercar">+</button>
@@ -2002,29 +2003,94 @@ function boot(){
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
 </script>
-<script id="growa-ui-layout-v3">
+<script id="growa-ui-layout-v4">
 (function(){
-  function initialize(){
-    const workspace=document.getElementById('eo-app'), button=document.getElementById('eo-insights-toggle');
-    if(!workspace||!button)return;
-    const setExpanded=function(open){
-      workspace.classList.toggle('growa-insights-open',open);
-      button.setAttribute('aria-expanded',String(open));
-      button.textContent=open?'✕  Cerrar balance territorial':'▤  Ver balance territorial';
-    };
-    setExpanded(false);
-    button.addEventListener('click',function(){setExpanded(!workspace.classList.contains('growa-insights-open'));});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')setExpanded(false);});
-    workspace.addEventListener('click',function(e){
-      if(e.target.closest('[data-eo-layer="climate"], #ea-ficha-launch'))setExpanded(true);
-    });
-    ['ea-state','eo-crop','eo-city'].forEach(function(id){
-      const field=document.getElementById(id);
-      if(field)field.addEventListener('change',function(){setExpanded(false);});
-    });
+ "use strict";
+ const get=id=>document.getElementById(id);
+ function section(title,id){
+  const root=document.createElement("details");
+  root.id=id;root.className="gw-details";
+  const summary=document.createElement("summary");summary.textContent=title;
+  const content=document.createElement("div");content.className="gw-details-body";
+  root.append(summary,content);return {root,content};
+ }
+ function install(retries){
+  const app=get("eo-app"),left=document.querySelector(".eo-left"),right=document.querySelector(".eo-right");
+  const product=right?.querySelector(".ea-product"),tabs=right?.querySelector(".ea-tabs");
+  const hud=get("eo-climate-hud"),national=get("ea-ficha-national");
+  if(!app||!left||!right||!product||!tabs||!hud||!national){
+   if(retries<180)setTimeout(()=>install(retries+1),250);
+   return;
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize);
-  else initialize();
+  if(app.dataset.gwLayout==="v4")return;
+  app.dataset.gwLayout="v4";
+  app.classList.add("growa-insights-open");
+  get("eo-insights-toggle")?.remove();
+  const heading=left.querySelector(".eo-panel-head h1");
+  if(heading)heading.innerHTML="Explorador <em>agrícola</em>";
+  const sub=left.querySelector(".eo-panel-head p");
+  if(sub)sub.textContent="Producción territorial y clima · series abiertas";
+  const top=right.querySelector(".eo-right-top>span");
+  if(top)top.textContent="INDICADORES PRODUCTIVOS";
+  const crop=right.querySelector(".eo-right-crop");
+  const snapshot=right.querySelector(".eo-snapshot");
+  if(crop)right.insertBefore(crop,tabs);
+  if(snapshot)right.insertBefore(snapshot,tabs);
+  right.insertBefore(product,tabs);
+  // Preserve the existing data fields and event bindings; just reorganize presentation.
+  const method=document.createElement("details");
+  method.className="gw-method";
+  const summary=document.createElement("summary");summary.textContent="Intervalo histórico y notas de la fuente";
+  const inside=document.createElement("div");inside.className="gw-method-inner";
+  method.append(summary,inside);
+  for(const selector of [".ea-hist","#ea-years","#ea-source","#ea-production-scope","#ea-reference-brief"]){
+   const item=product.querySelector(selector);
+   if(item)inside.appendChild(item);
+  }
+  if(inside.childElementCount)product.appendChild(method);
+  const balance=section("Dinámica territorial y clima NASA","gw-balance");
+  balance.content.append(hud,national);
+  const launch=get("ea-ficha-launch")?.closest(".ea-ficha-launch");
+  if(launch)balance.content.appendChild(launch);
+  const layers=section("Leyenda y configuración del mapa","gw-layers");
+  for(const selector of [".eo-layers-title",".eo-heatbar",".eo-heatbar-labels",".eo-opacity",".eo-layer-divider"]){
+   const item=right.querySelector(selector);if(item)layers.content.appendChild(item);
+  }
+  const rank=section("Municipios y referencias geográficas","gw-territories");
+  for(const selector of [".eo-territory-heading","#eo-municipality-ranking",".eo-right-foot"]){
+   const item=right.querySelector(selector);if(item)rank.content.appendChild(item);
+  }
+  right.append(balance.root,layers.root,rank.root);
+  document.querySelector('[data-eo-layer="climate"]')?.addEventListener("click",()=>{
+   balance.root.open=true;
+  });
+  const change=get("ea-change");
+  if(change){
+   const sync=()=>{
+    const value=(change.textContent||"").trim();
+    change.classList.toggle("gw-negative",/^[−–-]/.test(value));
+    change.classList.toggle("gw-positive",/^\+/.test(value));
+   };
+   new MutationObserver(sync).observe(change,{childList:true,subtree:true,characterData:true});
+   sync();
+  }
+  const chartHeader=document.querySelector(".eo-chart-header");
+  if(chartHeader&&!get("gw-chart-size")){
+   const btn=document.createElement("button");
+   btn.type="button";btn.id="gw-chart-size";btn.textContent="Ampliar gráfica";
+   btn.setAttribute("aria-pressed","false");chartHeader.appendChild(btn);
+   btn.addEventListener("click",()=>{
+    const big=app.classList.toggle("gw-chart-big");
+    btn.textContent=big?"Reducir gráfica":"Ampliar gráfica";
+    btn.setAttribute("aria-pressed",String(big));
+    dispatchEvent(new Event("resize"));
+   });
+  }
+  right.addEventListener("toggle",()=>dispatchEvent(new Event("resize")),true);
+  dispatchEvent(new Event("resize"));
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>install(0));
+ else install(0);
 })();
 </script>
 </body>
