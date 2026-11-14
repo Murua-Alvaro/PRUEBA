@@ -3202,15 +3202,24 @@ function renderChart(){
  text("eo-chart-coverage",d.first.filter(x=>typeof x==="number").length+" observaciones principales · "+(s.chart==="climate"?"NASA POWER":"DGSIAP"));
  return true;
 }
+/* ViewBox-aware chart pointer positioning: accounts for horizontal mobile scroll. */
+function chartPointerFraction(event){
+ const target=$("eo-chart"),image=target?.querySelector("svg");
+ const bounds=(image||target).getBoundingClientRect();
+ const px=event.touches?.[0]?.clientX??event.changedTouches?.[0]?.clientX??event.clientX;
+ if(!Number.isFinite(px)||bounds.width<=0)return 0;
+ return Math.max(0,Math.min(1,(px-bounds.left-bounds.width*56/1200)/Math.max(1,bounds.width*(1200-56-28)/1200)));
+}
 function hoverChart(e){
  if(!lastGraph)return;
- const el=$("eo-chart"),r=el.getBoundingClientRect(),f=(e.clientX-r.left-r.width*56/1200)/Math.max(1,r.width*(1200-56-28)/1200),i=Math.max(0,Math.min(lastGraph.labels.length-1,Math.round(f*(lastGraph.labels.length-1))));
+ const f=chartPointerFraction(e),i=Math.max(0,Math.min(lastGraph.labels.length-1,Math.round(f*(lastGraph.labels.length-1))));
  const d=lastGraph,tip=$("eo-chart-tooltip");
  tip.innerHTML="<strong>"+esc(d.labels[i])+"</strong><div style='color:#5cf2b5'>"+esc(d.names[0])+": "+F(d.first[i])+" "+esc(d.unit)+"</div><div style='color:#9fb9ff'>"+esc(d.names[1])+": "+F(d.second[i])+" "+esc(d.unit)+"</div>";tip.hidden=false;
 }
 function clickChart(e){
  if(!lastGraph||lastGraph.monthly)return;
- const r=$("eo-chart").getBoundingClientRect(),f=(e.clientX-r.left-r.width*56/1200)/Math.max(1,r.width*(1200-56-28)/1200),i=Math.max(0,Math.min(22,Math.round(f*22))),year=years[i],input=$("eo-year");
+ const f=chartPointerFraction(e),i=Math.max(0,Math.min(years.length-1,Math.round(f*(years.length-1)))),year=years[i],input=$("eo-year");
+ if(!Number.isFinite(year)||!input)return;
  input.value=String(year);input.dispatchEvent(new Event("input",{bubbles:true}));
 }
 function exportCSV(){
