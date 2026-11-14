@@ -525,237 +525,6 @@ body[data-view="panorama"] .ea-map-health{
  body[data-view="panorama"] .eo-right{bottom:250px!important}
 }
 
-/* GROWA workstation layout v3 — coherent responsive map workspace.
-   Keep every DGSIAP/NASA dataset and every controller untouched. */
-body[data-view="panorama"]{overflow-x:clip!important}
-body[data-view="panorama"] .eo-app{
-  --gw-left:286px;--gw-right:328px;--gw-bottom:272px;
-  display:grid!important;
-  grid-template-columns:var(--gw-left) minmax(0,1fr) var(--gw-right)!important;
-  grid-template-rows:minmax(575px,calc(100svh - 78px)) var(--gw-bottom)!important;
-  width:100%!important;max-width:100%!important;height:auto!important;
-  min-height:0!important;max-height:none!important;overflow:hidden!important;
-  background:#e8efea!important;isolation:isolate!important;
-}
-body[data-view="panorama"] .eo-map{
-  position:relative!important;inset:auto!important;grid-column:2!important;grid-row:1!important;
-  width:100%!important;height:100%!important;min-height:0!important;min-width:0!important;
-  filter:saturate(.92) contrast(1.03)!important;
-}
-body[data-view="panorama"] .ea-geostage{
-  position:absolute!important;inset:0 var(--gw-right) var(--gw-bottom) var(--gw-left)!important;
-  width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;
-}
-body[data-view="panorama"] .eo-map-gradient{
-  position:absolute!important;inset:0 var(--gw-right) var(--gw-bottom) var(--gw-left)!important;
-  background:linear-gradient(180deg,rgba(2,21,21,.40),transparent 34%,transparent 70%,rgba(5,25,23,.26))!important;
-  pointer-events:none!important;
-}
-body[data-view="panorama"] .eo-left,
-body[data-view="panorama"] .eo-right{
-  position:relative!important;inset:auto!important;top:auto!important;bottom:auto!important;
-  left:auto!important;right:auto!important;grid-row:1!important;
-  width:auto!important;max-width:none!important;height:100%!important;min-height:0!important;
-  overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;
-  background:#fcfefd!important;border:0!important;border-radius:0!important;
-  box-shadow:none!important;backdrop-filter:none!important;scrollbar-width:thin!important;
-  z-index:21!important;
-}
-body[data-view="panorama"] .eo-left{grid-column:1!important;border-right:1px solid #dbe8e0!important}
-body[data-view="panorama"] .eo-right{grid-column:3!important;border-left:1px solid #dbe8e0!important}
-body[data-view="panorama"] .eo-bottom{
-  grid-column:1/-1!important;grid-row:2!important;
-  position:relative!important;inset:auto!important;bottom:auto!important;left:auto!important;right:auto!important;
-  width:100%!important;height:var(--gw-bottom)!important;min-height:0!important;
-  border-top:1px solid #24463d!important;z-index:22!important;
-}
-body[data-view="panorama"] .eo-map-heading{
-  top:26px!important;left:calc(var(--gw-left) + 25px)!important;right:calc(var(--gw-right) + 25px)!important;
-  z-index:10!important;max-width:none!important;min-width:0!important;
-}
-body[data-view="panorama"] .eo-map-heading strong{
-  font-size:clamp(16px,1.5vw,22px)!important;line-height:1.35!important;letter-spacing:-.03em!important;
-}
-body[data-view="panorama"] .eo-map-controls{
-  right:calc(var(--gw-right) + 18px)!important;top:116px!important;z-index:17!important;
-}
-body[data-view="panorama"] .eo-map-controls button{min-height:42px!important;min-width:42px!important;border-radius:11px!important}
-body[data-view="panorama"] .eo-metadata{
-  top:auto!important;bottom:calc(var(--gw-bottom) + 18px)!important;
-  left:calc(var(--gw-left) + 24px)!important;right:calc(var(--gw-right) + 24px)!important;
-  z-index:17!important;width:auto!important;
-}
-body[data-view="panorama"] .eo-yearbar{
-  width:100%!important;max-width:none!important;min-width:0!important;
-  gap:13px!important;padding:12px 16px!important;border-radius:12px!important;
-  background:rgba(255,255,255,.96)!important;
-}
-body[data-view="panorama"] .eo-yearbar>span{font-size:10px!important;color:#526b5b!important}
-body[data-view="panorama"] .eo-yearbar strong{font-size:18px!important}
-body[data-view="panorama"] .ea-map-health{
-  left:calc(var(--gw-left) + 24px)!important;right:auto!important;top:auto!important;
-  bottom:calc(var(--gw-bottom) + 92px)!important;max-width:210px!important;z-index:14!important;
-}
-body[data-view="panorama"] .eo-panel-head{padding:24px 22px 20px!important}
-body[data-view="panorama"] .eo-panel-head h1{
-  margin:15px 0 9px!important;font-size:27px!important;letter-spacing:-.055em!important;line-height:1.05!important;
-}
-body[data-view="panorama"] .eo-panel-head p{font-size:12px!important;line-height:1.5!important;color:#698176!important}
-body[data-view="panorama"] .eo-overline{font-size:9px!important;letter-spacing:.055em!important;white-space:normal!important}
-body[data-view="panorama"] .eo-analysis-label{padding:19px 20px 11px!important;font-size:10px!important;line-height:1.35!important}
-body[data-view="panorama"] .eo-selection{padding:4px 19px 22px!important;gap:14px!important}
-body[data-view="panorama"] .eo-selection label,
-body[data-view="panorama"] .ea-state{font-size:10px!important;line-height:1.45!important;gap:7px!important}
-body[data-view="panorama"] .eo-selection select,
-body[data-view="panorama"] .ea-state select{
-  min-height:43px!important;font-size:12px!important;padding:10px 12px!important;border-radius:10px!important;
-}
-body[data-view="panorama"] .eo-layer-list{padding:2px 12px 17px!important}
-body[data-view="panorama"] .eo-layer{min-height:54px!important;padding:10px!important;gap:12px!important}
-body[data-view="panorama"] .eo-layer-text strong{font-size:12px!important}
-body[data-view="panorama"] .eo-layer-text small{font-size:10px!important;white-space:normal!important;line-height:1.35!important}
-body[data-view="panorama"] .eo-import{padding:0 19px 19px!important}
-body[data-view="panorama"] .eo-upload{padding:13px!important;font-size:11px!important;border-radius:11px!important}
-body[data-view="panorama"] .eo-upload small{font-size:10px!important}
-body[data-view="panorama"] .eo-right-top{padding:21px 19px 17px!important;font-size:10px!important}
-body[data-view="panorama"] .eo-right-crop{padding:19px 20px 17px!important}
-body[data-view="panorama"] .eo-right-crop h2{font-size:26px!important;margin:8px 0!important}
-body[data-view="panorama"] .eo-right-location{font-size:11px!important}
-body[data-view="panorama"] .eo-snapshot{padding:18px 20px!important}
-body[data-view="panorama"] .eo-snapshot-value strong{font-size:39px!important}
-body[data-view="panorama"] .eo-snapshot-note{font-size:11px!important}
-body[data-view="panorama"] .ea-tabs{margin:0 12px!important;position:sticky!important;top:0!important;padding:5px!important}
-body[data-view="panorama"] .ea-tabs button{font-size:11px!important;min-height:38px!important}
-body[data-view="panorama"] .eo-chart-header{padding:0 23px!important;gap:13px!important}
-body[data-view="panorama"] .eo-chart-heading>strong{font-size:15px!important}
-body[data-view="panorama"] .eo-chart-eyebrow{font-size:10px!important}
-body[data-view="panorama"] .eo-chart-plot{padding:10px 23px 0!important}
-body[data-view="panorama"] .eo-chart-foot{padding:0 23px!important}
-/* The territorial balance remains available on demand, never obscures the map by default. */
-body[data-view="panorama"] #eo-insights-toggle{
-  position:absolute!important;z-index:26!important;top:110px!important;left:calc(var(--gw-left) + 24px)!important;
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;
-  border:1px solid rgba(234,249,240,.8)!important;border-radius:11px!important;
-  min-height:41px!important;max-width:calc(100% - var(--gw-left) - var(--gw-right) - 118px)!important;
-  padding:10px 14px!important;background:rgba(254,255,253,.97)!important;color:#18543b!important;
-  font:700 11px "DM Sans",Arial,sans-serif!important;letter-spacing:0!important;
-  box-shadow:0 6px 22px rgba(6,31,23,.20)!important;cursor:pointer!important;
-}
-body[data-view="panorama"] #eo-insights-toggle:hover{background:#eaf6ed!important}
-body[data-view="panorama"] #eo-insights-toggle[aria-expanded="true"]{background:#0c5137!important;color:#fff!important;border-color:#579773!important}
-body[data-view="panorama"] .eo-app:not(.growa-insights-open) #eo-climate-hud,
-body[data-view="panorama"] .eo-app:not(.growa-insights-open) #ea-ficha-national{display:none!important}
-body[data-view="panorama"] #eo-climate-hud,
-body[data-view="panorama"] #ea-ficha-national{
-  position:absolute!important;z-index:25!important;
-  left:calc(var(--gw-left) + 24px)!important;right:auto!important;top:164px!important;
-  width:min(360px,calc(100% - var(--gw-left) - var(--gw-right) - 50px))!important;
-  min-width:0!important;height:auto!important;
-  max-height:min(440px,calc(100svh - 230px))!important;
-  overflow-y:auto!important;overflow-x:hidden!important;
-  border-radius:15px!important;box-shadow:0 14px 38px rgba(3,23,16,.32)!important;
-}
-body[data-view="panorama"] #eo-climate-hud[hidden],
-body[data-view="panorama"] #ea-ficha-national[hidden]{display:none!important}
-body[data-view="panorama"] #eo-climate-hud .ea-ficha-stat strong{font-size:17px!important}
-body[data-view="panorama"] .ea-ficha-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
-body[data-view="panorama"] .ea-ficha-stat strong{white-space:normal!important;overflow-wrap:anywhere!important}
-body[data-view="panorama"] .ea-ficha-middle{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)!important}
-@media(max-width:1180px) and (min-width:991px){
- body[data-view="panorama"] .eo-app{--gw-left:260px;--gw-right:300px}
- body[data-view="panorama"] .eo-map-heading{left:calc(var(--gw-left) + 19px)!important;right:calc(var(--gw-right) + 19px)!important}
- body[data-view="panorama"] .eo-metadata{left:calc(var(--gw-left) + 16px)!important;right:calc(var(--gw-right) + 16px)!important}
- body[data-view="panorama"] .eo-map-controls{right:calc(var(--gw-right) + 13px)!important}
- body[data-view="panorama"] #eo-insights-toggle{left:calc(var(--gw-left) + 16px)!important}
- body[data-view="panorama"] #eo-climate-hud,body[data-view="panorama"] #ea-ficha-national{left:calc(var(--gw-left) + 16px)!important}
- body[data-view="panorama"] .eo-map-coordinates{display:none!important}
-}
-@media(max-width:990px) and (min-width:701px){
- body[data-view="panorama"] .eo-app{
-  --gw-left:0px;--gw-right:0px;--gw-bottom:270px;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-  grid-template-rows:500px minmax(520px,auto) var(--gw-bottom)!important;overflow:visible!important;
- }
- body[data-view="panorama"] .eo-map{grid-column:1/-1!important;grid-row:1!important}
- body[data-view="panorama"] .ea-geostage,body[data-view="panorama"] .eo-map-gradient{inset:0 0 auto!important;height:500px!important}
- body[data-view="panorama"] .eo-left,body[data-view="panorama"] .eo-right{
-  position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
-  grid-row:2!important;width:auto!important;height:100%!important;max-height:680px!important;min-height:520px!important;
-  overflow-y:auto!important;
- }
- body[data-view="panorama"] .eo-left{grid-column:1!important}
- body[data-view="panorama"] .eo-right{grid-column:2!important}
- body[data-view="panorama"] .eo-bottom{grid-column:1/-1!important;grid-row:3!important}
- body[data-view="panorama"] .eo-map-heading{top:24px!important;left:25px!important;right:25px!important}
- body[data-view="panorama"] .eo-map-controls{top:115px!important;right:21px!important}
- body[data-view="panorama"] .eo-metadata{top:428px!important;bottom:auto!important;left:22px!important;right:22px!important}
- body[data-view="panorama"] .ea-map-health{left:23px!important;top:345px!important;bottom:auto!important}
- body[data-view="panorama"] #eo-insights-toggle{top:108px!important;left:23px!important;max-width:250px!important}
- body[data-view="panorama"] #eo-climate-hud,body[data-view="panorama"] #ea-ficha-national{
-  top:165px!important;left:23px!important;width:min(360px,calc(100% - 46px))!important;max-height:290px!important
- }
- body[data-view="panorama"] .eo-chart-heading>span:last-child{display:none!important}
-}
-@media(max-width:700px){
- body[data-view="panorama"] .eo-app{
-  display:flex!important;flex-direction:column!important;gap:0!important;
-  height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
-  --gw-left:0px;--gw-right:0px;--gw-bottom:276px;
- }
- body[data-view="panorama"] .eo-map{position:absolute!important;inset:0 0 auto!important;height:440px!important;width:100%!important}
- body[data-view="panorama"] .ea-geostage,
- body[data-view="panorama"] .eo-map-gradient{inset:0 0 auto!important;height:440px!important}
- body[data-view="panorama"] .eo-map-heading{
-  position:relative!important;order:1!important;flex:none!important;
-  height:440px!important;min-height:440px!important;
-  top:auto!important;left:auto!important;right:auto!important;padding:20px 15px!important;
- }
- body[data-view="panorama"] .eo-map-heading strong{font-size:16px!important;max-width:calc(100vw - 125px)!important}
- body[data-view="panorama"] .eo-map-coordinates{display:none!important}
- body[data-view="panorama"] .eo-map-controls{top:112px!important;right:13px!important}
- body[data-view="panorama"] .eo-metadata{top:375px!important;bottom:auto!important;left:13px!important;right:13px!important}
- body[data-view="panorama"] .eo-yearbar{padding:10px 12px!important}
- body[data-view="panorama"] .eo-yearbar>span{display:none!important}
- body[data-view="panorama"] .ea-map-health{top:325px!important;bottom:auto!important;left:14px!important;right:auto!important;max-width:185px!important}
- body[data-view="panorama"] .eo-left,
- body[data-view="panorama"] .eo-right{
-  position:relative!important;inset:auto!important;top:auto!important;bottom:auto!important;
-  left:auto!important;right:auto!important;flex:none!important;
-  width:100%!important;height:auto!important;max-height:none!important;min-height:0!important;
-  overflow:visible!important;border:0!important;border-top:1px solid #e2eee6!important;border-radius:0!important;
- }
- body[data-view="panorama"] .eo-left{order:2!important;display:flex!important}
- body[data-view="panorama"] .eo-right{order:3!important;display:flex!important}
- body[data-view="panorama"] .eo-bottom{order:4!important;position:relative!important;height:var(--gw-bottom)!important}
- body[data-view="panorama"] .eo-selection{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
- body[data-view="panorama"] .eo-selection .ea-state{grid-column:1/-1!important}
- body[data-view="panorama"] .eo-selection label{min-width:0!important}
- body[data-view="panorama"] .eo-layer-list{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important}
- body[data-view="panorama"] .eo-layer{min-width:0!important}
- body[data-view="panorama"] .eo-panel-head h1{font-size:28px!important}
- body[data-view="panorama"] #eo-insights-toggle{top:110px!important;left:14px!important;max-width:calc(100% - 110px)!important;min-height:39px!important}
- body[data-view="panorama"] #eo-climate-hud,body[data-view="panorama"] #ea-ficha-national{
-  top:162px!important;left:13px!important;right:13px!important;width:auto!important;min-width:0!important;
-  max-height:200px!important;
- }
- body[data-view="panorama"] .ea-ficha-middle{grid-template-columns:1fr!important}
- body[data-view="panorama"] .eo-chart-heading>span:last-child{display:none!important}
- body[data-view="panorama"] .eo-chart-header{height:auto!important;min-height:66px!important;flex-wrap:wrap!important;padding:8px 13px!important}
- body[data-view="panorama"] .eo-chart-plot{padding:6px 12px!important}
- body[data-view="panorama"] .eo-chart-foot{padding:0 12px!important;font-size:8px!important}
- body[data-view="panorama"] .eo-chart-foot>span:nth-child(2){display:none!important}
- body .rail{height:auto!important;min-height:60px!important;flex-wrap:wrap!important;gap:0!important;padding:10px 14px!important}
- body .rail .navigation{width:100%!important;flex:1 0 100%!important;gap:15px!important;justify-content:space-between!important;overflow-x:auto!important}
- body .rail .nav-link{height:39px!important;min-height:39px!important;white-space:nowrap!important}
-}
-@media(max-width:420px){
- body[data-view="panorama"] .eo-layer-list{grid-template-columns:1fr!important}
- body[data-view="panorama"] .eo-selection{grid-template-columns:1fr!important}
- body[data-view="panorama"] .eo-yearbar strong{font-size:15px!important}
- body[data-view="panorama"] .eo-map-heading strong{font-size:14px!important}
-}
-
-
 /* GROWA v4 — data-first, no clipped columns, no floating analytical cards */
 body[data-view="panorama"]{overflow-x:hidden!important}
 body[data-view="panorama"] .page{max-width:100%!important;width:100%!important;min-width:0!important}
@@ -765,14 +534,14 @@ body .rail .navigation{min-width:0!important;flex:1!important;gap:clamp(14px,2.6
 body .rail .nav-link{white-space:nowrap!important;font-size:12px!important}
 body[data-view="panorama"] .eo-app,body[data-view="panorama"] .eo-app *{box-sizing:border-box}
 body[data-view="panorama"] .eo-app{
- --gw-left:254px;--gw-right:338px;--gw-bottom:192px;
+ --gw-left:266px;--gw-right:342px;--gw-bottom:250px;
  display:grid!important;grid-template-columns:var(--gw-left) minmax(0,1fr) var(--gw-right)!important;
- grid-template-rows:minmax(0,1fr) var(--gw-bottom)!important;
- height:calc(100dvh - 64px)!important;min-height:560px!important;max-height:none!important;
+ grid-template-rows:clamp(660px,calc(100dvh - 64px),860px) var(--gw-bottom)!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
  width:100%!important;max-width:100vw!important;min-width:0!important;overflow:hidden!important;
  background:#edf2ee!important;isolation:isolate!important
 }
-body[data-view="panorama"] .eo-app.gw-chart-big{--gw-bottom:298px}
+body[data-view="panorama"] .eo-app.gw-chart-big{--gw-bottom:345px}
 body[data-view="panorama"] .eo-map{
  position:relative!important;inset:auto!important;grid-column:2!important;grid-row:1!important;
  width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;height:100%!important;
@@ -802,11 +571,11 @@ body[data-view="panorama"] .eo-bottom{
  width:100%!important;height:100%!important;min-width:0!important;z-index:26!important;
  border-top:1px solid #2e4e42!important;background:#122520!important
 }
-body[data-view="panorama"] .eo-chart-header{height:51px!important;min-height:51px!important;padding:0 17px!important;gap:10px!important}
+body[data-view="panorama"] .eo-chart-header{height:60px!important;min-height:60px!important;padding:0 22px!important;gap:12px!important;flex-wrap:nowrap!important}
 body[data-view="panorama"] .eo-chart-heading>strong{font-size:15px!important}
 body[data-view="panorama"] .eo-chart-heading>span:last-child{max-width:250px!important;overflow:hidden!important;text-overflow:ellipsis!important}
-body[data-view="panorama"] .eo-chart-plot{flex:1!important;min-height:0!important;padding:8px 18px 0!important}
-body[data-view="panorama"] .eo-chart-foot{height:29px!important;min-height:29px!important;padding:0 18px!important}
+body[data-view="panorama"] .eo-chart-plot{flex:1!important;min-height:0!important;padding:9px 22px 0!important}
+body[data-view="panorama"] .eo-chart-foot{height:31px!important;min-height:31px!important;padding:0 22px!important}
 body[data-view="panorama"] #gw-chart-size{
  min-height:31px!important;padding:5px 10px!important;white-space:nowrap!important;cursor:pointer!important;
  border:1px solid #416454!important;border-radius:7px!important;background:#1c4234!important;
@@ -843,7 +612,7 @@ body[data-view="panorama"] .eo-yearbar>span{font-size:10px!important}
 body[data-view="panorama"] .eo-yearbar strong{font-size:16px!important}
 body[data-view="panorama"] .ea-map-health{
  left:calc(var(--gw-left) + 19px)!important;right:auto!important;top:auto!important;
- bottom:calc(var(--gw-bottom) + 75px)!important;max-width:200px!important;z-index:17!important
+ bottom:calc(var(--gw-bottom) + 90px)!important;max-width:200px!important;z-index:17!important
 }
 body[data-view="panorama"] #eo-insights-toggle{display:none!important}
 /* Explorer filters */
@@ -1048,6 +817,66 @@ body[data-view="panorama"] .gw-details-body .ea-ficha-launch{margin-top:12px!imp
  body[data-view="panorama"] .eo-panel-head h1{font-size:22px!important}
  body[data-view="panorama"] .eo-chart-heading>strong{font-size:12px!important}
  body[data-view="panorama"] .eo-chart-legend{display:none!important}
+}
+
+
+
+/* GROWA v5 — distribute the analytical workspace across the page, never a compressed viewport */
+body[data-view="panorama"] .eo-app{align-content:start!important}
+body[data-view="panorama"] .eo-left,body[data-view="panorama"] .eo-right{
+ align-self:stretch!important;scroll-padding-top:0!important
+}
+body[data-view="panorama"] .eo-left>.eo-panel-head,
+body[data-view="panorama"] .eo-right>.eo-right-top{flex-shrink:0!important}
+body[data-view="panorama"] .eo-bottom{scroll-margin-top:72px!important}
+body[data-view="panorama"] .eo-chart-controls button{
+ font-size:10px!important;min-height:33px!important;padding:8px 11px!important;white-space:nowrap!important
+}
+body[data-view="panorama"] .eo-chart-heading>strong{font-size:15px!important}
+body[data-view="panorama"] .eo-chart-heading>span:last-child{
+ font-size:10px!important;white-space:nowrap!important;max-width:230px!important
+}
+body[data-view="panorama"] .ea-period{font-size:10px!important;white-space:nowrap!important}
+body[data-view="panorama"] .ea-period select{max-width:130px!important;font-size:11px!important;min-height:35px!important}
+body[data-view="panorama"] #gw-chart-size{min-height:35px!important;padding:7px 12px!important}
+body[data-view="panorama"] .eo-chart-legend{gap:12px!important}
+body[data-view="panorama"] .eo-chart-legend span{font-size:10px!important}
+body[data-view="panorama"] .eo-yearbar{max-width:440px!important}
+body[data-view="panorama"] .eo-map-heading{
+ max-width:calc(100% - var(--gw-left) - var(--gw-right) - 45px)!important;
+}
+body[data-view="panorama"] .ea-map-health{font-size:10px!important}
+body[data-view="panorama"] .eo-right .ea-product>.ea-metrics>div{min-height:88px!important}
+@media(min-width:1061px) and (max-width:1390px){
+ body[data-view="panorama"] .eo-chart-heading>span:last-child{display:none!important}
+ body[data-view="panorama"] .eo-chart-header{gap:10px!important;padding:0 18px!important}
+ body[data-view="panorama"] .eo-chart-legend{gap:9px!important}
+ body[data-view="panorama"] .eo-chart-controls button{padding:8px 9px!important}
+}
+@media(min-width:1061px) and (max-height:700px){
+ body[data-view="panorama"] .eo-app{
+  grid-template-rows:660px var(--gw-bottom)!important;
+ }
+}
+/* Tablet layout uses its own full-height map and unconstrained stacked analytical cards. */
+@media(max-width:1060px) and (min-width:741px){
+ body[data-view="panorama"] .eo-app{
+  grid-template-rows:530px auto var(--gw-bottom)!important;
+ }
+ body[data-view="panorama"] .ea-geostage,
+ body[data-view="panorama"] .eo-map-gradient{height:530px!important}
+ body[data-view="panorama"] .eo-metadata{top:466px!important}
+ body[data-view="panorama"] .ea-map-health{top:385px!important}
+ body[data-view="panorama"] .eo-chart-header{flex-wrap:wrap!important;min-height:60px!important;height:auto!important}
+ body[data-view="panorama"] .eo-chart-heading>span:last-child{display:none!important}
+}
+@media(max-width:740px){
+ body[data-view="panorama"] .eo-chart-header{flex-wrap:wrap!important;min-height:71px!important;height:auto!important}
+ body[data-view="panorama"] .eo-map-heading{max-width:none!important}
+ body[data-view="panorama"] .eo-bottom{height:270px!important;min-height:270px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-view="panorama"] .eo-left,body[data-view="panorama"] .eo-right{scroll-behavior:auto!important}
 }
 
 </style>
@@ -2024,6 +1853,10 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   }
   if(app.dataset.gwLayout==="v4")return;
   app.dataset.gwLayout="v4";
+  // Restore the sidebars to their headers after the previous compact layout.
+  left.scrollTop=0;right.scrollTop=0;
+  requestAnimationFrame(()=>{left.scrollTop=0;right.scrollTop=0;});
+
   app.classList.add("growa-insights-open");
   get("eo-insights-toggle")?.remove();
   const heading=left.querySelector(".eo-panel-head h1");
