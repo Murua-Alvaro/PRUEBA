@@ -2,6 +2,7 @@
   "name": "growa-water-platform",
   "private": true,
   "scripts": {
-    "dev": "python3 scripts/preview.py"
+    "dev": "python3 scripts/preview.py",
+    "postinstall": "node scripts/build-national.mjs"
   }
 }
