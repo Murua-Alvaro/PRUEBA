@@ -3105,7 +3105,13 @@ function drawMarkers(){
   const selected=n(selectedPoint?.city||state().city)===n(p.city);
   const radius=4+Math.sqrt(p.harvest/max)*7;
   const marker=window.L.circleMarker([p.lat,p.lon],{radius:radius+(selected?2:0),weight:selected?3:1.5,color:"#e8ffef",fillColor:selected?"#d9f47a":"#51e2ac",fillOpacity:.84});
-  marker.bindTooltip("<b>"+esc(p.city)+"</b><br>"+esc(state().crop)+"<br>"+F(p.harvest)+" ha cosechadas · "+p.year+"<br><small>Punto municipal de referencia; no parcela</small>",{direction:"top",sticky:true});
+  const productive=p.harvest>0&&Number.isFinite(p.volume)?p.volume/p.harvest:null;
+  const popup="<strong>"+esc(p.city)+"</strong> · "+p.year+
+   "<br><span>"+esc(state().crop)+"</span>"+
+   "<br>Superficie cosechada: <b>"+F(p.harvest)+" ha</b>"+
+   (productive!=null?"<br>Rendimiento: <b>"+F(productive)+" t/ha</b>":"")+
+   "<br><small>El tamaño del símbolo representa superficie cosechada; punto municipal de referencia, no parcela</small>";
+  marker.bindTooltip(popup,{direction:"top",sticky:true,opacity:.97});
   marker.on("click",()=>{if(isNational())selectNationalCity(p.city);else eo()?.selectCity?.(p.city)});
   marker.addTo(markers);
  });
