@@ -2737,7 +2737,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   // Keep units explicit. Never pool observations measured in different physical units.
   for(const r of D.crops){
    const yr=Number(r.year),harvest=Number(r.harvest),volume=Number(r.volume);
-   if(r.harvest==null||r.volume==null||!String(r.unit||"").trim()||!Number.isInteger(yr)||yr<2003||yr>2025||!Number.isFinite(harvest)||!Number.isFinite(volume)||harvest<0||volume<0)continue;
+   if(r.harvest==null||r.volume==null||!/^(tonelada|toneladas|ton|t)$/.test(norm(r.unit))||!Number.isInteger(yr)||yr<2003||yr>2025||!Number.isFinite(harvest)||!Number.isFinite(volume)||harvest<0||volume<0)continue;
    const key=yr+"|"+norm(r.name),city=norm(r.municipio),units=norm(r.unit);
    let yearMap=index.get(key);if(!yearMap){yearMap=new Map();index.set(key,yearMap);}
    let item=yearMap.get(city);if(!item){item={name:String(r.municipio),area:0,volume:0,units:new Set(),rows:0};yearMap.set(city,item);}
@@ -2819,8 +2819,23 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   const research=$("gw-research");
   if(research){
    const hub=node("section","v8-decision-hub");
-   hub.innerHTML='<div class="v8-hub-head"><div><span class="v8-eyebrow">LECTURA COMPARADA</span><h3>Posición y evolución territorial</h3><p>Comparadores descriptivos obtenidos de los registros disponibles. No son predicciones ni efectos causales.</p></div><span id="v8-hub-status">Cargando datos oficiales</span></div><div class="v8-hub-grid"><div class="v8-hub-cell"><small>Rendimiento actual</small><strong id="v8-hub-yield">—</strong><span>Toneladas por hectárea</span></div><div class="v8-hub-cell"><small>Referencia</small><strong id="v8-hub-compare">—</strong><span id="v8-hub-compare-desc">—</span></div><div class="v8-hub-cell"><small>Media previa</small><strong id="v8-hub-average">—</strong><span id="v8-hub-average-desc">—</span></div></div><div class="v8-rank-head"><h4>Rendimiento de territorios comparables</h4><small id="v8-rank-note">—</small></div><div class="v8-rank-grid" id="v8-rank-grid" aria-live="polite"></div>';
+   hub.innerHTML='<div class="v8-hub-head"><div><span class="v8-eyebrow">LECTURA COMPARADA</span><h3>Posición y evolución territorial</h3><p>Comparadores descriptivos obtenidos de los registros disponibles. No son predicciones ni efectos causales.</p></div><span id="v8-hub-status">Cargando datos oficiales</span></div><div class="v8-hub-grid"><div class="v8-hub-cell"><small>Rendimiento actual</small><strong id="v8-hub-yield">—</strong><span>Toneladas por hectárea</span></div><div class="v8-hub-cell"><small>Referencia</small><strong id="v8-hub-compare">—</strong><span id="v8-hub-compare-desc">—</span></div><div class="v8-hub-cell"><small>Media previa</small><strong id="v8-hub-average">—</strong><span id="v8-hub-average-desc">—</span></div></div><div class="v8-rank-head"><h4>Rendimiento de territorios comparables</h4><div class="v8-rank-actions"><small id="v8-rank-note">—</small><button type="button" id="v8-export-ranking">Descargar comparativo CSV ↓</button></div></div><div class="v8-rank-grid" id="v8-rank-grid" aria-live="polite"></div>';
    research.querySelector(".gw-research-heading")?.after(hub);
+   $("v8-export-ranking")?.addEventListener("click",()=>{
+    const s=selection(),peers=[...peerValues(s)].sort((a,b)=>b.yield-a.yield);
+    if(!peers.length)return;
+    const quote=x=>'"'+String(x??"").replace(/"/g,'""')+'"';
+    const header=["posicion","ambito","territorio","cultivo","anio","superficie_cosechada_ha","produccion_t","rendimiento_t_ha","fuente"];
+    const csv=[header.join(",")].concat(peers.map((r,i)=>[
+      i+1,s.state==="Sinaloa"?"municipal":"estatal_piloto_10",r.name,s.crop,s.year,
+      r.area,r.volume,r.yield,"DGSIAP"
+    ].map(quote).join(","))).join("\r\n");
+    const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob),link=document.createElement("a");
+    link.href=url;link.download="growa_comparativo_"+s.year+"_"+norm(s.crop).replace(/\s+/g,"-")+".csv";
+    document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+   });
   }
   const mapLegend=node("div","v8-map-data-note");
   mapLegend.innerHTML='<span class="v8-note-dot"></span><div><strong>Tamaño de símbolo = superficie cosechada</strong><small>Referencias municipales, no polígonos de parcelas</small></div>';
@@ -2868,7 +2883,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
    if(!d.peers.length){list.appendChild(node("p","v8-empty","No hay territorios comparables con la cobertura requerida."));}
    else{
     const ordered=[...d.peers].sort((a,b)=>b.yield-a.yield),maximum=Math.max(...ordered.map(x=>x.yield),.1);
-    ordered.slice(0,16).forEach((p,i)=>{
+    ordered.forEach((p,i)=>{
      const row=node("button","v8-territory-row");row.type="button";
      const selected=norm(p.name)===norm(s.state==="Sinaloa"?(s.city||""):s.state);
      row.classList.toggle("selected",selected);
