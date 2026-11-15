@@ -3549,3 +3549,290 @@ function startup(tryCount=0){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>startup());else startup();
 })();
+
+
+/* GROWA NATIONAL OBSERVATORY V1 | DGSIAP 32 states, 2003–2025.
+   The 32-state dataset and municipal crop-level panel are independently
+   compressed, downloaded when needed, and rendered without third-party UI libs. */
+(function(){
+"use strict";
+var root=document.getElementById("agn-national-observer");if(!root)return;
+var $=id=>document.getElementById(id);
+var D=null,MC=null,loading=null,municipalLoading=null,ready=false;
+var Y=new Map(),C=new Map(),Myear=new Map(),MCyear=new Map();
+var state={sid:0,year:2025,crop:-1,metric:"value",tab:"states",search:"",all:false};
+var T={
+es:{allStates:"Todo México · 32 entidades",allCrops:"Todos los cultivos",ready:"Fuente DGSIAP",loading:"Cargando datos nacionales oficiales…",error:"No fue posible recuperar los datos oficiales. Actualiza la página para reintentar.",municipalLoading:"Cargando detalle municipal por cultivo…",downloadLoading:"Preparando panel histórico completo…",year:"Año",state:"Entidad",municipio:"Municipio",crop:"Cultivo",value:"Valor bruto (MDP)",harvest:"Superficie cosechada (ha)",sown:"Superficie sembrada (ha)",volume:"Volumen (t)",irrig:"Riego (ha)",share:"Participación",all:"Mostrar todos los registros ↓",less:"Mostrar menos ↑",national:"Todo México",noData:"Sin registro",noResults:"Sin resultados para la búsqueda.",coverage:"entidades con registros",rows:"filas de la fuente",change:"Variación frente al año previo",noPrior:"Sin base comparable",exportFull:"Descargar panel histórico completo ↓",source:"Fuente: DGSIAP · Cierres agrícolas 2003–2025",tabStates:"Indicadores de las 32 entidades",tabCrops:"Estructura de cultivos",tabMunis:"Desglose municipal",descStates:"Registros del año seleccionado, ordenados por el indicador principal.",descCrops:"Cultivos del año y territorio seleccionados.",descMunis:"Municipios con información agrícola, desagregados por cultivo cuando se solicita.",unitMDP:"MDP nominales",unitHA:"hectáreas",unitTON:"toneladas",metric:"Indicador",search:"Buscar en resultados…",sourceRows:"Registros oficiales del período",notZero:"Sin registro no significa producción cero."},
+en:{allStates:"All Mexico · 32 states",allCrops:"All crops",ready:"DGSIAP source",loading:"Loading official national data…",error:"Unable to retrieve official data. Refresh this page to retry.",municipalLoading:"Loading municipality crop detail…",downloadLoading:"Preparing complete historical data…",year:"Year",state:"State",municipio:"Municipality",crop:"Crop",value:"Gross value (MXN million)",harvest:"Harvested area (ha)",sown:"Sown area (ha)",volume:"Production volume (t)",irrig:"Irrigated area (ha)",share:"Share",all:"Show all records ↓",less:"Show fewer ↑",national:"All Mexico",noData:"No record",noResults:"No matching results.",coverage:"states with records",rows:"source records",change:"Change from previous year",noPrior:"No comparable baseline",exportFull:"Download complete historical panel ↓",source:"Source: DGSIAP · Agricultural closings 2003–2025",tabStates:"Indicators for all 32 states",tabCrops:"Crop composition",tabMunis:"Municipality-level breakdown",descStates:"Recorded values for selected year, sorted by current indicator.",descCrops:"Recorded crops for selected year and territory.",descMunis:"Municipalities with agricultural records, crop-specific when selected.",unitMDP:"Nominal MXN million",unitHA:"hectares",unitTON:"tonnes",metric:"Indicator",search:"Search results…",sourceRows:"Official records for the period",notZero:"Absence of a record is not zero production."}
+};
+function lang(){return document.documentElement.lang==="en"?"en":"es"}
+function tr(k){return T[lang()][k]||k}
+function num(v,d){return new Intl.NumberFormat(lang()==="en"?"en-US":"es-MX",{maximumFractionDigits:d===undefined?1:d}).format(v)}
+function brief(v){v=Number(v)||0;return Math.abs(v)>=1e6?num(v/1e6,2)+" M":Math.abs(v)>=1e3?num(v/1e3,1)+" mil":num(v,1)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(k){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[k]})}
+function key(a,b,c){return c===undefined?a+"|"+b:a+"|"+b+"|"+c}
+function metric(row,kind){
+ if(!row)return null;
+ var map={Y:{value:2,harvest:3,sown:4,volume:6,irrig:8},C:{value:3,harvest:4,sown:5,volume:7,irrig:9},M:{value:4,harvest:5,sown:6},MC:{value:4,harvest:5,sown:6,volume:7,irrig:9}};
+ var ix=map[kind][state.metric];
+ return ix===undefined?null:Number(row[ix])||0;
+}
+function fromState(sid,yr,crop){
+ return crop<0?Y.get(key(sid,yr)):C.get(key(sid,yr,crop))
+}
+function tally(yr){
+ var ids=state.sid?[state.sid]:Array.from({length:32},function(_,i){return i+1});
+ var output={value:0,records:0,states:0};
+ ids.forEach(function(sid){
+  var row=fromState(sid,yr,state.crop);if(!row)return;
+  var v=metric(row,state.crop<0?"Y":"C");
+  output.value+=v||0;output.states++;output.records+=Number(row[state.crop<0?10:11])||0;
+ });
+ return output;
+}
+function stateList(){
+ var rows=[],nationalValue=0;
+ for(var i=1;i<=32;i++){
+  var r=fromState(i,state.year,state.crop),v=metric(r,state.crop<0?"Y":"C");
+  if(v!==null)nationalValue+=v;
+  rows.push({id:i,name:D.meta.states[i-1],row:r,value:v});
+ }
+ rows.forEach(function(x){x.share=x.value!==null&&nationalValue>0?x.value/nationalValue*100:null});
+ return rows.sort(function(a,b){return (b.value===null?-Infinity:b.value)-(a.value===null?-Infinity:a.value)});
+}
+function unit(){return state.metric==="value"?tr("unitMDP"):state.metric==="volume"?tr("unitTON"):tr("unitHA")}
+function chartSvg(){
+ var series=[],max=1;
+ for(var y=2003;y<=2025;y++){var x=tally(y),v=x.states?x.value:null;series.push({year:y,value:v});if(v!==null&&v>max)max=v}
+ var w=650,h=238,top=24,right=18,bottom=38,left=55;
+ var X=function(i){return left+i*(w-left-right)/22};
+ var YY=function(v){return h-bottom-v/max*(h-top-bottom)};
+ var lines=[],grid=[],labels=[],dots=[];
+ for(var j=0;j<5;j++){
+  var vv=max*j/4,gy=YY(vv);
+  grid.push('<line x1="'+left+'" y1="'+gy.toFixed(1)+'" x2="'+(w-right)+'" y2="'+gy.toFixed(1)+'" stroke="#e5eee3"/>');
+  labels.push('<text x="'+(left-9)+'" y="'+(gy+3).toFixed(1)+'" text-anchor="end" fill="#7f9985" font-family="monospace" font-size="9">'+esc(brief(vv))+'</text>');
+ }
+ var coords=[];
+ series.forEach(function(p,i){
+  if(p.value===null)return;
+  coords.push([X(i),YY(p.value)]);
+  dots.push('<circle cx="'+X(i).toFixed(1)+'" cy="'+YY(p.value).toFixed(1)+'" r="'+(p.year===state.year?5:2.5)+'" stroke="#fff" stroke-width="1.5" fill="'+(p.year===state.year?"#194f36":"#5e9f71")+'"><title>'+p.year+': '+esc(num(p.value,2))+'</title></circle>');
+ });
+ var path=coords.map(function(p,i){return(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)}).join(" ");
+ var area=coords.length?"M"+coords[0][0]+","+(h-bottom)+" "+coords.map(function(p){return"L"+p[0]+","+p[1]}).join(" ")+" L"+coords[coords.length-1][0]+","+(h-bottom)+" Z":"";
+ for(var i=0;i<=22;i+=4)labels.push('<text x="'+X(i).toFixed(1)+'" y="'+(h-14)+'" text-anchor="middle" fill="#819d88" font-family="monospace" font-size="10">'+(2003+i)+'</text>');
+ labels.push('<text x="'+X(22).toFixed(1)+'" y="'+(h-14)+'" text-anchor="middle" fill="#819d88" font-family="monospace" font-size="10">2025</text>');
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="DGSIAP historical series"><defs><linearGradient id="agn-wave" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a4d4a3" stop-opacity=".32"/><stop offset="1" stop-color="#a4d4a3" stop-opacity=".01"/></linearGradient></defs>'+grid.join("")+labels.join("")+'<path d="'+area+'" fill="url(#agn-wave)"/><path d="'+path+'" fill="none" stroke="#348455" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+dots.join("")+'</svg>';
+}
+function refreshOverview(){
+ var now=tally(state.year),prev=state.year>2003?tally(state.year-1):null;
+ var diff=prev&&prev.states&&prev.value>0?(now.value/prev.value-1)*100:null;
+ $("agn-k1").textContent=brief(now.value);
+ $("agn-k1n").textContent=unit()+" · "+(state.sid?D.meta.states[state.sid-1]:tr("national"))+" · "+state.year;
+ $("agn-k2").textContent=diff===null?"—":(diff>0?"+":"")+num(diff,1)+" %";
+ $("agn-k2n").textContent=diff===null?tr("noPrior"):tr("change");
+ $("agn-k3").textContent=now.states+"/"+(state.sid?1:32);
+ $("agn-k3n").textContent=tr("coverage");
+ $("agn-k4").textContent=num(now.records,0);
+ $("agn-k4n").textContent=tr("sourceRows");
+ $("agn-series").innerHTML=chartSvg();
+ $("agn-line-unit").textContent=unit();
+ $("agn-series-note").textContent=(state.sid?D.meta.states[state.sid-1]:tr("national"))+" · "+(state.crop<0?tr("allCrops"):D.meta.crops[state.crop])+" · 2003–2025";
+ $("agn-rank-year").textContent=String(state.year);
+ $("agn-status").textContent=tr("source")+" · "+num(D.meta.counts.rows,0)+" "+tr("rows");
+ var all=stateList(),max=Math.max(1,...all.map(function(x){return x.value===null?0:x.value}));
+ $("agn-rank").innerHTML=all.map(function(x,i){
+  return '<div class="agn-bar-row"><button type="button" data-agn-state="'+x.id+'" title="'+esc(x.name)+'" aria-current="'+(state.sid===x.id)+'">'+String(i+1).padStart(2,"0")+' · '+esc(x.name)+'</button><div class="agn-bar-track"><i style="width:'+(x.value===null?0:(x.value/max*100).toFixed(2))+'%"></i></div><em>'+(x.value===null?tr("noData"):esc(brief(x.value)))+'</em></div>'
+ }).join("");
+}
+function cropsTable(){
+ var map=new Map();
+ D.C.forEach(function(r){
+  if(r[1]!==state.year||(state.sid&&r[0]!==state.sid))return;
+  var x=map.get(r[2]);if(!x){x={type:"crop",id:r[2],name:D.meta.crops[r[2]],value:0,harvest:0,sown:0,volume:0,irrig:0};map.set(r[2],x)}
+  x.value+=r[3];x.harvest+=r[4];x.sown+=r[5];x.volume+=r[7];x.irrig+=r[9];
+ });
+ var arr=Array.from(map.values()),total=arr.reduce(function(s,x){return s+x.value},0);
+ arr.forEach(function(x){x.share=total>0?x.value/total*100:null});
+ return arr.sort(function(a,b){return b[state.metric]-a[state.metric]});
+}
+function statesTable(){
+ return stateList().map(function(x){return {type:"state",id:x.id,name:x.name,share:x.share,value:x.row?x.row[state.crop<0?2:3]:null,harvest:x.row?x.row[state.crop<0?3:4]:null,sown:x.row?x.row[state.crop<0?4:5]:null,volume:x.row?x.row[state.crop<0?6:7]:null}});
+}
+function munisCore(){
+ return (Myear.get(state.year)||[]).filter(function(r){return !state.sid||r[0]===state.sid}).map(function(r){return {type:"muni",sid:r[0],id:r[2],name:r[3],stateName:D.meta.states[r[0]-1],value:r[4],harvest:r[5],sown:r[6],volume:null,irrig:null}});
+}
+function munisDetail(){
+ var map=new Map();
+ (MCyear.get(state.year)||[]).forEach(function(r){
+  if(state.sid&&r[0]!==state.sid)return;
+  if(state.crop>=0&&r[3]!==state.crop)return;
+  var k=key(r[0],r[2]),x=map.get(k);
+  if(!x){x={type:"muni",sid:r[0],id:r[2],name:"",stateName:D.meta.states[r[0]-1],value:0,harvest:0,sown:0,volume:0,irrig:0};map.set(k,x)}
+  x.value+=r[4];x.harvest+=r[5];x.sown+=r[6];x.volume+=r[7];x.irrig+=r[9];
+ });
+ (Myear.get(state.year)||[]).forEach(function(r){var x=map.get(key(r[0],r[2]));if(x)x.name=r[3]});
+ return Array.from(map.values()).sort(function(a,b){return b[state.metric]-a[state.metric]});
+}
+function shouldLoadMunicipal(){
+ return state.tab==="munis"&&(state.crop>=0||state.metric==="volume"||state.metric==="irrig");
+}
+function getRows(){
+ if(state.tab==="states")return statesTable();
+ if(state.tab==="crops")return cropsTable();
+ return MC?munisDetail():munisCore().sort(function(a,b){return b[state.metric]-a[state.metric]});
+}
+function matches(x){
+ if(!state.search)return true;
+ var n=String(x.name+" "+(x.stateName||"")+" "+(x.id||"")).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ var q=state.search.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ return n.includes(q);
+}
+function tableHeaders(){
+ var first=state.tab==="states"?tr("state"):state.tab==="crops"?tr("crop"):tr("municipio");
+ var second=state.tab==="munis"?tr("state"):tr("share");
+ $("agn-table-head").innerHTML='<tr><th>'+esc(first)+'</th><th>'+esc(second)+'</th><th class="agn-num">'+esc(tr("value"))+'</th><th class="agn-num">'+esc(tr("harvest"))+'</th><th class="agn-num">'+esc(tr("sown"))+'</th><th class="agn-num">'+esc(tr("volume"))+'</th></tr>';
+}
+function valueTd(n){return n===null||n===undefined?'<td class="agn-num agn-muted">—</td>':'<td class="agn-num">'+esc(num(n,1))+'</td>'}
+function refreshTable(){
+ if(!ready)return;
+ if(shouldLoadMunicipal()&&!MC){
+  $("agn-table-title").textContent=tr("municipalLoading");
+  $("agn-table-body").innerHTML='<tr><td colspan="6">'+esc(tr("municipalLoading"))+'</td></tr>';
+  loadMunicipal().then(refreshTable).catch(function(e){console.error("[GROWA national municipal]",e);$("agn-table-title").textContent=tr("error")});
+  return;
+ }
+ var all=getRows().filter(matches);
+ var shown=state.all?all:all.slice(0,100);
+ var names={states:tr("tabStates"),crops:tr("tabCrops"),munis:tr("tabMunis")};
+ var desc={states:tr("descStates"),crops:tr("descCrops"),munis:tr("descMunis")};
+ $("agn-table-title").textContent=names[state.tab];
+ $("agn-table-desc").textContent=desc[state.tab]+" · "+num(all.length,0)+" "+tr("rows");
+ tableHeaders();
+ $("agn-table-body").innerHTML=shown.map(function(x){
+  var first,second;
+  if(x.type==="state"){first='<button type="button" data-agn-choose-state="'+x.id+'">'+esc(x.name)+'</button>';second=x.share===null?"—":num(x.share,2)+" %"}
+  else if(x.type==="crop"){first='<button type="button" data-agn-choose-crop="'+x.id+'">'+esc(x.name)+'</button>';second=x.share===null?"—":num(x.share,2)+" %"}
+  else{first=esc(x.name);second=esc(x.stateName)}
+  return '<tr><td>'+first+'</td><td>'+second+'</td>'+valueTd(x.value)+valueTd(x.harvest)+valueTd(x.sown)+valueTd(x.volume)+'</tr>'
+ }).join("")||'<tr><td colspan="6" class="agn-muted">'+esc(tr("noResults"))+'</td></tr>';
+ var more=$("agn-more");more.hidden=all.length<=100;more.textContent=state.all?tr("less"):tr("all");
+}
+function render(){
+ if(!ready)return;
+ root.querySelectorAll("[data-agn-tab]").forEach(function(x){var active=x.dataset.agnTab===state.tab;x.setAttribute("aria-selected",active?"true":"false");x.tabIndex=active?0:-1});
+ refreshOverview();refreshTable();
+}
+function localize(){
+ root.querySelectorAll("[data-agn-i18n]").forEach(function(el){
+  var k=el.dataset.agnI18n,copy=({
+   es:{nationalLabel:"GROWA / OBSERVATORIO AGRÍCOLA NACIONAL",nationalTitleA:"Datos para comprender la agricultura",nationalTitleB:"de todo México.",nationalSubtitle:"Consulta la evolución agrícola de las 32 entidades federativas a partir de los cierres oficiales de DGSIAP. Explora estados, municipios, cultivos y años con datos registrados.",statesCount:"ENTIDADES FEDERATIVAS",yearsCount:"23 AÑOS DE REGISTROS",sourceStrip:"Cierres agrícolas oficiales · datos nominales · compilación 2026",sourceLink:"Fuente oficial ↗",stateLabel:"Entidad",yearLabel:"Año agrícola",cropLabel:"Cultivo",metricLabel:"Indicador",metricVal:"Valor bruto nominal (MDP)",metricHarvest:"Superficie cosechada (ha)",metricSown:"Superficie sembrada (ha)",metricVolume:"Volumen en toneladas",metricIrrig:"Superficie bajo riego (ha)",reset:"Restablecer filtros",export:"Descargar vista CSV ↓",kpi1:"INDICADOR SELECCIONADO",kpi2:"VARIACIÓN INTERANUAL",kpi3:"ESTADOS CON REGISTROS",kpi4:"REGISTROS DEL PERÍODO",chart1:"Evolución histórica",chart1sub:"Serie observada · 2003–2025",chart2:"Comparación entre estados",chart2sub:"Selecciona un estado para examinarlo",tabStates:"32 entidades",tabCrops:"Cultivos",tabMuni:"Municipios",showAll:"Mostrar todos los registros ↓",coverageTitle:"Interpretación de los datos:",coverageText:"El valor bruto nominal no representa utilidad. El volumen en toneladas solo incluye registros medidos en toneladas. No es correcto comparar el rendimiento agregado de productos distintos. Los registros de 2020 y 2021 requieren cautela por diferencias de cobertura. El paquete climático disponible en otros módulos comprende diez estados, no treinta y dos."},
+   en:{nationalLabel:"GROWA / NATIONAL AGRICULTURAL OBSERVATORY",nationalTitleA:"Data to understand agriculture",nationalTitleB:"across Mexico.",nationalSubtitle:"Explore agricultural development in all 32 Mexican states using official DGSIAP annual reports. Compare states, municipalities, crops and years using observed data.",statesCount:"MEXICAN STATES",yearsCount:"23 YEARS OF RECORDS",sourceStrip:"Official agricultural closing statistics · nominal figures · 2026 compilation",sourceLink:"Official source ↗",stateLabel:"State",yearLabel:"Agricultural year",cropLabel:"Crop",metricLabel:"Indicator",metricVal:"Nominal gross value (MXN million)",metricHarvest:"Harvested area (ha)",metricSown:"Sown area (ha)",metricVolume:"Volume measured in tonnes",metricIrrig:"Harvested irrigated area (ha)",reset:"Reset filters",export:"Download view CSV ↓",kpi1:"SELECTED INDICATOR",kpi2:"YEAR-OVER-YEAR CHANGE",kpi3:"STATES WITH RECORDS",kpi4:"PERIOD RECORDS",chart1:"Historical evolution",chart1sub:"Observed series · 2003–2025",chart2:"State comparison",chart2sub:"Select a state to explore",tabStates:"32 states",tabCrops:"Crops",tabMuni:"Municipalities",showAll:"Show all records ↓",coverageTitle:"Interpreting the data:",coverageText:"Nominal gross value is not profit. Tonnes include only records with a tonnes unit. Yields across different crops are not comparable. Data from 2020 and 2021 require care due to differences in coverage. The climate package in other modules covers ten states, not thirty-two."}
+  })[lang()][k];if(copy)el.textContent=copy;
+ });
+ if(ready){
+  $("agn-state").options[0].textContent=tr("allStates");$("agn-crop").options[0].textContent=tr("allCrops");
+  $("agn-search").placeholder=tr("search");$("agn-export-all").textContent=tr("exportFull");
+  render();
+ }
+}
+async function fetchGzip(url){
+ var r=await fetch(url,{cache:"force-cache"});if(!r.ok)throw Error(url+" returned HTTP "+r.status);
+ var bytes=new Uint8Array(await r.arrayBuffer());
+ if(bytes[0]===31&&bytes[1]===139){
+  if(!("DecompressionStream" in window))throw Error("Browser lacks DecompressionStream");
+  return await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).json()
+ }
+ return JSON.parse(new TextDecoder().decode(bytes))
+}
+async function loadCore(){
+ if(loading)return loading;
+ loading=(async function(){
+  try{
+   var obj=await fetchGzip("./data/growa-national-v1.json.gz");
+   if(obj?.meta?.states?.length!==32||obj.Y?.length!==736||!obj.C||!obj.M)throw Error("Invalid national coverage");
+   D=obj;
+   obj.Y.forEach(function(r){Y.set(key(r[0],r[1]),r)});
+   obj.C.forEach(function(r){C.set(key(r[0],r[1],r[2]),r)});
+   obj.M.forEach(function(r){var a=Myear.get(r[1]);if(!a){a=[];Myear.set(r[1],a)}a.push(r)});
+   obj.meta.states.forEach(function(name,i){$("agn-state").add(new Option(name,String(i+1)))});
+   for(var y=2025;y>=2003;y--)$("agn-year").add(new Option(String(y),String(y)));
+   obj.meta.crops.forEach(function(name,i){$("agn-crop").add(new Option(name,String(i)))});
+   $("agn-state").value="0";$("agn-year").value="2025";$("agn-crop").value="-1";
+   ready=true;$("agn-load").hidden=true;$("agn-inner").hidden=false;localize();render();
+  }catch(e){console.error("[GROWA National]",e);$("agn-load").textContent=tr("error");throw e}
+ })();
+ return loading;
+}
+async function loadMunicipal(){
+ if(MC)return MC;if(municipalLoading)return municipalLoading;
+ municipalLoading=(async function(){
+  var obj=await fetchGzip("./data/growa-national-municipal-v1.json.gz");
+  if(!Array.isArray(obj.MC)||obj.MC.length<100000)throw Error("Invalid municipal panel");
+  MC=obj.MC;
+  MC.forEach(function(r){var a=MCyear.get(r[1]);if(!a){a=[];MCyear.set(r[1],a)}a.push(r)});
+  return MC;
+ })();
+ return municipalLoading;
+}
+function csvCell(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'}
+function csvDownload(name,columns,rows){
+ var chunks=["\uFEFF"+columns.map(csvCell).join(",")+"\r\n"];
+ for(var i=0;i<rows.length;i+=10000)chunks.push(rows.slice(i,i+10000).map(function(r){return r.map(csvCell).join(",")}).join("\r\n")+"\r\n");
+ var blob=new Blob(chunks,{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},5000);
+}
+function downloadCurrent(){
+ var rows=getRows().filter(matches);
+ csvDownload("GROWA_DGSIAP_"+state.tab+"_"+state.year+".csv",["entidad","municipio","cultivo","anio","valor_mdp_nominal","cosechada_ha","sembrada_ha","volumen_toneladas"],rows.map(function(r){
+  return[r.type==="state"?r.name:r.type==="muni"?r.stateName:state.sid?D.meta.states[state.sid-1]:"México",r.type==="muni"?r.name:"",r.type==="crop"?r.name:state.crop<0?"":D.meta.crops[state.crop],state.year,r.value,r.harvest,r.sown,r.volume]
+ }));
+}
+async function downloadAll(){
+ var button=$("agn-export-all"),prev=button.textContent;button.disabled=true;button.textContent=tr("downloadLoading");
+ try{
+  await loadMunicipal();
+  var names=new Map(D.M.map(function(x){return[key(x[0],x[1],x[2]),x[3]]}));
+  csvDownload("GROWA_DGSIAP_municipio_cultivo_2003_2025.csv",
+  ["id_estado","estado","anio","id_municipio","municipio","cultivo","valor_bruto_mdp_nominal","cosechada_ha","sembrada_ha","volumen_toneladas","superficie_cosechada_toneladas_ha","riego_ha","temporal_ha","filas_originales","fuente"],
+  MC.map(function(x){return[x[0],D.meta.states[x[0]-1],x[1],x[2],names.get(key(x[0],x[1],x[2]))||"",D.meta.crops[x[3]],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],"DGSIAP"]}));
+ }catch(e){console.error(e);alert(tr("error"))}
+ finally{button.disabled=false;button.textContent=prev}
+}
+function ensure(){
+ if(ready)return;
+ $("agn-load").textContent=tr("loading");loadCore().catch(function(){});
+}
+function setup(){
+ var exportAll=document.createElement("button");exportAll.id="agn-export-all";exportAll.className="agn-reset";exportAll.type="button";
+ $("agn-export").before(exportAll);
+ [["agn-state","sid",Number],["agn-year","year",Number],["agn-crop","crop",Number],["agn-metric","metric",String]].forEach(function(item){
+  $(item[0]).addEventListener("change",function(e){state[item[1]]=item[2](e.target.value);state.all=false;state.search="";$("agn-search").value="";render()})
+ });
+ $("agn-reset").addEventListener("click",function(){state={sid:0,year:2025,crop:-1,metric:"value",tab:"states",search:"",all:false};$("agn-state").value="0";$("agn-year").value="2025";$("agn-crop").value="-1";$("agn-metric").value="value";$("agn-search").value="";render()});
+ $("agn-search").addEventListener("input",function(e){state.search=e.target.value;state.all=false;refreshTable()});
+ $("agn-more").addEventListener("click",function(){state.all=!state.all;refreshTable()});
+ $("agn-export").addEventListener("click",downloadCurrent);
+ exportAll.addEventListener("click",downloadAll);
+ root.querySelectorAll("[data-agn-tab]").forEach(function(button){button.addEventListener("click",function(){state.tab=button.dataset.agnTab;state.all=false;state.search="";$("agn-search").value="";render()})});
+ $("agn-table-body").addEventListener("click",function(e){
+  var b=e.target.closest("[data-agn-choose-state],[data-agn-choose-crop]");if(!b)return;
+  if(b.dataset.agnChooseState){state.sid=Number(b.dataset.agnChooseState);$("agn-state").value=String(state.sid);state.tab="crops"}
+  if(b.dataset.agnChooseCrop){state.crop=Number(b.dataset.agnChooseCrop);$("agn-crop").value=String(state.crop);state.tab="munis"}
+  state.search="";state.all=false;$("agn-search").value="";render()
+ });
+ $("agn-rank").addEventListener("click",function(e){
+  var b=e.target.closest("[data-agn-state]");if(!b)return;
+  state.sid=Number(b.dataset.agnState);$("agn-state").value=String(state.sid);render()
+ });
+ window.addEventListener("growa:language-change",localize);
+ localize();
+ var obs=new MutationObserver(function(){if(document.body.dataset.view==="mexico")ensure()});
+ obs.observe(document.body,{attributes:true,attributeFilter:["data-view"]});
+ window.addEventListener("hashchange",function(){if(location.hash==="#mexico")ensure()});
+ document.querySelectorAll('[data-tab="mexico"],[data-gh-open="mexico"]').forEach(function(el){el.addEventListener("click",ensure)});
+ if(document.body.dataset.view==="mexico"||location.hash==="#mexico")ensure();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup,{once:true});else setup();
+})();
