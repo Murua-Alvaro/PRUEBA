@@ -2737,7 +2737,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   // Keep units explicit. Never pool observations measured in different physical units.
   for(const r of D.crops){
    const yr=Number(r.year),harvest=Number(r.harvest),volume=Number(r.volume);
-   if(!Number.isInteger(yr)||yr<2003||yr>2025||!Number.isFinite(harvest)||!Number.isFinite(volume)||harvest<0||volume<0)continue;
+   if(r.harvest==null||r.volume==null||!String(r.unit||"").trim()||!Number.isInteger(yr)||yr<2003||yr>2025||!Number.isFinite(harvest)||!Number.isFinite(volume)||harvest<0||volume<0)continue;
    const key=yr+"|"+norm(r.name),city=norm(r.municipio),units=norm(r.unit);
    let yearMap=index.get(key);if(!yearMap){yearMap=new Map();index.set(key,yearMap);}
    let item=yearMap.get(city);if(!item){item={name:String(r.municipio),area:0,volume:0,units:new Set(),rows:0};yearMap.set(city,item);}
@@ -2745,7 +2745,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   }
   return true;
  }
- const qualify=item=>item&&item.area>0&&item.units.size===1&&![...item.units][0]?null:item;
  function sina(year,crop,city){
   if(!build())return null;
   const rows=index.get(year+"|"+norm(crop));if(!rows)return null;
@@ -2847,7 +2846,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   set("v8-coverage",d.current?"Corte "+s.year:"Sin observación");
   set("v8-rank",d.position>0?d.position+" / "+d.peers.length:"—");
   set("v8-share-title",s.state==="Sinaloa"?"PESO EN LA PRODUCCIÓN ESTATAL":"ÁMBITO GEOGRÁFICO");
-  set("v8-share",s.state==="Sinaloa"&&s.city&&d.share!=null?pct(d.share):s.state!=="Sinaloa"?"10 estados*":"Agregado");
+  set("v8-share",s.state==="Sinaloa"&&s.city&&d.share!=null?pct(d.share):s.state!=="Sinaloa"?"10 estados":"Agregado");
   set("v8-hub-yield",d.current?val(d.current.yield):"—");
   set("v8-hub-compare",d.reference?val(d.reference.yield):"—");
   set("v8-hub-average",d.avg!=null?val(d.avg):"—");
@@ -2858,8 +2857,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   if(!d.current)text="No hay un registro de rendimiento comparable para esta selección. Puedes cambiar el municipio, cultivo o año.";
   else{
    const parts=[];
-   if(d.refDiff!=null)parts.push("rendimiento "+(d.refDiff>0?"superior":"inferior")+" en "+val(Math.abs(d.refDiff))+" % al referente seleccionado");
-   if(d.historyDiff!=null)parts.push((d.historyDiff>=0?"por encima":"por debajo")+" de su media observada de los cinco años anteriores");
+   if(d.refDiff!=null)parts.push("rendimiento "+(Math.abs(d.refDiff)<.05?"prácticamente igual al referente seleccionado":(d.refDiff>0?"superior":"inferior")+" en "+val(Math.abs(d.refDiff))+" % al referente seleccionado"));
+   if(d.historyDiff!=null)parts.push(Math.abs(d.historyDiff)<.05?"muy próximo a la media del periodo previo":(d.historyDiff>0?"por encima":"por debajo")+" de su media observada de los cinco años anteriores");
    if(d.position>0)parts.push("posición "+d.position+" de "+d.peers.length+" territorios con registros comparables");
    text=parts.length?"La selección presenta "+parts.join("; ")+".":"Rendimiento observado: "+val(d.current.yield)+" t/ha. No hay referencias suficientes para una comparación robusta.";
   }
