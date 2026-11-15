@@ -11,6 +11,7 @@ import {createHash} from "node:crypto";
 const START=2003,END=2025;
 const PATH="data/growa-national-generated.flag";
 const TARGET="dist/data/growa-national-v1.json.gz";
+const MUNICIPAL="dist/data/growa-national-municipal-v1.json.gz";
 const TARGET_META="dist/data/growa-national-v1-meta.json";
 const SOURCE="https://nube.agricultura.gob.mx/index.php?ANIO={year}&view=10AE434F-A2158368-A120BC5A-EDF4AFAA";
 const NAME="GROWA national open-data observatory";
@@ -129,16 +130,19 @@ try{
  if(Y.length!==32*23)throw Error("State-years incomplete: "+Y.length+" vs 736");
  if(C.length<25000||M.length<30000)throw Error("Suspicious aggregation sizes "+C.length+"/"+M.length);
  const meta={version:1,source:"DGSIAP Datos Abiertos Agrícola 2003–2025",sourceUrl:"https://nube.agricultura.gob.mx/datosAbiertos/Agricola.php",generated:DATE,years:[START,END],states:stateNames,crops:catalog,counts:{rows:Object.values(sourceRowCount).reduce((a,b)=>a+b,0),stateYears:Y.length,stateCropYears:C.length,municipalityYears:M.length,municipalityCropYears:MC.length,states:32,crops:catalog.length},units:{value:"MDP nominales",harvest:"hectáreas",production:"toneladas, solo registros de Tonelada",irrigation:"superficie cosechada por modalidad de riego"},note2020:"Cifras 2020–2021 sujetas a cobertura y metodología originales"};
- const payload={meta,Y,C,M,MC};
+ const payload={meta,Y,C,M};
  const raw=Buffer.from(JSON.stringify(payload));
  const gz=gzipSync(raw,{level:9});
+ const municipalRaw=Buffer.from(JSON.stringify({version:1,source:meta.source,MC}));
+ const municipalGzip=gzipSync(municipalRaw,{level:9});
 
  console.log("[GROWA national] Aggregate dimensions state-years:",Y.length,"crop-years:",C.length,"municipality-years:",M.length,"municipality-crop-years:",MC.length,"crops:",catalog.length);
- console.log("[GROWA national] Data size raw:",raw.length,"gzip:",gz.length);
+ console.log("[GROWA national] Data sizes: core raw",raw.length,"core gzip",gz.length,"municipal-crop raw",municipalRaw.length,"municipal-crop gzip",municipalGzip.length);
  mkdirSync("dist/data",{recursive:true});
  writeFileSync(TARGET,gz);
+ writeFileSync(MUNICIPAL,municipalGzip);
  writeFileSync(TARGET_META,JSON.stringify({source:meta.source,created:DATE,counts:meta.counts,years:meta.years,units:meta.units,checksum:createHash("sha256").update(gz).digest("hex")},null,2));
- writeFileSync(PATH,JSON.stringify({created:DATE,counts:meta.counts,checksum:createHash("sha256").update(gz).digest("hex"),sources},null,2));
+ writeFileSync(PATH,JSON.stringify({created:DATE,counts:meta.counts,checksum:createHash("sha256").update(gz).digest("hex"),municipalChecksum:createHash("sha256").update(municipalGzip).digest("hex"),sources},null,2));
  console.log("[GROWA national] All-state data saved to static publish directory as compressed standalone resource.");
 }catch(err){
  console.error("[GROWA national] FATAL",String(err.stack||err).slice(0,1800));
