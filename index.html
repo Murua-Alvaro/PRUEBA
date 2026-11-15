@@ -1513,6 +1513,7 @@ body[data-view="panorama"] .eo-right[data-ea-tab="reference"] .v8-shortcuts{
       <button class="nav-link" data-tab="explorar-estados" type="button">Territorio</button>
       <button class="nav-link" data-tab="explorar-cultivos" type="button">Cultivos</button>
       <button class="nav-link" data-tab="agua" type="button">Agua</button>
+      <a class="nav-link growa-ndvi-nav-link" id="growa-ndvi-nav" href="#ndvi" title="Explorar observaciones satelitales VIIRS mensuales">NDVI satelital</a>
       <button class="nav-link lab-nav-link" data-tab="laboratorio" type="button">Laboratorio <span aria-hidden="true">↗</span></button>
       <button class="nav-link" data-tab="metodologia" type="button">Metodología</button>
     </nav>
@@ -2939,6 +2940,54 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   update();
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>boot(0));else boot(0);
+})();
+</script>
+
+<!-- GROWA · Módulo NDVI integrado en el portal principal. Datos: NOAA VIIRS CDR 2023–2026. -->
+<style id="growa-ndvi-portal-styles">
+#growa-ndvi-portal-view{position:fixed;top:64px;left:0;right:0;bottom:0;z-index:1450;background:#f6faf6;display:none;box-shadow:0 -1px 0 #d8e5d9}
+#growa-ndvi-portal-view iframe{display:block;width:100%;height:100%;border:0;background:#f6faf6}
+body.growa-ndvi-mode{overflow:hidden!important}
+body.growa-ndvi-mode #growa-ndvi-portal-view{display:block}
+body .rail .navigation .growa-ndvi-nav-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;text-decoration:none!important;white-space:nowrap;font-weight:700!important}
+body.growa-ndvi-mode .rail .navigation .growa-ndvi-nav-link{color:#1a704a!important}
+body.growa-ndvi-mode .rail .navigation .growa-ndvi-nav-link::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:#30865c}
+body.growa-ndvi-mode .rail .navigation .nav-link.active:not(.growa-ndvi-nav-link)::after{opacity:0}
+@media(max-width:820px){#growa-ndvi-portal-view{top:64px}.rail .navigation .growa-ndvi-nav-link{font-size:11px!important}}
+@media(max-width:520px){#growa-ndvi-portal-view{top:64px}}
+</style>
+<div id="growa-ndvi-portal-view" role="region" aria-label="Explorador satelital NDVI interactivo">
+ <iframe id="growa-ndvi-portal-frame" title="GROWA · Índice de Vegetación de Diferencia Normalizada, mapa y series mensuales" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</div>
+<script id="growa-ndvi-portal-loader">
+(function(){
+ "use strict";
+ var entry=document.getElementById("growa-ndvi-nav"),panel=document.getElementById("growa-ndvi-portal-view"),
+     frame=document.getElementById("growa-ndvi-portal-frame"),url="https://growa-ndvi-agricola-puntos-19283.onrender.com/ndvi.html";
+ if(!entry||!panel||!frame)return;
+ function visible(on){
+  document.body.classList.toggle("growa-ndvi-mode",!!on);
+  entry.setAttribute("aria-current",on?"page":"false");
+  panel.setAttribute("aria-hidden",on?"false":"true");
+  if(on&&!frame.getAttribute("src"))frame.setAttribute("src",url);
+  if(on)window.scrollTo({top:0,behavior:"instant"});
+ }
+ entry.addEventListener("click",function(ev){
+  ev.preventDefault();
+  if(location.hash!=="#ndvi")history.pushState(null,"","#ndvi");
+  visible(true);
+ });
+ document.addEventListener("click",function(ev){
+  var target=ev.target.closest("[data-tab]");
+  if(target&&document.body.classList.contains("growa-ndvi-mode")){
+    visible(false);
+    if(location.hash==="#ndvi")history.replaceState(null,"",location.pathname+location.search);
+  }
+ },true);
+ window.addEventListener("hashchange",function(){visible(location.hash==="#ndvi")});
+ window.addEventListener("popstate",function(){visible(location.hash==="#ndvi")});
+ window.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&document.body.classList.contains("growa-ndvi-mode")){visible(false);history.replaceState(null,"",location.pathname+location.search)}});
+ if(location.hash==="#ndvi")visible(true);
 })();
 </script>
 </body>
