@@ -2714,5 +2714,198 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
  else setup(0);
 })();
 </script>
+<script id="growa-decision-v8">
+(function(){
+ "use strict";
+ const $=id=>document.getElementById(id);
+ const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const f=new Intl.NumberFormat("es-MX",{maximumFractionDigits:2});
+ const pct=v=>Number.isFinite(v)?(v>0?"+":"")+new Intl.NumberFormat("es-MX",{maximumFractionDigits:1}).format(v)+" %":"Sin dato";
+ const val=v=>Number.isFinite(v)?f.format(v):"—";
+ let booted=false,scheduled=false,index=null,cache=null,lastKey="";
+ const node=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;};
+ const data=()=>window.GrowaSinaloaData?.D;
+ const bundle=()=>window.GrowaBundledNational?.national;
+ const choice=id=>$(id)?.value||"";
+ const year=()=>Number($("eo-year")?.value||2025);
+ const selection=()=>({state:choice("ea-state")||"Sinaloa",crop:choice("eo-crop")||"Maíz grano",city:choice("eo-city"),compare:choice("eo-compare"),year:year()});
+ function build(){
+  const D=data();if(!D?.crops?.length)return false;
+  if(cache===D.crops&&index)return true;
+  index=new Map();cache=D.crops;
+  // Keep units explicit. Never pool observations measured in different physical units.
+  for(const r of D.crops){
+   const yr=Number(r.year),harvest=Number(r.harvest),volume=Number(r.volume);
+   if(!Number.isInteger(yr)||yr<2003||yr>2025||!Number.isFinite(harvest)||!Number.isFinite(volume)||harvest<0||volume<0)continue;
+   const key=yr+"|"+norm(r.name),city=norm(r.municipio),units=norm(r.unit);
+   let yearMap=index.get(key);if(!yearMap){yearMap=new Map();index.set(key,yearMap);}
+   let item=yearMap.get(city);if(!item){item={name:String(r.municipio),area:0,volume:0,units:new Set(),rows:0};yearMap.set(city,item);}
+   item.area+=harvest;item.volume+=volume;item.units.add(units);item.rows++;
+  }
+  return true;
+ }
+ const qualify=item=>item&&item.area>0&&item.units.size===1&&![...item.units][0]?null:item;
+ function sina(year,crop,city){
+  if(!build())return null;
+  const rows=index.get(year+"|"+norm(crop));if(!rows)return null;
+  const all=[...rows.values()].filter(x=>x.area>0&&x.units.size===1&&[...x.units][0]);
+  if(city){
+   const r=rows.get(norm(city));return r&&r.area>0&&r.units.size===1&&[...r.units][0]?{...r,yield:r.volume/r.area}:null;
+  }
+  const units=[...new Set(all.map(x=>[...x.units][0]))];
+  if(units.length!==1||all.length===0)return null;
+  const area=all.reduce((a,x)=>a+x.area,0),volume=all.reduce((a,x)=>a+x.volume,0);
+  return {name:"Sinaloa",area,volume,yield:volume/area,rows:all.length};
+ }
+ function pilot(year,crop,state){
+  const B=bundle();if(!B)return null;const si=B.states.indexOf(state),ci=B.crops.indexOf(crop);
+  if(si<0||ci<0)return null;
+  const row=B.cropAnnual.find(x=>x[0]===si&&x[1]===ci&&x[2]===year);
+  return row&&row[3]>0&&Number.isFinite(row[4])?{name:state,area:row[3],volume:row[4],yield:row[4]/row[3],rows:row[6]}:null;
+ }
+ const metric=(s,y=s.year,city=s.city)=>s.state==="Sinaloa"?sina(y,s.crop,city):pilot(y,s.crop,s.state);
+ function peerValues(s){
+  if(s.state!=="Sinaloa"){
+   const B=bundle();return B?B.states.map(name=>pilot(s.year,s.crop,name)).filter(Boolean):[];
+  }
+  if(!build())return [];
+  const entries=index.get(s.year+"|"+norm(s.crop));
+  if(!entries)return [];
+  const units=new Set([...entries.values()].filter(r=>r.area>0&&r.units.size===1).map(r=>[...r.units][0]));
+  if(units.size!==1)return [];
+  return [...entries.values()].filter(r=>r.area>0&&r.units.size===1&&[...r.units][0]).map(x=>({name:x.name,area:x.area,volume:x.volume,yield:x.volume/x.area})).sort((a,b)=>b.yield-a.yield);
+ }
+ function stats(s){
+  const current=metric(s),reference=s.state==="Sinaloa"?(s.city?sina(s.year,s.crop,s.compare||""):null):(s.compare?pilot(s.year,s.crop,s.compare):null);
+  const records=[];
+  for(let y=Math.max(2003,s.year-5);y<s.year;y++){const point=metric(s,y);if(point&&Number.isFinite(point.yield))records.push(point.yield);}
+  const avg=records.length>=3?records.reduce((a,b)=>a+b,0)/records.length:null;
+  const peers=peerValues(s);
+  const position=current?peers.findIndex(p=>norm(p.name)===norm(s.state==="Sinaloa"?(s.city||""):s.state))+1:0;
+  const refDiff=reference?.yield>0&&current?100*(current.yield/reference.yield-1):null;
+  const historyDiff=avg>0&&current?100*(current.yield/avg-1):null;
+  const estatal=s.state==="Sinaloa"&&s.city?sina(s.year,s.crop,""):null;
+  const share=estatal?.volume>0&&current?100*current.volume/estatal.volume:null;
+  return {current,reference,records,avg,peers,position,refDiff,historyDiff,share};
+ }
+ function make(){
+  const app=$("eo-app"),right=document.querySelector(".eo-right"),snap=right?.querySelector(".eo-snapshot"),product=right?.querySelector(".ea-product");
+  if(!app||!snap||!product||!$("ea-state")||!data()||!bundle())return false;
+  if(booted)return true;booted=true;
+  app.classList.add("v8-observatory");
+  const banner=node("div","v8-explorer-label");
+  banner.innerHTML='<span class="v8-eyebrow">01 / CONFIGURACIÓN</span><strong>Define el territorio</strong><p>Selecciona un cultivo, territorio y año. Los indicadores se actualizan con el mapa.</p>';
+  const selectionPanel=right.closest("#eo-app")?.querySelector(".eo-selection");
+  if(selectionPanel)selectionPanel.before(banner);
+  const top=node("div","v8-right-title");
+  top.innerHTML='<span class="v8-eyebrow">LECTURA TERRITORIAL</span><small>DGSIAP · OBSERVADO</small>';
+  right.querySelector(".eo-right-top")?.after(top);
+  const comparisons=node("section","v8-comparison");
+  comparisons.setAttribute("aria-label","Comparaciones de rendimiento productivo");
+  comparisons.innerHTML=
+   '<div class="v8-comparison-header"><span>COMPARACIÓN Y DESEMPEÑO</span><span id="v8-coverage">—</span></div>'+
+   '<div class="v8-signal-row">'+
+    '<div class="v8-signal"><small id="v8-ref-label">FRENTE AL ESTADO</small><strong id="v8-ref">—</strong><span id="v8-ref-sub">Sin referencia comparable</span></div>'+
+    '<div class="v8-signal"><small>FRENTE AL PROMEDIO PREVIO</small><strong id="v8-history">—</strong><span id="v8-history-sub">Hasta 5 años previos</span></div>'+
+   '</div><p class="v8-evidence" id="v8-reading">Selecciona un territorio para consultar las comparaciones disponibles.</p>'+
+   '<div class="v8-secondary-facts"><div><small>POSICIÓN</small><strong id="v8-rank">—</strong></div><div><small id="v8-share-title">PARTICIPACIÓN ESTATAL</small><strong id="v8-share">—</strong></div></div>';
+  snap.after(comparisons);
+  const shortcut=node("div","v8-shortcuts");
+  shortcut.innerHTML='<button type="button" id="v8-trend">Examinar tendencia <span>↗</span></button><button type="button" id="v8-territories">Ver territorios <span>↗</span></button>';
+  comparisons.after(shortcut);
+  $("v8-trend")?.addEventListener("click",()=>document.querySelector(".eo-bottom")?.scrollIntoView({block:"start",behavior:"smooth"}));
+  $("v8-territories")?.addEventListener("click",()=>{const detail=$("gw-territories");if(detail)detail.open=true;detail?.scrollIntoView({block:"start",behavior:"smooth"});});
+  // The thematic layer controls and original map all remain in their original location.
+  const research=$("gw-research");
+  if(research){
+   const hub=node("section","v8-decision-hub");
+   hub.innerHTML='<div class="v8-hub-head"><div><span class="v8-eyebrow">LECTURA COMPARADA</span><h3>Posición y evolución territorial</h3><p>Comparadores descriptivos obtenidos de los registros disponibles. No son predicciones ni efectos causales.</p></div><span id="v8-hub-status">Cargando datos oficiales</span></div><div class="v8-hub-grid"><div class="v8-hub-cell"><small>Rendimiento actual</small><strong id="v8-hub-yield">—</strong><span>Toneladas por hectárea</span></div><div class="v8-hub-cell"><small>Referencia</small><strong id="v8-hub-compare">—</strong><span id="v8-hub-compare-desc">—</span></div><div class="v8-hub-cell"><small>Media previa</small><strong id="v8-hub-average">—</strong><span id="v8-hub-average-desc">—</span></div></div><div class="v8-rank-head"><h4>Rendimiento de territorios comparables</h4><small id="v8-rank-note">—</small></div><div class="v8-rank-grid" id="v8-rank-grid" aria-live="polite"></div>';
+   research.querySelector(".gw-research-heading")?.after(hub);
+  }
+  const mapLegend=node("div","v8-map-data-note");
+  mapLegend.innerHTML='<span class="v8-note-dot"></span><div><strong>Tamaño de símbolo = superficie cosechada</strong><small>Referencias municipales, no polígonos de parcelas</small></div>';
+  const stage=$("ea-geostage");
+  if(stage)stage.appendChild(mapLegend);
+  const live=node("span","v8-loading-state");live.id="v8-status";
+  const panel=right.querySelector(".eo-right-top");if(panel)panel.appendChild(live);
+  return true;
+ }
+ function set(id,value){const e=$(id);if(e)e.textContent=String(value);}
+ function signal(id,diff,sub,missing){
+  const box=$(id)?.parentElement;if(!box)return;
+  set(id,diff==null?"—":pct(diff));set(sub,missing);
+  box.dataset.direction=diff==null?"na":diff>0.01?"up":diff<-.01?"down":"flat";
+ }
+ function refresh(){
+  scheduled=false;if(!make())return;
+  const s=selection(),k=[s.state,s.crop,s.city,s.compare,s.year].join("|");
+  if(k===lastKey&&!document.hidden)return;lastKey=k;
+  const d=stats(s),refName=s.state==="Sinaloa"?(s.compare||"Sinaloa"):s.compare;
+  set("v8-ref-label","FRENTE A "+(refName||"REFERENCIA").toUpperCase());
+  signal("v8-ref",d.refDiff,"v8-ref-sub",d.reference?"Rendimiento relativo · "+refName:"Sin referencia comparable");
+  signal("v8-history",d.historyDiff,"v8-history-sub",d.avg!=null?d.records.length+" años anteriores observados":"Se requieren ≥3 años previos");
+  set("v8-coverage",d.current?"Corte "+s.year:"Sin observación");
+  set("v8-rank",d.position>0?d.position+" / "+d.peers.length:"—");
+  set("v8-share-title",s.state==="Sinaloa"?"PESO EN LA PRODUCCIÓN ESTATAL":"ÁMBITO GEOGRÁFICO");
+  set("v8-share",s.state==="Sinaloa"&&s.city&&d.share!=null?pct(d.share):s.state!=="Sinaloa"?"10 estados*":"Agregado");
+  set("v8-hub-yield",d.current?val(d.current.yield):"—");
+  set("v8-hub-compare",d.reference?val(d.reference.yield):"—");
+  set("v8-hub-average",d.avg!=null?val(d.avg):"—");
+  set("v8-hub-compare-desc",refName||"No se seleccionó referente");
+  set("v8-hub-average-desc",d.avg!=null?d.records.length+" observaciones previas":"Mínimo 3 registros previos");
+  set("v8-hub-status",s.crop+" · "+s.year+" · "+(s.city||s.state));
+  let text="";
+  if(!d.current)text="No hay un registro de rendimiento comparable para esta selección. Puedes cambiar el municipio, cultivo o año.";
+  else{
+   const parts=[];
+   if(d.refDiff!=null)parts.push("rendimiento "+(d.refDiff>0?"superior":"inferior")+" en "+val(Math.abs(d.refDiff))+" % al referente seleccionado");
+   if(d.historyDiff!=null)parts.push((d.historyDiff>=0?"por encima":"por debajo")+" de su media observada de los cinco años anteriores");
+   if(d.position>0)parts.push("posición "+d.position+" de "+d.peers.length+" territorios con registros comparables");
+   text=parts.length?"La selección presenta "+parts.join("; ")+".":"Rendimiento observado: "+val(d.current.yield)+" t/ha. No hay referencias suficientes para una comparación robusta.";
+  }
+  set("v8-reading",text);
+  const list=$("v8-rank-grid");if(list){
+   list.replaceChildren();
+   if(!d.peers.length){list.appendChild(node("p","v8-empty","No hay territorios comparables con la cobertura requerida."));}
+   else{
+    const ordered=[...d.peers].sort((a,b)=>b.yield-a.yield),maximum=Math.max(...ordered.map(x=>x.yield),.1);
+    ordered.slice(0,16).forEach((p,i)=>{
+     const row=node("button","v8-territory-row");row.type="button";
+     const selected=norm(p.name)===norm(s.state==="Sinaloa"?(s.city||""):s.state);
+     row.classList.toggle("selected",selected);
+     row.innerHTML='<span class="v8-territory-rank">'+(i+1)+'</span><span class="v8-territory-main"><strong></strong><i><b></b></i></span><span class="v8-territory-value"></span>';
+     row.querySelector(".v8-territory-main strong").textContent=p.name;
+     row.querySelector(".v8-territory-main b").style.width=Math.max(4,100*p.yield/maximum).toFixed(2)+"%";
+     row.querySelector(".v8-territory-value").textContent=val(p.yield)+" t/ha";
+     if(s.state==="Sinaloa"){
+      row.addEventListener("click",()=>{
+       const select=$("eo-city");
+       if(select&&[...select.options].some(o=>norm(o.value)===norm(p.name))){
+        const option=[...select.options].find(o=>norm(o.value)===norm(p.name));
+        select.value=option.value;select.dispatchEvent(new Event("change",{bubbles:true}));
+        document.querySelector(".eo-right")?.scrollIntoView({block:"start",behavior:"smooth"});
+       }
+      });
+     }else row.disabled=true;
+     list.appendChild(row);
+    });
+   }
+  }
+  set("v8-rank-note",s.state==="Sinaloa"?"Municipios con datos de igual unidad, año y cultivo":"Solo 10 estados del piloto, no todo México");
+  set("v8-status",d.current?"● DATOS OBSERVADOS":"○ REVISAR COBERTURA");
+ }
+ function update(){if(scheduled)return;scheduled=true;requestAnimationFrame(refresh);}
+ function boot(attempt){
+  if(!make()){if(attempt<170)setTimeout(()=>boot(attempt+1),250);return;}
+  const controls=["ea-state","eo-crop","eo-city","eo-compare","eo-year"];
+  for(const id of controls)for(const event of ["change","input"]){$(id)?.addEventListener(event,()=>{lastKey="";update();});}
+  window.addEventListener("growa:eo-change",()=>{lastKey="";update();});
+  const watch=new MutationObserver(()=>{lastKey="";update();});
+  ["eo-yield","eo-selected-crop","ea-volume","eo-year-value"].forEach(id=>{const el=$(id);if(el)watch.observe(el,{subtree:true,characterData:true,childList:true});});
+  update();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>boot(0));else boot(0);
+})();
+</script>
 </body>
 </html>
