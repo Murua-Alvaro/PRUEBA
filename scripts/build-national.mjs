@@ -45,6 +45,9 @@ function parseYear(bytes,year){
  if(lines.length<100)throw Error("Suspiciously short CSV year "+year);
  const headers=parseLine(lines[0]).map(s=>s.replace(/^\uFEFF/,"").trim());
  const positions=Object.fromEntries(headers.map((h,i)=>[h,i]));
+ /* DGSIAP 2020 labels the same column "Nomcultivo Sin Um" rather than "Nomcultivo". */
+ if(!("Nomcultivo" in positions)){const alias=headers.find(h=>h.startsWith("Nomcultivo"));if(alias)positions.Nomcultivo=positions[alias]}
+
  for(const name of ["Anio","Idestado","Idmunicipio","Nommunicipio","Nomcultivo","Nomunidad","Nommodalidad","Sembrada","Cosechada","Siniestrada","Volumenproduccion","Valorproduccion"])
   if(!(name in positions))throw Error("Missing "+name+" in "+year+" header "+headers.join(","));
  const at=(row,n)=>row[positions[n]]??"";
