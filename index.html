@@ -3535,6 +3535,121 @@ observer.observe(document.querySelector(".shell")||document.body,{subtree:true,c
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
+<script id="gh-upgrade-behavior">
+(function(){
+"use strict";
+var home=document.getElementById("gh-home");if(!home)return;
+var get=function(q){return home.querySelector(q)},find=function(q){return Array.from(home.querySelectorAll(q))};
+var tours=[
+{key:"territory",route:"panorama",es:["Explora el territorio agrícola","Compara municipios y consulta indicadores agrícolas con sus series históricas.","TERRITORIO · VISTA ILUSTRATIVA"],en:["Explore agricultural territories","Compare municipalities and explore agricultural indicators with historical series.","TERRITORY · ILLUSTRATIVE VIEW"]},
+{key:"crops",route:"explorar-cultivos",es:["Investiga la evolución de los cultivos","Consulta rendimiento, superficie y valor por cultivo, municipio y año.","CULTIVOS · VISTA ILUSTRATIVA"],en:["Explore crop trajectories","Compare yield, area and production value by crop, municipality and year.","CROPS · ILLUSTRATIVE VIEW"]},
+{key:"climate",route:"panorama",es:["Añade contexto climático","Explora variables de NASA POWER junto a la información productiva, distinguiendo sus escalas.","CLIMA · VISTA ILUSTRATIVA"],en:["Add climate context","View NASA POWER variables alongside production data, with their spatial limitations.","CLIMATE · ILLUSTRATIVE VIEW"]},
+{key:"satellite",route:"ndvi",es:["Observa señales de vegetación","Accede a registros satelitales disponibles para explorar cambios de vegetación.","SATÉLITE · VISTA ILUSTRATIVA"],en:["Explore vegetation signals","Access available satellite observations for studying vegetation change.","SATELLITE · ILLUSTRATIVE VIEW"]},
+{key:"lab",route:"laboratorio",es:["Profundiza con el laboratorio","Trabaja con comparaciones, matrices, series y exportaciones para el análisis reproducible.","LABORATORIO · VISTA ILUSTRATIVA"],en:["Go deeper in the laboratory","Use comparisons, matrices, series and exports to support reproducible analysis.","LAB · ILLUSTRATIVE VIEW"]}
+];
+var roles=[
+{route:"panorama",es:["PLANEACIÓN / TERRITORIO","Identifica cambios en la estructura productiva.","Explora diferencias entre municipios y trayectorias de superficie y producción para preparar diagnósticos territoriales.",["Comparación de municipios","Series agrícolas históricas","Contexto climático de referencia"]],en:["PLANNING / TERRITORY","Identify changes in productive structures.","Explore differences between municipalities and trends in agricultural area and production to inform territorial studies.",["Municipality comparisons","Historical agricultural series","Reference climate context"]]},
+{route:"laboratorio",es:["INVESTIGACIÓN / EVIDENCIA","Convierte preguntas en análisis reproducibles.","Combina años, municipios, cultivos e indicadores, y descarga resultados para respaldar investigaciones.",["Matrices de datos","Comparación de series","Exportación de registros"]],en:["RESEARCH / EVIDENCE","Turn questions into reproducible analyses.","Combine years, municipalities, crops and indicators, then export results to support research.",["Data matrices","Series comparisons","Export records"]]},
+{route:"explorar-cultivos",es:["AGRICULTURA / PRODUCTIVIDAD","Comprende el comportamiento de los cultivos.","Contrasta rendimientos, superficies y cambios registrados antes de interpretar tendencias productivas.",["Perfiles de cultivos","Variaciones territoriales","Evolución de producción"]],en:["AGRICULTURE / PRODUCTIVITY","Understand crop-level performance.","Compare yields, harvested area and recorded changes before interpreting production trends.",["Crop profiles","Territorial differences","Production trends"]]}
+];
+var currentTour=0,currentRole=0;
+function lang(){return document.documentElement.lang==="en"?"en":"es"}
+function selectTour(i){
+currentTour=(i+tours.length)%tours.length;
+var item=tours[currentTour],data=item[lang()];
+var frame=get(".gh-product-frame");if(frame)frame.dataset.ghMode=item.key;
+get("#gh-tour-title").textContent=data[0];get("#gh-tour-description").textContent=data[1];get("#gh-tour-badge").textContent=data[2];
+var count=get("#gh-tour-count");if(count)count.firstChild.nodeValue=("0"+(currentTour+1)).slice(-2)+" / 05 · ";
+get("#gh-tour-launch").setAttribute("data-gh-open",item.route);
+find("[data-gh-preview]").forEach(function(button,index){button.classList.toggle("active",index===currentTour);button.setAttribute("aria-selected",index===currentTour?"true":"false");button.tabIndex=index===currentTour?0:-1});
+}
+function selectRole(i){
+currentRole=(i+roles.length)%roles.length;
+var data=roles[currentRole][lang()],box=get("#gh-role-benefits");
+get("#gh-role-tag").textContent=data[0];get("#gh-role-title").textContent=data[1];get("#gh-role-description").textContent=data[2];
+box.replaceChildren();data[3].forEach(function(text){var li=document.createElement("li");li.textContent=text;box.appendChild(li)});
+get("#gh-role-launch").setAttribute("data-gh-open",roles[currentRole].route);
+find("[data-gh-role]").forEach(function(btn,n){btn.setAttribute("aria-selected",n===currentRole?"true":"false");btn.tabIndex=n===currentRole?0:-1;btn.setAttribute("aria-controls","gh-role-panel")});
+}
+function closeMenus(){
+var drop=get("#gh-drop-panel"),db=get("#gh-drop-toggle"),mob=get("#gh-mobile-panel"),mb=get("#gh-hamburger");
+if(drop)drop.hidden=true;if(db)db.setAttribute("aria-expanded","false");
+if(mob)mob.hidden=true;if(mb)mb.setAttribute("aria-expanded","false");
+}
+function jumpTo(target,immediate){
+var item=document.getElementById(target);if(!item||!home.contains(item))return false;
+item.scrollIntoView({behavior:immediate||window.matchMedia("(prefers-reduced-motion:reduce)").matches?"instant":"smooth",block:"start"});
+return true;
+}
+function toast(message){
+var box=get("#gh-toast");box.hidden=false;box.textContent=message;
+if(toast.timer)clearTimeout(toast.timer);
+toast.timer=setTimeout(function(){box.hidden=true;box.textContent=""},3000);
+}
+function updateScroll(){
+var max=home.scrollHeight-home.clientHeight,p=max>0?home.scrollTop/max:0;
+var progress=get("#gh-progress-fill");if(progress)progress.style.transform="scaleX("+Math.min(1,Math.max(0,p))+")";
+get("#gh-float")?.classList.toggle("gh-show",home.scrollTop>570);
+var links=find(".gh-topnav a[href^='#']"),ids=links.map(function(a){return a.getAttribute("href").slice(1)});
+var active="";
+ids.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<home.getBoundingClientRect().top+home.clientHeight*.36)active=id});
+links.forEach(function(link){link.classList.toggle("gh-current",link.getAttribute("href")==="#"+active)});
+}
+function init(){
+find("[data-gh-preview]").forEach(function(btn,i){
+btn.addEventListener("click",function(){selectTour(i)});
+btn.addEventListener("keydown",function(event){
+var index=null;
+if(event.key==="ArrowRight"||event.key==="ArrowDown")index=i+1;
+if(event.key==="ArrowLeft"||event.key==="ArrowUp")index=i-1;
+if(event.key==="Home")index=0;if(event.key==="End")index=tours.length-1;
+if(index!==null){event.preventDefault();selectTour(index);find("[data-gh-preview]")[currentTour].focus()}
+});
+});
+get("#gh-tour-prev")?.addEventListener("click",function(){selectTour(currentTour-1)});
+get("#gh-tour-next")?.addEventListener("click",function(){selectTour(currentTour+1)});
+find("[data-gh-role]").forEach(function(btn,i){
+btn.addEventListener("click",function(){selectRole(i)});
+btn.addEventListener("keydown",function(event){
+var index=null;
+if(event.key==="ArrowRight"||event.key==="ArrowDown")index=i+1;
+if(event.key==="ArrowLeft"||event.key==="ArrowUp")index=i-1;
+if(event.key==="Home")index=0;if(event.key==="End")index=roles.length-1;
+if(index!==null){event.preventDefault();selectRole(index);find("[data-gh-role]")[currentRole].focus()}
+});
+});
+get("#gh-drop-toggle")?.addEventListener("click",function(){
+var target=get("#gh-drop-panel"),open=target.hidden;closeMenus();target.hidden=!open;get("#gh-drop-toggle").setAttribute("aria-expanded",open?"true":"false");
+});
+get("#gh-hamburger")?.addEventListener("click",function(){
+var target=get("#gh-mobile-panel"),open=target.hidden;closeMenus();target.hidden=!open;get("#gh-hamburger").setAttribute("aria-expanded",open?"true":"false");
+});
+home.addEventListener("click",function(event){
+var a=event.target.closest("a[href^='#']:not([data-gh-open])");
+if(a&&home.contains(a)){
+var id=a.getAttribute("href").slice(1);
+if(id&&home.contains(document.getElementById(id))){event.preventDefault();closeMenus();jumpTo(id,false)}
+}
+if(event.target.closest("[data-gh-open]"))closeMenus();
+});
+document.addEventListener("pointerdown",function(e){if(!e.target.closest("#gh-drop,#gh-drop-toggle,#gh-drop-panel,#gh-hamburger,#gh-mobile-panel"))closeMenus()});
+home.addEventListener("keydown",function(e){if(e.key==="Escape"){var open=get("#gh-drop-toggle")?.getAttribute("aria-expanded")==="true"||get("#gh-hamburger")?.getAttribute("aria-expanded")==="true";if(open){closeMenus();get("#gh-hamburger")?.focus()}}});
+window.addEventListener("resize",function(){if(window.innerWidth>1160)closeMenus()},{passive:true});
+home.addEventListener("scroll",updateScroll,{passive:true});
+get("#gh-top-btn")?.addEventListener("click",function(){home.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion:reduce)").matches?"instant":"smooth"})});
+get("#gh-share")?.addEventListener("click",function(){
+var url=location.origin+location.pathname+location.search+"#inicio";
+if(!navigator.clipboard||!navigator.clipboard.writeText){toast(lang()==="en"?"Copy the URL from your browser.":"Copia la dirección desde tu navegador.");return}
+navigator.clipboard.writeText(url).then(function(){toast(lang()==="en"?"Link copied":"Enlace copiado al portapapeles")},function(){toast(lang()==="en"?"Use your browser to copy the URL.":"Usa la barra de direcciones para copiar el enlace.")});
+});
+window.addEventListener("growa:language-change",function(){selectTour(currentTour);selectRole(currentRole)});
+selectTour(0);selectRole(0);updateScroll();
+var hash=window.GrowaInitialRoute||"";
+if(/^#(mision|plataforma|proyectos|metodo|soluciones|metodologia-home)$/.test(hash))setTimeout(function(){jumpTo(hash.slice(1),true)},60);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
 <!-- GROWA HOME 2026 END -->
 </body>
 </html>
