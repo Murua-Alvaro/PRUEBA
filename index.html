@@ -3185,6 +3185,175 @@ body .rail .navigation .gh-header-tools .gh-lang-picker button[aria-pressed="tru
 <a href="#laboratorio" data-gh-open="laboratorio" class="gh-use"><div class="gh-use-top"><span>04 / LAB</span><span class="gh-use-icon">⌘</span></div><h3 data-gh="mod4">Laboratorio de análisis</h3><p data-gh="mod4d">Matrices, comparaciones, gráficas históricas y exportación.</p><span class="gh-use-end" data-gh="openModule">Explorar módulo ↗</span></a>
 </div></div></section>
 <section class="gh-section gh-mission" id="metodo"><div class="gh-wrap gh-mission-inner"><div><div class="gh-kicker" data-gh="missionEyebrow">03 / NUESTRA MISIÓN</div><h2><span data-gh="missionA">Que la evidencia no se quede en un informe.</span> <em data-gh="missionB">Que sirva para actuar.</em></h2></div><div><p data-gh="missionDesc">GROWA es una iniciativa independiente de inteligencia territorial. Buscamos que la información agrícola y ambiental sea más comprensible, trazable y útil para investigación, productores y formuladores de políticas públicas.</p><div class="gh-mission-checks"><span data-gh="missionPoint1">Análisis espacial y temporal</span><span data-gh="missionPoint2">Metodologías y fuentes documentadas</span><span data-gh="missionPoint3">Desarrollo continuo de herramientas predictivas</span></div></div></div></section>
+<style id="ghx-v4-css">
+/* Additional GROWA product discovery layer. Namespaced, additive only. */
+#gh-home .ghx-section{position:relative;padding:110px 0;scroll-margin-top:85px}
+#gh-home .ghx-container{width:min(1410px,calc(100% - 104px));margin:0 auto}
+#gh-home .ghx-eyebrow{font:700 10px/1.6 "IBM Plex Mono",monospace;letter-spacing:.16em;color:#4b9361;text-transform:uppercase}
+#gh-home .ghx-section h2{font:650 clamp(37px,4.15vw,61px)/1.16 "Manrope",sans-serif;letter-spacing:-.066em;color:#183c2d;margin:17px 0}
+#gh-home .ghx-lead{font-size:14px;line-height:1.85;color:#69806f;max-width:680px}
+#gh-home .ghx-section-header{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);gap:70px;align-items:end;margin-bottom:43px}
+#gh-home .ghx-section-header h2{max-width:770px}
+#gh-home .ghx-questions{background:#f4f7f1;border-top:1px solid #dce6d9}
+#gh-home .ghx-question-layout{display:grid;grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);gap:18px;align-items:stretch}
+#gh-home .ghx-question-list{display:flex;flex-direction:column;gap:9px}
+#gh-home .ghx-question{background:#fff;border:1px solid #dce7da;border-radius:10px;padding:17px 18px;display:grid;grid-template-columns:31px minmax(0,1fr) 18px;gap:14px;align-items:center;text-align:left;color:#2b4936;transition:background .16s,border-color .16s,transform .16s}
+#gh-home .ghx-question:hover{background:#f5fbf2;border-color:#9ac7a7;transform:translateX(2px)}
+#gh-home .ghx-question[aria-selected="true"]{background:#e6f0e1;border-color:#8bb79a;box-shadow:inset 3px 0 #2c8050}
+#gh-home .ghx-q-num{font:700 10px "IBM Plex Mono",monospace;color:#7baa83}
+#gh-home .ghx-question strong{display:block;font-size:13px;font-weight:800;letter-spacing:-.022em;line-height:1.45}
+#gh-home .ghx-question small{display:block;font-size:10px;color:#859a87;font-weight:600;margin-top:5px}
+#gh-home .ghx-q-arrow{color:#519268;font-size:17px}
+#gh-home .ghx-insight{background:#143c2e;color:#eaf8e8;border-radius:14px;min-height:516px;padding:39px 42px;display:flex;flex-direction:column;overflow:hidden;position:relative;isolation:isolate}
+#gh-home .ghx-insight:before{content:"";position:absolute;right:-160px;top:-205px;border:1px solid #bee8ad21;border-radius:50%;width:540px;height:540px;box-shadow:0 0 0 95px #c0f3aa09,0 0 0 190px #c0f3aa06;pointer-events:none;z-index:-1}
+#gh-home .ghx-insight-top{display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid #acd7b233;padding-bottom:18px}
+#gh-home .ghx-insight-top span{font:700 9px "IBM Plex Mono",monospace;letter-spacing:.14em;color:#a8d4b0}
+#gh-home .ghx-insight-top b{font:700 10px "IBM Plex Mono",monospace;color:#aee3ae}
+#gh-home .ghx-insight h3{font-size:clamp(27px,2.7vw,40px);font-weight:700;line-height:1.2;letter-spacing:-.055em;color:#f8fff6;margin:37px 0 14px;max-width:620px}
+#gh-home .ghx-insight-description{font-size:13px;line-height:1.85;color:#bdd5c1;margin:0;max-width:620px}
+#gh-home .ghx-analysis-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:30px 0 27px}
+#gh-home .ghx-analysis-step{padding:17px 15px;min-height:108px;border:1px solid #a8cbaa32;border-radius:8px;background:#ffffff0a}
+#gh-home .ghx-analysis-step small{display:block;font:700 10px "IBM Plex Mono",monospace;color:#afd9ae}
+#gh-home .ghx-analysis-step strong{display:block;margin-top:13px;font-size:11px;line-height:1.55;color:#edf8eb;font-weight:750}
+#gh-home .ghx-insight-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:auto}
+#gh-home .ghx-main-button{border:1px solid #c1e99f;background:#c1e99f;color:#193e28;padding:13px 17px;border-radius:7px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;gap:22px}
+#gh-home .ghx-main-button:hover{background:#e0fbc8}
+#gh-home .ghx-sub-button{border:1px solid #c0dcc366;background:#fafffb10;color:#e9f6e7;padding:13px 17px;border-radius:7px;font-size:11px;font-weight:800}
+#gh-home .ghx-sub-button:hover{background:#ffffff1c}
+#gh-home .ghx-disclaimer{display:flex;align-items:flex-start;gap:9px;margin-top:20px;font-size:10px;line-height:1.65;color:#b2cbb5}
+#gh-home .ghx-disclaimer:before{content:"i";font:750 10px Georgia,serif;display:grid;place-items:center;min-width:16px;height:16px;border:1px solid #a5c7a2;border-radius:50%;margin-top:1px}
+#gh-home .ghx-coverage-strip{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin-top:23px;padding:15px 0 0;border-top:1px solid #d9e4d6}
+#gh-home .ghx-coverage-strip strong{font:700 9px "IBM Plex Mono",monospace;letter-spacing:.08em;color:#60836a}
+#gh-home .ghx-coverage-strip span{font-size:10px;color:#6e8976;background:#eaf1e7;border:1px solid #dae5d8;padding:7px 10px;border-radius:5px}
+#gh-home .ghx-stack{background:#eaf0e6;border-top:1px solid #dbe6d9;border-bottom:1px solid #dbe6d9}
+#gh-home .ghx-stack-layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(45px,6vw,110px);align-items:center}
+#gh-home .ghx-stack-description{margin-bottom:27px}
+#gh-home .ghx-source-buttons{display:grid;gap:9px;margin-top:27px}
+#gh-home .ghx-source-button{border:1px solid #d3e2d0;border-radius:9px;background:#f9fcf7;color:#345b43;display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left;min-height:65px;transition:background .2s,border-color .2s}
+#gh-home .ghx-source-button:hover{border-color:#a4c4a5}
+#gh-home .ghx-source-button[aria-selected="true"]{background:#dcebd9;border-color:#85b98f}
+#gh-home .ghx-source-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:8px;background:#e8f2e4;color:#28784d;font-size:17px}
+#gh-home .ghx-source-button strong{font-size:12px;font-weight:800;display:block}
+#gh-home .ghx-source-button small{font-size:10px;display:block;margin-top:4px;color:#849688}
+#gh-home .ghx-source-button .ghx-source-arrow{margin-left:auto;color:#548969}
+#gh-home .ghx-source-pane{background:#fff;border:1px solid #cbdccc;border-radius:15px;box-shadow:0 22px 60px #16391e16;overflow:hidden}
+#gh-home .ghx-pane-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 25px;border-bottom:1px solid #e1e9df}
+#gh-home .ghx-pane-head strong{font:800 11px "IBM Plex Mono",monospace;letter-spacing:.09em;color:#29573e}
+#gh-home .ghx-pane-head span{font:700 9px "IBM Plex Mono",monospace;color:#81a38a}
+#gh-home .ghx-diagram{min-height:258px;background:radial-gradient(circle at 60% 39%,#f2f9ef,#e6efe4);display:grid;place-items:center;padding:28px 30px}
+#gh-home .ghx-diagram svg{display:block;width:100%;max-width:510px;height:auto;overflow:visible}
+#gh-home .ghx-diagram [data-ghx-svg]{transition:fill .25s,stroke .25s,opacity .25s}
+#gh-home .ghx-source-reading{padding:25px 29px 27px;border-top:1px solid #dbe6d8}
+#gh-home .ghx-source-reading small{font:700 9px "IBM Plex Mono",monospace;letter-spacing:.11em;color:#70a07a}
+#gh-home .ghx-source-reading h3{font-size:21px;color:#244e36;margin:11px 0 10px;letter-spacing:-.045em}
+#gh-home .ghx-source-reading p{font-size:11px;color:#748a77;line-height:1.75;margin:0}
+#gh-home .ghx-source-limit{display:flex;gap:10px;align-items:flex-start;background:#eef5e9;border-radius:7px;color:#4f745b;font-size:10px;line-height:1.65;padding:12px;margin-top:18px}
+#gh-home .ghx-source-limit:before{content:"!";display:grid;place-items:center;flex:0 0 18px;height:18px;border:1px solid #9cbd98;border-radius:50%;font:700 11px "IBM Plex Mono",monospace}
+#gh-home .ghx-source-link{display:inline-flex;align-items:center;gap:14px;color:#287b4b;font-size:11px;font-weight:800;margin-top:19px;border-bottom:1px solid #b5ceb6;padding-bottom:4px}
+#gh-home .ghx-source-link:hover{color:#155535;border-color:#287b4b}
+#gh-home .ghx-catalog{margin-top:40px;border-top:1px solid #d4e1d1;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+#gh-home .ghx-catalog article{padding:21px 22px 0}
+#gh-home .ghx-catalog article:first-child{padding-left:0}
+#gh-home .ghx-catalog article+article{border-left:1px solid #d4e1d1}
+#gh-home .ghx-catalog small{display:block;font:700 9px "IBM Plex Mono",monospace;letter-spacing:.09em;color:#82a389}
+#gh-home .ghx-catalog strong{display:block;font-size:15px;color:#27543a;letter-spacing:-.03em;margin:12px 0 6px}
+#gh-home .ghx-catalog p{font-size:10px;line-height:1.7;color:#798f7c;margin:0}
+#gh-home .ghx-final-utility{background:#f7faf4;border-top:1px solid #dfe9dc;padding:35px 0}
+#gh-home .ghx-final-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+#gh-home .ghx-final-utility strong{font-size:15px;color:#254b34;letter-spacing:-.025em}
+#gh-home .ghx-final-utility p{font-size:11px;color:#758978;margin:6px 0 0}
+#gh-home .ghx-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+#gh-home .ghx-actions button{border:1px solid #caddc7;background:#fff;color:#28583c;border-radius:7px;padding:12px 16px;font-size:11px;font-weight:800}
+#gh-home .ghx-actions button:hover{background:#eaf3e6}
+#gh-home .ghx-actions .ghx-actions-main{background:#1d543a;border-color:#1d543a;color:white}
+#gh-home .ghx-actions .ghx-actions-main:hover{background:#28744b}
+#gh-home .ghx-modal{position:fixed;z-index:110;inset:0;display:grid;place-items:start center;padding:10vh 18px 40px;background:#041c13b7;backdrop-filter:blur(8px);overflow-y:auto}
+#gh-home .ghx-modal[hidden]{display:none!important}
+#gh-home .ghx-modal-dialog{width:min(640px,100%);background:#fbfdf9;border-radius:13px;box-shadow:0 24px 90px #0005;overflow:hidden;outline:0}
+#gh-home .ghx-modal-header{padding:23px 27px 20px;border-bottom:1px solid #e0e8de;display:flex;align-items:center;justify-content:space-between;gap:16px}
+#gh-home .ghx-modal-header strong{color:#274c37;font-size:15px}
+#gh-home .ghx-modal-close{display:grid;place-items:center;background:#eaf2e7;border:1px solid #d5e3d2;border-radius:7px;color:#406b4d;width:33px;height:33px;font-size:20px}
+#gh-home .ghx-modal-search{display:flex;align-items:center;gap:13px;padding:19px 27px;border-bottom:1px solid #e1e9df}
+#gh-home .ghx-modal-search span{font-size:17px;color:#689575}
+#gh-home .ghx-modal-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:14px;color:#254b35}
+#gh-home .ghx-modal-search input::placeholder{color:#8aa08b}
+#gh-home .ghx-modal-results{padding:12px 18px 20px;display:grid;gap:5px;max-height:55vh;overflow:auto}
+#gh-home .ghx-modal-results a{display:grid;grid-template-columns:37px 1fr auto;gap:13px;align-items:center;padding:12px 14px;border-radius:8px;color:#24563d}
+#gh-home .ghx-modal-results a:hover,#gh-home .ghx-modal-results a:focus-visible{background:#edf4e9}
+#gh-home .ghx-modal-results a span:first-child{width:35px;height:35px;display:grid;place-items:center;background:#e9f1e7;border-radius:8px;font-size:18px}
+#gh-home .ghx-modal-results a strong{font-size:12px;display:block}
+#gh-home .ghx-modal-results a small{color:#7e947e;font-size:10px;display:block;margin-top:4px}
+#gh-home .ghx-modal-results a b{font-size:12px;color:#438059}
+#gh-home .ghx-empty{padding:30px 20px;color:#759078;font-size:12px;text-align:center}
+#gh-home .ghx-empty[hidden]{display:none!important}
+#gh-home .ghx-modal-footer{padding:12px 28px;border-top:1px solid #e6ece3;color:#869789;font-size:10px}
+@media(max-width:1160px){#gh-home .ghx-container{width:calc(100% - 64px)}#gh-home .ghx-section-header{gap:35px}}
+@media(max-width:850px){#gh-home .ghx-container{width:calc(100% - 40px)}#gh-home .ghx-section{padding:77px 0}#gh-home .ghx-section-header,#gh-home .ghx-stack-layout{grid-template-columns:1fr;gap:26px}#gh-home .ghx-question-layout{grid-template-columns:1fr;gap:18px}#gh-home .ghx-question-list{display:grid;grid-template-columns:repeat(2,1fr)}#gh-home .ghx-insight{min-height:450px}#gh-home .ghx-catalog{grid-template-columns:repeat(2,1fr)}#gh-home .ghx-catalog article:nth-child(3){border-left:0;padding-left:0}#gh-home .ghx-catalog article{padding-bottom:20px}#gh-home .ghx-final-inner{grid-template-columns:1fr}#gh-home .ghx-actions{justify-content:flex-start}}
+@media(max-width:580px){#gh-home .ghx-container{width:calc(100% - 30px)}#gh-home .ghx-section{padding:64px 0}#gh-home .ghx-section h2{font-size:37px}#gh-home .ghx-lead{font-size:12px}#gh-home .ghx-section-header{margin-bottom:26px}#gh-home .ghx-question-list{grid-template-columns:1fr;gap:7px}#gh-home .ghx-question{padding:13px 14px;gap:10px;grid-template-columns:24px 1fr 17px}#gh-home .ghx-insight{padding:26px 23px;min-height:0}#gh-home .ghx-insight h3{font-size:28px;margin-top:26px}#gh-home .ghx-analysis-flow{grid-template-columns:1fr;gap:7px;margin:20px 0}#gh-home .ghx-analysis-step{display:flex;align-items:center;gap:17px;min-height:0;padding:12px}#gh-home .ghx-analysis-step strong{margin:0}#gh-home .ghx-catalog{grid-template-columns:1fr}#gh-home .ghx-catalog article,#gh-home .ghx-catalog article:first-child,#gh-home .ghx-catalog article:nth-child(3){padding:16px 0;border:0;border-bottom:1px solid #d4e1d1}#gh-home .ghx-source-reading{padding:23px 20px}#gh-home .ghx-diagram{padding:16px;min-height:190px}#gh-home .ghx-actions{display:grid;grid-template-columns:1fr 1fr}#gh-home .ghx-actions button{padding:11px 10px}#gh-home .ghx-modal{padding:5vh 11px}#gh-home .ghx-modal-header{padding:18px 16px}#gh-home .ghx-modal-search{padding:17px}#gh-home .ghx-modal-results{padding:8px}}
+@media(prefers-reduced-motion:reduce){#gh-home .ghx-question,#gh-home .ghx-source-button,#gh-home .ghx-diagram [data-ghx-svg]{transition:none!important}}
+</style>
+
+<!-- GHX PRODUCT LAYER V4 -->
+<section class="ghx-section ghx-questions" id="ghx-questions" aria-labelledby="ghx-questions-heading">
+<div class="ghx-container">
+<div class="ghx-section-header"><div><div class="ghx-eyebrow" data-gh="ghxKickerQuestions">07 / EXPLORACIÓN GUIADA</div><h2 id="ghx-questions-heading" data-gh="ghxQuestionHeading">Empieza con una pregunta, no con un menú.</h2></div><p class="ghx-lead" data-gh="ghxQuestionsLead">Selecciona qué quieres comprender. GROWA te muestra qué información consultar, cómo analizarla y en qué módulo continuar, sin inventar resultados.</p></div>
+<div class="ghx-question-layout">
+<div class="ghx-question-list" role="tablist" aria-label="Preguntas de investigación">
+<button type="button" class="ghx-question" data-ghx-question="0" role="tab" aria-selected="true" aria-controls="ghx-insight"><span class="ghx-q-num">01</span><span><strong data-gh="ghxQ1">¿Dónde se concentra la producción?</strong><small data-gh="ghxQ1s">Estructura y concentración</small></span><span class="ghx-q-arrow" aria-hidden="true">↗</span></button>
+<button type="button" class="ghx-question" data-ghx-question="1" role="tab" aria-selected="false" aria-controls="ghx-insight"><span class="ghx-q-num">02</span><span><strong data-gh="ghxQ2">¿Cómo cambiaron los rendimientos?</strong><small data-gh="ghxQ2s">Series de cultivos</small></span><span class="ghx-q-arrow" aria-hidden="true">↗</span></button>
+<button type="button" class="ghx-question" data-ghx-question="2" role="tab" aria-selected="false" aria-controls="ghx-insight"><span class="ghx-q-num">03</span><span><strong data-gh="ghxQ3">¿Qué aporta el contexto climático?</strong><small data-gh="ghxQ3s">Clima y producción</small></span><span class="ghx-q-arrow" aria-hidden="true">↗</span></button>
+<button type="button" class="ghx-question" data-ghx-question="3" role="tab" aria-selected="false" aria-controls="ghx-insight"><span class="ghx-q-num">04</span><span><strong data-gh="ghxQ4">¿Qué revela la observación satelital?</strong><small data-gh="ghxQ4s">Vegetación y territorio</small></span><span class="ghx-q-arrow" aria-hidden="true">↗</span></button>
+<button type="button" class="ghx-question" data-ghx-question="4" role="tab" aria-selected="false" aria-controls="ghx-insight"><span class="ghx-q-num">05</span><span><strong data-gh="ghxQ5">¿Cómo comparar dos municipios?</strong><small data-gh="ghxQ5s">Comparaciones territoriales</small></span><span class="ghx-q-arrow" aria-hidden="true">↗</span></button>
+<button type="button" class="ghx-question" data-ghx-question="5" role="tab" aria-selected="false" aria-controls="ghx-insight"><span class="ghx-q-num">06</span><span><strong data-gh="ghxQ6">¿Cómo interpretar los indicadores?</strong><small data-gh="ghxQ6s">Fuentes y metodología</small></span><span class="ghx-q-arrow" aria-hidden="true">↗</span></button>
+</div>
+<div class="ghx-insight" id="ghx-insight" role="tabpanel" aria-live="polite"><div class="ghx-insight-top"><span data-gh="ghxInsightKicker">DE LA PREGUNTA AL ANÁLISIS</span><b id="ghx-insight-count">01 / 06</b></div>
+<h3 id="ghx-insight-title">¿En qué municipios se concentra el valor agrícola?</h3><p id="ghx-insight-description" class="ghx-insight-description">Compara la distribución territorial y la importancia relativa de los cultivos registrados.</p>
+<div class="ghx-analysis-flow"><div class="ghx-analysis-step"><small>01 / INPUT</small><strong id="ghx-step-1">Elegir territorio y año</strong></div><div class="ghx-analysis-step"><small>02 / ANALYSIS</small><strong id="ghx-step-2">Comparar participaciones</strong></div><div class="ghx-analysis-step"><small>03 / OUTPUT</small><strong id="ghx-step-3">Interpretar concentración</strong></div></div>
+<div class="ghx-insight-actions"><button type="button" id="ghx-open-question" class="ghx-main-button" data-gh-open="laboratorio"><span data-gh="ghxOpenAnalysis">Abrir el análisis</span><span aria-hidden="true">↗</span></button><button type="button" class="ghx-sub-button" data-ghx-open-command><span data-gh="ghxBrowseTools">Ver herramientas</span> ⌕</button></div>
+<div class="ghx-disclaimer" id="ghx-insight-caveat">El valor bruto no mide rentabilidad y las cifras nominales no equivalen a crecimiento real.</div></div></div>
+<div class="ghx-coverage-strip"><strong data-gh="ghxCoverage">ÁMBITOS DE CONSULTA</strong><span data-gh="ghxCov1">Series agrícolas 2003–2025</span><span data-gh="ghxCov2">Escalas municipal y estatal</span><span data-gh="ghxCov3">Variables climáticas</span><span data-gh="ghxCov4">Observación satelital</span></div>
+</div></section>
+<section class="ghx-section ghx-stack" id="ghx-stack" aria-labelledby="ghx-stack-heading"><div class="ghx-container"><div class="ghx-stack-layout"><div>
+<div class="ghx-eyebrow" data-gh="ghxStackKicker">08 / ARQUITECTURA DE INFORMACIÓN</div><h2 id="ghx-stack-heading" data-gh="ghxStackHeading">Distintas fuentes. Una lectura integrada.</h2><p class="ghx-lead ghx-stack-description" data-gh="ghxStackLead">Los registros agrícolas, las observaciones climáticas y la información de la Tierra no son equivalentes. Conoce qué representa cada fuente antes de analizarla.</p>
+<div class="ghx-source-buttons" role="tablist" aria-label="Capas de información">
+<button type="button" class="ghx-source-button" data-ghx-source="0" role="tab" aria-selected="true" aria-controls="ghx-source-reading"><span class="ghx-source-icon">▥</span><span><strong data-gh="ghxS1">Producción agrícola</strong><small>DGSIAP / SIAP</small></span><span class="ghx-source-arrow">↗</span></button>
+<button type="button" class="ghx-source-button" data-ghx-source="1" role="tab" aria-selected="false" aria-controls="ghx-source-reading"><span class="ghx-source-icon">☼</span><span><strong data-gh="ghxS2">Contexto climático</strong><small>NASA POWER</small></span><span class="ghx-source-arrow">↗</span></button>
+<button type="button" class="ghx-source-button" data-ghx-source="2" role="tab" aria-selected="false" aria-controls="ghx-source-reading"><span class="ghx-source-icon">◎</span><span><strong data-gh="ghxS3">Observación de vegetación</strong><small data-gh="ghxS3s">Productos satelitales</small></span><span class="ghx-source-arrow">↗</span></button>
+<button type="button" class="ghx-source-button" data-ghx-source="3" role="tab" aria-selected="false" aria-controls="ghx-source-reading"><span class="ghx-source-icon">⌘</span><span><strong data-gh="ghxS4">Análisis territorial</strong><small data-gh="ghxS4s">Interpretación y comparación</small></span><span class="ghx-source-arrow">↗</span></button>
+</div></div>
+<div class="ghx-source-pane"><div class="ghx-pane-head"><strong>GROWA / DATA ARCHITECTURE</strong><span data-gh="ghxDiagramLabel">ESQUEMA CONCEPTUAL</span></div>
+<div class="ghx-diagram"><svg viewBox="0 0 520 240" role="img" aria-label="Esquema conceptual de fuentes y análisis">
+<defs><linearGradient id="ghx-g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8ed9a1"/><stop offset="1" stop-color="#286c49"/></linearGradient></defs>
+<path d="M98 76 H185 M303 76 H390 M259 118 V175" fill="none" stroke="#9fc8ab" stroke-width="2.5" stroke-dasharray="6 7"/>
+<rect x="22" y="34" width="152" height="86" rx="12" fill="#f9fcf6" stroke="#aacbb4" stroke-width="2" data-ghx-svg="0"/>
+<rect x="184" y="34" width="152" height="86" rx="12" fill="#f9fcf6" stroke="#d0e0d0" stroke-width="2" data-ghx-svg="1"/>
+<rect x="346" y="34" width="152" height="86" rx="12" fill="#f9fcf6" stroke="#d0e0d0" stroke-width="2" data-ghx-svg="2"/>
+<rect x="184" y="164" width="152" height="59" rx="12" fill="#f9fcf6" stroke="#d0e0d0" stroke-width="2" data-ghx-svg="3"/>
+<g font-family="IBM Plex Mono,monospace" font-size="10" fill="#799685" text-anchor="middle"><text x="98" y="57">01 / DATA</text><text x="260" y="57">02 / CLIMATE</text><text x="422" y="57">03 / EARTH</text><text x="260" y="187">04 / ANALYSIS</text></g>
+<g font-family="Manrope,sans-serif" font-size="15" font-weight="750" fill="#265338" text-anchor="middle"><text x="98" y="90">SIAP</text><text x="260" y="90">NASA POWER</text><text x="422" y="90">SATELLITE</text><text x="260" y="208">GROWA</text></g>
+<circle cx="98" cy="132" r="5" fill="#7cb58c"/><circle cx="260" cy="132" r="5" fill="#7cb58c"/><circle cx="422" cy="132" r="5" fill="#7cb58c"/>
+</svg></div>
+<div class="ghx-source-reading" id="ghx-source-reading" role="tabpanel" aria-live="polite"><small id="ghx-source-id">01 / FUENTE PRODUCTIVA</small><h3 id="ghx-source-title">Registros agrícolas oficiales</h3><p id="ghx-source-description">Datos históricos de producción, superficie, rendimiento y valor de cultivo. Permiten comparaciones territoriales sujetas a sus unidades y cobertura.</p>
+<div class="ghx-source-limit" id="ghx-source-caveat">El valor de producción no equivale a utilidad ni permite deducir costos.</div>
+<a class="ghx-source-link" id="ghx-source-link" href="https://www.gob.mx/siap" target="_blank" rel="noopener noreferrer"><span data-gh="ghxOfficialSource">Consultar fuente oficial</span><span>↗</span></a></div></div>
+</div>
+<div class="ghx-catalog"><article><small>01 / SPATIAL</small><strong data-gh="ghxCat1">Territorio</strong><p data-gh="ghxCat1d">El lugar y la escala de cada observación.</p></article><article><small>02 / TEMPORAL</small><strong data-gh="ghxCat2">Tiempo</strong><p data-gh="ghxCat2d">Series, ciclos y años con registro.</p></article><article><small>03 / SCIENCE</small><strong data-gh="ghxCat3">Método</strong><p data-gh="ghxCat3d">Definiciones, transformaciones y restricciones.</p></article><article><small>04 / INSIGHT</small><strong data-gh="ghxCat4">Interpretación</strong><p data-gh="ghxCat4d">Resultados con contexto y límites explícitos.</p></article></div>
+</div></section>
+<section class="ghx-final-utility" aria-label="Accesos rápidos"><div class="ghx-container ghx-final-inner"><div><strong data-gh="ghxUtilityTitle">¿Sabes qué necesitas investigar?</strong><p data-gh="ghxUtilityDesc">Entra a la herramienta indicada o utiliza el buscador de módulos.</p></div><div class="ghx-actions"><button type="button" data-ghx-open-command><span data-gh="ghxFindTool">Encontrar herramienta</span> ⌕</button><button type="button" data-gh-open="metodologia"><span data-gh="ghxMethods">Metodología</span> ↗</button><button class="ghx-actions-main" type="button" data-gh-open="panorama"><span data-gh="ghxEnter">Abrir plataforma</span> ↗</button></div></div></section>
+<div class="ghx-modal" id="ghx-modal" hidden role="presentation"><div class="ghx-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ghx-modal-title" tabindex="-1">
+<div class="ghx-modal-header"><strong id="ghx-modal-title" data-gh="ghxCommandTitle">Encontrar una herramienta</strong><button id="ghx-modal-close" type="button" class="ghx-modal-close" aria-label="Cerrar">×</button></div>
+<div class="ghx-modal-search"><span aria-hidden="true">⌕</span><input type="search" id="ghx-module-search" autocomplete="off" spellcheck="false" placeholder="Busca mapas, cultivos, clima, satélite…" aria-label="Buscar módulos"></div>
+<div class="ghx-modal-results">
+<a href="#panorama" data-gh-open="panorama" data-ghx-search="territorio mapa municipal geografia overview geography" ><span>⌖</span><span><strong data-gh="ghxCmd1">Mapa territorial</strong><small data-gh="ghxCmd1d">Capas productivas, clima y comparaciones</small></span><b>↗</b></a>
+<a href="#explorar-cultivos" data-gh-open="explorar-cultivos" data-ghx-search="cultivos producción rendimiento superficie crops production yield"><span>▥</span><span><strong data-gh="ghxCmd2">Explorador de cultivos</strong><small data-gh="ghxCmd2d">Rendimientos y series históricas</small></span><b>↗</b></a>
+<a href="#ndvi" data-gh-open="ndvi" data-ghx-search="ndvi vegetación satélite satellite earth observation"><span>◎</span><span><strong data-gh="ghxCmd3">Observación satelital</strong><small data-gh="ghxCmd3d">Datos disponibles de vegetación</small></span><b>↗</b></a>
+<a href="#laboratorio" data-gh-open="laboratorio" data-ghx-search="laboratorio investigación matriz comparar análisis csv lab research export"><span>⌘</span><span><strong data-gh="ghxCmd4">Laboratorio de análisis</strong><small data-gh="ghxCmd4d">Matrices, comparaciones y exportaciones</small></span><b>↗</b></a>
+<a href="#metodologia" data-gh-open="metodologia" data-ghx-search="metodologia datos origen limitaciones sources methods scientific"><span>≡</span><span><strong data-gh="ghxCmd5">Fuentes y metodología</strong><small data-gh="ghxCmd5d">Definiciones, controles y limitaciones</small></span><b>↗</b></a>
+<a href="#ghx-questions" data-ghx-search="pregunta buscar empezar guided questions help"><span>?</span><span><strong data-gh="ghxCmd6">Explorar por pregunta</strong><small data-gh="ghxCmd6d">Elige qué necesitas investigar</small></span><b>↓</b></a>
+</div><div class="ghx-empty" id="ghx-empty" hidden data-gh="ghxEmpty">No encontramos un módulo con ese término. Prueba con «cultivos», «mapa» o «satélite».</div>
+<div class="ghx-modal-footer" data-gh="ghxHint">Selecciona un resultado para abrirlo. Presiona Esc para cerrar.</div>
+</div></div>
+
 <section class="gh-section gh-projects" id="proyectos"><div class="gh-wrap"><div class="gh-projects-head"><div><div class="gh-kicker" data-gh="refEyebrow">05 / NASA SPACE APPS · REFERENCIAS</div><h2 data-gh="refTitle">La innovación empieza con una buena pregunta.</h2></div><p class="gh-sectionintro" data-gh="refDesc">Estudiamos proyectos premiados de NASA Space Apps para aprender a convertir observaciones terrestres en productos claros. Estas referencias son externas y no constituyen premios de GROWA.</p></div>
 <div class="gh-reference-list">
 <article class="gh-reference"><span class="gh-reference-year">2024 / DATA</span><h3>Waterwise</h3><p data-gh="ref1d">Datos espaciales para explorar riesgos de agua y agricultura.</p><a href="https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-international-space-apps-challenge-announces-2024-global-winners/" target="_blank" rel="noopener noreferrer" data-gh="refLink">Ver proyecto ↗</a></article>
@@ -3361,6 +3530,7 @@ footerLeft:"© 2026 GROWA · Independent territorial intelligence platform",foot
 }};
 Object.assign(T.en,{"navMission":"Our mission","navPlatform":"Platform","navCases":"NASA references","navLaunch":"Open platform","heroEyebrow":"EARTH OBSERVATION · AGRICULTURAL INTELLIGENCE","heroA":"Earth data.","heroB":"Decisions for agriculture.","heroDesc":"GROWA connects crop records, climate and satellite observations in a territorial analysis platform to understand change, anticipate risks and make evidence-based decisions.","ctaExplore":"Explore the observatory","ctaMission":"See how it works","insightStat":"HISTORICAL DATA","insightLabel":"PRODUCTION TRENDS","insightTitle":"A broader perspective","insightDesc":"Explore official production series and compare them with climate context.","insightGraphicNote":"Illustrative chart · not measured data","heroPhotoCredit":"Photo: ISS / NASA Earth Observatory · Chihuahua, Mexico (2020)","proof0k":"ONE PLATFORM, MULTIPLE SOURCES","proof0d":"Data to understand farming in its territorial context.","proof1k":"PRODUCTION HISTORY","proof1d":"Recorded agricultural series","proof2k":"CLIMATE & ATMOSPHERE","proof2d":"Climate reference variables","proof3k":"SPATIAL COVERAGE","proof3v":"Territorial","proof3d":"States, municipalities and crops","pEyebrow":"01 / WHY IT MATTERS","pTitle":"Agriculture generates data. The challenge is turning it into answers.","pDesc":"Production, water, climate and territory are often studied separately. GROWA brings them into one experience to ask better questions and find actionable evidence.","arg1h":"Information is fragmented","arg1d":"Connecting official sources helps us see how production, geography and environmental conditions relate.","arg2h":"Averages hide differences","arg2d":"Comparing municipalities and crops reveals trends that disappear in state-level aggregates.","arg3h":"Decisions require context","arg3d":"Maps and historical series help interpret changes without confusing correlation, causality or prediction.","platformTag":"02 / MEET THE PRODUCT","platformTitle":"Every territory. One workspace.","platformDesc":"Explore geographies, historical series and climate signals from a unified research environment.","platformOpen":"Open full-screen viewer ↗","frameExplore":"EXPLORE","frameTerritory":"Territory","frameCrops":"Crops","frameClimate":"Climate","frameSatellite":"Satellite","frameResearch":"RESEARCH","frameLab":"Laboratory","frameTitle":"Agricultural intelligence viewer","frameTag":"TERRITORY / OPEN DATA","frameChip1":"Geospatial exploration","frameChip1d":"Production + climate + territory","frameChip2d":"Climate context","frameCaption":"ILLUSTRATIVE IMAGE · NASA EARTH OBSERVATORY / COLORADO RIVER","frameFootA":"AGRICULTURAL SOURCE","frameFootB":"CLIMATE SERIES","frameFootC":"ANALYSIS","frameFootCv":"MUNICIPAL","productNote":"The image is an Earth-observation visual reference; the actual viewer uses its own layers and datasets.","productNoteRight":"Named sources do not imply institutional affiliation.","mod1":"Territorial map","mod1d":"Municipal comparisons, indicators and production series.","mod2":"Crop intelligence","mod2d":"Yield, harvested area and production value by crop, municipality and year.","mod3":"Satellite observations","mod3d":"Available records for investigating vegetation change.","mod4":"Research laboratory","mod4d":"Matrices, comparisons, historical charts and exports.","openModule":"Explore module ↗","missionEyebrow":"03 / OUR MISSION","missionA":"Evidence should not stop at a report.","missionB":"It should drive action.","missionDesc":"GROWA is an independent territorial intelligence initiative. We aim to make agricultural and environmental data easier to understand, trace and use for research, farming and public policy.","missionPoint1":"Spatial and temporal analysis","missionPoint2":"Documented methods and sources","missionPoint3":"Continued development of predictive tools","refEyebrow":"05 / NASA SPACE APPS · REFERENCES","refTitle":"Innovation starts with a better question.","refDesc":"We study NASA Space Apps award-winning projects to learn how Earth observations become useful, understandable products. These are external references, not GROWA awards.","ref1d":"Space data to explore water-related agricultural risks.","ref2d":"Soil moisture and evapotranspiration for planting decisions.","ref3d":"Satellite data and AI for interpreting local weather conditions.","ref4d":"Interactive learning about agricultural adaptation to extreme weather.","refLink":"View project ↗","refNotice":"These are independent projects. GROWA does not claim NASA affiliation, endorsement or an award.","finalTitle":"A clearer understanding of your territory starts here.","finalGo":"Enter GROWA","footerLeft":"© 2026 GROWA · Independent territorial intelligence initiative","footerRight":"DGSIAP / SIAP · NASA POWER · Earth observation"});
 Object.assign(T.en,{"navSolutions":"Applications","navMethod":"Methodology","dropExplore":"Explore","dropModules":"OBSERVATORY MODULES","dropMap":"Territorial viewer","dropMapD":"Maps and agricultural indicators","dropCrop":"Crop explorer","dropCropD":"Series and yields","dropSat":"Satellite observations","dropSatD":"Vegetation and context","dropLab":"Laboratory","dropLabD":"Analysis and exports","mobileAbout":"ABOUT GROWA","mobileTools":"TOOLS","heroAlso":"MORE WAYS TO EXPLORE","heroCases":"Explore applications ↗","heroSources":"Sources and methods ↗","tourGuide":"INTERACTIVE TOUR","tourPrev":"← Previous","tourNext":"Next →","tourLaunch":"Open module ↗","roleKicker":"04 / APPLICATIONS","roleHeading":"One platform. Different questions.","roleIntro":"Explore how the observatory supports territorial research, reproducible analysis and crop studies.","role1":"Territorial planning","role2":"Research","role3":"Agricultural intelligence","roleOpen":"Open tool","roleLearn":"View methodology","methodKicker":"06 / SOURCES & METHODS","methodH":"Reliable data. Responsible interpretation.","methodP":"Agricultural, climate and satellite data operate at different spatial scales. GROWA provides sources and limitations to prevent misleading interpretations.","methodGo":"View methodology","methodBack":"Back to product","faqQ1":"Where does agricultural production data come from?","faqA1":"DGSIAP/SIAP. Historical records include area, yield, volume and value; nominal gross production value is not profit.","faqQ2":"What do NASA POWER variables represent?","faqA2":"Gridded climate variables. A municipal reference point is not a physical sensor in every field and does not replace local observations.","faqQ3":"Can I interpret changes as causal effects?","faqA3":"Not automatically. Maps and series describe patterns and relationships, but causal claims require models, controls and further validation.","faqQ4":"Does the platform already offer validated AI crop recommendations?","faqA4":"Predictive models and simulations remain under development, not a validated automatic agronomic recommendation service at field scale.","src1":"Production and area records in their original units.","src2":"Reference atmospheric context, not field-level weather stations.","src3h":"Satellite observations","src3":"Available vegetation observations from the linked module.","share":"Copy GROWA link ↗","floatLaunch":"Open observatory"});
+Object.assign(T.en,{"ghxKickerQuestions":"07 / GUIDED DISCOVERY","ghxQuestionHeading":"Start with a question, not a menu.","ghxQuestionsLead":"Choose what you want to understand. GROWA shows which data to explore, how to examine them and where to continue—without inventing results.","ghxQ1":"Where is production concentrated?","ghxQ1s":"Structure and concentration","ghxQ2":"How have yields changed?","ghxQ2s":"Crop time series","ghxQ3":"What does climate context add?","ghxQ3s":"Climate and production","ghxQ4":"What can satellites reveal?","ghxQ4s":"Vegetation and territory","ghxQ5":"How can I compare municipalities?","ghxQ5s":"Territorial comparisons","ghxQ6":"How do I interpret the indicators?","ghxQ6s":"Sources and methodology","ghxInsightKicker":"FROM QUESTION TO ANALYSIS","ghxOpenAnalysis":"Open analysis","ghxBrowseTools":"Browse tools","ghxCoverage":"COVERAGE","ghxCov1":"Agricultural series 2003–2025","ghxCov2":"Municipal and state scales","ghxCov3":"Climate variables","ghxCov4":"Satellite observations","ghxStackKicker":"08 / INFORMATION ARCHITECTURE","ghxStackHeading":"Different sources. Integrated understanding.","ghxStackLead":"Agricultural records, climate observations and Earth data are not interchangeable. Learn what each source represents before working with it.","ghxS1":"Agricultural production","ghxS2":"Climate context","ghxS3":"Vegetation observations","ghxS3s":"Satellite products","ghxS4":"Territorial analysis","ghxS4s":"Interpretation and comparison","ghxDiagramLabel":"CONCEPTUAL SCHEME","ghxOfficialSource":"View official source","ghxCat1":"Territory","ghxCat1d":"The location and scale of each observation.","ghxCat2":"Time","ghxCat2d":"Series, agricultural cycles and recorded years.","ghxCat3":"Method","ghxCat3d":"Definitions, transformations and limits.","ghxCat4":"Interpretation","ghxCat4d":"Findings with context and explicit limitations.","ghxUtilityTitle":"Know what you want to investigate?","ghxUtilityDesc":"Open the relevant tool or use the module finder.","ghxFindTool":"Find a tool","ghxMethods":"Methodology","ghxEnter":"Open platform","ghxCommandTitle":"Find a tool","ghxCmd1":"Territorial map","ghxCmd1d":"Production layers, climate and comparisons","ghxCmd2":"Crop explorer","ghxCmd2d":"Yield and historical time series","ghxCmd3":"Satellite observations","ghxCmd3d":"Available vegetation data","ghxCmd4":"Analysis laboratory","ghxCmd4d":"Matrices, comparisons and exports","ghxCmd5":"Sources and methodology","ghxCmd5d":"Definitions, checks and limitations","ghxCmd6":"Explore by question","ghxCmd6d":"Choose what you want to investigate","ghxEmpty":"No tools match that term. Try crops, map or satellite.","ghxHint":"Select a result to open it. Press Esc to close."});
 var storageKey="growa-language";
 var current="es";
 try{current=localStorage.getItem(storageKey)==="en"?"en":"es"}catch(e){}
@@ -3646,6 +3816,82 @@ window.addEventListener("growa:language-change",function(){selectTour(currentTou
 selectTour(0);selectRole(0);updateScroll();
 var hash=window.GrowaInitialRoute||"";
 if(/^#(mision|plataforma|proyectos|metodo|soluciones|metodologia-home)$/.test(hash))setTimeout(function(){jumpTo(hash.slice(1),true)},60);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+<script id="ghx-v4-js">
+(function(){
+"use strict";
+var home=document.getElementById("gh-home");if(!home)return;
+var q=function(s){return home.querySelector(s)}, all=function(s){return Array.from(home.querySelectorAll(s))};
+var questions=[
+{route:"laboratorio",es:{title:"¿En qué municipios se concentra el valor agrícola?",description:"Compara la distribución territorial y la importancia relativa de los cultivos registrados.",steps:["Elegir territorio y año","Comparar participaciones","Interpretar concentración"],caveat:"El valor bruto no mide rentabilidad y las cifras nominales no equivalen a crecimiento real."},en:{title:"Which municipalities concentrate agricultural value?",description:"Compare territorial distribution and the relative importance of recorded crops.",steps:["Choose territory and year","Compare shares","Interpret concentration"],caveat:"Gross value is not profit, and nominal figures do not imply real growth."}},
+{route:"explorar-cultivos",es:{title:"¿Cómo ha evolucionado el rendimiento de un cultivo?",description:"Consulta la trayectoria disponible del rendimiento y contrástala con la superficie cosechada, respetando las unidades originales.",steps:["Seleccionar cultivo","Consultar serie histórica","Comparar variaciones"],caveat:"Los cambios en rendimiento no identifican por sí solos su causa agronómica."},en:{title:"How has crop yield evolved?",description:"Explore the available yield series alongside harvested area while preserving original units.",steps:["Select crop","View historical series","Compare changes"],caveat:"Changes in yield do not, by themselves, reveal the agronomic cause."}},
+{route:"panorama",es:{title:"¿Qué contexto climático acompaña la actividad agrícola?",description:"Explora precipitación, temperatura u otras variables disponibles y contrástalas visualmente con el comportamiento productivo.",steps:["Seleccionar municipio","Consultar NASA POWER","Examinar patrones"],caveat:"NASA POWER proporciona referencias espaciales; no es un sensor instalado en cada parcela."},en:{title:"What climate context surrounds agricultural activity?",description:"Explore available precipitation, temperature and related variables alongside production history.",steps:["Select municipality","Explore NASA POWER","Review patterns"],caveat:"NASA POWER provides gridded references, not sensors located in every field."}},
+{route:"ndvi",es:{title:"¿Cómo estudiar señales de cambio en la vegetación?",description:"Accede a los registros satelitales disponibles para observar patrones de vegetación en su escala correspondiente.",steps:["Abrir módulo satelital","Revisar observaciones","Contrastar periodos"],caveat:"Un indicador de vegetación no equivale automáticamente a rendimiento, estrés hídrico o estado de una parcela."},en:{title:"How can we study changes in vegetation?",description:"Access available satellite observations to explore vegetation patterns at their appropriate scale.",steps:["Open satellite module","Review observations","Compare periods"],caveat:"A vegetation index is not automatically a measure of yield, water stress or individual-field conditions."}},
+{route:"explorar-estados",es:{title:"¿Cómo se diferencian dos territorios agrícolas?",description:"Revisa los perfiles territoriales y usa los instrumentos de comparación disponibles para contrastar trayectorias.",steps:["Elegir municipios","Escoger indicador","Contrastar tendencias"],caveat:"Las comparaciones deben conservar unidades homogéneas y considerar diferencias de cobertura."},en:{title:"How do two agricultural territories differ?",description:"Review territorial profiles and available comparison tools to contrast trends.",steps:["Choose municipalities","Select indicator","Compare trends"],caveat:"Comparisons should preserve consistent units and account for coverage differences."}},
+{route:"metodologia",es:{title:"¿Qué significan las cifras y de dónde provienen?",description:"Consulta las definiciones operativas, las fuentes y los límites de los indicadores del observatorio.",steps:["Identificar la fuente","Revisar la unidad","Interpretar el alcance"],caveat:"Los métodos descriptivos no prueban causalidad ni garantizan predicción."},en:{title:"What do the figures mean, and where do they come from?",description:"Review operational definitions, data sources and limitations for the observatory indicators.",steps:["Identify source","Check units","Interpret scope"],caveat:"Descriptive methods neither prove causality nor guarantee prediction."}}
+];
+var sources=[
+{url:"https://www.gob.mx/siap",es:{label:"01 / FUENTE PRODUCTIVA",title:"Registros agrícolas oficiales",desc:"Datos históricos de producción, superficie, rendimiento y valor de cultivos. Son apropiados para comparaciones territoriales sujetas a sus unidades y cobertura.",limit:"El valor registrado no equivale a utilidad ni informa directamente sobre costos de producción."},en:{label:"01 / PRODUCTION DATA",title:"Official agricultural records",desc:"Historical production, area, yield and crop-value records. Useful for territorial comparisons when coverage and units are respected.",limit:"Recorded value is not profit and does not directly reveal production costs."}},
+{url:"https://power.larc.nasa.gov/",es:{label:"02 / CLIMA",title:"Contexto meteorológico NASA POWER",desc:"Variables climáticas y meteorológicas de referencia que permiten estudiar el contexto ambiental y sus cambios temporales.",limit:"Un valor de rejilla asociado a un municipio no constituye una medición directa de cada campo."},en:{label:"02 / CLIMATE",title:"NASA POWER meteorological context",desc:"Reference weather and climate variables supporting the study of environmental context and time variation.",limit:"A gridded municipal reference is not a direct measurement for every farm field."}},
+{url:"https://www.earthdata.nasa.gov/",es:{label:"03 / SATÉLITE",title:"Observación de la superficie terrestre",desc:"Los productos de observación remota ayudan a describir vegetación y características de la superficie según la fuente y su resolución.",limit:"La cobertura espacial y temporal, las nubes y los métodos de procesamiento condicionan la interpretación."},en:{label:"03 / SATELLITE",title:"Earth-surface observations",desc:"Remote sensing products can describe vegetation and surface characteristics according to the source and resolution.",limit:"Spatial resolution, time coverage, clouds and processing methods affect interpretation."}},
+{url:"https://growa-agricultura-sinaloa.onrender.com/#laboratorio",es:{label:"04 / ANÁLISIS",title:"Indicadores y comparaciones en GROWA",desc:"Los datos se convierten en mapas, series, indicadores y contrastes territoriales para apoyar investigación y exploración.",limit:"Las correlaciones y visualizaciones deben validarse antes de considerarse explicaciones causales o pronósticos."},en:{label:"04 / ANALYSIS",title:"Indicators and comparisons in GROWA",desc:"Sources become maps, time series, indicators and territorial comparisons to support research and exploration.",limit:"Correlations and visualizations need validation before being treated as causal explanations or forecasts."}}
+];
+var selectedQuestion=0,selectedSource=0,lastFocus=null,scrollPrev=null;
+function english(){return document.documentElement.lang==="en"}
+function paintQuestion(n){
+selectedQuestion=(n+questions.length)%questions.length;
+var d=questions[selectedQuestion][english()?"en":"es"],qitem=questions[selectedQuestion];
+q("#ghx-insight-count").textContent=("0"+(selectedQuestion+1)).slice(-2)+" / 06";
+q("#ghx-insight-title").textContent=d.title;q("#ghx-insight-description").textContent=d.description;
+d.steps.forEach(function(t,i){q("#ghx-step-"+(i+1)).textContent=t});
+q("#ghx-insight-caveat").textContent=d.caveat;q("#ghx-open-question").setAttribute("data-gh-open",qitem.route);
+all("[data-ghx-question]").forEach(function(b,i){b.setAttribute("aria-selected",i===selectedQuestion?"true":"false");b.tabIndex=i===selectedQuestion?0:-1});
+}
+function paintSource(n){
+selectedSource=(n+sources.length)%sources.length;var s=sources[selectedSource],d=s[english()?"en":"es"];
+q("#ghx-source-id").textContent=d.label;q("#ghx-source-title").textContent=d.title;
+q("#ghx-source-description").textContent=d.desc;q("#ghx-source-caveat").textContent=d.limit;
+q("#ghx-source-link").href=s.url;
+all("[data-ghx-source]").forEach(function(b,i){b.setAttribute("aria-selected",i===selectedSource?"true":"false");b.tabIndex=i===selectedSource?0:-1});
+all("[data-ghx-svg]").forEach(function(el,i){el.setAttribute("stroke",i===selectedSource?"#31794d":"#d0e0d0");el.setAttribute("stroke-width",i===selectedSource?"3":"2");el.setAttribute("fill",i===selectedSource?"#e2f2dc":"#f9fcf6")});
+}
+function modalOpen(){
+var modal=q("#ghx-modal");if(!modal)return;lastFocus=document.activeElement;
+modal.hidden=false;var input=q("#ghx-module-search");input.value="";filterSearch();
+home.style.overflow="hidden";input.focus();
+}
+function modalClose(){
+var modal=q("#ghx-modal");if(!modal||modal.hidden)return;modal.hidden=true;home.style.overflow="";
+if(lastFocus&&typeof lastFocus.focus==="function")lastFocus.focus();
+}
+function normalize(t){return String(t||"").toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function filterSearch(){
+var term=normalize(q("#ghx-module-search").value.trim()),visible=0;
+all(".ghx-modal-results a").forEach(function(a){var hay=normalize((a.textContent||"")+" "+(a.dataset.ghxSearch||""));var ok=!term||hay.includes(term);a.hidden=!ok;if(ok)visible++});
+q("#ghx-empty").hidden=visible>0;
+}
+function init(){
+all("[data-ghx-question]").forEach(function(b,i){b.addEventListener("click",function(){paintQuestion(i)});
+b.addEventListener("keydown",function(e){var next=null;if(["ArrowDown","ArrowRight"].includes(e.key))next=i+1;if(["ArrowUp","ArrowLeft"].includes(e.key))next=i-1;if(e.key==="Home")next=0;if(e.key==="End")next=questions.length-1;if(next!==null){e.preventDefault();paintQuestion(next);all("[data-ghx-question]")[selectedQuestion].focus()}})});
+all("[data-ghx-source]").forEach(function(b,i){b.addEventListener("click",function(){paintSource(i)});
+b.addEventListener("keydown",function(e){var next=null;if(["ArrowDown","ArrowRight"].includes(e.key))next=i+1;if(["ArrowUp","ArrowLeft"].includes(e.key))next=i-1;if(e.key==="Home")next=0;if(e.key==="End")next=sources.length-1;if(next!==null){e.preventDefault();paintSource(next);all("[data-ghx-source]")[selectedSource].focus()}})});
+all("[data-ghx-open-command]").forEach(function(b){b.addEventListener("click",modalOpen)});
+q("#ghx-modal-close")?.addEventListener("click",modalClose);
+q("#ghx-modal")?.addEventListener("click",function(e){if(e.target.id==="ghx-modal")modalClose()});
+q("#ghx-module-search")?.addEventListener("input",filterSearch);
+q("#ghx-module-search")?.addEventListener("keydown",function(e){if(e.key==="Enter"){var found=all(".ghx-modal-results a").find(function(el){return !el.hidden});if(found){e.preventDefault();found.click()}}});
+q("#ghx-modal")?.addEventListener("click",function(e){var link=e.target.closest("a");if(link&&link.href){modalClose()}});
+document.addEventListener("keydown",function(e){
+var modal=q("#ghx-modal");if(modal&&!modal.hidden){
+if(e.key==="Escape"){e.preventDefault();modalClose();return}
+if(e.key==="Tab"){var items=all("#ghx-modal button,#ghx-modal input,#ghx-modal a").filter(function(el){return !el.hidden&&el.offsetParent!==null});if(items.length){var first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}}
+}
+});
+window.addEventListener("growa:language-change",function(){paintQuestion(selectedQuestion);paintSource(selectedSource);var input=q("#ghx-module-search");if(input){input.placeholder=english()?"Search maps, crops, climate, satellite…":"Busca mapas, cultivos, clima, satélite…";input.setAttribute("aria-label",english()?"Search modules":"Buscar módulos")}q("#ghx-modal-close")?.setAttribute("aria-label",english()?"Close":"Cerrar")});
+paintQuestion(0);paintSource(0);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
