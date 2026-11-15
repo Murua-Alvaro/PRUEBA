@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es">
 <head>
+  <script>window.GrowaInitialRoute=window.location.hash;</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f6f7f4">
@@ -3385,10 +3386,10 @@ nav.appendChild(item);item.querySelector(".gh-home-link").addEventListener("clic
 }
 var mainBrand=document.querySelector(".rail .brand");
 if(mainBrand)mainBrand.addEventListener("click",function(e){e.preventDefault();showHome(true,true)});
-var initialHash=location.hash;
+var initialHash=typeof window.GrowaInitialRoute==="string"?window.GrowaInitialRoute:location.hash;
 var launchedFromHome=!initialHash||initialHash==="#inicio"||["#mision","#proyectos","#metodo","#plataforma"].includes(initialHash);
 showHome(launchedFromHome,false);
-if(!initialHash)history.replaceState({ghHome:true},"",location.pathname+location.search+"#inicio");
+if(launchedFromHome && (!initialHash || initialHash==="#inicio"))history.replaceState({ghHome:true},"",location.pathname+location.search+"#inicio");
 document.querySelectorAll("[data-gh-lang]").forEach(function(b){b.addEventListener("click",function(){setLang(b.getAttribute("data-gh-lang"))})});
 document.querySelectorAll("[data-gh-open]").forEach(function(b){b.addEventListener("click",function(e){e.preventDefault();openModule(b.getAttribute("data-gh-open"))})});
 document.querySelector(".navigation")?.addEventListener("click",function(e){if(e.target.closest("[data-tab],#growa-ndvi-nav"))showHome(false,false)},true);
