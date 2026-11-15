@@ -5,8 +5,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f6f7f4">
-  <meta name="description" content="Growa Agricultura: observatorio independiente de datos abiertos e inteligencia territorial para Sinaloa. Series DGSIAP 2003–2025, atlas de cultivos, municipios, agua y laboratorio de análisis.">
-  <title>GROWA Earth Intelligence | Monitor de cultivos</title>
+  <meta name="description" content="GROWA Earth Intelligence conecta información agrícola, clima y observaciones satelitales para analizar el territorio, comprender riesgos y explorar datos de cultivos en México.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="GROWA — Earth Intelligence">
+  <meta property="og:description" content="Datos de la Tierra. Decisiones para el campo. Inteligencia territorial agrícola y climática.">
+  <meta property="og:image" content="https://assets.science.nasa.gov/dynamicimage/assets/science/esd/eo/images/imagerecords/150000/150563/ISS062-E-151785_lrg.jpg?crop=faces%2Cfocalpoint%26fit=crop%26h=1500%26w=2300">
+  <meta name="theme-color" content="#102c23">
+  <title>GROWA — Earth Intelligence para la agricultura</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.css">
   <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.js" defer></script>
@@ -3363,10 +3368,11 @@ if(scheduled)return;scheduled=true;
 requestAnimationFrame(function(){scheduled=false;translateSite()});
 });
 function setLang(lang){current=lang==="en"?"en":"es";try{localStorage.setItem(storageKey,current)}catch(e){}
-applyHomeLanguage();translateSite();window.dispatchEvent(new CustomEvent("growa:language-change",{detail:{language:current}}));
+applyHomeLanguage();translateSite();if(!home.hidden)document.title=current==="en"?"GROWA — Earth Intelligence for Agriculture":"GROWA — Inteligencia agrícola y territorial";window.dispatchEvent(new CustomEvent("growa:language-change",{detail:{language:current}}));
 }
 function showHome(on,push){
 home.hidden=!on;document.body.classList.toggle("gh-home-active",!!on);
+if(on)document.title=current==="en"?"GROWA — Earth Intelligence for Agriculture":"GROWA — Inteligencia agrícola y territorial";
 if(on){home.scrollTop=0;if(push&&location.hash!=="#inicio")history.pushState({ghHome:true},"","#inicio");}
 else if(location.hash==="#inicio"){history.replaceState(null,"",location.pathname+location.search+"#panorama");}
 }
