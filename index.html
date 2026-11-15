@@ -2824,8 +2824,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   }
   const mapLegend=node("div","v8-map-data-note");
   mapLegend.innerHTML='<span class="v8-note-dot"></span><div><strong>Tamaño de símbolo = superficie cosechada</strong><small>Referencias municipales, no polígonos de parcelas</small></div>';
-  const stage=$("ea-geostage");
-  if(stage)stage.appendChild(mapLegend);
+  app.appendChild(mapLegend);
   const live=node("span","v8-loading-state");live.id="v8-status";
   const panel=right.querySelector(".eo-right-top");if(panel)panel.appendChild(live);
   return true;
