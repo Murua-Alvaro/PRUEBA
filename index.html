@@ -2992,5 +2992,412 @@ body.growa-ndvi-mode .rail .navigation .nav-link.active:not(.growa-ndvi-nav-link
  window.addEventListener("load",function(){if(document.body.classList.contains("growa-ndvi-mode")&&location.hash!=="#ndvi")history.replaceState(null,"",location.pathname+location.search+"#ndvi")});
 })();
 </script>
+
+<!-- GROWA HOME 2026 START -->
+<style id="gh-home-style">
+#gh-home,#gh-home *{box-sizing:border-box}
+#gh-home{position:fixed;inset:0;z-index:10000;overflow-y:auto;overscroll-behavior:contain;background:#f4f7f1;color:#173b30;font:400 15px/1.6 "DM Sans",Inter,"Segoe UI",Arial,sans-serif;scrollbar-width:thin;scrollbar-color:#b7c9bb transparent}
+#gh-home[hidden]{display:none!important}body.gh-home-active{overflow:hidden!important}html:has(body.gh-home-active){overflow:hidden!important}
+#gh-home button,#gh-home a{font:inherit}#gh-home a{text-decoration:none}#gh-home button{cursor:pointer}
+#gh-home .gh-container{width:min(1360px,calc(100% - 88px));margin-inline:auto}
+#gh-home .gh-header{position:sticky;top:0;z-index:12;height:76px;background:rgba(247,249,245,.96);backdrop-filter:blur(18px);border-bottom:1px solid #d9e3d9}
+#gh-home .gh-header-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:25px}
+#gh-home .gh-logo{display:flex;align-items:center;gap:12px;color:#164831;white-space:nowrap}
+#gh-home .gh-mark{width:34px;height:34px;background:#15573a;color:#f3fff4;border-radius:7px;display:grid;place-items:center;font:500 25px/1 Georgia,serif;letter-spacing:-.14em;padding-right:5px}
+#gh-home .gh-brand{font-size:15px;letter-spacing:.20em;font-weight:800;line-height:1.1}
+#gh-home .gh-brand small{display:block;font-size:9px;color:#6b8676;letter-spacing:.08em;font-weight:650;margin-top:6px}
+#gh-home .gh-header-actions{display:flex;align-items:center;gap:28px;min-width:0}
+#gh-home .gh-minilink{font-size:12px;font-weight:700;color:#49685a;white-space:nowrap}
+#gh-home .gh-minilink:hover{color:#1d754b}
+#gh-home .gh-langs{display:flex;align-items:center;padding:4px;background:#e9f0e8;border:1px solid #d8e4d7;border-radius:7px;gap:2px}
+#gh-home .gh-lang{border:0;background:transparent;border-radius:5px;padding:6px 10px;color:#628073;font-size:11px;font-weight:800;line-height:1.2}
+#gh-home .gh-lang[aria-pressed="true"]{background:#fff;color:#1b5c3d;box-shadow:0 1px 5px #184a2d1a}
+#gh-home .gh-nav-launch{display:inline-flex;align-items:center;justify-content:center;gap:11px;padding:12px 18px;border-radius:6px;background:#185b3f;color:#f9fff9;font-weight:750;font-size:12px;border:1px solid #185b3f;white-space:nowrap}
+#gh-home .gh-nav-launch:hover,#gh-home .gh-button-primary:hover{background:#23774d;border-color:#23774d}
+#gh-home .gh-hero{position:relative;padding:85px 0 88px;overflow:hidden;background:#f4f7f1}
+#gh-home .gh-hero:before{content:"";position:absolute;right:-180px;top:-330px;width:820px;height:820px;border:1px solid #dce9dd;border-radius:50%;pointer-events:none}
+#gh-home .gh-hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(430px,.9fr);gap:clamp(42px,5vw,90px);align-items:center}
+#gh-home .gh-kicker,#gh-home .gh-eyebrow{display:flex;align-items:center;gap:12px;color:#4c8260;font:700 10px/1.5 "IBM Plex Mono",Consolas,monospace;letter-spacing:.14em;text-transform:uppercase}
+#gh-home .gh-kicker:before{content:"";width:25px;height:2px;background:#2a8b57}
+#gh-home .gh-hero h1{font-size:clamp(52px,5.4vw,79px);line-height:1.075;font-weight:600;letter-spacing:-.058em;max-width:790px;margin:26px 0 23px;color:#183c2e}
+#gh-home .gh-hero h1 em{font-style:normal;color:#318858}
+#gh-home .gh-hero-summary{max-width:655px;font-size:17px;line-height:1.85;color:#60796b;margin:0 0 35px}
+#gh-home .gh-ctas{display:flex;flex-wrap:wrap;gap:13px;margin:0 0 47px}
+#gh-home .gh-button-primary,#gh-home .gh-button-secondary{display:inline-flex;align-items:center;gap:20px;padding:16px 23px;border:1px solid #185b3f;border-radius:6px;font-weight:750;font-size:12px;transition:background .18s}
+#gh-home .gh-button-primary{background:#185b3f;color:white}
+#gh-home .gh-button-secondary{background:transparent;color:#245b40;border-color:#c3d3c5}
+#gh-home .gh-button-secondary:hover{background:#e7eee5}
+#gh-home .gh-proof{border-top:1px solid #d7e2d6;display:flex;gap:24px;max-width:660px;padding-top:25px;flex-wrap:wrap}
+#gh-home .gh-proof-item{flex:1;min-width:130px;display:flex;flex-direction:column;gap:6px}
+#gh-home .gh-proof-item strong{font-size:13px;color:#234f37;font-weight:750}
+#gh-home .gh-proof-item small{font-size:11px;color:#84948b}
+#gh-home .gh-visual{position:relative;aspect-ratio:1/.99;min-height:445px;border-radius:11px;overflow:hidden;background:#102f29;color:#f5fff8;box-shadow:0 25px 65px rgba(12,55,35,.17)}
+#gh-home .gh-visual:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 68% 39%,#36785a82,transparent 48%),linear-gradient(133deg,#132d2b,#0e4b38 56%,#10352e)}
+#gh-home .gh-visual:after{content:"";position:absolute;inset:0;opacity:.22;background-image:linear-gradient(#b9e2ca35 1px,transparent 1px),linear-gradient(90deg,#b9e2ca35 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(140deg,transparent,#000 25%,#000 70%,transparent)}
+#gh-home .gh-vis-head{position:absolute;z-index:3;top:24px;left:25px;right:25px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#gh-home .gh-vis-head strong{font-size:10px;letter-spacing:.13em;font-family:"IBM Plex Mono",Consolas,monospace}
+#gh-home .gh-live{display:inline-flex;align-items:center;gap:7px;color:#a8d5b5;font:600 9px/1.4 "IBM Plex Mono",Consolas,monospace;letter-spacing:.12em}
+#gh-home .gh-live:before{content:"";width:6px;height:6px;border-radius:50%;background:#75cd8f}
+#gh-home .gh-terrain{position:absolute;z-index:2;inset:63px 20px 115px;width:calc(100% - 40px);height:calc(100% - 178px);overflow:visible}
+#gh-home .gh-terrain path{fill:none;stroke:#9ed8ad;stroke-opacity:.28;stroke-width:1.2}
+#gh-home .gh-terrain .gh-boundary{stroke:#bce5bf;stroke-opacity:.78;stroke-width:1.6;fill:#63a47d16}
+#gh-home .gh-terrain .gh-water{stroke:#95dbcb;stroke-width:2;stroke-opacity:.62}
+#gh-home .gh-terrain circle{fill:#b0f1bd;stroke:#133c30;stroke-width:3}
+#gh-home .gh-vis-card{position:absolute;z-index:4;background:rgba(243,255,244,.95);border:1px solid #e5f5e8;border-radius:7px;box-shadow:0 10px 35px #041c1c22;color:#244c37;padding:13px 15px}
+#gh-home .gh-vis-card small{display:block;font:700 9px/1.5 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#668a72}
+#gh-home .gh-vis-card strong{display:block;font-size:14px;line-height:1.3;margin-top:6px}
+#gh-home .gh-vis-one{top:29%;right:22px}
+#gh-home .gh-vis-two{bottom:23%;left:20px}
+#gh-home .gh-vis-foot{position:absolute;z-index:4;inset:auto 0 0;min-height:89px;background:#0c2924c9;display:flex;align-items:center;gap:0;border-top:1px solid #8fc9a32f;padding:0 23px}
+#gh-home .gh-vis-stat{flex:1;min-width:0;padding:0 13px}
+#gh-home .gh-vis-stat+ .gh-vis-stat{border-left:1px solid #aad1b148}
+#gh-home .gh-vis-stat small{display:block;font:600 9px/1.5 "IBM Plex Mono",monospace;letter-spacing:.10em;color:#94bfa7}
+#gh-home .gh-vis-stat strong{display:block;margin-top:6px;font-size:12px;color:#f6fff9;font-weight:700}
+#gh-home .gh-visual-disclaimer{position:absolute;z-index:4;bottom:96px;right:15px;font-size:8px;color:#a8c9b6}
+#gh-home .gh-section{padding:90px 0}
+#gh-home .gh-section-title{font-size:clamp(35px,3.6vw,53px);font-weight:600;line-height:1.17;letter-spacing:-.047em;max-width:800px;margin:19px 0 19px;color:#193c2d}
+#gh-home .gh-section-intro{max-width:740px;margin:0 0 42px;font-size:15px;line-height:1.8;color:#667a6d}
+#gh-home .gh-stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#gh-home .gh-stage{border:1px solid #dce5da;background:#fff;padding:32px;min-height:245px;border-radius:8px}
+#gh-home .gh-stage .gh-number{font:700 11px/1 "IBM Plex Mono",monospace;color:#4c8f62}
+#gh-home .gh-stage h3{font-size:24px;font-weight:600;letter-spacing:-.035em;margin:40px 0 11px;color:#1d4d35}
+#gh-home .gh-stage p{font-size:13px;line-height:1.75;color:#738779;margin:0}
+#gh-home .gh-section-alt{background:#eaf0e8;border-block:1px solid #dce6d9}
+#gh-home .gh-modules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+#gh-home .gh-module{display:flex;min-height:267px;flex-direction:column;align-items:flex-start;background:#f7faf5;border:1px solid #d7e3d5;border-radius:9px;padding:26px;transition:border .2s,transform .2s,box-shadow .2s}
+#gh-home .gh-module:hover{transform:translateY(-3px);border-color:#9ac7a2;box-shadow:0 12px 26px #17493210}
+#gh-home .gh-module-tag{font:700 10px/1.2 "IBM Plex Mono",monospace;letter-spacing:.08em;color:#74a57c}
+#gh-home .gh-module h3{font-size:21px;letter-spacing:-.03em;line-height:1.25;margin:41px 0 11px;font-weight:700;color:#1f5137}
+#gh-home .gh-module p{font-size:12.5px;line-height:1.7;color:#678172;margin:0 0 22px}
+#gh-home .gh-module-more{font-size:12px;font-weight:800;color:#277548;margin-top:auto}
+#gh-home .gh-method-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+#gh-home .gh-method-box{background:#133d2f;border-radius:9px;padding:38px 42px;color:#e9f7e9}
+#gh-home .gh-method-box .gh-eyebrow{color:#a7d5ad}
+#gh-home .gh-method-box h3{font-size:27px;line-height:1.25;letter-spacing:-.03em;font-weight:600;margin:20px 0 25px}
+#gh-home .gh-pipeline{display:flex;flex-direction:column;gap:3px}
+#gh-home .gh-pipe{display:flex;align-items:center;gap:15px;padding:14px 0;border-bottom:1px solid #b8ddc43a}
+#gh-home .gh-pipe span{font:700 10px/1 "IBM Plex Mono",monospace;color:#99c9a6}
+#gh-home .gh-pipe strong{font-size:12px;font-weight:600}
+#gh-home .gh-method-desc{font-size:13px;line-height:1.8;color:#6e8373}
+#gh-home .gh-method-link{display:inline-block;border-bottom:1px solid #226d46;padding-bottom:3px;color:#216a44;font-weight:750;font-size:12px;margin-top:22px}
+#gh-home .gh-reference-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#gh-home .gh-reference{display:flex;flex-direction:column;border:1px solid #d9e5d7;background:#fff;border-radius:8px;padding:27px 29px;min-height:191px}
+#gh-home .gh-reference-top{display:flex;gap:12px;justify-content:space-between;align-items:center;color:#668a72;font:700 10px/1.5 "IBM Plex Mono",monospace;letter-spacing:.07em}
+#gh-home .gh-reference h3{font-size:21px;color:#214b35;letter-spacing:-.025em;margin:20px 0 8px;line-height:1.25}
+#gh-home .gh-reference p{font-size:12px;line-height:1.7;color:#738678;margin:0 0 18px}
+#gh-home .gh-reference a{font-size:11px;font-weight:800;color:#286e4b;margin-top:auto}
+#gh-home .gh-caution{color:#7b8e7d;font-size:11px;line-height:1.8;margin-top:20px;max-width:850px}
+#gh-home .gh-last{padding:67px 0 84px;background:#123d2d;color:#edf8ec}
+#gh-home .gh-last-inner{display:flex;gap:35px;align-items:center;justify-content:space-between}
+#gh-home .gh-last h2{font-weight:550;font-size:clamp(31px,3.2vw,48px);letter-spacing:-.045em;line-height:1.2;margin:13px 0;max-width:800px}
+#gh-home .gh-last p{font-size:12px;color:#b5d0ba;max-width:610px;margin:0}
+#gh-home .gh-last .gh-button-primary{background:#eff9ed;color:#1c543a;border-color:#eff9ed;white-space:nowrap}
+#gh-home .gh-last .gh-button-primary:hover{background:#d6edd4}
+#gh-home .gh-footer{background:#0e2c22;color:#89b59d;padding:26px 0;font-size:11px}
+#gh-home .gh-footer-inner{display:flex;justify-content:space-between;gap:18px;align-items:center}
+body .rail .navigation .gh-header-tools{display:flex;align-items:center;gap:11px;flex:0 0 auto}
+body .rail .navigation .gh-header-tools .gh-home-link{display:inline-flex;align-items:center;justify-content:center;font:700 11px/1 "DM Sans",sans-serif;color:#3a6e4e;border:1px solid #cddfd1;padding:8px 10px;border-radius:6px;background:#f6fff7;white-space:nowrap}
+body .rail .navigation .gh-header-tools .gh-home-link:hover{background:#e1f4e4}
+body .rail .navigation .gh-header-tools .gh-lang-picker{display:flex;align-items:center;gap:0;border:1px solid #cddfd1;border-radius:6px;overflow:hidden}
+body .rail .navigation .gh-header-tools .gh-lang-picker button{font:700 10px/1 "DM Sans",sans-serif;padding:8px 9px;border:0;background:#f8fcf8;color:#769781}
+body .rail .navigation .gh-header-tools .gh-lang-picker button[aria-pressed="true"]{background:#1b5f3e;color:white}
+@media(max-width:1100px){#gh-home .gh-hero-grid{grid-template-columns:1fr 410px;gap:30px}#gh-home .gh-header-actions{gap:17px}#gh-home .gh-modules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){#gh-home .gh-container{width:calc(100% - 44px)}#gh-home .gh-header{height:66px}#gh-home .gh-hero{padding:56px 0}#gh-home .gh-hero-grid{grid-template-columns:1fr;gap:37px}#gh-home .gh-hero h1{font-size:clamp(43px,9vw,67px)}#gh-home .gh-visual{min-height:420px;aspect-ratio:1.4}#gh-home .gh-header .gh-minilink{display:none}#gh-home .gh-method-grid{grid-template-columns:1fr;gap:30px}#gh-home .gh-section{padding:60px 0}#gh-home .gh-last-inner{align-items:flex-start;flex-direction:column}#gh-home .gh-stages{grid-template-columns:1fr}#gh-home .gh-stage{min-height:auto}#gh-home .gh-stage h3{margin-top:22px}}
+@media(max-width:560px){#gh-home .gh-container{width:calc(100% - 30px)}#gh-home .gh-brand small{font-size:7px}#gh-home .gh-brand{font-size:13px}#gh-home .gh-mark{width:29px;height:29px;font-size:22px}#gh-home .gh-header-actions{gap:7px}#gh-home .gh-header .gh-nav-launch{padding:10px 11px;font-size:10px}#gh-home .gh-langs{padding:2px}#gh-home .gh-lang{padding:6px;font-size:10px}#gh-home .gh-hero h1{font-size:clamp(43px,11vw,58px)}#gh-home .gh-hero-summary{font-size:15px}#gh-home .gh-ctas{gap:9px}#gh-home .gh-button-primary,#gh-home .gh-button-secondary{padding:13px 15px}#gh-home .gh-proof{gap:14px}#gh-home .gh-proof-item{min-width:120px}#gh-home .gh-visual{min-height:340px}#gh-home .gh-vis-head{top:16px;left:17px;right:17px}#gh-home .gh-vis-one{right:8px;top:35%}#gh-home .gh-vis-two{left:8px;bottom:26%}#gh-home .gh-vis-card{padding:9px}#gh-home .gh-vis-card strong{font-size:11px}#gh-home .gh-vis-stat{padding:0 5px}#gh-home .gh-vis-stat strong{font-size:10px}#gh-home .gh-modules,#gh-home .gh-reference-list{grid-template-columns:1fr}#gh-home .gh-module{min-height:205px}#gh-home .gh-module h3{margin-top:25px}#gh-home .gh-method-box{padding:28px 22px}#gh-home .gh-section-title{font-size:35px}#gh-home .gh-footer-inner{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){#gh-home .gh-module{transition:none}}
+</style>
+<div id="gh-home" role="region" aria-label="GROWA · página de inicio">
+<header class="gh-header"><div class="gh-container gh-header-inner">
+<a class="gh-logo" href="#inicio" aria-label="GROWA — Inicio"><span class="gh-mark">G.</span><span class="gh-brand">GROWA<small>EARTH INTELLIGENCE</small></span></a>
+<div class="gh-header-actions">
+<a class="gh-minilink" href="#mision" data-gh="navMission">Nuestra misión</a>
+<a class="gh-minilink" href="#proyectos" data-gh="navCases">Referencias</a>
+<div class="gh-langs" role="group" aria-label="Seleccionar idioma"><button class="gh-lang" data-gh-lang="es" aria-pressed="true" type="button">ES</button><button class="gh-lang" data-gh-lang="en" aria-pressed="false" type="button">EN</button></div>
+<button class="gh-nav-launch" type="button" data-gh-open="panorama"><span data-gh="navLaunch">Explorar la plataforma</span><span aria-hidden="true">↗</span></button>
+</div></div></header>
+<section class="gh-hero"><div class="gh-container gh-hero-grid"><div class="gh-hero-copy">
+<div class="gh-kicker" data-gh="heroEyebrow">GROWA / INTELIGENCIA AGRÍCOLA Y CLIMÁTICA</div>
+<h1><span data-gh="heroA">Entender el territorio.</span><br><em data-gh="heroB">Cultivar el futuro.</em></h1>
+<p class="gh-hero-summary" data-gh="heroDesc">Integramos información productiva, observaciones de la Tierra y contexto climático para comprender cómo cambia la agricultura y apoyar decisiones más eficientes, informadas y resilientes.</p>
+<div class="gh-ctas">
+<button class="gh-button-primary" type="button" data-gh-open="panorama"><span data-gh="ctaExplore">Explorar inteligencia agrícola</span><span>↗</span></button>
+<a href="#mision" class="gh-button-secondary"><span data-gh="ctaMission">Conocer GROWA</span><span>↓</span></a>
+</div>
+<div class="gh-proof">
+<div class="gh-proof-item"><strong data-gh="proofA">2003–2025</strong><small data-gh="proofAD">Series de producción agrícola</small></div>
+<div class="gh-proof-item"><strong data-gh="proofB">Escala municipal</strong><small data-gh="proofBD">Comparación territorial</small></div>
+<div class="gh-proof-item"><strong data-gh="proofC">Datos abiertos</strong><small data-gh="proofCD">Fuentes y trazabilidad</small></div>
+</div></div>
+<div class="gh-visual" aria-label="Esquema conceptual de análisis geoespacial">
+<div class="gh-vis-head"><strong>GROWA / EARTH VIEW</strong><span class="gh-live" data-gh="visActive">PLATAFORMA DE EXPLORACIÓN</span></div>
+<svg class="gh-terrain" viewBox="0 0 480 375" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+<path d="M-20 130 Q85 55 145 105 T275 90 T505 105 M-10 168 Q100 92 160 145 T300 132 T500 142 M-20 208 Q80 138 152 184 T310 184 T500 179 M-20 248 Q90 182 155 227 T315 224 T500 223 M-20 295 Q100 236 182 286 T335 279 T510 267"/>
+<path class="gh-boundary" d="M104 64 L168 42 L225 69 L260 117 L235 168 L278 203 L244 260 L185 292 L125 272 L88 228 L64 166 Z"/>
+<path class="gh-boundary" d="M169 43 L224 28 L287 62 L327 124 L296 178 L236 169 L259 118 L225 70 Z"/>
+<path class="gh-boundary" d="M278 204 L320 180 L360 205 L379 258 L341 307 L288 317 L246 260 Z"/>
+<path class="gh-water" d="M49 33 C79 115 28 155 87 225 C119 269 116 298 144 355"/>
+<circle cx="202" cy="157" r="6"/><circle cx="302" cy="232" r="6"/><circle cx="142" cy="242" r="6"/>
+</svg>
+<div class="gh-vis-card gh-vis-one"><small data-gh="card1Label">01 / OBSERVAR</small><strong data-gh="card1Value">Señales climáticas</strong></div>
+<div class="gh-vis-card gh-vis-two"><small data-gh="card2Label">02 / INTERPRETAR</small><strong data-gh="card2Value">Patrones productivos</strong></div>
+<div class="gh-visual-disclaimer" data-gh="diagramDisclaimer">Visualización conceptual · no representa mediciones reales</div>
+<div class="gh-vis-foot">
+<div class="gh-vis-stat"><small data-gh="visL1">FUENTE PRODUCTIVA</small><strong>DGSIAP / SIAP</strong></div>
+<div class="gh-vis-stat"><small data-gh="visL2">CLIMA</small><strong>NASA POWER</strong></div>
+<div class="gh-vis-stat"><small data-gh="visL3">ANÁLISIS</small><strong data-gh="visL3v">TERRITORIAL</strong></div>
+</div></div>
+</div></section>
+<section class="gh-section" id="mision"><div class="gh-container">
+<div class="gh-eyebrow" data-gh="mEyebrow">01 / NUESTRA MISIÓN</div>
+<h2 class="gh-section-title" data-gh="mTitle">Convertir datos complejos en decisiones comprensibles.</h2>
+<p class="gh-section-intro" data-gh="mDesc">GROWA es una iniciativa de inteligencia territorial orientada a conectar agricultura, clima y desarrollo económico. Su misión es hacer accesible la evidencia científica y estadística para analizar riesgos, detectar oportunidades y orientar decisiones de adaptación.</p>
+<div class="gh-stages">
+<article class="gh-stage"><span class="gh-number">01 — DATA</span><h3 data-gh="stage1">Observar</h3><p data-gh="stage1d">Reunir registros de producción, superficie, rendimientos y observaciones climáticas en una misma estructura de consulta.</p></article>
+<article class="gh-stage"><span class="gh-number">02 — INSIGHT</span><h3 data-gh="stage2">Comprender</h3><p data-gh="stage2d">Identificar tendencias y contrastes territoriales mediante mapas, series históricas y análisis comparables.</p></article>
+<article class="gh-stage"><span class="gh-number">03 — ACTION</span><h3 data-gh="stage3">Decidir</h3><p data-gh="stage3d">Proveer evidencia para evaluar alternativas agrícolas y de gestión del agua, haciendo explícitos los límites de los datos.</p></article>
+</div></div></section>
+<section class="gh-section gh-section-alt" id="plataforma"><div class="gh-container">
+<div class="gh-eyebrow" data-gh="pEyebrow">02 / PLATAFORMA</div><h2 class="gh-section-title" data-gh="pTitle">Un espacio de trabajo. Cuatro perspectivas.</h2>
+<p class="gh-section-intro" data-gh="pDesc">Explore información registrada y herramientas de análisis. Los módulos permiten pasar del panorama territorial al detalle de los cultivos.</p>
+<div class="gh-modules">
+<a class="gh-module" href="#panorama" data-gh-open="panorama"><span class="gh-module-tag">01 / GEO</span><h3 data-gh="mod1">Visor territorial</h3><p data-gh="mod1d">Mapas municipales, capas de producción, indicadores climáticos y evolución temporal.</p><span class="gh-module-more" data-gh="modExplore">Abrir módulo ↗</span></a>
+<a class="gh-module" href="#explorar-cultivos" data-gh-open="explorar-cultivos"><span class="gh-module-tag">02 / CROP</span><h3 data-gh="mod2">Explorador de cultivos</h3><p data-gh="mod2d">Trayectorias de rendimiento, superficies y valor de producción por territorio y cultivo.</p><span class="gh-module-more" data-gh="modExplore">Abrir módulo ↗</span></a>
+<a class="gh-module" href="#ndvi" data-gh-open="ndvi"><span class="gh-module-tag">03 / EARTH</span><h3 data-gh="mod3">Observación satelital</h3><p data-gh="mod3d">Acceso al módulo de seguimiento de vegetación y sus registros satelitales disponibles.</p><span class="gh-module-more" data-gh="modExplore">Abrir módulo ↗</span></a>
+<a class="gh-module" href="#laboratorio" data-gh-open="laboratorio"><span class="gh-module-tag">04 / LAB</span><h3 data-gh="mod4">Laboratorio de datos</h3><p data-gh="mod4d">Comparaciones, series históricas, matrices y herramientas de exportación para investigación.</p><span class="gh-module-more" data-gh="modExplore">Abrir módulo ↗</span></a>
+</div></div></section>
+<section class="gh-section" id="metodo"><div class="gh-container gh-method-grid">
+<div><div class="gh-eyebrow" data-gh="methodEyebrow">03 / CIENCIA Y PROPÓSITO</div><h2 class="gh-section-title" data-gh="methodTitle">De la observación al análisis territorial.</h2>
+<p class="gh-method-desc" data-gh="methodDesc">La plataforma utiliza registros agrícolas DGSIAP/SIAP y productos climáticos de NASA POWER, junto con módulos de observación de vegetación. Distingue datos observados de estimaciones e identifica el ámbito espacial de cada fuente.</p>
+<p class="gh-method-desc" data-gh="methodCaution">La simulación de rotaciones de cultivos y las recomendaciones agronómicas predictivas son líneas de desarrollo: no deben interpretarse como funcionalidades ya validadas del observatorio.</p>
+<a class="gh-method-link" href="https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/" target="_blank" rel="noopener noreferrer" data-gh="methodLink">Conocer el reto NASA Space Apps 2026 ↗</a>
+</div><div class="gh-method-box"><div class="gh-eyebrow">GROWA / RESEARCH FRAMEWORK</div><h3 data-gh="pipeTitle">Una arquitectura orientada a evidencia reproducible.</h3><div class="gh-pipeline">
+<div class="gh-pipe"><span>01</span><strong data-gh="pipe1">Datos agrícolas y georreferenciación</strong></div>
+<div class="gh-pipe"><span>02</span><strong data-gh="pipe2">Variables climáticas y observación de la Tierra</strong></div>
+<div class="gh-pipe"><span>03</span><strong data-gh="pipe3">Indicadores, mapas y comparaciones</strong></div>
+<div class="gh-pipe"><span>04</span><strong data-gh="pipe4">Interpretación de resultados y limitaciones</strong></div>
+</div></div></div></section>
+<section class="gh-section gh-section-alt" id="proyectos"><div class="gh-container">
+<div class="gh-eyebrow" data-gh="refEyebrow">04 / REFERENCIAS INTERNACIONALES</div>
+<h2 class="gh-section-title" data-gh="refTitle">Ideas que transformaron datos espaciales en herramientas útiles.</h2>
+<p class="gh-section-intro" data-gh="refDesc">Estos proyectos recibieron premios globales de NASA Space Apps. Son referencias metodológicas e inspiración de diseño: no son resultados ni reconocimientos de GROWA.</p>
+<div class="gh-reference-list">
+<article class="gh-reference"><div class="gh-reference-top"><span>2024 / BEST USE OF DATA</span><span>01</span></div><h3>Waterwise · GaamaRamma</h3><p data-gh="ref1d">Aplicación de observación terrestre para ayudar a gestionar la disponibilidad de agua agrícola ante sequía y otros riesgos.</p><a target="_blank" rel="noopener noreferrer" href="https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-international-space-apps-challenge-announces-2024-global-winners/" data-gh="refLink">Fuente oficial NASA ↗</a></article>
+<article class="gh-reference"><div class="gh-reference-top"><span>2024 / GALACTIC IMPACT</span><span>02</span></div><h3>NVS-knot</h3><p data-gh="ref2d">Uso de humedad superficial del suelo y evapotranspiración para orientar decisiones sobre condiciones de siembra.</p><a target="_blank" rel="noopener noreferrer" href="https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-international-space-apps-challenge-announces-2024-global-winners/" data-gh="refLink">Fuente oficial NASA ↗</a></article>
+<article class="gh-reference"><div class="gh-reference-top"><span>2025 / BEST USE OF TECHNOLOGY</span><span>03</span></div><h3>SkySense · Twisters</h3><p data-gh="ref3d">Plataforma que combina observaciones satelitales e IA para evaluar condiciones meteorológicas locales y ventanas de menor riesgo.</p><a target="_blank" rel="noopener noreferrer" href="https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-announces-2025-international-space-apps-challenge-global-winners/" data-gh="refLink">Fuente oficial NASA ↗</a></article>
+<article class="gh-reference"><div class="gh-reference-top"><span>2025 / ART & TECHNOLOGY</span><span>04</span></div><h3>Zumorroda-X</h3><p data-gh="ref4d">Experiencia interactiva que enseña cómo agricultores de distintas regiones afrontan calor extremo e inundaciones.</p><a target="_blank" rel="noopener noreferrer" href="https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-announces-2025-international-space-apps-challenge-global-winners/" data-gh="refLink">Fuente oficial NASA ↗</a></article>
+</div><p class="gh-caution" data-gh="refNotice">GROWA es un proyecto independiente. Las referencias son antecedentes externos; su inclusión no implica afiliación, colaboración ni respaldo institucional por parte de NASA.</p>
+</div></section>
+<section class="gh-last"><div class="gh-container gh-last-inner"><div><div class="gh-eyebrow" style="color:#a9d5b5">GROWA / EARTH INTELLIGENCE</div><h2 data-gh="finalTitle">La información tiene más valor cuando se convierte en conocimiento útil.</h2><p data-gh="finalDesc">Explore el territorio, contraste datos y formule mejores preguntas sobre el futuro de la agricultura.</p></div><button class="gh-button-primary" type="button" data-gh-open="panorama"><span data-gh="finalGo">Entrar al observatorio</span><span>↗</span></button></div></section>
+<footer class="gh-footer"><div class="gh-container gh-footer-inner"><span data-gh="footerLeft">© 2026 GROWA · Plataforma independiente de inteligencia territorial</span><span data-gh="footerRight">Información y fuentes abiertas · Uso responsable de datos</span></div></footer>
+</div>
+<script id="gh-home-code">
+(function(){
+"use strict";
+var home=document.getElementById("gh-home");
+if(!home)return;
+var T={
+en:{
+navMission:"Our mission",navCases:"References",navLaunch:"Explore the platform",
+heroEyebrow:"GROWA / AGRICULTURAL & CLIMATE INTELLIGENCE",heroA:"Understand the land.",heroB:"Grow the future.",
+heroDesc:"We combine agricultural records, Earth observations and climate context to understand how farming is changing and support more efficient, informed and resilient decisions.",
+ctaExplore:"Explore agricultural intelligence",ctaMission:"Discover GROWA",
+proofA:"2003–2025",proofAD:"Agricultural production series",proofB:"Municipal scale",proofBD:"Territorial comparisons",proofC:"Open data",proofCD:"Sources and traceability",
+visActive:"EXPLORATION PLATFORM",card1Label:"01 / OBSERVE",card1Value:"Climate signals",card2Label:"02 / INTERPRET",card2Value:"Production patterns",diagramDisclaimer:"Conceptual illustration · not actual measurements",visL1:"AGRICULTURAL SOURCE",visL2:"CLIMATE",visL3:"ANALYSIS",visL3v:"TERRITORIAL",
+mEyebrow:"01 / OUR MISSION",mTitle:"Turn complex data into decisions people can understand.",
+mDesc:"GROWA is a territorial intelligence initiative connecting agriculture, climate and economic development. Our mission is to make scientific and statistical evidence accessible for assessing risks, identifying opportunities and guiding adaptation.",
+stage1:"Observe",stage1d:"Bring together production, cultivated area, yield and climate observations in a single environment for exploration.",
+stage2:"Understand",stage2d:"Identify trends and territorial differences using maps, historical series and comparable analysis.",
+stage3:"Decide",stage3d:"Provide evidence to evaluate farming and water-management alternatives while making data limitations explicit.",
+pEyebrow:"02 / PLATFORM",pTitle:"One workspace. Four perspectives.",pDesc:"Explore recorded information and analytical tools. Move from the territorial picture to detailed crop-level evidence.",
+mod1:"Territorial viewer",mod1d:"Municipal maps, production layers, climate indicators and changes over time.",
+mod2:"Crop explorer",mod2d:"Trends in yield, harvested area and production value across territories and crops.",
+mod3:"Satellite observations",mod3d:"Access the vegetation-monitoring module and its available satellite observations.",
+mod4:"Data laboratory",mod4d:"Comparisons, historical series, data matrices and export tools for research.",
+modExplore:"Open module ↗",
+methodEyebrow:"03 / SCIENCE & PURPOSE",methodTitle:"From Earth observation to territorial analysis.",
+methodDesc:"The platform combines DGSIAP/SIAP agricultural records, NASA POWER climate products and vegetation monitoring modules. It distinguishes observed figures from estimates and documents the spatial coverage of each source.",
+methodCaution:"Crop-rotation simulation and predictive agronomic recommendations are areas of ongoing development, not yet validated features of this observatory.",
+methodLink:"Explore the NASA Space Apps 2026 challenge ↗",pipeTitle:"An architecture built for reproducible evidence.",pipe1:"Agricultural data and georeferencing",pipe2:"Climate variables and Earth observation",pipe3:"Indicators, maps and comparisons",pipe4:"Interpretation of findings and limitations",
+refEyebrow:"04 / INTERNATIONAL REFERENCES",refTitle:"Ideas that turned space data into practical tools.",
+refDesc:"These projects received NASA Space Apps global awards. They are methodological and design references, not GROWA achievements or recognitions.",
+ref1d:"Earth-observation tools to help farmers manage water availability amid drought and other risks.",
+ref2d:"Surface soil moisture and evapotranspiration data to support decisions about planting conditions.",
+ref3d:"A platform combining satellite observations and AI to assess hyperlocal weather conditions and lower-risk time windows.",
+ref4d:"An interactive experience teaching how farmers worldwide adapt to extreme heat and flooding.",
+refLink:"Official NASA source ↗",refNotice:"GROWA is an independent project. These examples are external references; their inclusion does not imply NASA affiliation, collaboration or endorsement.",
+finalTitle:"Information becomes more valuable when it turns into useful knowledge.",
+finalDesc:"Explore your territory, compare evidence and ask better questions about the future of agriculture.",finalGo:"Enter the observatory",
+footerLeft:"© 2026 GROWA · Independent territorial intelligence platform",footerRight:"Open information and sources · Responsible data use"
+}};
+var storageKey="growa-language";
+var current="es";
+try{current=localStorage.getItem(storageKey)==="en"?"en":"es"}catch(e){}
+function applyHomeLanguage(){
+home.querySelectorAll("[data-gh]").forEach(function(node){var key=node.getAttribute("data-gh"); if(!node.hasAttribute("data-gh-es"))node.setAttribute("data-gh-es",node.textContent);node.textContent=current==="en"?(T.en[key]||node.getAttribute("data-gh-es")):node.getAttribute("data-gh-es")});
+document.querySelectorAll("[data-gh-lang]").forEach(function(button){button.setAttribute("aria-pressed",button.getAttribute("data-gh-lang")===current?"true":"false")});
+home.setAttribute("aria-label",current==="en"?"GROWA · home":"GROWA · página de inicio");
+document.documentElement.lang=current;
+}
+var uiESEN={
+"Inicio":"Home","Panorama":"Overview","Territorio":"Territory","Cultivos":"Crops","Agua":"Water","NDVI satelital":"Satellite NDVI","Laboratorio":"Laboratory","Metodología":"Methodology","Menú":"Menu",
+"OBSERVATORIO AGRÍCOLA Y TERRITORIAL":"AGRICULTURAL & TERRITORIAL OBSERVATORY","OBSERVATORIO AGRÍCOLA":"AGRICULTURAL OBSERVATORY",
+"GROWA · CENTRO DE INFORMACIÓN TERRITORIAL":"GROWA · TERRITORIAL INFORMATION CENTER",
+"Investigación y evidencia para la gestión pública":"Research and evidence for public decision-making",
+"PLATAFORMA INDEPENDIENTE · MÉXICO":"INDEPENDENT PLATFORM · MEXICO",
+"Saltar al contenido principal":"Skip to main content","Herramientas":"Tools","Buscar en Sinaloa o México":"Search in Sinaloa or Mexico",
+"Preparando información…":"Preparing information…","SISTEMA DE INFORMACIÓN AGRÍCOLA":"AGRICULTURAL INFORMATION SYSTEM",
+"Cifras nominales":"Nominal figures","Preparando serie histórica…":"Preparing historical series…",
+"EXPLORADOR":"EXPLORER","Panorama estatal":"State overview","Índice":"Index","☆ Guardar vista":"☆ Save view",
+"Más acciones":"More actions","Abrir análisis":"Open analysis","Contraer apartados":"Collapse sections","Ampliar ⛶":"Expand ⛶",
+"Monitoreo territorial de la producción agrícola":"Territorial agricultural production monitoring",
+"01 — ÁREA DE ESTUDIO":"01 — STUDY AREA","Cargando catálogo…":"Loading catalog…","COMPARAR CON":"COMPARE WITH",
+"Promedio estatal ponderado":"Weighted state average","02 — CAPAS TERRITORIALES":"02 — TERRITORIAL LAYERS",
+"RENDIMIENTO":"YIELD","Rendimiento":"Yield","Rendimiento agrícola":"Agricultural yield","Clima NASA POWER":"NASA POWER climate",
+"Punto de referencia · serie diaria":"Reference point · daily series",
+"Producción / superficie cosechada":"Production / harvested area","Hectáreas registradas":"Recorded hectares",
+"03 — PARCELAS EXTERNAS":"03 — EXTERNAL FIELD POLYGONS",
+"Importar polígonos de parcela":"Import field polygons","GeoJSON local · solo geometrías":"Local GeoJSON · geometry only",
+"Ninguna parcela cargada":"No field polygons loaded","Preparando series productivas…":"Preparing production series…",
+"CONSULTANDO":"LOADING","Punto de referencia municipal":"Municipal reference point",
+"CAPA CLIMÁTICA":"CLIMATE LAYER","Precipitación anual":"Annual precipitation","Temperatura media":"Mean temperature",
+"Evapotranspiración de referencia":"Reference evapotranspiration","Déficit de presión de vapor":"Vapor pressure deficit",
+"Humedad relativa":"Relative humidity","Balance hídrico P − ET0":"Water balance P − ET0","TEMPERATURA MEDIA":"MEAN TEMPERATURE",
+"°C · media anual":"°C · annual average","mm · acumulado anual":"mm · annual total","HUMEDAD REL.":"RELATIVE HUMIDITY",
+"Media anual":"Annual average","RADIACIÓN SOLAR":"SOLAR RADIATION","MJ/m²/día · promedio":"MJ/m²/day · average",
+"Solicitando observaciones diarias…":"Fetching daily observations…","Reintentar":"Retry",
+"Maíz grano · mapa de rendimiento":"Grain maize · yield map","▤ Ver balance territorial":"▤ View territorial balance",
+"PERFIL DEL CULTIVO":"CROP PROFILE","RENDIMIENTO OBSERVADO":"OBSERVED YIELD",
+"Serie municipal · datos oficiales":"Municipal series · official data",
+"FUENTE ↗":"SOURCE ↗","T MEDIA":"MEAN T","Acumulado anual":"Annual total",
+"T MÍN / MÁX":"MIN / MAX T","°C · medias de extremos diarios":"°C · mean daily extremes",
+"VIENTO / HUMEDAD":"WIND / HUMIDITY","% humedad relativa":"% relative humidity",
+"ET0 REFERENCIA":"REFERENCE ET0","Estimación del paquete climático":"Climate dataset estimate",
+"DÉFICIT DE VAPOR":"VAPOR DEFICIT","VPD medio anual":"Mean annual VPD",
+"Reanálisis NASA POWER a nivel de rejilla, no estación ni parcela.":"NASA POWER gridded reanalysis; not a station or field observation.",
+"LEYENDA DEL INDICADOR":"INDICATOR LEGEND","BAJO / 0":"LOW / 0",
+"OPACIDAD DE CAPAS":"LAYER OPACITY","TERRITORIOS":"TERRITORIES",
+"ORDENADOS POR INDICADOR":"SORTED BY INDICATOR","Leyendo datos…":"Reading data…",
+"Geometría municipal generalizada":"Generalized municipal geometry","18 unidades":"18 units",
+"AÑO DE CORTE":"REFERENCE YEAR",
+"Los polígonos coloreados representan municipios, no parcelas ni índices NDVI":"Colored polygons represent municipalities, not individual fields or NDVI values",
+"Historial productivo":"Production history","Comparación municipal · 2003–2025":"Municipal comparison · 2003–2025",
+"Valor bruto":"Gross value","Superficie":"Area","Clima NASA":"NASA climate","Referencia":"Reference",
+"23 cierres agrícolas · DGSIAP":"23 annual agricultural reports · DGSIAP",
+"Las observaciones faltantes permanecen como huecos; sin interpolación":"Missing observations remain blank; no interpolation",
+"↓ Exportar serie":"↓ Export series","EXPLORAR EL OBSERVATORIO":"EXPLORE THE OBSERVATORY",
+"Una plataforma. Múltiples perspectivas.":"One platform. Multiple perspectives.",
+"Acceda directamente a las herramientas de información y análisis.":"Go straight to information and analysis tools.",
+"Indicadores municipales, mapas y comparaciones geográficas.":"Municipal indicators, maps and geographic comparisons.",
+"Explorar territorios":"Explore territories","Superficies, producción, cambios y especialización agrícola.":"Area, production, changes and crop specialization.",
+"Consultar cultivos":"Explore crops","03 / INVESTIGACIÓN":"03 / RESEARCH",
+"Laboratorio de datos":"Data laboratory","Series, matrices, descomposición y exportaciones reproducibles.":"Time series, matrices, decomposition and reproducible exports.",
+"Iniciar análisis":"Start analysis","EXPLORACIÓN DE DATOS":"DATA EXPLORATION","Parámetros":"Parameters",
+"Defina el ámbito y la variable para consultar las series oficiales.":"Choose an area and variable to explore official series.",
+"01. Territorio":"01. Territory","02. Cultivo":"02. Crop","03. Indicador":"03. Indicator",
+"Superficie sembrada":"Sown area","Superficie siniestrada":"Damaged crop area","04. Año de referencia":"04. Reference year",
+"Limpiar filtros":"Clear filters","Copiar enlace":"Copy link","FICHA TÉCNICA":"TECHNICAL DETAILS",
+"Fuente: DGSIAP":"Source: DGSIAP","Serie: 2003–2025":"Series: 2003–2025",
+"18 municipios históricos":"18 historical municipalities","Integridad: comprobando datos…":"Integrity: checking data…",
+"HERRAMIENTAS":"TOOLS","Recursos hídricos":"Water resources","ESTADÍSTICA MUNICIPAL":"MUNICIPAL STATISTICS",
+"Producción agrícola":"Agricultural production","Consulta territorial de producción, superficie y especialización de cultivos.":"Territorial analysis of production, area and crop specialization.",
+"CORTE HISTÓRICO":"HISTORICAL PERIOD","Exportar serie CSV":"Export CSV series","Preparando selección…":"Preparing selection…",
+"Serie DGSIAP":"DGSIAP series","VALOR DE LA SELECCIÓN":"SELECTED VALUE","Procesando registros":"Processing records",
+"VARIACIÓN INTERANUAL":"YEAR-OVER-YEAR CHANGE","Comparación con el año anterior":"Compared with the prior year",
+"CULTIVOS REGISTRADOS":"RECORDED CROPS","En el corte seleccionado":"In the selected year",
+"MUNICIPIOS CON REGISTRO":"MUNICIPALITIES WITH RECORDS","Dentro del universo histórico":"Within the historical coverage",
+"01 / SERIE TEMPORAL":"01 / TIME SERIES","Evolución histórica":"Historical evolution","Años 2003–2025":"Years 2003–2025",
+"Gráfica":"Chart","Tabla":"Table","Cargando serie estadística…":"Loading statistical series…",
+"Indicadores en unidades originales":"Indicators in original units","02 / PARTICIPACIÓN":"02 / COMPOSITION",
+"Composición":"Composition","Distribución del corte":"Selected-year distribution",
+"Por municipio":"By municipality","Por cultivo":"By crop","Calculando distribución…":"Computing distribution…",
+"Exportar CSV ↓":"Export CSV ↓","03 / MATRIZ DE DATOS":"03 / DATA MATRIX",
+"Registros de producción":"Production records","Descargar registros ↓":"Download records ↓",
+"BUSCAR EN LOS RESULTADOS":"SEARCH RESULTS","ORDENAR POR":"SORT BY","Mayor valor":"Highest value",
+"Mayor superficie cosechada":"Largest harvested area","Mayor superficie sembrada":"Largest sown area",
+"Mayor superficie siniestrada":"Largest damaged area","Municipio A–Z":"Municipality A–Z",
+"Cultivo A–Z":"Crop A–Z","Municipio":"Municipality","Cultivo":"Crop",
+"MUNICIPIO":"MUNICIPALITY","CULTIVO":"CROP","Superficie cosechada":"Harvested area",
+"Valor de producción":"Production value","Millones de pesos nominales":"Millions of nominal pesos",
+"CIERRE 2025":"2025 REPORT","Descargar CSV ↗":"Download CSV ↗","↓ Descargar CSV":"↓ Download CSV",
+"Analizar en Laboratorio":"Analyze in Laboratory","Todos":"All","Puntos municipales, no parcelas":"Municipal points, not individual fields",
+"Producción":"Production","Agroclima":"Agroclimate","País":"Country","Estado":"State",
+"Exportar":"Export","Descargar":"Download","Año":"Year","Periodo":"Period",
+"Seleccionar municipio":"Select municipality","Seleccionar cultivo":"Select crop",
+"Activos":"Active","Sin datos":"No data","Ver detalle":"View details","Resumen":"Summary",
+"Datos cargados · DGSIAP":"Data loaded · DGSIAP",
+"No se pudo cargar la serie":"Unable to load series"
+};
+var originals=new WeakMap();
+var attrs=["title","placeholder","aria-label"];
+function translatedValue(v){if(typeof v!=="string")return v;var t=v.trim();return uiESEN[t]||null}
+function translateNode(node){
+if(node.nodeType===3){
+var parent=node.parentElement;if(!parent||parent.closest("#gh-home,script,style,noscript,code,svg"))return;
+var now=node.nodeValue;var original=originals.get(node);
+if(original===undefined){original=now; originals.set(node,original)}
+else if(current==="en"&&now!==original&&now!==original.replace(original.trim(),uiESEN[original.trim()]||original.trim())){original=now;originals.set(node,original)}
+var replacement=translatedValue(original);
+var desired=current==="en"&&replacement?original.replace(original.trim(),replacement):original;
+if(now!==desired)node.nodeValue=desired;return;
+}
+if(node.nodeType!==1)return;
+if(node.id==="gh-home"||node.closest("#gh-home"))return;
+if(["SCRIPT","STYLE","NOSCRIPT","SVG","CODE"].includes(node.tagName))return;
+for(var a=0;a<attrs.length;a++){var k=attrs[a],v=node.getAttribute(k);if(!v)continue;
+var origKey="data-gh-original-"+k;if(!node.hasAttribute(origKey))node.setAttribute(origKey,v);
+var orig=node.getAttribute(origKey),tr=translatedValue(orig);
+var desired=current==="en"&&tr?tr:orig;if(v!==desired)node.setAttribute(k,desired);
+}
+for(var child=node.firstChild;child;child=child.nextSibling)translateNode(child);
+}
+var scheduled=false;
+function translateSite(){if(!document.body)return;var root=document.querySelector(".shell");if(root)translateNode(root);
+var nav=document.querySelector(".gh-header-tools");
+if(nav)translateNode(nav);
+}
+var observer=new MutationObserver(function(records){
+if(current!=="en")return;
+if(scheduled)return;scheduled=true;
+requestAnimationFrame(function(){scheduled=false;translateSite()});
+});
+function setLang(lang){current=lang==="en"?"en":"es";try{localStorage.setItem(storageKey,current)}catch(e){}
+applyHomeLanguage();translateSite();window.dispatchEvent(new CustomEvent("growa:language-change",{detail:{language:current}}));
+}
+function showHome(on,push){
+home.hidden=!on;document.body.classList.toggle("gh-home-active",!!on);
+if(on){home.scrollTop=0;if(push&&location.hash!=="#inicio")history.pushState({ghHome:true},"","#inicio");}
+else if(location.hash==="#inicio"){history.replaceState(null,"",location.pathname+location.search+"#panorama");}
+}
+function openModule(target){
+showHome(false,false);
+if(target==="ndvi"){var satellite=document.getElementById("growa-ndvi-nav");if(satellite)satellite.click();return}
+if(typeof window.GrowaNavigate==="function")window.GrowaNavigate(target);
+else location.hash="#"+target;
+document.querySelector(".gh-home-link")?.setAttribute("aria-current","false");
+}
+function init(){
+var nav=document.getElementById("ag-main-nav");
+if(nav&&!nav.querySelector(".gh-header-tools")){
+var item=document.createElement("div");item.className="gh-header-tools";
+item.innerHTML='<button type="button" class="gh-home-link">Inicio</button><div class="gh-lang-picker" role="group" aria-label="Idioma / Language"><button type="button" data-gh-lang="es" aria-pressed="true">ES</button><button type="button" data-gh-lang="en" aria-pressed="false">EN</button></div>';
+nav.appendChild(item);item.querySelector(".gh-home-link").addEventListener("click",function(){showHome(true,true)});
+}
+var initialHash=location.hash;
+showHome(!initialHash||initialHash==="#inicio",false);
+if(!initialHash)history.replaceState({ghHome:true},"",location.pathname+location.search+"#inicio");
+document.querySelectorAll("[data-gh-lang]").forEach(function(b){b.addEventListener("click",function(){setLang(b.getAttribute("data-gh-lang"))})});
+document.querySelectorAll("[data-gh-open]").forEach(function(b){b.addEventListener("click",function(e){e.preventDefault();openModule(b.getAttribute("data-gh-open"))})});
+document.querySelector(".navigation")?.addEventListener("click",function(e){if(e.target.closest("[data-tab],#growa-ndvi-nav"))showHome(false,false)},true);
+window.addEventListener("hashchange",function(){if(location.hash==="#inicio")showHome(true,false);else if(!["#mision","#proyectos","#metodo","#plataforma"].includes(location.hash))showHome(false,false)});
+window.addEventListener("popstate",function(){if(location.hash==="#inicio")showHome(true,false);else if(location.hash&& !["#mision","#proyectos","#metodo","#plataforma"].includes(location.hash))showHome(false,false)});
+var viewObserver=new MutationObserver(function(){if(!home.hidden&&location.hash!=="#inicio"&&!["#mision","#proyectos","#metodo","#plataforma"].includes(location.hash))history.replaceState({ghHome:true},"",location.pathname+location.search+"#inicio")});
+viewObserver.observe(document.body,{attributes:true,attributeFilter:["data-view"]});
+setLang(current);
+observer.observe(document.querySelector(".shell")||document.body,{subtree:true,childList:true,characterData:true});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+<!-- GROWA HOME 2026 END -->
 </body>
 </html>
