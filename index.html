@@ -3105,6 +3105,7 @@ body .rail .navigation .gh-header-tools .gh-lang-picker button[aria-pressed="tru
 @media(max-width:850px){#gh-home .gh-container{width:calc(100% - 44px)}#gh-home .gh-header{height:66px}#gh-home .gh-hero{padding:56px 0}#gh-home .gh-hero-grid{grid-template-columns:1fr;gap:37px}#gh-home .gh-hero h1{font-size:clamp(43px,9vw,67px)}#gh-home .gh-visual{min-height:420px;aspect-ratio:1.4}#gh-home .gh-header .gh-minilink{display:none}#gh-home .gh-method-grid{grid-template-columns:1fr;gap:30px}#gh-home .gh-section{padding:60px 0}#gh-home .gh-last-inner{align-items:flex-start;flex-direction:column}#gh-home .gh-stages{grid-template-columns:1fr}#gh-home .gh-stage{min-height:auto}#gh-home .gh-stage h3{margin-top:22px}}
 @media(max-width:560px){#gh-home .gh-container{width:calc(100% - 30px)}#gh-home .gh-brand small{font-size:7px}#gh-home .gh-brand{font-size:13px}#gh-home .gh-mark{width:29px;height:29px;font-size:22px}#gh-home .gh-header-actions{gap:7px}#gh-home .gh-header .gh-nav-launch{padding:10px 11px;font-size:10px}#gh-home .gh-langs{padding:2px}#gh-home .gh-lang{padding:6px;font-size:10px}#gh-home .gh-hero h1{font-size:clamp(43px,11vw,58px)}#gh-home .gh-hero-summary{font-size:15px}#gh-home .gh-ctas{gap:9px}#gh-home .gh-button-primary,#gh-home .gh-button-secondary{padding:13px 15px}#gh-home .gh-proof{gap:14px}#gh-home .gh-proof-item{min-width:120px}#gh-home .gh-visual{min-height:340px}#gh-home .gh-vis-head{top:16px;left:17px;right:17px}#gh-home .gh-vis-one{right:8px;top:35%}#gh-home .gh-vis-two{left:8px;bottom:26%}#gh-home .gh-vis-card{padding:9px}#gh-home .gh-vis-card strong{font-size:11px}#gh-home .gh-vis-stat{padding:0 5px}#gh-home .gh-vis-stat strong{font-size:10px}#gh-home .gh-modules,#gh-home .gh-reference-list{grid-template-columns:1fr}#gh-home .gh-module{min-height:205px}#gh-home .gh-module h3{margin-top:25px}#gh-home .gh-method-box{padding:28px 22px}#gh-home .gh-section-title{font-size:35px}#gh-home .gh-footer-inner{flex-direction:column;align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){#gh-home .gh-module{transition:none}}
+@media(max-width:650px){body .rail .navigation .gh-header-tools .gh-home-link{display:none!important}body .rail .navigation .gh-header-tools{gap:0}body .rail .navigation .gh-header-tools .gh-lang-picker button{padding:8px 7px}}
 </style>
 <div id="gh-home" role="region" aria-label="GROWA · página de inicio">
 <header class="gh-header"><div class="gh-container gh-header-inner">
@@ -3383,6 +3384,8 @@ var item=document.createElement("div");item.className="gh-header-tools";
 item.innerHTML='<button type="button" class="gh-home-link">Inicio</button><div class="gh-lang-picker" role="group" aria-label="Idioma / Language"><button type="button" data-gh-lang="es" aria-pressed="true">ES</button><button type="button" data-gh-lang="en" aria-pressed="false">EN</button></div>';
 nav.appendChild(item);item.querySelector(".gh-home-link").addEventListener("click",function(){showHome(true,true)});
 }
+var mainBrand=document.querySelector(".rail .brand");
+if(mainBrand)mainBrand.addEventListener("click",function(e){e.preventDefault();showHome(true,true)});
 var initialHash=location.hash;
 showHome(!initialHash||["#inicio","#mision","#proyectos","#metodo","#plataforma"].includes(initialHash),false);
 if(!initialHash)history.replaceState({ghHome:true},"",location.pathname+location.search+"#inicio");
