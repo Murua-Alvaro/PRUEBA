@@ -118,7 +118,7 @@ try{
  ]);
  if(Y.length!==32*23)throw Error("State-years incomplete: "+Y.length+" vs 736");
  if(C.length<25000||M.length<30000)throw Error("Suspicious aggregation sizes "+C.length+"/"+M.length);
- const meta={version:1,source:"DGSIAP Datos Abiertos Agrícola 2003–2025",sourceUrl:"https://nube.agricultura.gob.mx/datosAbiertos/Agricola.php",generated:DATE,years:[START,END],states:stateNames,crops:catalog,counts:{rows:Object.values(sourceRowCount).reduce((a,b)=>a+b,0),stateYears:Y.length,stateCropYears:C.length,municipalityYears:M.length,states:32,crops:catalog.length},units:{value:"MDP nominales",harvest:"hectáreas",production:"toneladas, solo registros de Tonelada",irrigation:"superficie cosechada por modalidad de riego"},2020_note:"Cifras 2020–2021 sujetas a cobertura y metodología originales"};
+ const meta={version:1,source:"DGSIAP Datos Abiertos Agrícola 2003–2025",sourceUrl:"https://nube.agricultura.gob.mx/datosAbiertos/Agricola.php",generated:DATE,years:[START,END],states:stateNames,crops:catalog,counts:{rows:Object.values(sourceRowCount).reduce((a,b)=>a+b,0),stateYears:Y.length,stateCropYears:C.length,municipalityYears:M.length,states:32,crops:catalog.length},units:{value:"MDP nominales",harvest:"hectáreas",production:"toneladas, solo registros de Tonelada",irrigation:"superficie cosechada por modalidad de riego"},note2020:"Cifras 2020–2021 sujetas a cobertura y metodología originales"};
  const payload={meta,Y,C,M};
  const raw=Buffer.from(JSON.stringify(payload));
  const gz=gzipSync(raw,{level:9});
