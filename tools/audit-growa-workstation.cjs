@@ -36,5 +36,25 @@ if(source){
  ok(source.sinaloa.annual?.length===414,"Sinaloa annual climate observations");
  ok(source.sinaloa.monthly?.length===4968,"Sinaloa monthly climate observations");
 }
+// V7 is a presentation layer only; verify it styles the actual existing components.
+const designStart=html.indexOf("/* GROWA VISUAL SYSTEM V7");
+const designEnd=html.indexOf("</style>",designStart);
+const design=designStart>=0&&designEnd>designStart?html.slice(designStart,designEnd):"";
+ok(!!design,"V7 institutional design stylesheet installed");
+for(const [label,selector]of [
+ ["navigation",".rail .nav-link"],["explorer",".eo-selection select"],["production results",".ea-product>.ea-metrics"],
+ ["satellite controls",".eo-map-controls button"],["historical chart",".eo-chart-controls button"],
+ ["analytical cards",".gw-research-card"]]){
+ ok(design.includes(selector),"V7 designed "+label);
+}
+ok(design.includes("@media(max-width:800px)")&&design.includes("@media(max-width:470px)"),"V7 mobile breakpoints");
+function contrast(a,b){
+ const channel=x=>{const n=parseInt(x,16)/255;return n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4);};
+ const luminance=s=>{const [r,g,bl]=s.slice(1).match(/.{2}/g).map(channel);return .2126*r+.7152*g+.0722*bl;};
+ return (Math.max(luminance(a),luminance(b))+.05)/(Math.min(luminance(a),luminance(b))+.05);
+}
+ok(contrast("#193b2a","#ffffff")>=4.5&&contrast("#647c6c","#ffffff")>=4.5
+ &&contrast("#146345","#ffffff")>=4.5,"Primary text, secondary text and link contrast >= 4.5:1");
+
 console.log("RESULT:",checked-failed,"passed,",failed,"failed");
 if(failed)process.exitCode=1;
