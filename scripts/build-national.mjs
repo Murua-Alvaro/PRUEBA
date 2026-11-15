@@ -4,13 +4,14 @@
  * compressed payload. No invented observations. Derived data is generated only
  * during the Render build; the raw public sources are not committed to Git.
  */
-import {readFileSync,writeFileSync,existsSync} from "node:fs";
+import {writeFileSync,existsSync,mkdirSync} from "node:fs";
 import {gzipSync} from "node:zlib";
 import {createHash} from "node:crypto";
 
 const START=2003,END=2025;
 const PATH="data/growa-national-generated.flag";
-const FILE="index.html";
+const TARGET="dist/data/growa-national-v1.json.gz";
+const TARGET_META="dist/data/growa-national-v1-meta.json";
 const SOURCE="https://nube.agricultura.gob.mx/index.php?ANIO={year}&view=10AE434F-A2158368-A120BC5A-EDF4AFAA";
 const NAME="GROWA national open-data observatory";
 const DATE="2026-11-15";
@@ -25,7 +26,7 @@ if(existsSync(PATH)){console.log("[GROWA national] Aggregated payload already bu
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const value=v=>{const x=Number(String(v??"").trim().replace(/,/g,""));return Number.isFinite(x)?x:0};
 const rnd=(v,d=2)=>Number(v.toFixed(d));
-const yearly=new Map(),cropRows=new Map(),muniRows=new Map(),cropNames=new Set(),sources=[],stats={};
+const yearly=new Map(),cropRows=new Map(),muniRows=new Map(),muniCropRows=new Map(),cropNames=new Set(),sources=[],stats={};
 const sourceRowCount={};
 const safeId=s=>String(s).trim();
 const parseLine=line=>{
@@ -65,13 +66,15 @@ function parseYear(bytes,year){
   const tonHa=at(row,"Nomunidad").trim().toLowerCase()==="tonelada"?harvest:0;
   const irrig=at(row,"Nommodalidad").trim().toLowerCase()==="riego"?harvest:0;
   const rain=at(row,"Nommodalidad").trim().toLowerCase()==="temporal"?harvest:0;
-  const k1=sid+"|"+year,k2=k1+"|"+crop,k3=k1+"|"+mid;
+  const k1=sid+"|"+year,k2=k1+"|"+crop,k3=k1+"|"+mid,k4=k3+"|"+crop;
   const A=keyParts(yearly,k1,()=>({sid,year,val:0,harvest:0,sown:0,lost:0,volume:0,tonHa:0,irrig:0,rain:0,records:0,crops:new Set(),munis:new Set()}));
   A.val+=val;A.harvest+=harvest;A.sown+=sown;A.lost+=lost;A.volume+=volume;A.tonHa+=tonHa;A.irrig+=irrig;A.rain+=rain;A.records++;A.crops.add(crop);A.munis.add(mid);
   const C=keyParts(cropRows,k2,()=>({sid,year,crop,val:0,harvest:0,sown:0,lost:0,volume:0,tonHa:0,irrig:0,rain:0,records:0}));
   C.val+=val;C.harvest+=harvest;C.sown+=sown;C.lost+=lost;C.volume+=volume;C.tonHa+=tonHa;C.irrig+=irrig;C.rain+=rain;C.records++;
   const M=keyParts(muniRows,k3,()=>({sid,year,mid,name:muni,val:0,harvest:0,sown:0,records:0}));
   M.val+=val;M.harvest+=harvest;M.sown+=sown;M.records++;
+  const MC=keyParts(muniCropRows,k4,()=>({sid,year,mid,name:muni,crop,val:0,harvest:0,sown:0,volume:0,tonHa:0,irrig:0,rain:0,records:0}));
+  MC.val+=val;MC.harvest+=harvest;MC.sown+=sown;MC.volume+=volume;MC.tonHa+=tonHa;MC.irrig+=irrig;MC.rain+=rain;MC.records++;
   cropNames.add(crop);count++;recordsInYear++;
  }
  if(invalid>0)console.warn("[GROWA national] Source "+year+": "+invalid+" invalid-width or invalid-value lines skipped");
@@ -119,22 +122,24 @@ try{
  const M=Array.from(muniRows.values()).sort((a,b)=>a.sid-b.sid||a.year-b.year||a.mid-b.mid).map(x=>[
   x.sid,x.year,x.mid,x.name,rnd(x.val/divisor),rnd(x.harvest,1),rnd(x.sown,1),x.records
  ]);
+ const MC=Array.from(muniCropRows.values()).sort((a,b)=>a.sid-b.sid||a.year-b.year||a.mid-b.mid||cropIx.get(a.crop)-cropIx.get(b.crop)).map(x=>[
+  x.sid,x.year,x.mid,cropIx.get(x.crop),rnd(x.val/divisor),rnd(x.harvest,1),
+  rnd(x.sown,1),rnd(x.volume,1),rnd(x.tonHa,1),rnd(x.irrig,1),rnd(x.rain,1),x.records
+ ]);
  if(Y.length!==32*23)throw Error("State-years incomplete: "+Y.length+" vs 736");
  if(C.length<25000||M.length<30000)throw Error("Suspicious aggregation sizes "+C.length+"/"+M.length);
- const meta={version:1,source:"DGSIAP Datos Abiertos Agrícola 2003–2025",sourceUrl:"https://nube.agricultura.gob.mx/datosAbiertos/Agricola.php",generated:DATE,years:[START,END],states:stateNames,crops:catalog,counts:{rows:Object.values(sourceRowCount).reduce((a,b)=>a+b,0),stateYears:Y.length,stateCropYears:C.length,municipalityYears:M.length,states:32,crops:catalog.length},units:{value:"MDP nominales",harvest:"hectáreas",production:"toneladas, solo registros de Tonelada",irrigation:"superficie cosechada por modalidad de riego"},note2020:"Cifras 2020–2021 sujetas a cobertura y metodología originales"};
- const payload={meta,Y,C,M};
+ const meta={version:1,source:"DGSIAP Datos Abiertos Agrícola 2003–2025",sourceUrl:"https://nube.agricultura.gob.mx/datosAbiertos/Agricola.php",generated:DATE,years:[START,END],states:stateNames,crops:catalog,counts:{rows:Object.values(sourceRowCount).reduce((a,b)=>a+b,0),stateYears:Y.length,stateCropYears:C.length,municipalityYears:M.length,municipalityCropYears:MC.length,states:32,crops:catalog.length},units:{value:"MDP nominales",harvest:"hectáreas",production:"toneladas, solo registros de Tonelada",irrigation:"superficie cosechada por modalidad de riego"},note2020:"Cifras 2020–2021 sujetas a cobertura y metodología originales"};
+ const payload={meta,Y,C,M,MC};
  const raw=Buffer.from(JSON.stringify(payload));
  const gz=gzipSync(raw,{level:9});
- const b64=gz.toString("base64");
- console.log("[GROWA national] Aggregate dimensions state-years:",Y.length,"crop-years:",C.length,"municipality-years:",M.length,"crops:",catalog.length);
- console.log("[GROWA national] Data size raw:",raw.length,"gzip:",gz.length,"base64:",b64.length);
- let html=readFileSync(FILE,"utf8");
- const tag='<script id="growa-national-official-data" type="text/plain">'+b64+'</script>';
- if(html.includes('id="growa-national-official-data"'))throw Error("Payload already present in source index.html");
- html=html.replace("</body>",tag+"\n</body>");
- writeFileSync(FILE,html);
+
+ console.log("[GROWA national] Aggregate dimensions state-years:",Y.length,"crop-years:",C.length,"municipality-years:",M.length,"municipality-crop-years:",MC.length,"crops:",catalog.length);
+ console.log("[GROWA national] Data size raw:",raw.length,"gzip:",gz.length);
+ mkdirSync("dist/data",{recursive:true});
+ writeFileSync(TARGET,gz);
+ writeFileSync(TARGET_META,JSON.stringify({source:meta.source,created:DATE,counts:meta.counts,years:meta.years,units:meta.units,checksum:createHash("sha256").update(gz).digest("hex")},null,2));
  writeFileSync(PATH,JSON.stringify({created:DATE,counts:meta.counts,checksum:createHash("sha256").update(gz).digest("hex"),sources},null,2));
- console.log("[GROWA national] Official data embedded successfully into static HTML.");
+ console.log("[GROWA national] All-state data saved to static publish directory as compressed standalone resource.");
 }catch(err){
  console.error("[GROWA national] FATAL",String(err.stack||err).slice(0,1800));
  process.exit(1);
