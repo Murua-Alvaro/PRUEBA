@@ -2826,7 +2826,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   mapLegend.innerHTML='<span class="v8-note-dot"></span><div><strong>Tamaño de símbolo = superficie cosechada</strong><small>Referencias municipales, no polígonos de parcelas</small></div>';
   app.appendChild(mapLegend);
   const live=node("span","v8-loading-state");live.id="v8-status";
-  const panel=right.querySelector(".eo-right-top");if(panel)panel.appendChild(live);
+  if(top)top.appendChild(live);
   return true;
  }
  function set(id,value){const e=$(id);if(e)e.textContent=String(value);}
