@@ -3854,7 +3854,9 @@ function paintSource(n){
 selectedSource=(n+sources.length)%sources.length;var s=sources[selectedSource],d=s[english()?"en":"es"];
 q("#ghx-source-id").textContent=d.label;q("#ghx-source-title").textContent=d.title;
 q("#ghx-source-description").textContent=d.desc;q("#ghx-source-caveat").textContent=d.limit;
-q("#ghx-source-link").href=s.url;
+var sourceLink=q("#ghx-source-link");sourceLink.href=s.url;
+var sourceLinkText=sourceLink.querySelector("span");
+if(sourceLinkText)sourceLinkText.textContent=selectedSource===3?(english()?"Open GROWA laboratory":"Abrir laboratorio de GROWA"):(english()?"View official source":"Consultar fuente oficial");
 all("[data-ghx-source]").forEach(function(b,i){b.setAttribute("aria-selected",i===selectedSource?"true":"false");b.tabIndex=i===selectedSource?0:-1});
 all("[data-ghx-svg]").forEach(function(el,i){el.setAttribute("stroke",i===selectedSource?"#31794d":"#d0e0d0");el.setAttribute("stroke-width",i===selectedSource?"3":"2");el.setAttribute("fill",i===selectedSource?"#e2f2dc":"#f9fcf6")});
 }
@@ -3874,6 +3876,15 @@ all(".ghx-modal-results a").forEach(function(a){var hay=normalize((a.textContent
 q("#ghx-empty").hidden=visible>0;
 }
 function init(){
+/* Keep all existing sections intact; place only the new modules after the pre-existing methodology section. */
+var finalCta=q(".gh-final"),questionsBlock=q("#ghx-questions"),sourcesBlock=q("#ghx-stack");
+if(finalCta&&questionsBlock&&sourcesBlock){home.insertBefore(questionsBlock,finalCta);home.insertBefore(sourcesBlock,finalCta)}
+var heroShortcuts=q(".gh-hero-shortcuts");
+if(heroShortcuts&&!heroShortcuts.querySelector(".ghx-hero-shortcut")){
+var heroQuestion=document.createElement("a");heroQuestion.href="#ghx-questions";heroQuestion.className="ghx-hero-shortcut";
+heroQuestion.textContent=english()?"Guided questions ↗":"Explorar por pregunta ↗";
+heroShortcuts.appendChild(heroQuestion)
+}
 all("[data-ghx-question]").forEach(function(b,i){b.addEventListener("click",function(){paintQuestion(i)});
 b.addEventListener("keydown",function(e){var next=null;if(["ArrowDown","ArrowRight"].includes(e.key))next=i+1;if(["ArrowUp","ArrowLeft"].includes(e.key))next=i-1;if(e.key==="Home")next=0;if(e.key==="End")next=questions.length-1;if(next!==null){e.preventDefault();paintQuestion(next);all("[data-ghx-question]")[selectedQuestion].focus()}})});
 all("[data-ghx-source]").forEach(function(b,i){b.addEventListener("click",function(){paintSource(i)});
@@ -3890,7 +3901,7 @@ if(e.key==="Escape"){e.preventDefault();modalClose();return}
 if(e.key==="Tab"){var items=all("#ghx-modal button,#ghx-modal input,#ghx-modal a").filter(function(el){return !el.hidden&&el.offsetParent!==null});if(items.length){var first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}}
 }
 });
-window.addEventListener("growa:language-change",function(){paintQuestion(selectedQuestion);paintSource(selectedSource);var input=q("#ghx-module-search");if(input){input.placeholder=english()?"Search maps, crops, climate, satellite…":"Busca mapas, cultivos, clima, satélite…";input.setAttribute("aria-label",english()?"Search modules":"Buscar módulos")}q("#ghx-modal-close")?.setAttribute("aria-label",english()?"Close":"Cerrar")});
+window.addEventListener("growa:language-change",function(){paintQuestion(selectedQuestion);paintSource(selectedSource);var input=q("#ghx-module-search");if(input){input.placeholder=english()?"Search maps, crops, climate, satellite…":"Busca mapas, cultivos, clima, satélite…";input.setAttribute("aria-label",english()?"Search modules":"Buscar módulos")}q("#ghx-modal-close")?.setAttribute("aria-label",english()?"Close":"Cerrar");var heroLink=q(".ghx-hero-shortcut");if(heroLink)heroLink.textContent=english()?"Guided questions ↗":"Explorar por pregunta ↗"});
 paintQuestion(0);paintSource(0);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
